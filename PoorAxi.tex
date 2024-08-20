@@ -1,0 +1,405 @@
+\documentclass{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{babel}
+\usetheme{Darmstadt}
+
+\newcommand{\pipe}{\ |\ }
+
+\newcommand{\fun}[2]{\lambda #1. #2}
+\newcommand{\app}[2]{#1\ #2}
+\newcommand{\pair}[2]{(#1, #2)}
+\newcommand{\outl}[1][]{\texttt{outl}\ #1}
+\newcommand{\outr}[1][]{\texttt{outr}\ #1}
+\newcommand{\inl}[1][]{\texttt{inl}\ #1}
+\newcommand{\inr}[1][]{\texttt{inr}\ #1}
+\newcommand{\case}[3]{\texttt{case}\ #1\ \texttt{of}\ (#2, #3)}
+\newcommand{\unit}{()}
+\newcommand{\elimEmpty}[1][]{\texttt{elim}_{\textbf{0}}\ #1}
+
+\newcommand{\Fun}[2]{#1 \to #2}
+\newcommand{\Prod}[2]{#1 \times #2}
+\newcommand{\Sum}[2]{#1 + #2}
+\newcommand{\Unit}{\textbf{1}}
+\newcommand{\Empty}{\textbf{0}}
+
+\newcommand{\True}{\top}
+\newcommand{\False}{\bot}
+\newcommand{\Not}[1]{\neg #1}
+\newcommand{\Or}[2]{#1 \lor #2}
+\renewcommand{\And}[2]{#1 \land #2}
+\newcommand{\Impl}[2]{#1 \Rightarrow #2}
+\newcommand{\Iff}[2]{#1 \Leftrightarrow #2}
+
+\newcommand{\All}[2]{\forall #1. #2}
+\newcommand{\Ex}[2]{\exists #1. #2}
+
+\newcommand{\Eq}[3][]{#2 =_{#1} #3}
+
+\newcommand{\typing}[3]{#1 \vdash #2 : #3}
+\newcommand{\computation}[4]{#1 \vdash #2 \equiv #3 : #4}
+\newcommand{\prop}[2]{#1 \vdash #2\ \texttt{prop}}
+\newcommand{\holds}[3]{#1 \pipe #2 \vdash #3}
+
+\newcommand{\infrule}[2]{\displaystyle \frac{#1}{#2}}
+
+\newcommand{\subst}[3]{#1\left[#2 := #3\right]}
+
+\title{STLC with Logic: Poor Man's Future Axi}
+
+\begin{document}
+
+\frame{\titlepage}
+
+\section{Intro}
+
+\begin{frame}{Grammar}
+
+Terms: \\
+$e ::=$ \\
+\qquad $x \pipe \fun{x}{e} \pipe \app{e_1}{e_2} \pipe$ \\
+\qquad $\pair{e_1}{e_2} \pipe \outl[e] \pipe \outr[e] \pipe$ \\
+\qquad $\inl[e] \pipe \inr[e] \pipe \case{e}{x_1.e_1}{x_2.e_2} \pipe$ \\
+\qquad $\unit \pipe \elimEmpty{e}$
+
+\vspace{2em}
+
+Types: \\
+$A, B ::= \Fun{A}{B} \pipe \Prod{A}{B} \pipe \Sum{A}{B} \pipe \Unit \pipe \Empty$
+
+\vspace{1em}
+
+Propositions: \\
+$P, Q ::=$ \\
+\qquad $\True \pipe \False \pipe \Not{P} \pipe \Or{P}{Q} \pipe \And{P}{Q} \pipe \Impl{P}{Q} \pipe \Iff{P}{Q} \pipe$ \\
+\qquad $\All{x : A}{P} \pipe \Ex{x : A}{P} \pipe$ \\
+\qquad $\Eq[A]{e_1}{e_2}$
+
+\end{frame}
+
+\begin{frame}{Contexts}
+
+Typing contexts: \\
+$\Gamma ::= \cdot \pipe \Gamma, x : A$
+
+\vspace{1em}
+
+Assumption contexts: \\
+$\Delta ::= \cdot \pipe \Delta, P$
+
+\vspace{1em}
+
+We make use of two kinds of contexts. Typing contexts tell us what the type of a variable is. They are used during typechecking and to see if a proposition is well-formed (since propositions can depend on term variables). Assumption contexts tell us what assumption were made. They are used during proof checking.
+
+\end{frame}
+
+\begin{frame}{Judgements}
+
+\vspace{1em}
+
+Typing judgement: \\
+$\typing{\Gamma}{e}{A}$ -- in typing context $\Gamma$, term $e$ is of type $A$
+
+\vspace{1em}
+
+Computational equality judgement: \\
+$\computation{\Gamma}{e_1}{e_2}{A}$ -- in typing context $\Gamma$, terms $e_1$ and $e_2$ are computationally equal. This is the judgment we use to represent computation.
+
+\vspace{1em}
+
+Well-formed proposition judgement: \\
+$\prop{\Gamma}{P}$ -- in the typing context $\Gamma$, proposition $P$ is well-formed. We need this judgement to prevent forming propositions that contain free variables.
+
+\vspace{1em}
+
+True proposition judgement: \\
+$\holds{\Gamma}{\Delta}{P}$ -- in typing context $\Gamma$ and propositional context $\Delta$, proposition $P$ holds.
+
+\end{frame}
+
+\section{Typing}
+
+\begin{frame}{Typing -- basics}
+
+We treat typing contexts $\Gamma$ as sets, so that there is no need for the so-called structural rules. The basic rule for typing is that variables have whatever type the typing context tells us.
+
+\vspace{2em}
+
+\begin{center}
+  $\infrule{(x : A) \in \Gamma}{\typing{\Gamma}{x}{A}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Typing -- main rules}
+
+\begin{center}
+  $\infrule{\typing{\Gamma, x : A}{e}{B}}{\typing{\Gamma}{\fun{x}{e}}{\Fun{A}{B}}}$ \quad
+  $\infrule{\typing{\Gamma}{f}{\Fun{A}{B}} \quad \typing{\Gamma}{a}{A}}{\typing{\Gamma}{\app{f}{a}}{B}}$
+
+  \vspace{2em}
+
+  $\infrule{\typing{\Gamma}{a}{A} \quad \typing{\Gamma}{b}{B}}{\typing{\Gamma}{\pair{a}{b}}{\Prod{A}{B}}}$ \quad
+  $\infrule{\typing{\Gamma}{e}{\Prod{A}{B}}}{\typing{\Gamma}{\outl[e]}{A}}$ \quad
+  $\infrule{\typing{\Gamma}{e}{\Prod{A}{B}}}{\typing{\Gamma}{\outr[e]}{B}}$
+
+  \vspace{2em}
+
+  $\infrule{\typing{\Gamma}{e}{A}}{\typing{\Gamma}{\inl[e]}{\Sum{A}{B}}}$ \quad
+  $\infrule{\typing{\Gamma}{e}{B}}{\typing{\Gamma}{\inr[e]}{\Sum{A}{B}}}$
+
+  \vspace{2em}
+
+  $\infrule{\typing{\Gamma}{e}{\Sum{A}{B}} \quad \typing{\Gamma, a : A}{e_1}{C} \quad \typing{\Gamma, b : B}{e_2}{C}}{\typing{\Gamma}{\case{e}{a.e_1}{b.e_2}}{C}}$
+
+  \vspace{2em}
+
+  $\infrule{}{\typing{\Gamma}{\unit}{\Unit}}$ \quad
+  $\infrule{\typing{\Gamma}{e}{\Empty}}{\typing{\Gamma}{\elimEmpty[e]}{A}}$
+\end{center}
+
+\end{frame}
+
+\section{Computation}
+
+\begin{frame}{Computation -- basics}
+
+Computational equality is a congruence relation, i.e. an equivalence relation (reflexive, symmetric, transitive) which preserves all term constructors.
+
+\vspace{2em}
+
+\begin{center}
+  $\infrule{\typing{\Gamma}{e}{A}}{\computation{\Gamma}{e}{e}{A}}$
+
+  \vspace{2em}
+
+  $\infrule{\computation{\Gamma}{e_1}{e_2}{A}}{\computation{\Gamma}{e_2}{e_1}{A}}$
+
+  \vspace{2em}
+
+  $\infrule{\computation{\Gamma}{e_1}{e_2}{A} \quad \computation{\Gamma}{e_2}{e_3}{A}}{\computation{\Gamma}{e_1}{e_3}{A}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Computation -- congruence rules}
+
+\begin{center}
+  $\infrule{\computation{\Gamma, x : A}{e}{e'}{B}}{\computation{\Gamma}{\fun{x}{e}}{\fun{x}{e'}}{\Fun{A}{B}}}$ \quad
+  $\infrule{\computation{\Gamma}{f}{f'}{\Fun{A}{B}} \quad \computation{\Gamma}{a}{a'}{A}}{\computation{\Gamma}{\app{f}{a}}{\app{f'}{a'}}{B}}$
+
+  \vspace{1em}
+
+  $\infrule{\computation{\Gamma}{a}{a'}{A} \quad \computation{\Gamma}{b}{b'}{B}}{\computation{\Gamma}{\pair{a}{b}}{\pair{a'}{b'}}{\Prod{A}{B}}}$
+
+  \vspace{1em}
+
+  $\infrule{\computation{\Gamma}{e}{e'}{\Prod{A}{B}}}{\computation{\Gamma}{\outl[e]}{\outl[e']}{A}}$ \quad
+  $\infrule{\computation{\Gamma}{e}{e'}{\Prod{A}{B}}}{\computation{\Gamma}{\outr[e]}{\outr[e']}{B}}$
+
+  \vspace{1em}
+
+  $\infrule{\computation{\Gamma}{e}{e'}{A}}{\computation{\Gamma}{\inl[e]}{\inl[e']}{\Sum{A}{B}}}$ \quad
+  $\infrule{\computation{\Gamma}{e}{e'}{B}}{\computation{\Gamma}{\inr[e]}{\inr[e']}{\Sum{A}{B}}}$
+
+  \vspace{1em}
+
+  $\infrule{\computation{\Gamma}{e}{e'}{\Sum{A}{B}} \quad \computation{\Gamma, a : A}{e_1}{e_1'}{C} \quad \computation{\Gamma, b : B}{e_2}{e_2'}{C}}{\computation{\Gamma}{\case{e}{a.e_1}{b.e_2}}{\case{e'}{a.e_1'}{b.e_2'}}{C}}$
+
+  \vspace{1em}
+
+  $\infrule{}{\computation{\Gamma}{\unit}{\unit}{\Unit}}$ \quad
+  $\infrule{\computation{\Gamma}{e}{e'}{\Empty}}{\computation{\Gamma}{\elimEmpty[e]}{\elimEmpty[e']}{A}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Computation -- main rules}
+
+\begin{center}
+  $\infrule{\typing{\Gamma, x : A}{b}{B} \quad \typing{\Gamma}{a}{A}}{\computation{\Gamma}{\app{(\fun{x}{b})}{a}}{\subst{b}{x}{a}}{B}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{f}{\Fun{A}{B}} \quad \typing{\Gamma}{g}{\Fun{A}{B}} \quad \computation{\Gamma, x : A}{\app{f}{x}}{\app{g}{x}}{B}}{\computation{\Gamma}{f}{g}{\Fun{A}{B}}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{a}{A} \quad \typing{\Gamma}{b}{B}}{\computation{\Gamma}{\outl[\pair{a}{b}]}{a}{A}}$ \quad
+  $\infrule{\typing{\Gamma}{a}{A} \quad \typing{\Gamma}{b}{B}}{\computation{\Gamma}{\outr[\pair{a}{b}]}{b}{B}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{e_1, e_2}{\Prod{A}{B}}  \quad \computation{\Gamma}{\outl[e_1]}{\outl[e_2]}{A} \quad \computation{\Gamma}{\outr[e_1]}{\outr[e_2]}{B}}{\computation{\Gamma}{e_1}{e_2}{\Prod{A}{B}}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{a}{A} \quad \typing{\Gamma, x : A}{e_1}{C} \quad \typing{\Gamma, y : B}{e_2}{C}}{\computation{\Gamma}{\case{(\inl[a])}{x.e_1}{y.e_2}}{\subst{e_1}{x}{a}}{C}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{b}{B} \quad \typing{\Gamma, x : A}{e_1}{C} \quad \typing{\Gamma, y : B}{e_2}{C}}{\computation{\Gamma}{\case{(\inr[b])}{x.e_1}{y.e_2}}{\subst{e_2}{y}{b}}{C}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Computation -- unit and empty}
+
+The uniqueness rules for unit and empty are a bit unusual: we assert that all terms of these types are computationally equal.
+
+\vspace{2em}
+
+\begin{center}
+  $\infrule{\typing{\Gamma}{e_1}{\Unit} \quad \typing{\Gamma}{e_2}{\Unit}}{\computation{\Gamma}{e_1}{e_2}{\Unit}}$
+
+  \vspace{2em}
+
+  $\infrule{\typing{\Gamma}{e_1}{\Empty} \quad \typing{\Gamma}{e_2}{\Empty}}{\computation{\Gamma}{e_1}{e_2}{\Empty}}$
+\end{center}
+\end{frame}
+
+\section{Logic}
+
+\begin{frame}{Logic -- well-formed propositions}
+
+\begin{center}
+  $\infrule{}{\prop{\Gamma}{\True}}$ \quad
+  $\infrule{}{\prop{\Gamma}{\False}}$
+
+  \vspace{1em}
+
+  $\infrule{\prop{\Gamma}{P}}{\prop{\Gamma}{\Not{P}}}$ \\
+
+  \vspace{1em}
+
+  $\infrule{\prop{\Gamma}{P} \quad \prop{\Gamma}{Q}}{\prop{\Gamma}{\Or{P}{Q}}}$ \quad
+  $\infrule{\prop{\Gamma}{P} \quad \prop{\Gamma}{Q}}{\prop{\Gamma}{\And{P}{Q}}}$
+
+  \vspace{1em}
+
+  $\infrule{\prop{\Gamma}{P} \quad \prop{\Gamma}{Q}}{\prop{\Gamma}{\Impl{P}{Q}}}$ \quad
+  $\infrule{\prop{\Gamma}{P} \quad \prop{\Gamma}{Q}}{\prop{\Gamma}{\Iff{P}{Q}}}$ \quad
+
+  \vspace{1em}
+
+  $\infrule{\prop{\Gamma, x : A}{P}}{\prop{\Gamma}{\All{x : A}{P}}}$ \quad
+  $\infrule{\prop{\Gamma, x : A}{P}}{\prop{\Gamma}{\Ex{x : A}{P}}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{e_1}{A} \quad \typing{\Gamma}{e_2}{A}}{\prop{\Gamma}{\Eq[A]{e_1}{e_2}}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Logic -- basics}
+
+The truth judgement depends on two contexts -- a typing context $\Gamma$ and an assumption context $\Delta$. We treat both of them as sets, which means we don't need any structural rules. We treat negation and equivalence as defined, so that no rules are needed to handle them. We define $\Not{P}$ to be $\Impl{P}{\False}$ and $\Iff{P}{Q}$ to be $\And{\Impl{P}{Q}}{\Impl{Q}{P}}$. The basic rule of our logic is that we can use assumptions from the assumption context.
+
+\vspace{2em}
+
+\begin{center}
+  $\infrule{P \in \Delta}{\holds{\Gamma}{\Delta}{P}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Logic -- connectives}
+
+\begin{center}
+  $\infrule{\holds{\Gamma}{\Delta, P}{Q}}{\holds{\Gamma}{\Delta}{\Impl{P}{Q}}}$ \quad
+  $\infrule{\holds{\Gamma}{\Delta}{\Impl{P}{Q}} \quad \holds{\Gamma}{\Delta}{P}}{\holds{\Gamma}{\Delta}{Q}}$
+
+  \vspace{1em}
+
+  $\infrule{\holds{\Gamma}{\Delta}{P} \quad \holds{\Gamma}{\Delta}{Q}}{\holds{\Gamma}{\Delta}{\And{P}{Q}}}$ \quad
+  $\infrule{\holds{\Gamma}{\Delta}{\And{P}{Q}}}{\holds{\Gamma}{\Delta}{P}}$ \quad
+  $\infrule{\holds{\Gamma}{\Delta}{\And{P}{Q}}}{\holds{\Gamma}{\Delta}{Q}}$
+
+  \vspace{1em}
+
+  $\infrule{\holds{\Gamma}{\Delta}{P}}{\holds{\Gamma}{\Delta}{\Or{P}{Q}}}$ \quad
+  $\infrule{\holds{\Gamma}{\Delta}{Q}}{\holds{\Gamma}{\Delta}{\Or{P}{Q}}}$
+
+  \vspace{1em}
+
+  $\infrule{\holds{\Gamma}{\Delta}{\Or{P}{Q}} \quad \holds{\Gamma}{\Delta, P}{R} \quad \holds{\Gamma}{\Delta, Q}{R}}{\holds{\Gamma}{\Delta}{R}}$
+
+  \vspace{1em}
+
+  $\infrule{}{\holds{\Gamma}{\Delta}{\True}}$ \quad
+  $\infrule{\holds{\Gamma}{\Delta}{\False}}{\holds{\Gamma}{\Delta}{P}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Logic -- quantifiers}
+
+\begin{center}
+  $\infrule{\holds{\Gamma, x : A}{\Delta}{P}}{\holds{\Gamma}{\Delta}{\All{x : A}{P}}}$ \qquad
+  $\infrule{\holds{\Gamma}{\Delta}{\All{x : A}{P}} \quad \typing{\Gamma}{a}{A}}{\holds{\Gamma}{\Delta}{\subst{P}{x}{a}}}$
+
+  \vspace{2em}
+
+  $\infrule{\typing{\Gamma}{a}{A} \quad \holds{\Gamma}{\Delta}{\subst{P}{x}{a}}}{\holds{\Gamma}{\Delta}{\Ex{x : A}{P}}}$
+
+  \vspace{1em}
+
+  $\infrule{\holds{\Gamma}{\Delta}{\Ex{x : A}{P}} \quad \holds{\Gamma, x : A}{\Delta, P}{R}}{\holds{\Gamma}{\Delta}{R}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Logic -- equality}
+
+Propositional equality is an equivalence relation (note that we handle reflexivity by referring to computational equality) that can be substitued in proofs.
+
+\vspace{2em}
+
+\begin{center}
+  $\infrule{\computation{\Gamma}{e_1}{e_2}{A}}{\holds{\Gamma}{\Delta}{\Eq[A]{e_1}{e_2}}}$
+
+  \vspace{1em}
+
+  $\infrule{\holds{\Gamma}{\Delta}{\Eq[A]{e_1}{e_2}}}{\holds{\Gamma}{\Delta}{\Eq[A]{e_2}{e_1}}}$
+
+  \vspace{1em}
+
+  $\infrule{\holds{\Gamma}{\Delta}{\Eq[A]{e_1}{e_2}} \quad \holds{\Gamma}{\Delta}{\Eq[A]{e_2}{e_3}}}{\holds{\Gamma}{\Delta}{\Eq[A]{e_1}{e_3}}}$
+
+  \vspace{1em}
+
+  $\infrule{\holds{\Gamma}{\Delta}{\Eq[A]{e_1}{e_2}} \quad \prop{\Gamma, x : A}{P} \quad \holds{\Gamma}{\Delta}{\subst{P}{x}{e_1}}}{\holds{\Gamma}{\Delta}{\subst{P}{x}{e_2}}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Logic -- classical logic}
+
+There are many ways to add classical logic to the system, so we pick one at random.
+
+\vspace{2em}
+
+\begin{center}
+  $\infrule{\prop{\Gamma}{P} \quad \holds{\Gamma}{\Delta, P}{R} \quad \holds{\Gamma}{\Delta, \Not{P}}{R}}{\holds{\Gamma}{\Delta}{R}}$
+\end{center}
+
+\end{frame}
+
+\section{Exercises}
+
+\begin{frame}{Exercises}
+
+Just seeing a system like this won't be enough to convince anybody that it makes sense. Therefore, doing some exercises would be advised:
+
+\begin{itemize}
+  \item Assume that $A$ and $B$ are arbitrary types. Define functions $\texttt{swap} : \Fun{\Prod{A}{B}}{\Prod{B}{A}}$ and $\texttt{sweep} : \Fun{\Sum{A}{B}}{\Sum{B}{A}}$ and prove that they are involutive. Are they computationally involutive, i.e. involutive up to computational equality?
+  \item Can you prove that every term of a product type is a pair?
+  \item Can you prove that every term of a sum type is either $\inl[a]$ or $\inr[b]$ for some $a$ and $b$?
+  \item Extend the system with a type of booleans.
+  \item Extend the system with a type of natural numbers.
+  \item Write an interesting program and prove an interesting theorem about it.
+\end{itemize}
+
+\end{frame}
+
+\end{document}
