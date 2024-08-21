@@ -13,14 +13,17 @@
 \newcommand{\inl}[1][]{\texttt{inl}\ #1}
 \newcommand{\inr}[1][]{\texttt{inr}\ #1}
 \newcommand{\case}[3]{\texttt{case}\ #1\ \texttt{of}\ (#2, #3)}
-\newcommand{\unit}{()}
+%\newcommand{\unit}{()}
+\newcommand{\unit}{\texttt{unit}}
 \newcommand{\elimEmpty}[1][]{\texttt{elim}_{\textbf{0}}\ #1}
 
 \newcommand{\Fun}[2]{#1 \to #2}
 \newcommand{\Prod}[2]{#1 \times #2}
 \newcommand{\Sum}[2]{#1 + #2}
-\newcommand{\Unit}{\textbf{1}}
-\newcommand{\Empty}{\textbf{0}}
+%\newcommand{\Unit}{\textbf{1}}
+%\newcommand{\Empty}{\textbf{0}}
+\newcommand{\Unit}{\texttt{Unit}}
+\newcommand{\Empty}{\texttt{Empty}}
 
 \newcommand{\True}{\top}
 \newcommand{\False}{\bot}
@@ -44,13 +47,19 @@
 
 \newcommand{\subst}[3]{#1\left[#2 := #3\right]}
 
-\title{STLC with Logic: Poor Man's Future Axi}
+\title{STLC with Logic: Poor Man's Axi}
 
 \begin{document}
 
 \frame{\titlepage}
 
 \section{Intro}
+
+\begin{frame}{Intro}
+
+These slides propose a basic calculus that could serve as a Poor Man's Axi. The system is Simply Typed Lambda Calculus with a first-order logic on top of it that let's us reason about program equality. At the end, we extend the system with booleans and natural numbers.
+
+\end{frame}
 
 \begin{frame}{Grammar}
 
@@ -102,12 +111,12 @@ $\typing{\Gamma}{e}{A}$ -- in typing context $\Gamma$, term $e$ is of type $A$
 \vspace{1em}
 
 Computational equality judgement: \\
-$\computation{\Gamma}{e_1}{e_2}{A}$ -- in typing context $\Gamma$, terms $e_1$ and $e_2$ are computationally equal. This is the judgment we use to represent computation.
+$\computation{\Gamma}{e_1}{e_2}{A}$ -- in typing context $\Gamma$, terms $e_1$ and $e_2$ are computationally equal. Intuitively, $e_1$ and $e_2$ compute to the same normal form.
 
 \vspace{1em}
 
 Well-formed proposition judgement: \\
-$\prop{\Gamma}{P}$ -- in the typing context $\Gamma$, proposition $P$ is well-formed. We need this judgement to prevent forming propositions that contain free variables.
+$\prop{\Gamma}{P}$ -- in the typing context $\Gamma$, proposition $P$ is well-formed.
 
 \vspace{1em}
 
@@ -163,9 +172,15 @@ We treat typing contexts $\Gamma$ as sets, so that there is no need for the so-c
 
 \begin{frame}{Computation -- basics}
 
-Computational equality is a congruence relation, i.e. an equivalence relation (reflexive, symmetric, transitive) which preserves all term constructors.
+We represent computation using the non-directed computational equality relation, which might be a bit unintuitive, but is a common practice.
 
-\vspace{2em}
+\vspace{1em}
+
+Computational equality is congruence relation, i.e. an equivalence relation (reflexive, symmetric, transitive) which preserves all term constructors and contains computation rules (this is where computation happens) and uniqueness rules (which tell us when two terms of a given type are equal, but are harder to interpret as computation steps). Note that computational equality is typed, i.e. there's a separate computational equality relation for each type.
+
+\end{frame}
+
+\begin{frame}{Computational equality -- equivalence relation}
 
 \begin{center}
   $\infrule{\typing{\Gamma}{e}{A}}{\computation{\Gamma}{e}{e}{A}}$
@@ -181,7 +196,7 @@ Computational equality is a congruence relation, i.e. an equivalence relation (r
 
 \end{frame}
 
-\begin{frame}{Computation -- congruence rules}
+\begin{frame}{Computational equality -- congruence rules}
 
 \begin{center}
   $\infrule{\computation{\Gamma, x : A}{e}{e'}{B}}{\computation{\Gamma}{\fun{x}{e}}{\fun{x}{e'}}{\Fun{A}{B}}}$ \quad
@@ -213,23 +228,15 @@ Computational equality is a congruence relation, i.e. an equivalence relation (r
 
 \end{frame}
 
-\begin{frame}{Computation -- main rules}
+\begin{frame}{Computational equality -- computation rules}
 
 \begin{center}
   $\infrule{\typing{\Gamma, x : A}{b}{B} \quad \typing{\Gamma}{a}{A}}{\computation{\Gamma}{\app{(\fun{x}{b})}{a}}{\subst{b}{x}{a}}{B}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{f}{\Fun{A}{B}} \quad \typing{\Gamma}{g}{\Fun{A}{B}} \quad \computation{\Gamma, x : A}{\app{f}{x}}{\app{g}{x}}{B}}{\computation{\Gamma}{f}{g}{\Fun{A}{B}}}$
-
-  \vspace{1em}
-
   $\infrule{\typing{\Gamma}{a}{A} \quad \typing{\Gamma}{b}{B}}{\computation{\Gamma}{\outl[\pair{a}{b}]}{a}{A}}$ \quad
   $\infrule{\typing{\Gamma}{a}{A} \quad \typing{\Gamma}{b}{B}}{\computation{\Gamma}{\outr[\pair{a}{b}]}{b}{B}}$
-
-  \vspace{1em}
-
-  $\infrule{\typing{\Gamma}{e_1, e_2}{\Prod{A}{B}}  \quad \computation{\Gamma}{\outl[e_1]}{\outl[e_2]}{A} \quad \computation{\Gamma}{\outr[e_1]}{\outr[e_2]}{B}}{\computation{\Gamma}{e_1}{e_2}{\Prod{A}{B}}}$
 
   \vspace{1em}
 
@@ -242,22 +249,34 @@ Computational equality is a congruence relation, i.e. an equivalence relation (r
 
 \end{frame}
 
-\begin{frame}{Computation -- unit and empty}
-
-The uniqueness rules for unit and empty are a bit unusual: we assert that all terms of these types are computationally equal.
-
-\vspace{2em}
+\begin{frame}{Computational equality -- uniqueness rules}
 
 \begin{center}
+  $\infrule{\typing{\Gamma}{f}{\Fun{A}{B}} \quad \typing{\Gamma}{g}{\Fun{A}{B}} \quad \computation{\Gamma, x : A}{\app{f}{x}}{\app{g}{x}}{B}}{\computation{\Gamma}{f}{g}{\Fun{A}{B}}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{e_1, e_2}{\Prod{A}{B}}  \quad \computation{\Gamma}{\outl[e_1]}{\outl[e_2]}{A} \quad \computation{\Gamma}{\outr[e_1]}{\outr[e_2]}{B}}{\computation{\Gamma}{e_1}{e_2}{\Prod{A}{B}}}$
+
+  \vspace{1em}
+
   $\infrule{\typing{\Gamma}{e_1}{\Unit} \quad \typing{\Gamma}{e_2}{\Unit}}{\computation{\Gamma}{e_1}{e_2}{\Unit}}$
 
   \vspace{2em}
 
   $\infrule{\typing{\Gamma}{e_1}{\Empty} \quad \typing{\Gamma}{e_2}{\Empty}}{\computation{\Gamma}{e_1}{e_2}{\Empty}}$
+
 \end{center}
+
 \end{frame}
 
 \section{Logic}
+
+\begin{frame}{Logic -- well-formed proposition judgement}
+
+The role of the well-formed proposition judgement is twofold: to ensure that propositions are well-scoped (i.e. they don't contain free variables), and that propositional equality is formed only from well-typed terms. This judgement depends only on the typing context.
+
+\end{frame}
 
 \begin{frame}{Logic -- well-formed propositions}
 
@@ -291,9 +310,13 @@ The uniqueness rules for unit and empty are a bit unusual: we assert that all te
 
 \end{frame}
 
-\begin{frame}{Logic -- basics}
+\begin{frame}{Logic -- true proposition judgement}
 
-The truth judgement depends on two contexts -- a typing context $\Gamma$ and an assumption context $\Delta$. We treat both of them as sets, which means we don't need any structural rules. We treat negation and equivalence as defined, so that no rules are needed to handle them. We define $\Not{P}$ to be $\Impl{P}{\False}$ and $\Iff{P}{Q}$ to be $\And{\Impl{P}{Q}}{\Impl{Q}{P}}$. The basic rule of our logic is that we can use assumptions from the assumption context.
+The true proposition judgement depends on two contexts -- a typing context $\Gamma$ and an assumption context $\Delta$. We treat both of them as sets, which means we don't need any structural rules. We treat negation and equivalence as defined, so that no rules are needed to handle them. We define $\Not{P}$ to be $\Impl{P}{\False}$ and $\Iff{P}{Q}$ to be $\And{\Impl{P}{Q}}{\Impl{Q}{P}}$.
+
+\vspace{1em}
+
+The basic rule of our logic is that we can use assumptions from the assumption context.
 
 \vspace{2em}
 
@@ -304,6 +327,10 @@ The truth judgement depends on two contexts -- a typing context $\Gamma$ and an 
 \end{frame}
 
 \begin{frame}{Logic -- connectives}
+
+The rules for connectives are entirely standard.
+
+\vspace{1em}
 
 \begin{center}
   $\infrule{\holds{\Gamma}{\Delta, P}{Q}}{\holds{\Gamma}{\Delta}{\Impl{P}{Q}}}$ \quad
@@ -332,6 +359,12 @@ The truth judgement depends on two contexts -- a typing context $\Gamma$ and an 
 
 \end{frame}
 
+\begin{frame}{Logic -- substitution}
+
+To express rules for quantifiers, we need the operation of substituting a term for a variable in a proposition. Our notation is $\subst{P}{x}{e}$ for proposition $P$ in which variable $x$ was substituted with term $e$. To define it, we would of course also need an analogous operation for substituting in terms. Unfortunately, I'm too lazy (and short on time) to define them here, but it shouldn't be hard for you to define it yourself.
+
+\end{frame}
+
 \begin{frame}{Logic -- quantifiers}
 
 \begin{center}
@@ -351,7 +384,7 @@ The truth judgement depends on two contexts -- a typing context $\Gamma$ and an 
 
 \begin{frame}{Logic -- equality}
 
-Propositional equality is an equivalence relation (note that we handle reflexivity by referring to computational equality) that can be substitued in proofs.
+Propositional equality is an equivalence relation that can be substitued in proofs. Note that we handle reflexivity by referring to computational equality.
 
 \vspace{2em}
 
@@ -368,19 +401,112 @@ Propositional equality is an equivalence relation (note that we handle reflexivi
 
   \vspace{1em}
 
-  $\infrule{\holds{\Gamma}{\Delta}{\Eq[A]{e_1}{e_2}} \quad \prop{\Gamma, x : A}{P} \quad \holds{\Gamma}{\Delta}{\subst{P}{x}{e_1}}}{\holds{\Gamma}{\Delta}{\subst{P}{x}{e_2}}}$
+  $\infrule{\holds{\Gamma}{\Delta}{\Eq[A]{e_1}{e_2}} \quad \prop{\Gamma, x : A}{P} \quad \holds{\Gamma}{\Delta}{\subst{P}{x}{e_2}}}{\holds{\Gamma}{\Delta}{\subst{P}{x}{e_1}}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Logic -- reasoning by cases on terms}
+
+Note that so far, we haven't got any rules that allow reasoning by cases on terms. For example, we might want to reason by cases not on a disjunction, but on a term $e : \Sum{A}{B}$. To be able to do this, we need to add some more rules. Note that these rules are needed only for positive types (i.e. sums and the empty type), because for negative types the uniqueness rules suffice. Also, there's a slight discrepancy in the presentation between empty and sums, but don't worry about it.
+
+\vspace{1em}
+
+\begin{center}
+  $\infrule{\typing{\Gamma}{e}{\Empty}}{\holds{\Gamma}{\Delta}{P}}$
+
+  \vspace{1em}
+
+  $\infrule{\holds{\Gamma, a : A}{\Delta}{\subst{P}{x}{\inl[a]}} \quad \holds{\Gamma, b : B}{\Delta}{\subst{P}{x}{\inr[b]}}}{\holds{\Gamma}{\Delta}{\All{x : \Sum{A}{B}}{P}}}$
 \end{center}
 
 \end{frame}
 
 \begin{frame}{Logic -- classical logic}
 
-There are many ways to add classical logic to the system, so we pick one at random.
+There are many ways to add classical logic to the system, but we'll have a rule which basically says that we can reason by cases on any proposition.
 
 \vspace{2em}
 
 \begin{center}
   $\infrule{\prop{\Gamma}{P} \quad \holds{\Gamma}{\Delta, P}{R} \quad \holds{\Gamma}{\Delta, \Not{P}}{R}}{\holds{\Gamma}{\Delta}{R}}$
+\end{center}
+
+\end{frame}
+
+\section{More types}
+
+\newcommand{\Bool}{\texttt{Bool}}
+\newcommand{\true}{\texttt{true}}
+\newcommand{\false}{\texttt{false}}
+\newcommand{\boolElim}[3]{\texttt{if}\ #1\ \texttt{then}\ #2\ \texttt{else}\ #3}
+
+\begin{frame}{New types -- intro}
+
+Our current menagerie of type constructors isn't very expressive. In fact, since the only base types are unit and empty, all we can do is finite types and functions between them. Let's what we need to do to add a new type constructor to our language. Note that to save space, we will omit the congruence rules for computational equality.
+
+\end{frame}
+
+\begin{frame}{More types -- booleans}
+
+\begin{center}
+  $\infrule{}{\typing{\Gamma}{\true}{\Bool}}$ \quad
+  $\infrule{}{\typing{\Gamma}{\false}{\Bool}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{e}{\Bool} \quad \typing{\Gamma}{e_1}{A} \quad \typing{\Gamma}{e_2}{A}}{\typing{\Gamma}{\boolElim{e}{e_1}{e_2}}{A}}$
+
+  \vspace{1em}
+
+  %$\infrule{}{\computation{\Gamma}{\true}{\true}{\Bool}}$ \quad
+  %$\infrule{}{\computation{\Gamma}{\false}{\false}{\Bool}}$ \quad
+
+  %\vspace{1em}
+
+  %$\infrule{\computation{\Gamma}{e}{e'}{\Bool} \quad \computation{\Gamma}{e_1}{e_1'}{A} \quad \computation{\Gamma}{e_2}{e_2'}{A}}{\computation{\Gamma}{\boolElim{e}{e_1}{e_2}}{\boolElim{e'}{e_1'}{e_2'}}{A}}$
+
+  %\vspace{1em}
+
+  $\infrule{\typing{\Gamma}{e_1}{A} \quad \typing{\Gamma}{e_2}{A}}{\computation{\Gamma}{\boolElim{\true}{e_1}{e_2}}{e_1}{A}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{e_1}{A} \quad \typing{\Gamma}{e_2}{A}}{\computation{\Gamma}{\boolElim{\false}{e_1}{e_2}}{e_2}{A}}$
+
+  \vspace{1em}
+
+  $\infrule{\holds{\Gamma}{\Delta}{\subst{P}{b}{\true}} \quad \holds{\Gamma}{\Delta}{\subst{P}{b}{\false}}}{\holds{\Gamma}{\Delta}{\All{b : \Bool}{P}}}$
+\end{center}
+
+\end{frame}
+
+\newcommand{\Nat}{\mathbb{N}}
+\newcommand{\zero}{\texttt{zero}}
+\renewcommand{\succ}[1][]{\texttt{succ}\ #1}
+\newcommand{\elimNat}[3]{\texttt{elim}_\Nat\ #1\ #2\ #3}
+
+\begin{frame}{More types -- natural numbers}
+
+\begin{center}
+  $\infrule{}{\typing{\Gamma}{\zero}{\Nat}}$ \quad
+  $\infrule{\typing{\Gamma}{n}{\Nat}}{\typing{\Gamma}{\succ[n]}{\Nat}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{z}{A} \quad \typing{\Gamma}{s}{\Fun{A}{A}} \quad \typing{\Gamma}{n}{\Nat}}{\typing{\Gamma}{\elimNat{z}{s}{n}}{A}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{z}{A} \quad \typing{\Gamma}{s}{\Fun{A}{A}}}{\computation{\Gamma}{\elimNat{z}{s}{\zero}}{z}{A}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{z}{A} \quad \typing{\Gamma}{s}{\Fun{A}{A}} \quad \typing{\Gamma}{n}{\Nat}}{\computation{\Gamma}{\elimNat{z}{s}{(\succ[n])}}{\app{s}{(\elimNat{z}{s}{n})}}{A}}$
+
+  \vspace{1em}
+
+  $\infrule{\holds{\Gamma}{\Delta}{\subst{P}{n}{\zero}} \quad \holds{\Gamma}{\Delta, \subst{P}{n}{n'}}{\subst{P}{n}{\succ[n']}}}{\holds{\Gamma}{\Delta}{\All{n : \Nat}{P}}}$
 \end{center}
 
 \end{frame}
@@ -395,8 +521,7 @@ Just seeing a system like this won't be enough to convince anybody that it makes
   \item Assume that $A$ and $B$ are arbitrary types. Define functions $\texttt{swap} : \Fun{\Prod{A}{B}}{\Prod{B}{A}}$ and $\texttt{sweep} : \Fun{\Sum{A}{B}}{\Sum{B}{A}}$ and prove that they are involutive. Are they computationally involutive, i.e. involutive up to computational equality?
   \item Can you prove that every term of a product type is a pair?
   \item Can you prove that every term of a sum type is either $\inl[a]$ or $\inr[b]$ for some $a$ and $b$?
-  \item Extend the system with a type of booleans.
-  \item Extend the system with a type of natural numbers.
+  \item Define addition of natural numbers and prove that it is associative and commutative.
   \item Write an interesting program and prove an interesting theorem about it.
 \end{itemize}
 
