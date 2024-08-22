@@ -5,6 +5,14 @@
 
 \newcommand{\pipe}{\ |\ }
 
+\newcommand{\Fun}[2]{#1 \to #2}
+\newcommand{\Prod}[2]{#1 \times #2}
+\newcommand{\Sum}[2]{#1 + #2}
+%\newcommand{\Unit}{\textbf{1}}
+%\newcommand{\Empty}{\textbf{0}}
+\newcommand{\Unit}{\texttt{Unit}}
+\newcommand{\Empty}{\texttt{Empty}}
+
 \newcommand{\fun}[2]{\lambda #1. #2}
 \newcommand{\app}[2]{#1\ #2}
 \newcommand{\pair}[2]{(#1, #2)}
@@ -15,15 +23,7 @@
 \newcommand{\case}[3]{\texttt{case}\ #1\ \texttt{of}\ (#2, #3)}
 %\newcommand{\unit}{()}
 \newcommand{\unit}{\texttt{unit}}
-\newcommand{\elimEmpty}[1][]{\texttt{elim}_{\textbf{0}}\ #1}
-
-\newcommand{\Fun}[2]{#1 \to #2}
-\newcommand{\Prod}[2]{#1 \times #2}
-\newcommand{\Sum}[2]{#1 + #2}
-%\newcommand{\Unit}{\textbf{1}}
-%\newcommand{\Empty}{\textbf{0}}
-\newcommand{\Unit}{\texttt{Unit}}
-\newcommand{\Empty}{\texttt{Empty}}
+\newcommand{\elimEmpty}[1][]{\texttt{elim}_{\Empty}\ #1}
 
 \newcommand{\True}{\top}
 \newcommand{\False}{\bot}
@@ -38,14 +38,14 @@
 
 \newcommand{\Eq}[3][]{#2 =_{#1} #3}
 
+\newcommand{\subst}[3]{#1\left[#2 := #3\right]}
+
 \newcommand{\typing}[3]{#1 \vdash #2 : #3}
 \newcommand{\computation}[4]{#1 \vdash #2 \equiv #3 : #4}
 \newcommand{\prop}[2]{#1 \vdash #2\ \texttt{prop}}
 \newcommand{\holds}[3]{#1 \pipe #2 \vdash #3}
 
-\newcommand{\infrule}[2]{\displaystyle \frac{#1}{#2}}
-
-\newcommand{\subst}[3]{#1\left[#2 := #3\right]}
+\newcommand{\infrule}[3][]{\displaystyle \frac{#2}{#3} #1}
 
 \title{STLC with Logic: Poor Man's Axi}
 
@@ -57,7 +57,7 @@
 
 \begin{frame}{Intro}
 
-These slides propose a basic calculus that could serve as a Poor Man's Axi. The system is Simply Typed Lambda Calculus with a first-order logic on top of it that let's us reason about program equality. At the end, we extend the system with booleans and natural numbers.
+These slides propose a basic calculus that could serve as a Poor Man's Axi. The system is Simply Typed Lambda Calculus with a first-order logic on top of it that lets us reason about program equality. At the end, we extend the system with booleans and natural numbers and consider adding some other additional features.
 
 \end{frame}
 
@@ -134,7 +134,7 @@ We treat typing contexts $\Gamma$ as sets, so that there is no need for the so-c
 \vspace{2em}
 
 \begin{center}
-  $\infrule{(x : A) \in \Gamma}{\typing{\Gamma}{x}{A}}$
+  $\infrule[]{(x : A) \in \Gamma}{\typing{\Gamma}{x}{A}}$
 \end{center}
 
 \end{frame}
@@ -172,15 +172,65 @@ We treat typing contexts $\Gamma$ as sets, so that there is no need for the so-c
 
 \begin{frame}{Computation -- basics}
 
-We represent computation using the non-directed computational equality relation, which might be a bit unintuitive, but is a common practice.
+We represent computation using the non-directed computational equality relation, which might be a bit unintuitive, but is a common practice. Note that computational equality is typed, i.e. there's a separate computational equality relation for each type. Computational equality draws its meaning from two basic kinds of rules, computation rules and uniqueness rules. Intuitively, two terms of a given type are computationally equal when they compute to the same result, where the meaning of ``compute'' is specified by the computation rules and the meaning of ``the same'' is specified by the uniqueness rules. Formally, computational equality is the congruence closure of computation and uniqueness rules, i.e. the least equivalence relation that preserves all term constructors and contains the computation and uniqueness rules.
 
-\vspace{1em}
+\end{frame}
 
-Computational equality is congruence relation, i.e. an equivalence relation (reflexive, symmetric, transitive) which preserves all term constructors and contains computation rules (this is where computation happens) and uniqueness rules (which tell us when two terms of a given type are equal, but are harder to interpret as computation steps). Note that computational equality is typed, i.e. there's a separate computational equality relation for each type.
+\begin{frame}{Computational equality -- substitution}
+
+To state the computation rules, we need a substitution operation. Our notation is $\subst{e_1}{x}{e_2}$ for a term $e_1$ in which term $e_2$ was substituted for the variable $x$. Unfortunately, I'm too lazy to define substitution here, but it shouldn't be hard for you to define it yourself.
+
+\end{frame}
+
+\begin{frame}{Computational equality -- computation rules}
+
+Computation rules describe the most essential computation steps. For example, what happens when we project the first element out of a pair? Note that not all types have computation rules. For example, $\Unit$ and $\Empty$ have no computation rules because there's no computation going on in these types.
+
+\begin{center}
+  $\infrule{\typing{\Gamma, x : A}{b}{B} \quad \typing{\Gamma}{a}{A}}{\computation{\Gamma}{\app{(\fun{x}{b})}{a}}{\subst{b}{x}{a}}{B}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{a}{A} \quad \typing{\Gamma}{b}{B}}{\computation{\Gamma}{\outl[\pair{a}{b}]}{a}{A}}$ \quad
+  $\infrule{\typing{\Gamma}{a}{A} \quad \typing{\Gamma}{b}{B}}{\computation{\Gamma}{\outr[\pair{a}{b}]}{b}{B}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{a}{A} \quad \typing{\Gamma, x : A}{e_1}{C} \quad \typing{\Gamma, y : B}{e_2}{C}}{\computation{\Gamma}{\case{(\inl[a])}{x.e_1}{y.e_2}}{\subst{e_1}{x}{a}}{C}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{b}{B} \quad \typing{\Gamma, x : A}{e_1}{C} \quad \typing{\Gamma, y : B}{e_2}{C}}{\computation{\Gamma}{\case{(\inr[b])}{x.e_1}{y.e_2}}{\subst{e_2}{y}{b}}{C}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Computational equality -- uniqueness rules}
+
+Uniqueness rules establish that every term of a given type is computationally equal to a constructor of the type. For example, every term of a product type is a pair. The rules for $\Unit$ and $\Empty$ are a bit broader -- they establish that all terms of these types are equal. Note that there are no uniqueness rules for sums.
+
+\begin{center}
+  $\infrule{\typing{\Gamma}{f}{\Fun{A}{B}}}{\computation{\Gamma}{f}{\fun{x}{\app{f}{x}}}{\Fun{A}{B}}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{e}{\Prod{A}{B}}}{\computation{\Gamma}{e}{\pair{\outl[e]}{\outr[e]}}{\Prod{A}{B}}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{e_1}{\Unit} \quad \typing{\Gamma}{e_2}{\Unit}}{\computation{\Gamma}{e_1}{e_2}{\Unit}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{e_1}{\Empty} \quad \typing{\Gamma}{e_2}{\Empty}}{\computation{\Gamma}{e_1}{e_2}{\Empty}}$
+
+\end{center}
 
 \end{frame}
 
 \begin{frame}{Computational equality -- equivalence relation}
+
+Computational equality is an equivalence relation, i.e. it is reflexive, symmetric and transitive.
 
 \begin{center}
   $\infrule{\typing{\Gamma}{e}{A}}{\computation{\Gamma}{e}{e}{A}}$
@@ -228,45 +278,13 @@ Computational equality is congruence relation, i.e. an equivalence relation (ref
 
 \end{frame}
 
-\begin{frame}{Computational equality -- computation rules}
+\begin{frame}{Computational equality -- closing remarks}
 
-\begin{center}
-  $\infrule{\typing{\Gamma, x : A}{b}{B} \quad \typing{\Gamma}{a}{A}}{\computation{\Gamma}{\app{(\fun{x}{b})}{a}}{\subst{b}{x}{a}}{B}}$
+Note that because of the uniqueness rule for $\Unit$, we don't need the congruence rule for $\unit$. Moreover, we don't need the congruence rule for $\unit$ even more, because we already know that comutational equality is reflexive.
 
-  \vspace{1em}
+\vspace{1em}
 
-  $\infrule{\typing{\Gamma}{a}{A} \quad \typing{\Gamma}{b}{B}}{\computation{\Gamma}{\outl[\pair{a}{b}]}{a}{A}}$ \quad
-  $\infrule{\typing{\Gamma}{a}{A} \quad \typing{\Gamma}{b}{B}}{\computation{\Gamma}{\outr[\pair{a}{b}]}{b}{B}}$
-
-  \vspace{1em}
-
-  $\infrule{\typing{\Gamma}{a}{A} \quad \typing{\Gamma, x : A}{e_1}{C} \quad \typing{\Gamma, y : B}{e_2}{C}}{\computation{\Gamma}{\case{(\inl[a])}{x.e_1}{y.e_2}}{\subst{e_1}{x}{a}}{C}}$
-
-  \vspace{1em}
-
-  $\infrule{\typing{\Gamma}{b}{B} \quad \typing{\Gamma, x : A}{e_1}{C} \quad \typing{\Gamma, y : B}{e_2}{C}}{\computation{\Gamma}{\case{(\inr[b])}{x.e_1}{y.e_2}}{\subst{e_2}{y}{b}}{C}}$
-\end{center}
-
-\end{frame}
-
-\begin{frame}{Computational equality -- uniqueness rules}
-
-\begin{center}
-  $\infrule{\typing{\Gamma}{f}{\Fun{A}{B}} \quad \typing{\Gamma}{g}{\Fun{A}{B}} \quad \computation{\Gamma, x : A}{\app{f}{x}}{\app{g}{x}}{B}}{\computation{\Gamma}{f}{g}{\Fun{A}{B}}}$
-
-  \vspace{1em}
-
-  $\infrule{\typing{\Gamma}{e_1, e_2}{\Prod{A}{B}}  \quad \computation{\Gamma}{\outl[e_1]}{\outl[e_2]}{A} \quad \computation{\Gamma}{\outr[e_1]}{\outr[e_2]}{B}}{\computation{\Gamma}{e_1}{e_2}{\Prod{A}{B}}}$
-
-  \vspace{1em}
-
-  $\infrule{\typing{\Gamma}{e_1}{\Unit} \quad \typing{\Gamma}{e_2}{\Unit}}{\computation{\Gamma}{e_1}{e_2}{\Unit}}$
-
-  \vspace{2em}
-
-  $\infrule{\typing{\Gamma}{e_1}{\Empty} \quad \typing{\Gamma}{e_2}{\Empty}}{\computation{\Gamma}{e_1}{e_2}{\Empty}}$
-
-\end{center}
+Also note that in the congruence rule for $\Empty$, the premise is always true because of the uniqueness rule for $\Empty$, so it could be replaced with typing rules for $e$ and $e'$.
 
 \end{frame}
 
@@ -361,7 +379,7 @@ The rules for connectives are entirely standard.
 
 \begin{frame}{Logic -- substitution}
 
-To express rules for quantifiers, we need the operation of substituting a term for a variable in a proposition. Our notation is $\subst{P}{x}{e}$ for proposition $P$ in which variable $x$ was substituted with term $e$. To define it, we would of course also need an analogous operation for substituting in terms. Unfortunately, I'm too lazy (and short on time) to define them here, but it shouldn't be hard for you to define it yourself.
+To express rules for quantifiers, we need the operation of substituting a term for a variable in a proposition. Our notation is $\subst{P}{x}{e}$ for proposition $P$ in which variable $x$ was substituted with term $e$.
 
 \end{frame}
 
@@ -406,6 +424,18 @@ Propositional equality is an equivalence relation that can be substitued in proo
 
 \end{frame}
 
+\begin{frame}{Logic -- equality for particular types}
+
+The general rules from the previous slide are not sufficient to prove all equations that we would like. For example, there's nothing we can use to prove function extensionality. We can fix this issue by adding rules that handle equality on a type-by-type basis. For now, the only additional rule we need concerns equality of functions, but with more types we might need more.
+
+\vspace{1em}
+
+\begin{center}
+  $\infrule{\holds{\Gamma}{\Delta}{\All{x : A}{\Eq[B]{\app{f}{x}}{\app{g}{x}}}}}{\holds{\Gamma}{\Delta}{\Eq[\Fun{A}{B}]{f}{g}}}$
+\end{center}
+
+\end{frame}
+
 \begin{frame}{Logic -- reasoning by cases on terms}
 
 Note that so far, we haven't got any rules that allow reasoning by cases on terms. For example, we might want to reason by cases not on a disjunction, but on a term $e : \Sum{A}{B}$. To be able to do this, we need to add some more rules. Note that these rules are needed only for positive types (i.e. sums and the empty type), because for negative types the uniqueness rules suffice. Also, there's a slight discrepancy in the presentation between empty and sums, but don't worry about it.
@@ -434,6 +464,24 @@ There are many ways to add classical logic to the system, but we'll have a rule 
 
 \end{frame}
 
+\section{Exercises}
+
+\begin{frame}{Exercises}
+
+Just seeing a system like this won't be enough to convince anybody that it makes sense. Therefore, doing some exercises would be advised:
+
+\begin{itemize}
+  \item Assume that $A$ and $B$ are arbitrary types. Define functions $\texttt{swap} : \Fun{\Prod{A}{B}}{\Prod{B}{A}}$ and $\texttt{sweep} : \Fun{\Sum{A}{B}}{\Sum{B}{A}}$ and prove that they are involutive. Are they computationally involutive, i.e. involutive up to computational equality?
+  \item Can you prove that every term of a product type is a pair?
+  \item Can you prove that every term of a sum type is either $\inl[a]$ or $\inr[b]$ for some $a$ and $b$?
+  \item Add booleans to the language
+  \item Add natural numbers to the language.
+  \item Define addition of natural numbers and prove that it is associative and commutative.
+  \item Write an interesting program and prove an interesting theorem about it.
+\end{itemize}
+
+\end{frame}
+
 \section{More types}
 
 \newcommand{\Bool}{\texttt{Bool}}
@@ -441,7 +489,7 @@ There are many ways to add classical logic to the system, but we'll have a rule 
 \newcommand{\false}{\texttt{false}}
 \newcommand{\boolElim}[3]{\texttt{if}\ #1\ \texttt{then}\ #2\ \texttt{else}\ #3}
 
-\begin{frame}{New types -- intro}
+\begin{frame}{More types -- intro}
 
 Our current menagerie of type constructors isn't very expressive. In fact, since the only base types are unit and empty, all we can do is finite types and functions between them. Let's what we need to do to add a new type constructor to our language. Note that to save space, we will omit the congruence rules for computational equality.
 
@@ -506,24 +554,249 @@ Our current menagerie of type constructors isn't very expressive. In fact, since
 
   \vspace{1em}
 
-  $\infrule{\holds{\Gamma}{\Delta}{\subst{P}{n}{\zero}} \quad \holds{\Gamma}{\Delta, \subst{P}{n}{n'}}{\subst{P}{n}{\succ[n']}}}{\holds{\Gamma}{\Delta}{\All{n : \Nat}{P}}}$
+  $\infrule{\holds{\Gamma}{\Delta}{\subst{P}{n}{\zero}} \quad \holds{\Gamma, n' : \Nat}{\Delta, \subst{P}{n}{n'}}{\subst{P}{n}{\succ[n']}}}{\holds{\Gamma}{\Delta}{\All{n : \Nat}{P}}}$
 \end{center}
 
 \end{frame}
 
-\section{Exercises}
+\newcommand{\List}[1]{\text{List}\ #1}
+\newcommand{\nil}{\texttt{nil}}
+\newcommand{\cons}[2]{\texttt{cons}\ #1\ #2}
+\newcommand{\elimList}[3]{\texttt{fold}\ #1\ #2\ #3}
 
-\begin{frame}{Exercises}
+\begin{frame}{More types -- lists}
 
-Just seeing a system like this won't be enough to convince anybody that it makes sense. Therefore, doing some exercises would be advised:
+\begin{center}
+  $\infrule{}{\typing{\Gamma}{\nil}{\List{A}}}$ \quad
+  $\infrule{\typing{\Gamma}{h}{A} \quad \typing{\Gamma}{t}{\List{A}}}{\typing{\Gamma}{\cons{h}{t}}{\List{A}}}$
 
-\begin{itemize}
-  \item Assume that $A$ and $B$ are arbitrary types. Define functions $\texttt{swap} : \Fun{\Prod{A}{B}}{\Prod{B}{A}}$ and $\texttt{sweep} : \Fun{\Sum{A}{B}}{\Sum{B}{A}}$ and prove that they are involutive. Are they computationally involutive, i.e. involutive up to computational equality?
-  \item Can you prove that every term of a product type is a pair?
-  \item Can you prove that every term of a sum type is either $\inl[a]$ or $\inr[b]$ for some $a$ and $b$?
-  \item Define addition of natural numbers and prove that it is associative and commutative.
-  \item Write an interesting program and prove an interesting theorem about it.
-\end{itemize}
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{n}{A} \quad \typing{\Gamma}{c}{\Fun{A}{\Fun{B}{B}}} \quad \typing{\Gamma}{l}{\List{A}}}{\typing{\Gamma}{\elimList{n}{c}{l}}{B}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{n}{B} \quad \typing{\Gamma}{c}{\Fun{A}{\Fun{B}{B}}}}{\computation{\Gamma}{\elimList{n}{c}{\nil}}{n}{B}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{n}{B} \quad \typing{\Gamma}{c}{\Fun{A}{\Fun{B}{B}}} \quad \typing{\Gamma}{h}{A} \quad \typing{\Gamma}{t}{\List{A}}}{\computation{\Gamma}{\elimList{n}{c}{(\cons{h}{t})}}{\app{\app{c}{h}}{(\elimList{n}{c}{t})}}{B}}$
+
+  \vspace{1em}
+
+  $\infrule{\holds{\Gamma}{\Delta}{\subst{P}{l}{\nil}} \quad \holds{\Gamma, h : A, t : \List{A}}{\Delta, \subst{P}{l}{t}}{\subst{P}{l}{\cons{h}{t}}}}{\holds{\Gamma}{\Delta}{\All{l : \List{A}}{P}}}$
+\end{center}
+
+\end{frame}
+
+\newcommand{\AxiStream}[1]{\texttt{Stream}\ #1}
+\newcommand{\hd}[1][]{\texttt{hd}\ #1}
+\newcommand{\tl}[1][]{\texttt{tl}\ #1}
+\newcommand{\introStream}[2]{\texttt{scons}\ #1\ #2}
+
+\begin{frame}{More types -- streams}
+
+\begin{center}
+
+  $\infrule{\typing{\Gamma}{s}{\AxiStream{A}}}{\typing{\Gamma}{\hd[s]}{A}}$ \quad
+  $\infrule{\typing{\Gamma}{s}{\AxiStream{A}}}{\typing{\Gamma}{\tl[s]}{\AxiStream{A}}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{a}{A} \quad \typing{\Gamma}{f}{\Fun{A}{A}}}{\typing{\Gamma}{\introStream{a}{f}}{\AxiStream{A}}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{a}{A} \quad \typing{\Gamma}{f}{\Fun{A}{A}}}{\computation{\Gamma}{\hd[(\introStream{a}{f})]}{a}{A}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{a}{A} \quad \typing{\Gamma}{f}{\Fun{A}{A}}}{\computation{\Gamma}{\tl[(\introStream{a}{f})]}{\introStream{(\app{f}{a})}{f}}{\AxiStream{A}}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{More types -- streams 2}
+
+Stream do have all the congruence rules we would expect, but they don't have any uniqueness rules.
+
+\vspace{1em}
+
+\begin{center}
+
+  $\infrule{\computation{\Gamma}{s}{s'}{A}}{\computation{\Gamma}{\hd[s]}{\hd[s']}{A}}$ \quad
+  $\infrule{\computation{\Gamma}{s}{s'}{A}}{\computation{\Gamma}{\tl[s]}{\tl[s']}{\AxiStream{A}}}$
+
+  \vspace{1em}
+
+  $\infrule{\computation{\Gamma}{a}{a'}{A} \quad \computation{\Gamma}{f}{f'}{\Fun{A}{A}}}{\computation{\Gamma}{\introStream{a}{f}}{\introStream{a'}{f'}}{\AxiStream{A}}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{More types -- streams 3}
+
+But the real question is, how do proofs by coinduction look like?
+
+\vspace{1em}
+
+\begin{center}
+
+  %$\infrule{\holds{\Gamma}{\Delta, R}{\Eq[A]{\hd{s_1}}{\hd{s_2}}} \quad \holds{\Gamma}{\Delta, R}{\subst{\subst{R}{x}{\tl[s_1]}}{y}{\tl[s_2]}}}{\holds{\Gamma}{\Delta}{\Eq[\AxiStream{A}]{s_1}{s_2}}}$
+\end{center}
+
+\end{frame}
+
+\section{Additional features}
+
+\begin{frame}{Additional features -- intro}
+
+What other features might we add to our language? Let's find out.
+
+\end{frame}
+
+\newcommand{\elimUnit}[2]{\texttt{elim}_{\Unit}\ #1\ #2}
+
+\begin{frame}{Additional features -- eliminator for $\Unit$}
+
+One little silly thing that we don't have is an eliminator for the $\Unit$ type.
+
+\begin{center}
+  $\infrule{\typing{\Gamma}{e}{A} \quad \typing{\Gamma}{u}{\Unit}}{\typing{\Gamma}{\elimUnit{e}{u}}{A}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{e}{A}}{\computation{\Gamma}{\elimUnit{e}{\unit}}{e}{A}}$
+
+  \vspace{1em}
+
+  $\infrule{\computation{\Gamma}{e}{e'}{A} \quad \computation{\Gamma}{u}{u'}{\Unit}}{\computation{\Gamma}{\elimUnit{e}{u}}{\elimUnit{e'}{u'}}{A}}$
+
+  \vspace{1em}
+
+  $\infrule{\holds{\Gamma}{\Delta}{\subst{P}{x}{\unit}}}{\holds{\Gamma}{\Delta}{\All{x : \Unit}{P}}}$
+\end{center}
+
+\end{frame}
+
+\newcommand{\letin}[3]{\texttt{let}\ #1 = #2\ \texttt{in}\ #3}
+
+\begin{frame}{Additional features -- let bindings}
+
+\begin{center}
+  $\infrule{\typing{\Gamma}{e_1}{A} \quad \typing{\Gamma, x : A}{e_2}{B}}{\typing{\Gamma}{\letin{x}{e_1}{e_2}}{B}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{\letin{x}{e_1}{e_2}}{A}}{\computation{\Gamma}{\letin{x}{e_1}{e_2}}{\subst{e_2}{x}{e_1}}{A}}$
+\end{center}
+
+\end{frame}
+
+\newcommand{\ctype}[2]{#1 : #2}
+\newcommand{\cdef}[3]{#1 : #2 :\equiv #3}
+
+\begin{frame}{Additional features -- definitions in context}
+
+We can change the definition of typing contexts to allow putting definitions in them. This can be handy for expressing let bindings and also makes fully formal derivations much shorter.
+
+$\Gamma ::= \cdot \pipe \Gamma, \ctype{x}{A} \pipe \Gamma, \cdef{x}{A}{e}$
+
+\vspace{1em}
+
+\begin{center}
+  $\infrule{\typing{\Gamma}{e}{A}}{\computation{\Gamma, \cdef{x}{A}{e}}{x}{e}{A}}$
+\end{center}
+
+\end{frame}
+
+\newcommand{\annot}[2]{(#1 : #2)}
+
+\begin{frame}{Additional features -- type annotations}
+
+\begin{center}
+  $\infrule{\typing{\Gamma}{e}{A}}{\typing{\Gamma}{\annot{e}{A}}{A}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{e}{A}}{\computation{\Gamma}{\annot{e}{A}}{e}{A}}$
+\end{center}
+
+\end{frame}
+
+\newcommand{\recordtype}[1]{\{#1\}}
+\newcommand{\record}[1]{\{#1\}}
+\newcommand{\field}[2]{#1 := #2}
+\newcommand{\fields}[3]{#1_{#3} := #2_{#3}}
+\newcommand{\proj}[2]{#2.#1}
+
+\begin{frame}{Additional features -- record types}
+
+\begin{center}
+  $\infrule{\forall i. \quad \typing{\Gamma}{e_i}{A_i}}{\typing{\Gamma}{\record{\fields{l}{e}{i}}}{\recordtype{\ctype{l_i}{A_i}}}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{e}{R} \quad (\ctype{l}{A}) \in R}{\typing{\Gamma}{\proj{l}{e}}{A}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{\record{\fields{l}{e}{i}}}{\recordtype{\ctype{l_i}{A_i}}} \quad \exists i. l = l_i}{\computation{\Gamma}{\proj{l}{\record{\fields{l}{e}{i}}}}{e_i}{A_i}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{r}{\recordtype{\ctype{l_i}{A_i}}}}{\computation{\Gamma}{r}{\record{\field{l_i}{\proj{l_i}{r}}}}{\recordtype{\ctype{l_i}{A_i}}}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Additional features -- variant types}
+
+\begin{center}
+
+\end{center}
+
+\end{frame}
+
+\newcommand{\subsettype}[3]{\{#1 : #2\ |\ #3\}}
+
+\begin{frame}{Additional features -- subset types}
+
+For a moment, let's say that types can depend on propositions. This means that we have a well-formed type judgement which depends both on typing and assumption contexts. We can now express subset types.
+
+\vspace{1em}
+
+\begin{center}
+  $\infrule{\Gamma \vdash A\ \texttt{type} \quad \prop{\Gamma, \ctype{x}{A}}{P}}{\Gamma \vdash \subsettype{x}{A}{P}\ \texttt{type}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma \pipe \Delta}{e}{A} \quad \holds{\Gamma}{\Delta}{P}}{\typing{\Gamma \pipe \Delta}{\texttt{intro}\ e}{\subsettype{x}{A}{P}}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma \pipe \Delta}{e}{\subsettype{x}{A}{P}}}{\typing{\Gamma \pipe \Delta}{\texttt{proj}\ e}{A}}$ \quad
+  $\infrule{\typing{\Gamma \pipe \Delta}{e}{\subsettype{x}{A}{P}}}{\holds{\Gamma}{\Delta}{\subst{P}{x}{e}}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma \pipe \Delta}{e}{\subsettype{x}{A}{P}}}{\computation{\Gamma}{\texttt{proj}\ (\texttt{intro}\ e)}{e}{A}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Additional features -- quotient types}
+
+TODO
+\end{frame}
+
+\newcommand{\subtype}[2]{#1 <: #2}
+
+\begin{frame}{Additional features -- subtyping}
+
+\begin{center}
+  $\infrule{\subtype{A}{A'} \quad \subtype{B}{B'}}{\subtype{\Prod{A}{B}}{\Prod{A'}{B'}}}$
+\end{center}
 
 \end{frame}
 
