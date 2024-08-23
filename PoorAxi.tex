@@ -495,6 +495,30 @@ Our current menagerie of type constructors isn't very expressive. In fact, since
 
 \end{frame}
 
+\newcommand{\elimUnit}[2]{\texttt{elim}_{\Unit}\ #1\ #2}
+
+\begin{frame}{More types -- eliminator for $\Unit$}
+
+One little silly thing that we don't have is an eliminator for the $\Unit$ type. It's useless, but why not?
+
+\begin{center}
+  $\infrule{\typing{\Gamma}{e}{A} \quad \typing{\Gamma}{u}{\Unit}}{\typing{\Gamma}{\elimUnit{e}{u}}{A}}$
+
+  \vspace{1em}
+
+  $\infrule{\typing{\Gamma}{e}{A}}{\computation{\Gamma}{\elimUnit{e}{\unit}}{e}{A}}$
+
+  \vspace{1em}
+
+  $\infrule{\computation{\Gamma}{e}{e'}{A} \quad \computation{\Gamma}{u}{u'}{\Unit}}{\computation{\Gamma}{\elimUnit{e}{u}}{\elimUnit{e'}{u'}}{A}}$
+
+  \vspace{1em}
+
+  $\infrule{\holds{\Gamma}{\Delta}{\subst{P}{x}{\unit}}}{\holds{\Gamma}{\Delta}{\All{x : \Unit}{P}}}$
+\end{center}
+
+\end{frame}
+
 \begin{frame}{More types -- booleans}
 
 \begin{center}
@@ -618,7 +642,7 @@ Our current menagerie of type constructors isn't very expressive. In fact, since
 
 \begin{frame}{More types -- streams 2}
 
-Stream do have all the congruence rules we would expect, but they don't have any uniqueness rules.
+Streams do have all the congruence rules we would expect, but they don't have any uniqueness rules.
 
 \vspace{1em}
 
@@ -655,26 +679,29 @@ What other features might we add to our language? Let's find out.
 
 \end{frame}
 
-\newcommand{\elimUnit}[2]{\texttt{elim}_{\Unit}\ #1\ #2}
+\newcommand{\emptyctx}{\cdot}
+\newcommand{\ctype}[2]{#1 : #2}
+\newcommand{\cdef}[3]{#1 : #2 :\equiv #3}
+\newcommand{\context}[1]{#1\ \texttt{ctx}}
 
-\begin{frame}{Additional features -- eliminator for $\Unit$}
+\begin{frame}{Additional features -- definitions in context}
 
-One little silly thing that we don't have is an eliminator for the $\Unit$ type.
+We can change the definition of typing contexts to allow putting definitions in them. This can be handy for expressing let bindings and also makes fully formal derivations much shorter. However, it also requires adding a new judgement, the well-formed context judgement, because we want to allow adding only well-typed definitions to the context. We must also remember to include these definitions in computational equality.
+
+$\Gamma ::= \cdot \pipe \Gamma, \ctype{x}{A} \pipe \Gamma, \cdef{x}{A}{e}$
+
+\vspace{1em}
+
+%$\context{\Gamma}$ -- $\Gamma$ is a well-formed typing context.
 
 \begin{center}
-  $\infrule{\typing{\Gamma}{e}{A} \quad \typing{\Gamma}{u}{\Unit}}{\typing{\Gamma}{\elimUnit{e}{u}}{A}}$
+  $\infrule{}{\context{\emptyctx}}$ \quad
+  $\infrule{\context{\Gamma} \quad x \notin \Gamma}{\context{\Gamma, x : A}}$ \quad
+  $\infrule{\context{\Gamma} \quad \typing{\Gamma}{e}{A} \quad x \notin \Gamma}{\context{\Gamma, \cdef{x}{A}{e}}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{e}{A}}{\computation{\Gamma}{\elimUnit{e}{\unit}}{e}{A}}$
-
-  \vspace{1em}
-
-  $\infrule{\computation{\Gamma}{e}{e'}{A} \quad \computation{\Gamma}{u}{u'}{\Unit}}{\computation{\Gamma}{\elimUnit{e}{u}}{\elimUnit{e'}{u'}}{A}}$
-
-  \vspace{1em}
-
-  $\infrule{\holds{\Gamma}{\Delta}{\subst{P}{x}{\unit}}}{\holds{\Gamma}{\Delta}{\All{x : \Unit}{P}}}$
+  $\infrule{\context{\Gamma, \cdef{x}{A}{e}}}{\computation{\Gamma, \cdef{x}{A}{e}}{x}{e}{A}}$
 \end{center}
 
 \end{frame}
@@ -689,23 +716,16 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
   \vspace{1em}
 
   $\infrule{\typing{\Gamma}{\letin{x}{e_1}{e_2}}{A}}{\computation{\Gamma}{\letin{x}{e_1}{e_2}}{\subst{e_2}{x}{e_1}}{A}}$
+
+  \vspace{1em}
+
+  $\infrule{\computation{\Gamma}{e_1}{e_1'}{A} \quad \computation{\Gamma}{e_2}{e_2'}{B}}{\computation{\Gamma}{\letin{x}{e_1}{e_2}}{\letin{x}{e_1'}{e_2'}}{B}}$
 \end{center}
 
-\end{frame}
-
-\newcommand{\ctype}[2]{#1 : #2}
-\newcommand{\cdef}[3]{#1 : #2 :\equiv #3}
-
-\begin{frame}{Additional features -- definitions in context}
-
-We can change the definition of typing contexts to allow putting definitions in them. This can be handy for expressing let bindings and also makes fully formal derivations much shorter.
-
-$\Gamma ::= \cdot \pipe \Gamma, \ctype{x}{A} \pipe \Gamma, \cdef{x}{A}{e}$
-
-\vspace{1em}
+If definitions from the previous slide are available, we might modify the computation rule to make use of it.
 
 \begin{center}
-  $\infrule{\typing{\Gamma}{e}{A}}{\computation{\Gamma, \cdef{x}{A}{e}}{x}{e}{A}}$
+  $\infrule{\computation{\Gamma, \cdef{x}{A}{e_1}}{e_2}{e_2'}{B}}{\computation{\Gamma}{\letin{x}{e_1}{e_2}}{e_2'}{B}}$
 \end{center}
 
 \end{frame}
@@ -733,70 +753,77 @@ $\Gamma ::= \cdot \pipe \Gamma, \ctype{x}{A} \pipe \Gamma, \cdef{x}{A}{e}$
 \begin{frame}{Additional features -- record types}
 
 \begin{center}
-  $\infrule{\forall i. \quad \typing{\Gamma}{e_i}{A_i}}{\typing{\Gamma}{\record{\fields{l}{e}{i}}}{\recordtype{\ctype{l_i}{A_i}}}}$
+  $\infrule{\forall i. \quad \typing{\Gamma}{e_i}{A_i}}{\typing{\Gamma}{\record{\fields{\ell}{e}{i}}}{\recordtype{\ctype{\ell_i}{A_i}}}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{e}{R} \quad (\ctype{l}{A}) \in R}{\typing{\Gamma}{\proj{l}{e}}{A}}$
+  $\infrule{\typing{\Gamma}{e}{R} \quad (\ctype{\ell}{A}) \in R}{\typing{\Gamma}{\proj{\ell}{e}}{A}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{\record{\fields{l}{e}{i}}}{\recordtype{\ctype{l_i}{A_i}}} \quad \exists i. l = l_i}{\computation{\Gamma}{\proj{l}{\record{\fields{l}{e}{i}}}}{e_i}{A_i}}$
+  $\infrule{\typing{\Gamma}{\record{\fields{\ell}{e}{i}}}{\recordtype{\ctype{\ell_i}{A_i}}} \quad \exists i. \ell = \ell_i}{\computation{\Gamma}{\proj{l}{\record{\fields{\ell}{e}{i}}}}{e_i}{A_i}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{r}{\recordtype{\ctype{l_i}{A_i}}}}{\computation{\Gamma}{r}{\record{\field{l_i}{\proj{l_i}{r}}}}{\recordtype{\ctype{l_i}{A_i}}}}$
+  $\infrule{\typing{\Gamma}{r}{\recordtype{\ctype{\ell_i}{A_i}}}}{\computation{\Gamma}{r}{\record{\field{\ell_i}{\proj{\ell_i}{r}}}}{\recordtype{\ctype{\ell_i}{A_i}}}}$
 \end{center}
 
 \end{frame}
 
-\begin{frame}{Additional features -- variant types}
+\newcommand{\refinement}[3]{\{#1 : #2\ |\ #3\}}
 
-\begin{center}
+\begin{frame}{Additional features -- refinement types}
 
-\end{center}
-
-\end{frame}
-
-\newcommand{\subsettype}[3]{\{#1 : #2\ |\ #3\}}
-
-\begin{frame}{Additional features -- subset types}
-
-For a moment, let's say that types can depend on propositions. This means that we have a well-formed type judgement which depends both on typing and assumption contexts. We can now express subset types.
+For a moment, let's say that types can depend on propositions. This means that we have a well-formed type judgement which depends both on typing contexts and assumption contexts. We can now express refinement types.
 
 \vspace{1em}
 
 \begin{center}
-  $\infrule{\Gamma \vdash A\ \texttt{type} \quad \prop{\Gamma, \ctype{x}{A}}{P}}{\Gamma \vdash \subsettype{x}{A}{P}\ \texttt{type}}$
+  $\infrule{\Gamma \vdash A\ \texttt{type} \quad \prop{\Gamma, \ctype{x}{A}}{P}}{\Gamma \vdash \refinement{x}{A}{P}\ \texttt{type}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma \pipe \Delta}{e}{A} \quad \holds{\Gamma}{\Delta}{P}}{\typing{\Gamma \pipe \Delta}{\texttt{intro}\ e}{\subsettype{x}{A}{P}}}$
+  $\infrule{\typing{\Gamma \pipe \Delta}{e}{A} \quad \holds{\Gamma}{\Delta}{P}}{\typing{\Gamma \pipe \Delta}{\texttt{intro}\ e}{\refinement{x}{A}{P}}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma \pipe \Delta}{e}{\subsettype{x}{A}{P}}}{\typing{\Gamma \pipe \Delta}{\texttt{proj}\ e}{A}}$ \quad
-  $\infrule{\typing{\Gamma \pipe \Delta}{e}{\subsettype{x}{A}{P}}}{\holds{\Gamma}{\Delta}{\subst{P}{x}{e}}}$
+  $\infrule{\typing{\Gamma \pipe \Delta}{e}{\refinement{x}{A}{P}}}{\typing{\Gamma \pipe \Delta}{\texttt{proj}\ e}{A}}$ \quad
+  $\infrule{\typing{\Gamma \pipe \Delta}{e}{\refinement{x}{A}{P}}}{\holds{\Gamma}{\Delta}{\subst{P}{x}{e}}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma \pipe \Delta}{e}{\subsettype{x}{A}{P}}}{\computation{\Gamma}{\texttt{proj}\ (\texttt{intro}\ e)}{e}{A}}$
+  $\infrule{\typing{\Gamma \pipe \Delta}{e}{\refinement{x}{A}{P}}}{\computation{\Gamma}{\texttt{proj}\ (\texttt{intro}\ e)}{e}{A}}$
 \end{center}
 
 \end{frame}
 
-\begin{frame}{Additional features -- quotient types}
+\begin{frame}{Additional features -- more, part 1}
 
-TODO
+\begin{itemize}
+  \item Variant types -- this is a feature dual to records. They are basically a first-class version of non-recursive algebraic data types.
+  \item Quotient types -- it is a language extension similar to refinement types, but they resemble set-theoretic quotients rather than subsets. They correspond to Athena's structures. They are absent from most varieties of type theory, but I'm not sure whether they won't be possible here.
+  \item Subtyping -- some types are now in a subtyping relation $A :< B$ and an $a : A$ can be used in every place where a term of type $B$ is expected.
+\end{itemize}
+
 \end{frame}
 
-\newcommand{\subtype}[2]{#1 <: #2}
+\begin{frame}{Additional features -- more, part 2}
 
-\begin{frame}{Additional features -- subtyping}
+\begin{itemize}
+  \item Parametric polymorphism -- a new type former $\forall \alpha. A$. It can be either explicit (need to manage the type arguments manually) or implicit (type arguments are inferred). The implicit approach is the most common, but it's also harder to implement.
+  \item Algebraic data types -- adding them in a clean manner is a bit complicated, because we either need to deal with general recursion or manage a plethora of checks, like coverage and termination.
+  \item Module system -- this will be a bit harder to model, but we could borrow it from ML and OCaml.
+\end{itemize}
 
-\begin{center}
-  $\infrule{\subtype{A}{A'} \quad \subtype{B}{B'}}{\subtype{\Prod{A}{B}}{\Prod{A'}{B'}}}$
-\end{center}
+\end{frame}
+
+\begin{frame}{Additional features -- alternative presentations}
+
+\begin{itemize}
+  \item The system could be presented using a reduction which would cover the ``directed'' part of computational equality.
+  \item The type system could be presented in a more algorithmic way, which is more amenable to being treated as a reference implementation.
+  \item Is an explicit definition of substitution needed, or nobody cares?
+\end{itemize}
 
 \end{frame}
 
