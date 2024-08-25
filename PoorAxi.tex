@@ -39,16 +39,17 @@
 \newcommand{\subst}[3]{#1\left[#2 := #3\right]}
 
 \newcommand{\tyctx}[1]{\mathcolor{brown}{#1\ \texttt{ctx}}}
-\newcommand{\typing}[3]{#1 \vdash #2 : #3}
-\newcommand{\computation}[4]{\mathcolor{blue}{#1 \vdash #2 \equiv #3 : #4}}
+\newcommand{\fulltyping}[3]{#1 \vdash #2 : #3}
+\newcommand{\typing}[2]{\fulltyping{\Gamma}{#1}{#2}}
+\newcommand{\fullcomputation}[4]{\mathcolor{blue}{#1 \vdash #2 \equiv #3 : #4}}
+\newcommand{\computation}[3]{\fullcomputation{\Gamma}{#1}{#2}{#3}}
 
 \newcommand{\assctx}[2]{\mathcolor{gray}{#1\ \vdash #2\ \texttt{valid}}}
 \newcommand{\prop}[2]{\mathcolor{green}{#1 \vdash #2\ \texttt{prop}}}
-\newcommand{\holds}[3]{\mathcolor{red}{#1 \pipe #2 \vdash #3}}
+\newcommand{\fullholds}[3]{\mathcolor{red}{#1 \pipe #2 \vdash #3}}
+\newcommand{\holds}[1]{\fullholds{\Gamma}{\Delta}{#1}}
 
-\newcommand{\infrule}[3][]{\displaystyle \frac{#2}{#3} #1}
-
-\newcommand{\rulename}[1]{\textsc{\footnotesize{#1}}}
+\newcommand{\infrule}[3][]{\displaystyle \frac{#2}{#3} \textsc{\footnotesize{#1}}}
 
 \newcommand{\emptytypingctx}{\cdot}
 \newcommand{\extend}[3]{#1, #2 : #3}
@@ -123,12 +124,12 @@ $\tyctx{\Gamma}$ -- $\Gamma$ is a well-formed typing context.
 \vspace{1em}
 
 Typing judgement: \\
-$\typing{\Gamma}{e}{A}$ -- in typing context $\Gamma$, term $e$ is of type $A$
+$\typing{e}{A}$ -- in typing context $\Gamma$, term $e$ is of type $A$
 
 \vspace{1em}
 
 Computational equality judgement: \\
-$\computation{\Gamma}{e_1}{e_2}{A}$ -- in typing context $\Gamma$, terms $e_1$ and $e_2$ are computationally equal. Intuitively, $e_1$ and $e_2$ compute to the same normal form.
+$\computation{e_1}{e_2}{A}$ -- in typing context $\Gamma$, terms $e_1$ and $e_2$ are computationally equal. Intuitively, $e_1$ and $e_2$ compute to the same normal form.
 
 \end{frame}
 
@@ -145,7 +146,7 @@ $\prop{\Gamma}{P}$ -- in the typing context $\Gamma$, proposition $P$ is well-fo
 \vspace{1em}
 
 True proposition judgement: \\
-$\holds{\Gamma}{\Delta}{P}$ -- in typing context $\Gamma$ and propositional context $\Delta$, proposition $P$ holds.
+$\holds{P}$ -- in typing context $\Gamma$ and propositional context $\Delta$, proposition $P$ holds.
 
 \end{frame}
 
@@ -156,8 +157,8 @@ $\holds{\Gamma}{\Delta}{P}$ -- in typing context $\Gamma$ and propositional cont
 The valid typing context judgement is the simplest one. The empty context is valid and we can extend a valid context $\Gamma$ with a variable $x$ of type $A$ provided that $x$ does not already occur in $\Gamma$.
 
 \begin{center}
-  $\infrule[\rulename{Ctx-Empty}]{}{\tyctx{\emptytypingctx}}$ \quad
-  $\infrule[\rulename{Ctx-Extend}]{\tyctx{\Gamma} \quad \sidecond{x \notin \Gamma}}{\tyctx{\extend{\Gamma}{x}{A}}}$
+  $\infrule[Ctx-Empty]{}{\tyctx{\emptytypingctx}}$ \quad
+  $\infrule[Ctx-Extend]{\tyctx{\Gamma} \quad \sidecond{x \notin \Gamma}}{\tyctx{\extend{\Gamma}{x}{A}}}$
 \end{center}
 
 \end{frame}
@@ -169,7 +170,7 @@ We treat typing contexts $\Gamma$ as sets, so that there is no need for the so-c
 \vspace{2em}
 
 \begin{center}
-  $\infrule[\rulename{Var}]{\tyctx{\Gamma} \quad \sidecond{(x : A) \in \Gamma}}{\typing{\Gamma}{x}{A}}$
+  $\infrule[Var]{\tyctx{\Gamma} \quad \sidecond{(x : A) \in \Gamma}}{\typing{x}{A}}$
 \end{center}
 
 \end{frame}
@@ -177,28 +178,28 @@ We treat typing contexts $\Gamma$ as sets, so that there is no need for the so-c
 \begin{frame}{Typing -- main rules}
 
 \begin{center}
-  $\infrule{\typing{\extend{\Gamma}{x}{A}}{e}{B}}{\typing{\Gamma}{\fun{x}{e}}{\Fun{A}{B}}}$ \quad
-  $\infrule{\typing{\Gamma}{f}{\Fun{A}{B}} \quad \typing{\Gamma}{a}{A}}{\typing{\Gamma}{\app{f}{a}}{B}}$
+  $\infrule{\fulltyping{\extend{\Gamma}{x}{A}}{e}{B}}{\typing{\fun{x}{e}}{\Fun{A}{B}}}$ \quad
+  $\infrule{\typing{f}{\Fun{A}{B}} \quad \typing{a}{A}}{\typing{\app{f}{a}}{B}}$
 
   \vspace{2em}
 
-  $\infrule{\typing{\Gamma}{a}{A} \quad \typing{\Gamma}{b}{B}}{\typing{\Gamma}{\pair{a}{b}}{\Prod{A}{B}}}$ \quad
-  $\infrule{\typing{\Gamma}{e}{\Prod{A}{B}}}{\typing{\Gamma}{\outl[e]}{A}}$ \quad
-  $\infrule{\typing{\Gamma}{e}{\Prod{A}{B}}}{\typing{\Gamma}{\outr[e]}{B}}$
+  $\infrule{\typing{a}{A} \quad \typing{b}{B}}{\typing{\pair{a}{b}}{\Prod{A}{B}}}$ \quad
+  $\infrule{\typing{e}{\Prod{A}{B}}}{\typing{\outl[e]}{A}}$ \quad
+  $\infrule{\typing{e}{\Prod{A}{B}}}{\typing{\outr[e]}{B}}$
 
   \vspace{2em}
 
-  $\infrule{\typing{\Gamma}{e}{A}}{\typing{\Gamma}{\inl[e]}{\Sum{A}{B}}}$ \quad
-  $\infrule{\typing{\Gamma}{e}{B}}{\typing{\Gamma}{\inr[e]}{\Sum{A}{B}}}$
+  $\infrule{\typing{e}{A}}{\typing{\inl[e]}{\Sum{A}{B}}}$ \quad
+  $\infrule{\typing{e}{B}}{\typing{\inr[e]}{\Sum{A}{B}}}$
 
   \vspace{2em}
 
-  $\infrule{\typing{\Gamma}{e}{\Sum{A}{B}} \quad \typing{\Gamma}{f}{\Fun{A}{C}} \quad \typing{\Gamma}{g}{\Fun{B}{C}}}{\typing{\Gamma}{\case{e}{f}{g}}{C}}$
+  $\infrule{\typing{e}{\Sum{A}{B}} \quad \typing{f}{\Fun{A}{C}} \quad \typing{g}{\Fun{B}{C}}}{\typing{\case{e}{f}{g}}{C}}$
 
   \vspace{2em}
 
-  $\infrule{\tyctx{\Gamma}}{\typing{\Gamma}{\unit}{\Unit}}$ \quad
-  $\infrule{\typing{\Gamma}{e}{\Empty}}{\typing{\Gamma}{\elimEmpty[e]}{A}}$
+  $\infrule{\tyctx{\Gamma}}{\typing{\unit}{\Unit}}$ \quad
+  $\infrule{\typing{e}{\Empty}}{\typing{\elimEmpty[e]}{A}}$
 \end{center}
 
 \end{frame}
@@ -222,20 +223,20 @@ To state the computation rules, we need a substitution operation. Our notation i
 Computation rules describe the most essential computation steps. For example, what happens when we project the first element out of a pair? Note that not all types have computation rules. For example, $\Unit$ and $\Empty$ have no computation rules because there's no computation going on in these types.
 
 \begin{center}
-  $\infrule{\typing{\extend{\Gamma}{x}{A}}{b}{B} \quad \typing{\Gamma}{a}{A}}{\computation{\Gamma}{\app{(\fun{x}{b})}{a}}{\subst{b}{x}{a}}{B}}$
+  $\infrule[App-Lam]{\fulltyping{\extend{\Gamma}{x}{A}}{b}{B} \quad \typing{a}{A}}{\computation{\app{(\fun{x}{b})}{a}}{\subst{b}{x}{a}}{B}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{a}{A} \quad \typing{\Gamma}{b}{B}}{\computation{\Gamma}{\outl[\pair{a}{b}]}{a}{A}}$ \quad
-  $\infrule{\typing{\Gamma}{a}{A} \quad \typing{\Gamma}{b}{B}}{\computation{\Gamma}{\outr[\pair{a}{b}]}{b}{B}}$
+  $\infrule{\typing{a}{A} \quad \typing{b}{B}}{\computation{\outl[\pair{a}{b}]}{a}{A}}$ \quad
+  $\infrule{\typing{a}{A} \quad \typing{b}{B}}{\computation{\outr[\pair{a}{b}]}{b}{B}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{a}{A} \quad \typing{\Gamma}{f}{\Fun{A}{C}} \quad \typing{\Gamma}{g}{\Fun{B}{C}}}{\computation{\Gamma}{\case{(\inl[a])}{f}{g}}{\app{f}{a}}{C}}$
+  $\infrule[Case-Inl]{\typing{a}{A} \quad \typing{f}{\Fun{A}{C}} \quad \typing{g}{\Fun{B}{C}}}{\computation{\case{(\inl[a])}{f}{g}}{\app{f}{a}}{C}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{a}{A} \quad \typing{\Gamma}{f}{\Fun{A}{C}} \quad \typing{\Gamma}{g}{\Fun{B}{C}}}{\computation{\Gamma}{\case{(\inr[b])}{f}{g}}{\app{g}{b}}{C}}$
+  $\infrule[Case-Inr]{\typing{a}{A} \quad \typing{f}{\Fun{A}{C}} \quad \typing{g}{\Fun{B}{C}}}{\computation{\case{(\inr[b])}{f}{g}}{\app{g}{b}}{C}}$
 \end{center}
 
 \end{frame}
@@ -245,19 +246,19 @@ Computation rules describe the most essential computation steps. For example, wh
 Uniqueness rules establish that every term of a given type is computationally equal to a constructor of the type. For example, every term of a product type is a pair. The rules for $\Unit$ and $\Empty$ are a bit broader -- they establish that all terms of these types are equal. Note that there are no uniqueness rules for sums.
 
 \begin{center}
-  $\infrule{\typing{\Gamma}{f}{\Fun{A}{B}}}{\computation{\Gamma}{f}{\fun{x}{\app{f}{x}}}{\Fun{A}{B}}}$
+  $\infrule[Fun-Uniq]{\typing{f}{\Fun{A}{B}}}{\computation{f}{\fun{x}{\app{f}{x}}}{\Fun{A}{B}}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{e}{\Prod{A}{B}}}{\computation{\Gamma}{e}{\pair{\outl[e]}{\outr[e]}}{\Prod{A}{B}}}$
+  $\infrule[Prod-Uniq]{\typing{e}{\Prod{A}{B}}}{\computation{e}{\pair{\outl[e]}{\outr[e]}}{\Prod{A}{B}}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{e_1}{\Unit} \quad \typing{\Gamma}{e_2}{\Unit}}{\computation{\Gamma}{e_1}{e_2}{\Unit}}$
+  $\infrule[Unit-Uniq]{\typing{e_1}{\Unit} \quad \typing{e_2}{\Unit}}{\computation{e_1}{e_2}{\Unit}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{e_1}{\Empty} \quad \typing{\Gamma}{e_2}{\Empty}}{\computation{\Gamma}{e_1}{e_2}{\Empty}}$
+  $\infrule[Empty-Uniq]{\typing{e_1}{\Empty} \quad \typing{e_2}{\Empty}}{\computation{e_1}{e_2}{\Empty}}$
 
 \end{center}
 
@@ -268,15 +269,15 @@ Uniqueness rules establish that every term of a given type is computationally eq
 Computational equality is an equivalence relation, i.e. it is reflexive, symmetric and transitive.
 
 \begin{center}
-  $\infrule[\rulename{CompEq-Refl}]{\typing{\Gamma}{e}{A}}{\computation{\Gamma}{e}{e}{A}}$
+  $\infrule[CompEq-Refl]{\typing{e}{A}}{\computation{e}{e}{A}}$
 
   \vspace{2em}
 
-  $\infrule[\rulename{CompEq-Sym}]{\computation{\Gamma}{e_1}{e_2}{A}}{\computation{\Gamma}{e_2}{e_1}{A}}$
+  $\infrule[CompEq-Sym]{\computation{e_1}{e_2}{A}}{\computation{e_2}{e_1}{A}}$
 
   \vspace{2em}
 
-  $\infrule[\rulename{CompEq-Trans}]{\computation{\Gamma}{e_1}{e_2}{A} \quad \computation{\Gamma}{e_2}{e_3}{A}}{\computation{\Gamma}{e_1}{e_3}{A}}$
+  $\infrule[CompEq-Trans]{\computation{e_1}{e_2}{A} \quad \computation{e_2}{e_3}{A}}{\computation{e_1}{e_3}{A}}$
 \end{center}
 
 \end{frame}
@@ -284,31 +285,31 @@ Computational equality is an equivalence relation, i.e. it is reflexive, symmetr
 \begin{frame}{Computational equality -- congruence rules}
 
 \begin{center}
-  $\infrule{\computation{\extend{\Gamma}{x}{A}}{e}{e'}{B}}{\computation{\Gamma}{\fun{x}{e}}{\fun{x}{e'}}{\Fun{A}{B}}}$ \quad
-  $\infrule{\computation{\Gamma}{f}{f'}{\Fun{A}{B}} \quad \computation{\Gamma}{a}{a'}{A}}{\computation{\Gamma}{\app{f}{a}}{\app{f'}{a'}}{B}}$
+  $\infrule{\fullcomputation{\extend{\Gamma}{x}{A}}{e}{e'}{B}}{\computation{\fun{x}{e}}{\fun{x}{e'}}{\Fun{A}{B}}}$ \quad
+  $\infrule{\computation{f}{f'}{\Fun{A}{B}} \quad \computation{a}{a'}{A}}{\computation{\app{f}{a}}{\app{f'}{a'}}{B}}$
 
   \vspace{1em}
 
-  $\infrule{\computation{\Gamma}{a}{a'}{A} \quad \computation{\Gamma}{b}{b'}{B}}{\computation{\Gamma}{\pair{a}{b}}{\pair{a'}{b'}}{\Prod{A}{B}}}$
+  $\infrule{\computation{a}{a'}{A} \quad \computation{b}{b'}{B}}{\computation{\pair{a}{b}}{\pair{a'}{b'}}{\Prod{A}{B}}}$
 
   \vspace{1em}
 
-  $\infrule{\computation{\Gamma}{e}{e'}{\Prod{A}{B}}}{\computation{\Gamma}{\outl[e]}{\outl[e']}{A}}$ \quad
-  $\infrule{\computation{\Gamma}{e}{e'}{\Prod{A}{B}}}{\computation{\Gamma}{\outr[e]}{\outr[e']}{B}}$
+  $\infrule{\computation{e}{e'}{\Prod{A}{B}}}{\computation{\outl[e]}{\outl[e']}{A}}$ \quad
+  $\infrule{\computation{e}{e'}{\Prod{A}{B}}}{\computation{\outr[e]}{\outr[e']}{B}}$
 
   \vspace{1em}
 
-  $\infrule{\computation{\Gamma}{e}{e'}{A}}{\computation{\Gamma}{\inl[e]}{\inl[e']}{\Sum{A}{B}}}$ \quad
-  $\infrule{\computation{\Gamma}{e}{e'}{B}}{\computation{\Gamma}{\inr[e]}{\inr[e']}{\Sum{A}{B}}}$
+  $\infrule{\computation{e}{e'}{A}}{\computation{\inl[e]}{\inl[e']}{\Sum{A}{B}}}$ \quad
+  $\infrule{\computation{e}{e'}{B}}{\computation{\inr[e]}{\inr[e']}{\Sum{A}{B}}}$
 
   \vspace{1em}
 
-  $\infrule{\computation{\Gamma}{e}{e'}{\Sum{A}{B}} \quad \computation{\Gamma}{f}{f'}{\Fun{A}{C}} \quad \computation{\Gamma}{g}{g'}{\Fun{B}{C}}}{\computation{\Gamma}{\case{e}{f}{g}}{\case{e'}{f'}{g'}}{C}}$
+  $\infrule{\computation{e}{e'}{\Sum{A}{B}} \quad \computation{f}{f'}{\Fun{A}{C}} \quad \computation{g}{g'}{\Fun{B}{C}}}{\computation{\case{e}{f}{g}}{\case{e'}{f'}{g'}}{C}}$
 
   \vspace{1em}
 
-  $\infrule{\tyctx{\Gamma}}{\computation{\Gamma}{\unit}{\unit}{\Unit}}$ \quad
-  $\infrule{\computation{\Gamma}{e}{e'}{\Empty}}{\computation{\Gamma}{\elimEmpty[e]}{\elimEmpty[e']}{A}}$
+  $\infrule{\tyctx{\Gamma}}{\computation{\unit}{\unit}{\Unit}}$ \quad
+  $\infrule{\computation{e}{e'}{\Empty}}{\computation{\elimEmpty[e]}{\elimEmpty[e']}{A}}$
 \end{center}
 
 \end{frame}
@@ -358,7 +359,7 @@ The role of the well-formed proposition judgement is twofold: to ensure that pro
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{e_1}{A} \quad \typing{\Gamma}{e_2}{A}}{\prop{\Gamma}{\Eq[A]{e_1}{e_2}}}$
+  $\infrule{\typing{e_1}{A} \quad \typing{e_2}{A}}{\prop{\Gamma}{\Eq[A]{e_1}{e_2}}}$
 \end{center}
 
 \end{frame}
@@ -366,8 +367,11 @@ The role of the well-formed proposition judgement is twofold: to ensure that pro
 \begin{frame}{Logic -- valid assumption context judgement}
 
 \begin{center}
-  $\infrule{\tyctx{\Gamma}}{\assctx{\Gamma}{\emptyassctx}}$ \quad
-  $\infrule{\assctx{\Gamma}{\Delta} \quad \prop{\Gamma}{P}}{\assctx{\Gamma}{\assume{\Delta}{P}}}$
+  $\infrule[Valid-Empty]{\tyctx{\Gamma}}{\assctx{\Gamma}{\emptyassctx}}$
+
+  \vspace{1em}
+
+  $\infrule[Valid-Extend]{\assctx{\Gamma}{\Delta} \quad \prop{\Gamma}{P}}{\assctx{\Gamma}{\assume{\Delta}{P}}}$
 \end{center}
 
 \end{frame}
@@ -383,7 +387,7 @@ The basic rule of our logic is that we can use assumptions from the assumption c
 \vspace{2em}
 
 \begin{center}
-  $\infrule{\assctx{\Gamma}{\Delta} \quad \sidecond{P \in \Delta}}{\holds{\Gamma}{\Delta}{P}}$
+  $\infrule[Ass]{\assctx{\Gamma}{\Delta} \quad \sidecond{P \in \Delta}}{\holds{P}}$
 \end{center}
 
 \end{frame}
@@ -395,28 +399,28 @@ The rules for connectives are entirely standard.
 \vspace{1em}
 
 \begin{center}
-  $\infrule{\holds{\Gamma}{\assume{\Delta}{P}}{Q}}{\holds{\Gamma}{\Delta}{\Impl{P}{Q}}}$ \quad
-  $\infrule{\holds{\Gamma}{\Delta}{\Impl{P}{Q}} \quad \holds{\Gamma}{\Delta}{P}}{\holds{\Gamma}{\Delta}{Q}}$
+  $\infrule{\fullholds{\Gamma}{\assume{\Delta}{P}}{Q}}{\holds{\Impl{P}{Q}}}$ \quad
+  $\infrule{\holds{\Impl{P}{Q}} \quad \holds{P}}{\holds{Q}}$
 
   \vspace{1em}
 
-  $\infrule{\holds{\Gamma}{\Delta}{P} \quad \holds{\Gamma}{\Delta}{Q}}{\holds{\Gamma}{\Delta}{\And{P}{Q}}}$ \quad
-  $\infrule{\holds{\Gamma}{\Delta}{\And{P}{Q}}}{\holds{\Gamma}{\Delta}{P}}$ \quad
-  $\infrule{\holds{\Gamma}{\Delta}{\And{P}{Q}}}{\holds{\Gamma}{\Delta}{Q}}$
+  $\infrule{\holds{P} \quad \holds{Q}}{\holds{\And{P}{Q}}}$ \quad
+  $\infrule{\holds{\And{P}{Q}}}{\holds{P}}$ \quad
+  $\infrule{\holds{\And{P}{Q}}}{\holds{Q}}$
 
   \vspace{1em}
 
-  $\infrule{\holds{\Gamma}{\Delta}{P}}{\holds{\Gamma}{\Delta}{\Or{P}{Q}}}$ \quad
-  $\infrule{\holds{\Gamma}{\Delta}{Q}}{\holds{\Gamma}{\Delta}{\Or{P}{Q}}}$
+  $\infrule{\holds{P}}{\holds{\Or{P}{Q}}}$ \quad
+  $\infrule{\holds{Q}}{\holds{\Or{P}{Q}}}$
 
   \vspace{1em}
 
-  $\infrule{\holds{\Gamma}{\Delta}{\Or{P}{Q}} \quad \holds{\Gamma}{\assume{\Delta}{P}}{R} \quad \holds{\Gamma}{\assume{\Delta}{Q}}{R}}{\holds{\Gamma}{\Delta}{R}}$
+  $\infrule{\holds{\Or{P}{Q}} \quad \fullholds{\Gamma}{\assume{\Delta}{P}}{R} \quad \fullholds{\Gamma}{\assume{\Delta}{Q}}{R}}{\holds{R}}$
 
   \vspace{1em}
 
-  $\infrule{\assctx{\Gamma}{\Delta}}{\holds{\Gamma}{\Delta}{\True}}$ \quad
-  $\infrule{\holds{\Gamma}{\Delta}{\False}}{\holds{\Gamma}{\Delta}{P}}$
+  $\infrule{\assctx{\Gamma}{\Delta}}{\holds{\True}}$ \quad
+  $\infrule{\holds{\False}}{\holds{P}}$
 \end{center}
 
 \end{frame}
@@ -430,16 +434,19 @@ To express rules for quantifiers, we need the operation of substituting a term f
 \begin{frame}{Logic -- quantifiers}
 
 \begin{center}
-  $\infrule{\holds{\extend{\Gamma}{x}{A}}{\Delta}{P}}{\holds{\Gamma}{\Delta}{\All{x}{A}{P}}}$ \qquad
-  $\infrule{\holds{\Gamma}{\Delta}{\All{x}{A}{P}} \quad \typing{\Gamma}{a}{A}}{\holds{\Gamma}{\Delta}{\subst{P}{x}{a}}}$
-
-  \vspace{2em}
-
-  $\infrule{\typing{\Gamma}{a}{A} \quad \holds{\Gamma}{\Delta}{\subst{P}{x}{a}}}{\holds{\Gamma}{\Delta}{\Ex{x}{A}{P}}}$
+  $\infrule[Forall-Intro]{\fullholds{\extend{\Gamma}{x}{A}}{\Delta}{P}}{\holds{\All{x}{A}{P}}}$
 
   \vspace{1em}
 
-  $\infrule{\holds{\Gamma}{\Delta}{\Ex{x}{A}{P}} \quad \holds{\extend{\Gamma}{x}{A}}{\assume{\Delta}{P}}{R}}{\holds{\Gamma}{\Delta}{R}}$
+  $\infrule[Forall-Elim]{\holds{\All{x}{A}{P}} \quad \typing{a}{A}}{\holds{\subst{P}{x}{a}}}$
+
+  \vspace{2em}
+
+  $\infrule[Exists-Intro]{\typing{a}{A} \quad \holds{\subst{P}{x}{a}}}{\holds{\Ex{x}{A}{P}}}$
+
+  \vspace{1em}
+
+  $\infrule[Exists-Elim]{\holds{\Ex{x}{A}{P}} \quad \fullholds{\extend{\Gamma}{x}{A}}{\assume{\Delta}{P}}{R}}{\holds{R}}$
 \end{center}
 
 \end{frame}
@@ -451,19 +458,19 @@ Propositional equality is an equivalence relation that can be substitued in proo
 \vspace{2em}
 
 \begin{center}
-  $\infrule{\assctx{\Gamma}{\Delta} \quad \computation{\Gamma}{e_1}{e_2}{A}}{\holds{\Gamma}{\Delta}{\Eq[A]{e_1}{e_2}}}$
+  $\infrule[Eq-Refl]{\assctx{\Gamma}{\Delta} \quad \computation{e_1}{e_2}{A}}{\holds{\Eq[A]{e_1}{e_2}}}$
 
   \vspace{1em}
 
-  $\infrule{\holds{\Gamma}{\Delta}{\Eq[A]{e_1}{e_2}}}{\holds{\Gamma}{\Delta}{\Eq[A]{e_2}{e_1}}}$
+  $\infrule[Eq-Sym]{\holds{\Eq[A]{e_1}{e_2}}}{\holds{\Eq[A]{e_2}{e_1}}}$
 
   \vspace{1em}
 
-  $\infrule{\holds{\Gamma}{\Delta}{\Eq[A]{e_1}{e_2}} \quad \holds{\Gamma}{\Delta}{\Eq[A]{e_2}{e_3}}}{\holds{\Gamma}{\Delta}{\Eq[A]{e_1}{e_3}}}$
+  $\infrule[Eq-Trans]{\holds{\Eq[A]{e_1}{e_2}} \quad \holds{\Eq[A]{e_2}{e_3}}}{\holds{\Eq[A]{e_1}{e_3}}}$
 
   \vspace{1em}
 
-  $\infrule{\holds{\Gamma}{\Delta}{\Eq[A]{e_1}{e_2}} \quad \prop{\extend{\Gamma}{x}{A}}{P} \quad \holds{\Gamma}{\Delta}{\subst{P}{x}{e_2}}}{\holds{\Gamma}{\Delta}{\subst{P}{x}{e_1}}}$
+  $\infrule[Eq-Subst]{\holds{\Eq[A]{e_1}{e_2}} \quad \prop{\extend{\Gamma}{x}{A}}{P} \quad \holds{\subst{P}{x}{e_2}}}{\holds{\subst{P}{x}{e_1}}}$
 \end{center}
 
 \end{frame}
@@ -475,7 +482,7 @@ The general rules from the previous slide are not sufficient to prove all equati
 \vspace{1em}
 
 \begin{center}
-  $\infrule{\holds{\Gamma}{\Delta}{\All{x}{A}{\Eq[B]{\app{f}{x}}{\app{g}{x}}}}}{\holds{\Gamma}{\Delta}{\Eq[\Fun{A}{B}]{f}{g}}}$
+  $\infrule[Funext]{\holds{\All{x}{A}{\Eq[B]{\app{f}{x}}{\app{g}{x}}}}}{\holds{\Eq[\Fun{A}{B}]{f}{g}}}$
 \end{center}
 
 \end{frame}
@@ -487,11 +494,11 @@ Note that so far, we haven't got any rules that allow reasoning by cases on term
 \vspace{1em}
 
 \begin{center}
-  $\infrule{\assctx{\Gamma}{\Delta} \quad \typing{\Gamma}{e}{\Empty}}{\holds{\Gamma}{\Delta}{P}}$
+  $\infrule[Empty-Ind]{\assctx{\Gamma}{\Delta} \quad \typing{e}{\Empty}}{\holds{P}}$
 
   \vspace{1em}
 
-  $\infrule{\holds{\extend{\Gamma}{a}{A}}{\Delta}{\subst{P}{x}{\inl[a]}} \quad \holds{\extend{\Gamma}{b}{B}}{\Delta}{\subst{P}{x}{\inr[b]}}}{\holds{\Gamma}{\Delta}{\All{x}{\Sum{A}{B}}{P}}}$
+  $\infrule[Sum-Ind]{\fullholds{\extend{\Gamma}{a}{A}}{\Delta}{\subst{P}{x}{\inl[a]}} \quad \fullholds{\extend{\Gamma}{b}{B}}{\Delta}{\subst{P}{x}{\inr[b]}}}{\holds{\All{x}{\Sum{A}{B}}{P}}}$
 \end{center}
 
 \end{frame}
@@ -503,7 +510,7 @@ There are many ways to add classical logic to the system, but we'll have a rule 
 \vspace{2em}
 
 \begin{center}
-  $\infrule{\prop{\Gamma}{P} \quad \holds{\Gamma}{\assume{\Delta}{P}}{R} \quad \holds{\Gamma}{\assume{\Delta}{\Not{P}}}{R}}{\holds{\Gamma}{\Delta}{R}}$
+  $\infrule[Classic]{\prop{\Gamma}{P} \quad \fullholds{\Gamma}{\assume{\Delta}{P}}{R} \quad \fullholds{\Gamma}{\assume{\Delta}{\Not{P}}}{R}}{\holds{R}}$
 \end{center}
 
 \end{frame}
@@ -535,7 +542,7 @@ Just seeing a system like this won't be enough to convince anybody that it makes
 
 \begin{frame}{More types -- intro}
 
-Our current menagerie of type constructors isn't very expressive. In fact, since the only base types are unit and empty, all we can do is finite types and functions between them. Let's what we need to do to add a new type constructor to our language. Note that to save space, we will omit the congruence rules for computational equality.
+Our current menagerie of type constructors isn't very expressive. In fact, since the only base types are unit and empty, all we can do is finite types and functions between them. Let's see what we need to do to add a new type constructor to our language. Note that to save space, we will omit the congruence rules for computational equality.
 
 \end{frame}
 
@@ -546,19 +553,19 @@ Our current menagerie of type constructors isn't very expressive. In fact, since
 One little silly thing that we don't have is an eliminator for the $\Unit$ type. It's useless, but why not?
 
 \begin{center}
-  $\infrule{\typing{\Gamma}{e}{A} \quad \typing{\Gamma}{u}{\Unit}}{\typing{\Gamma}{\elimUnit{e}{u}}{A}}$
+  $\infrule[Unit-Elim]{\typing{e}{A} \quad \typing{u}{\Unit}}{\typing{\elimUnit{e}{u}}{A}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{e}{A}}{\computation{\Gamma}{\elimUnit{e}{\unit}}{e}{A}}$
+  $\infrule[Comp-Unit]{\typing{e}{A}}{\computation{\elimUnit{e}{\unit}}{e}{A}}$
 
   \vspace{1em}
 
-  $\infrule{\computation{\Gamma}{e}{e'}{A} \quad \computation{\Gamma}{u}{u'}{\Unit}}{\computation{\Gamma}{\elimUnit{e}{u}}{\elimUnit{e'}{u'}}{A}}$
+  $\infrule[Congr-Unit-Elim]{\computation{e}{e'}{A} \quad \computation{u}{u'}{\Unit}}{\computation{\elimUnit{e}{u}}{\elimUnit{e'}{u'}}{A}}$
 
   \vspace{1em}
 
-  $\infrule{\holds{\Gamma}{\Delta}{\subst{P}{x}{\unit}}}{\holds{\Gamma}{\Delta}{\All{x}{\Unit}{P}}}$
+  $\infrule[Unit-Ind]{\holds{\subst{P}{x}{\unit}}}{\holds{\All{x}{\Unit}{P}}}$
 \end{center}
 
 \end{frame}
@@ -566,33 +573,33 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 \begin{frame}{More types -- booleans}
 
 \begin{center}
-  $\infrule{\tyctx{\Gamma}}{\typing{\Gamma}{\true}{\Bool}}$ \quad
-  $\infrule{\tyctx{\Gamma}}{\typing{\Gamma}{\false}{\Bool}}$
+  $\infrule{\tyctx{\Gamma}}{\typing{\true}{\Bool}}$ \quad
+  $\infrule{\tyctx{\Gamma}}{\typing{\false}{\Bool}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{e}{\Bool} \quad \typing{\Gamma}{e_1}{A} \quad \typing{\Gamma}{e_2}{A}}{\typing{\Gamma}{\boolElim{e}{e_1}{e_2}}{A}}$
+  $\infrule[Bool-Elim]{\typing{e}{\Bool} \quad \typing{e_1}{A} \quad \typing{e_2}{A}}{\typing{\boolElim{e}{e_1}{e_2}}{A}}$
 
   \vspace{1em}
 
-  %$\infrule{}{\computation{\Gamma}{\true}{\true}{\Bool}}$ \quad
-  %$\infrule{}{\computation{\Gamma}{\false}{\false}{\Bool}}$ \quad
+  %$\infrule{}{\computation{\true}{\true}{\Bool}}$ \quad
+  %$\infrule{}{\computation{\false}{\false}{\Bool}}$ \quad
 
   %\vspace{1em}
 
-  %$\infrule{\computation{\Gamma}{e}{e'}{\Bool} \quad \computation{\Gamma}{e_1}{e_1'}{A} \quad \computation{\Gamma}{e_2}{e_2'}{A}}{\computation{\Gamma}{\boolElim{e}{e_1}{e_2}}{\boolElim{e'}{e_1'}{e_2'}}{A}}$
+  %$\infrule{\computation{e}{e'}{\Bool} \quad \computation{e_1}{e_1'}{A} \quad \computation{e_2}{e_2'}{A}}{\computation{\boolElim{e}{e_1}{e_2}}{\boolElim{e'}{e_1'}{e_2'}}{A}}$
 
   %\vspace{1em}
 
-  $\infrule{\typing{\Gamma}{e_1}{A} \quad \typing{\Gamma}{e_2}{A}}{\computation{\Gamma}{\boolElim{\true}{e_1}{e_2}}{e_1}{A}}$
+  $\infrule[Comp-If-True]{\typing{e_1}{A} \quad \typing{e_2}{A}}{\computation{\boolElim{\true}{e_1}{e_2}}{e_1}{A}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{e_1}{A} \quad \typing{\Gamma}{e_2}{A}}{\computation{\Gamma}{\boolElim{\false}{e_1}{e_2}}{e_2}{A}}$
+  $\infrule[Comp-If-False]{\typing{e_1}{A} \quad \typing{e_2}{A}}{\computation{\boolElim{\false}{e_1}{e_2}}{e_2}{A}}$
 
   \vspace{1em}
 
-  $\infrule{\holds{\Gamma}{\Delta}{\subst{P}{b}{\true}} \quad \holds{\Gamma}{\Delta}{\subst{P}{b}{\false}}}{\holds{\Gamma}{\Delta}{\All{b}{\Bool}{P}}}$
+  $\infrule[Bool-Ind]{\holds{\subst{P}{b}{\true}} \quad \holds{\subst{P}{b}{\false}}}{\holds{\All{b}{\Bool}{P}}}$
 \end{center}
 
 \end{frame}
@@ -605,24 +612,24 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 \begin{frame}{More types -- natural numbers}
 
 \begin{center}
-  $\infrule{\tyctx{\Gamma}}{\typing{\Gamma}{\zero}{\Nat}}$ \quad
-  $\infrule{\typing{\Gamma}{n}{\Nat}}{\typing{\Gamma}{\succ[n]}{\Nat}}$
+  $\infrule{\tyctx{\Gamma}}{\typing{\zero}{\Nat}}$ \quad
+  $\infrule{\typing{n}{\Nat}}{\typing{\succ[n]}{\Nat}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{z}{A} \quad \typing{\Gamma}{s}{\Fun{A}{A}} \quad \typing{\Gamma}{n}{\Nat}}{\typing{\Gamma}{\elimNat{z}{s}{n}}{A}}$
+  $\infrule[Nat-Elim]{\typing{z}{A} \quad \typing{s}{\Fun{A}{A}} \quad \typing{n}{\Nat}}{\typing{\elimNat{z}{s}{n}}{A}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{z}{A} \quad \typing{\Gamma}{s}{\Fun{A}{A}}}{\computation{\Gamma}{\elimNat{z}{s}{\zero}}{z}{A}}$
+  $\infrule[Rec-Zero]{\typing{z}{A} \quad \typing{s}{\Fun{A}{A}}}{\computation{\elimNat{z}{s}{\zero}}{z}{A}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{z}{A} \quad \typing{\Gamma}{s}{\Fun{A}{A}} \quad \typing{\Gamma}{n}{\Nat}}{\computation{\Gamma}{\elimNat{z}{s}{(\succ[n])}}{\app{s}{(\elimNat{z}{s}{n})}}{A}}$
+  $\infrule[Rec-Succ]{\typing{z}{A} \quad \typing{s}{\Fun{A}{A}} \quad \typing{n}{\Nat}}{\computation{\elimNat{z}{s}{(\succ[n])}}{\app{s}{(\elimNat{z}{s}{n})}}{A}}$
 
   \vspace{1em}
 
-  $\infrule{\holds{\Gamma}{\Delta}{\subst{P}{n}{\zero}} \quad \holds{\extend{\Gamma}{n'}{\Nat}}{\assume{\Delta}{\subst{P}{n}{n'}}}{\subst{P}{n}{\succ[n']}}}{\holds{\Gamma}{\Delta}{\All{n}{\Nat}{P}}}$
+  $\infrule[Nat-Ind]{\holds{\subst{P}{n}{\zero}} \quad \fullholds{\extend{\Gamma}{n'}{\Nat}}{\assume{\Delta}{\subst{P}{n}{n'}}}{\subst{P}{n}{\succ[n']}}}{\holds{\All{n}{\Nat}{P}}}$
 \end{center}
 
 \end{frame}
@@ -635,24 +642,24 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 \begin{frame}{More types -- lists}
 
 \begin{center}
-  $\infrule{\tyctx{\Gamma}}{\typing{\Gamma}{\nil}{\List{A}}}$ \quad
-  $\infrule{\typing{\Gamma}{h}{A} \quad \typing{\Gamma}{t}{\List{A}}}{\typing{\Gamma}{\cons{h}{t}}{\List{A}}}$
+  $\infrule{\tyctx{\Gamma}}{\typing{\nil}{\List{A}}}$ \quad
+  $\infrule{\typing{h}{A} \quad \typing{t}{\List{A}}}{\typing{\cons{h}{t}}{\List{A}}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{n}{A} \quad \typing{\Gamma}{c}{\Fun{A}{\Fun{B}{B}}} \quad \typing{\Gamma}{l}{\List{A}}}{\typing{\Gamma}{\elimList{n}{c}{l}}{B}}$
+  $\infrule[List-Elim]{\typing{n}{A} \quad \typing{c}{\Fun{A}{\Fun{B}{B}}} \quad \typing{l}{\List{A}}}{\typing{\elimList{n}{c}{l}}{B}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{n}{B} \quad \typing{\Gamma}{c}{\Fun{A}{\Fun{B}{B}}}}{\computation{\Gamma}{\elimList{n}{c}{\nil}}{n}{B}}$
+  $\infrule[Fold-Nil]{\typing{n}{B} \quad \typing{c}{\Fun{A}{\Fun{B}{B}}}}{\computation{\elimList{n}{c}{\nil}}{n}{B}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{n}{B} \quad \typing{\Gamma}{c}{\Fun{A}{\Fun{B}{B}}} \quad \typing{\Gamma}{h}{A} \quad \typing{\Gamma}{t}{\List{A}}}{\computation{\Gamma}{\elimList{n}{c}{(\cons{h}{t})}}{\app{\app{c}{h}}{(\elimList{n}{c}{t})}}{B}}$
+  $\infrule[Fold-Cons]{\typing{n}{B} \quad \typing{c}{\Fun{A}{\Fun{B}{B}}} \quad \typing{h}{A} \quad \typing{t}{\List{A}}}{\computation{\elimList{n}{c}{(\cons{h}{t})}}{\app{\app{c}{h}}{(\elimList{n}{c}{t})}}{B}}$
 
   \vspace{1em}
 
-  $\infrule{\holds{\Gamma}{\Delta}{\subst{P}{l}{\nil}} \quad \holds{\extend{\extend{\Gamma}{h}{A}}{t}{\List{A}}}{\assume{\Delta}{\subst{P}{l}{t}}}{\subst{P}{l}{\cons{h}{t}}}}{\holds{\Gamma}{\Delta}{\All{l}{\List{A}}{P}}}$
+  $\infrule[List-Ind]{\holds{\subst{P}{l}{\nil}} \quad \fullholds{\extend{\extend{\Gamma}{h}{A}}{t}{\List{A}}}{\assume{\Delta}{\subst{P}{l}{t}}}{\subst{P}{l}{\cons{h}{t}}}}{\holds{\All{l}{\List{A}}{P}}}$
 \end{center}
 
 \end{frame}
@@ -666,20 +673,20 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 
 \begin{center}
 
-  $\infrule{\typing{\Gamma}{s}{\AxiStream{A}}}{\typing{\Gamma}{\hd[s]}{A}}$ \quad
-  $\infrule{\typing{\Gamma}{s}{\AxiStream{A}}}{\typing{\Gamma}{\tl[s]}{\AxiStream{A}}}$
+  $\infrule{\typing{s}{\AxiStream{A}}}{\typing{\hd[s]}{A}}$ \quad
+  $\infrule{\typing{s}{\AxiStream{A}}}{\typing{\tl[s]}{\AxiStream{A}}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{a}{A} \quad \typing{\Gamma}{f}{\Fun{A}{A}}}{\typing{\Gamma}{\introStream{a}{f}}{\AxiStream{A}}}$
+  $\infrule[Stream-Intro]{\typing{a}{A} \quad \typing{f}{\Fun{A}{A}}}{\typing{\introStream{a}{f}}{\AxiStream{A}}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{a}{A} \quad \typing{\Gamma}{f}{\Fun{A}{A}}}{\computation{\Gamma}{\hd[(\introStream{a}{f})]}{a}{A}}$
+  $\infrule[Hd-Scons]{\typing{a}{A} \quad \typing{f}{\Fun{A}{A}}}{\computation{\hd[(\introStream{a}{f})]}{a}{A}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{a}{A} \quad \typing{\Gamma}{f}{\Fun{A}{A}}}{\computation{\Gamma}{\tl[(\introStream{a}{f})]}{\introStream{(\app{f}{a})}{f}}{\AxiStream{A}}}$
+  $\infrule[Tl-Scons]{\typing{a}{A} \quad \typing{f}{\Fun{A}{A}}}{\computation{\tl[(\introStream{a}{f})]}{\introStream{(\app{f}{a})}{f}}{\AxiStream{A}}}$
 \end{center}
 
 \end{frame}
@@ -692,12 +699,12 @@ Streams do have all the congruence rules we would expect, but they don't have an
 
 \begin{center}
 
-  $\infrule{\computation{\Gamma}{s}{s'}{A}}{\computation{\Gamma}{\hd[s]}{\hd[s']}{A}}$ \quad
-  $\infrule{\computation{\Gamma}{s}{s'}{A}}{\computation{\Gamma}{\tl[s]}{\tl[s']}{\AxiStream{A}}}$
+  $\infrule{\computation{s}{s'}{A}}{\computation{\hd[s]}{\hd[s']}{A}}$ \quad
+  $\infrule{\computation{s}{s'}{A}}{\computation{\tl[s]}{\tl[s']}{\AxiStream{A}}}$
 
   \vspace{1em}
 
-  $\infrule{\computation{\Gamma}{a}{a'}{A} \quad \computation{\Gamma}{f}{f'}{\Fun{A}{A}}}{\computation{\Gamma}{\introStream{a}{f}}{\introStream{a'}{f'}}{\AxiStream{A}}}$
+  $\infrule{\computation{a}{a'}{A} \quad \computation{f}{f'}{\Fun{A}{A}}}{\computation{\introStream{a}{f}}{\introStream{a'}{f'}}{\AxiStream{A}}}$
 \end{center}
 
 \end{frame}
@@ -710,7 +717,7 @@ But the real question is, how do proofs by coinduction look like?
 
 \begin{center}
 
-  %$\infrule{\holds{\Gamma}{\assume{\Delta}{R}}{\Eq[A]{\hd{s_1}}{\hd{s_2}}} \quad \holds{\Gamma}{\assume{\Delta}{R}}{\subst{\subst{R}{x}{\tl[s_1]}}{y}{\tl[s_2]}}}{\holds{\Gamma}{\Delta}{\Eq[\AxiStream{A}]{s_1}{s_2}}}$
+  %$\infrule{\fullholds{\Gamma}{\assume{\Delta}{R}}{\Eq[A]{\hd{s_1}}{\hd{s_2}}} \quad \fullholds{\Gamma}{\assume{\Delta}{R}}{\subst{\subst{R}{x}{\tl[s_1]}}{y}{\tl[s_2]}}}{\holds{\Eq[\AxiStream{A}]{s_1}{s_2}}}$
 \end{center}
 
 \end{frame}
@@ -732,11 +739,11 @@ $\Gamma ::= \emptytypingctx \pipe \extend{\Gamma}{x}{A} \pipe \extenddef{\Gamma}
 \vspace{1em}
 
 \begin{center}
-  $\infrule{\tyctx{\Gamma} \quad \typing{\Gamma}{e}{A} \quad \sidecond{x \notin \Gamma}}{\tyctx{\extenddef{\Gamma}{x}{A}{e}}}$
+  $\infrule[Ctx-Def]{\tyctx{\Gamma} \quad \typing{e}{A} \quad \sidecond{x \notin \Gamma}}{\tyctx{\extenddef{\Gamma}{x}{A}{e}}}$
 
   \vspace{1em}
 
-  $\infrule{\tyctx{\extenddef{\Gamma}{x}{A}{e}}}{\computation{\extenddef{\Gamma}{x}{A}{e}}{x}{e}{A}}$
+  $\infrule[Comp-Ctx-Def]{\tyctx{\extenddef{\Gamma}{x}{A}{e}}}{\fullcomputation{\extenddef{\Gamma}{x}{A}{e}}{x}{e}{A}}$
 \end{center}
 
 \end{frame}
@@ -746,21 +753,21 @@ $\Gamma ::= \emptytypingctx \pipe \extend{\Gamma}{x}{A} \pipe \extenddef{\Gamma}
 \begin{frame}{Additional features -- let bindings}
 
 \begin{center}
-  $\infrule{\typing{\Gamma}{e_1}{A} \quad \typing{\extend{\Gamma}{x}{A}}{e_2}{B}}{\typing{\Gamma}{\letin{x}{e_1}{e_2}}{B}}$
+  $\infrule[Let]{\typing{e_1}{A} \quad \fulltyping{\extend{\Gamma}{x}{A}}{e_2}{B}}{\typing{\letin{x}{e_1}{e_2}}{B}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{\letin{x}{e_1}{e_2}}{A}}{\computation{\Gamma}{\letin{x}{e_1}{e_2}}{\subst{e_2}{x}{e_1}}{A}}$
+  $\infrule[Let-Comp]{\typing{\letin{x}{e_1}{e_2}}{A}}{\computation{\letin{x}{e_1}{e_2}}{\subst{e_2}{x}{e_1}}{A}}$
 
   \vspace{1em}
 
-  $\infrule{\computation{\Gamma}{e_1}{e_1'}{A} \quad \computation{\Gamma}{e_2}{e_2'}{B}}{\computation{\Gamma}{\letin{x}{e_1}{e_2}}{\letin{x}{e_1'}{e_2'}}{B}}$
+  $\infrule[Let-Congr]{\computation{e_1}{e_1'}{A} \quad \computation{e_2}{e_2'}{B}}{\computation{\letin{x}{e_1}{e_2}}{\letin{x}{e_1'}{e_2'}}{B}}$
 \end{center}
 
 If definitions from the previous slide are available, we might modify the computation rule to make use of it.
 
 \begin{center}
-  $\infrule{\computation{\extenddef{\Gamma}{x}{A}{e_1}}{e_2}{e_2'}{B}}{\computation{\Gamma}{\letin{x}{e_1}{e_2}}{e_2'}{B}}$
+  $\infrule[Let-Comp-Def]{\fullcomputation{\extenddef{\Gamma}{x}{A}{e_1}}{e_2}{e_2'}{B}}{\computation{\letin{x}{e_1}{e_2}}{e_2'}{B}}$
 \end{center}
 
 \end{frame}
@@ -770,17 +777,19 @@ If definitions from the previous slide are available, we might modify the comput
 \begin{frame}{Additional features -- type annotations}
 
 \begin{center}
-  $\infrule{\typing{\Gamma}{e}{A}}{\typing{\Gamma}{\annot{e}{A}}{A}}$
+  $\infrule[Annot]{\typing{e}{A}}{\typing{\annot{e}{A}}{A}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{e}{A}}{\computation{\Gamma}{\annot{e}{A}}{e}{A}}$
+  $\infrule[Comp-Annot]{\typing{e}{A}}{\computation{\annot{e}{A}}{e}{A}}$
 \end{center}
 
 \end{frame}
 
 \newcommand{\recordtype}[1]{\{#1\}}
+\newcommand{\recordtypes}[4]{\recordtype{#1_{#3} : #2_{#3}}_{#3 \in #4}}
 \newcommand{\record}[1]{\{#1\}}
+\newcommand{\records}[4]{\record{#1_{#3} := #2_{#3}}_{#3 \in #4}}
 \newcommand{\field}[2]{#1 := #2}
 \newcommand{\fields}[3]{#1_{#3} := #2_{#3}}
 \newcommand{\proj}[2]{#2.#1}
@@ -789,26 +798,54 @@ If definitions from the previous slide are available, we might modify the comput
 \begin{frame}{Additional features -- record types}
 
 \begin{center}
-  $\infrule{\forall i. \quad \typing{\Gamma}{e_i}{A_i}}{\typing{\Gamma}{\record{\fields{\ell}{e}{i}}}{\recordtype{\ctype{\ell_i}{A_i}}}}$
+  $\infrule[Record-Intro]{\forall i \in I. \quad \typing{e_i}{A_i}}{\typing{\records{\ell}{e}{i}{I}}{\recordtypes{\ell}{A}{i}{I}}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{e}{R} \quad \sidecond{(\ctype{\ell}{A}) \in R}}{\typing{\Gamma}{\proj{\ell}{e}}{A}}$
+  $\infrule[Record-Elim]{\typing{e}{\recordtypes{\ell}{A}{i}{I}} \quad \sidecond{j \in I}}{\typing{\proj{\ell_j}{e}}{A_j}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{\record{\fields{\ell}{e}{i}}}{\recordtype{\ctype{\ell_i}{A_i}}} \quad \sidecond{\exists i. \ell = \ell_i}}{\computation{\Gamma}{\proj{l}{\record{\fields{\ell}{e}{i}}}}{e_i}{A_i}}$
+  $\infrule[Record-Comp]{\typing{\records{\ell}{e}{i}{I}}{\recordtypes{\ell}{A}{i}{I}} \quad \sidecond{j \in I}}{\computation{\proj{\ell_j}{\records{\ell}{e}{i}{I}}}{e_j}{A_j}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma}{r}{\recordtype{\ctype{\ell_i}{A_i}}}}{\computation{\Gamma}{r}{\record{\field{\ell_i}{\proj{\ell_i}{r}}}}{\recordtype{\ctype{\ell_i}{A_i}}}}$
+  $\infrule[Record-Uniq]{\typing{r}{\recordtypes{\ell}{A}{i}{I}}}{\computation{r}{\records{\ell}{\proj{\ell}{r}}{i}{I}}{\recordtypes{\ell}{A}{i}{I}}}$
+\end{center}
+
+\end{frame}
+
+\newcommand{\varianttype}[1]{\left[#1\right]}
+\newcommand{\varianttypes}[4]{\varianttype{#1_{#3} : #2_{#3}}_{#3 \in #4}}
+\newcommand{\vcase}[2]{\texttt{vcase}\ #1\ \texttt{of}\ #2}
+
+\begin{frame}{Additional features -- variant types}
+
+\begin{center}
+  $\infrule[Variant-Intro]{\typing{e}{A_j} \quad \sidecond{j \in I}}{\typing{\app{c_j}{e}}{\varianttypes{c}{A}{i}{I}}}$
+
+  \vspace{1em}
+
+  $\infrule[Variant-Elim]{\typing{e}{\varianttypes{c}{A}{i}{I}} \quad \typing{r}{\recordtypes{c}{\Fun{A_i}{B}}{i}{I}}}{\typing{\vcase{e}{r}}{B}}$
+
+  \vspace{1em}
+
+  $\infrule[Variant-Comp]{\typing{e}{A_j} \quad \typing{r}{\recordtypes{c}{\Fun{A_i}{B}}{i}{I}} \quad \sidecond{j \in I}}{\computation{\vcase{(\app{c_j}{e})}{r}}{\app{\proj{c_j}{r}}{e}}{B}}$
+
+  \vspace{1em}
+
+  $\infrule[Variant-Congr-I]{\computation{e}{e'}{A_j} \quad \sidecond{j \in I}}{\computation{\app{c_j}{e}}{\app{c_j}{e'}}{\varianttypes{c}{A}{i}{I}}}$
+
+  \vspace{1em}
+
+  $\infrule[Variant-Congr-E]{\computation{e}{e'}{\varianttypes{c}{A}{i}{I}} \quad \computation{r}{r'}{\recordtypes{c}{\Fun{A_i}{B}}{i}{I}}}{\computation{\vcase{e}{r}}{\vcase{e'}{r'}}{B}}$
 \end{center}
 
 \end{frame}
 
 \newcommand{\validtype}[2]{#1 \vdash #2\ \texttt{type}}
-
-\newcommand{\refinement}[3]{\{#1 : #2\ |\ #3\}}
+\newcommand{\fulltype}[2]{#1 \vdash #2\ \texttt{type}}
+\newcommand{\type}[1]{\fulltype{\Gamma}{#1}}
 
 \begin{frame}{Additional features -- setup for refinement types}
 
@@ -817,52 +854,76 @@ For a moment, let's say that types can depend on propositions. This means that w
 \vspace{1em}
 
 \begin{center}
-  $\infrule{\tyctx{\Gamma} \quad \validtype{\Gamma}{A} \quad \sidecond{x \notin \Gamma}}{\tyctx{\extend{\Gamma}{x}{A}}}$
+  $\infrule[Ctx-Extend]{\tyctx{\Gamma} \quad \validtype{\Gamma}{A} \quad \sidecond{x \notin \Gamma}}{\tyctx{\extend{\Gamma}{x}{A}}}$
 \end{center}
 
 With such a setup, we can express refinement types, i.e. a kind of a subset of a given type for which some proposition holds.
 
 \end{frame}
 
+\newcommand{\refinement}[3]{\{#1 : #2\ |\ #3\}}
+\newcommand{\refine}[1]{\texttt{refine}\ #1}
+\newcommand{\unrefine}[1]{\texttt{unrefine}\ #1}
+
 \begin{frame}{Additional features -- refinement types}
 
 \begin{center}
-  $\infrule{\Gamma \vdash A\ \texttt{type} \quad \prop{\extend{\Gamma}{x}{A}}{P}}{\Gamma \vdash \refinement{x}{A}{P}\ \texttt{type}}$
+  $\infrule[Refinement-Form]{\type{A} \quad \prop{\extend{\Gamma}{x}{A}}{P}}{\type{\refinement{x}{A}{P}}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma \pipe \Delta}{e}{A} \quad \holds{\Gamma}{\Delta}{P}}{\typing{\Gamma \pipe \Delta}{\texttt{intro}\ e}{\refinement{x}{A}{P}}}$
+  $\infrule[Refinement-Intro]{\fulltyping{\Gamma \pipe \Delta}{e}{A} \quad \holds{P}}{\fulltyping{\Gamma \pipe \Delta}{\refine{e}}{\refinement{x}{A}{P}}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma \pipe \Delta}{e}{\refinement{x}{A}{P}}}{\typing{\Gamma \pipe \Delta}{\texttt{proj}\ e}{A}}$
+  $\infrule[Refinement-Elim]{\fulltyping{\Gamma \pipe \Delta}{e}{\refinement{x}{A}{P}}}{\fulltyping{\Gamma \pipe \Delta}{\unrefine{e}}{A}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma \pipe \Delta}{e}{\refinement{x}{A}{P}}}{\holds{\Gamma}{\Delta}{\subst{P}{x}{\texttt{proj}\ e}}}$
+  $\infrule[Refinement-Ind]{\fullholds{\extend{\Gamma}{e}{A}}{\Delta}{\subst{P}{x}{\refine{e}}}}{\holds{\All{x}{\refinement{y}{A}{P}}{P}}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{\Gamma \pipe \Delta}{e}{\refinement{x}{A}{P}}}{\computation{\Gamma}{\texttt{proj}\ (\texttt{intro}\ e)}{e}{A}}$
+  $\infrule[Refinement-Comp]{\fulltyping{\Gamma \pipe \Delta}{e}{A} \quad \holds{P}}{\computation{\unrefine{(\refine{e})}}{e}{A}}$
+
+  \vspace{1em}
+
+  $\infrule[Refinement-Uniq]{\fulltyping{\Gamma \pipe \Delta}{e}{\refinement{x}{A}{P}}}{\computation{e}{\refine{(\unrefine{e})}}{\refinement{x}{A}{P}}}$
 \end{center}
 
 \end{frame}
 
-\newcommand{\subtype}[2]{#1 <: #2}
+\newcommand{\quotient}[2]{#1\ \texttt{\textbackslash\textbackslash}\ #2}
+\newcommand{\qin}[1]{\texttt{qin}\ #1}
+\newcommand{\qout}[2]{\texttt{qout}\ #1\ #2}
 
-\begin{frame}{Additional features -- more, part 1}
+\begin{frame}{Additional features -- quotients}
 
-\begin{itemize}
-  \item Variant types -- this is a feature dual to records. They are basically a first-class version of non-recursive algebraic data types.
-  \item Quotient types -- it is a language extension similar to refinement types, but they resemble set-theoretic quotients rather than subsets. They correspond to Athena's structures. They are absent from most varieties of type theory, but I'm not sure whether they won't be possible here.
-  \item Subtyping -- some types are now in a subtyping relation $\subtype{A}{B}$ and an $a : A$ can be used in every place where a term of type $B$ is expected.
-\end{itemize}
+\begin{center}
+  $\infrule[Quotient-Form]{\type{A} \quad \prop{\extend{\extend{\Gamma}{x}{A}}{y}{A}}{R} \quad \texttt{Equivalence}\ R}{\type{\quotient{A}{R}}}$
 
+  \vspace{1em}
+
+  $\infrule[Quotient-Intro]{\fulltyping{\Gamma \pipe \Delta}{e}{A} \quad \prop{\extend{\extend{\Gamma}{x}{A}}{y}{A}}{R} \quad \texttt{Equivalence}\ R}{\fulltyping{\Gamma \pipe \Delta}{\qin{e}}{\quotient{A}{R}}}$
+
+  \vspace{1em}
+
+  $\infrule[Quotient-Elim]{\fulltyping{\Gamma \pipe \Delta}{e}{\quotient{A}{R}} \quad \fulltyping{\Gamma \pipe \Delta}{f}{\Fun{A}{B}} \quad f\ \texttt{preserves}\ R}{\fulltyping{\Gamma \pipe \Delta}{\qout{f}{e}}{B}}$
+
+  \vspace{1em}
+
+  $\infrule[Quotient-Comp]{\fulltyping{\Gamma \pipe \Delta}{e}{A} \quad \fulltyping{\Gamma \pipe \Delta}{f}{\Fun{A}{B}} \quad f\ \texttt{preserves}\ R}{\computation{\qout{f}{(\qin{e})}}{\app{f}{e}}{B}}$
+\end{center}
+
+Where ``preserves'' is the judgement $\holds{\All{x}{A}{\All{y}{A}{\Impl{\app{\app{R}{x}}{y}}{\Eq[B]{\app{f}{x}}{\app{f}{y}}}}}}$
 \end{frame}
 
-\begin{frame}{Additional features -- more, part 2}
+\newcommand{\subtype}[2]{#1 <: #2}
+
+\begin{frame}{Additional features -- more}
 
 \begin{itemize}
+  \item Subtyping -- some types are now in a subtyping relation $\subtype{A}{B}$ and an $a : A$ can be used in every place where a term of type $B$ is expected.
   \item Parametric polymorphism -- a new type former $\forall \alpha. A$. It can be either explicit (need to manage the type arguments manually) or implicit (type arguments are inferred). The implicit approach is the most common, but it's also harder to implement.
   \item Algebraic data types -- adding them in a clean manner is a bit complicated, because we either need to deal with general recursion or manage a plethora of checks, like coverage and termination.
   \item Module system -- this will be a bit harder to model, but we could borrow it from ML and OCaml.
@@ -873,7 +934,7 @@ With such a setup, we can express refinement types, i.e. a kind of a subset of a
 \begin{frame}{Additional features -- alternative presentations}
 
 \begin{itemize}
-  \item The system could be presented using a reduction which would cover the ``directed'' part of computational equality.
+  \item The system could be presented using a reduction relation which would cover the ``directed'' part of computational equality.
   \item The type system could be presented in a more algorithmic way, which is more amenable to being treated as a reference implementation.
   \item Is an explicit definition of substitution needed, or nobody cares?
 \end{itemize}
