@@ -44,7 +44,7 @@
 \newcommand{\fullcomputation}[4]{\mathcolor{blue}{#1 \vdash #2 \equiv #3 : #4}}
 \newcommand{\computation}[3]{\fullcomputation{\Gamma}{#1}{#2}{#3}}
 
-\newcommand{\assctx}[2]{\mathcolor{gray}{#1\ \vdash #2\ \texttt{valid}}}
+\newcommand{\assctx}[2]{\mathcolor{cyan}{#1\ \vdash #2\ \texttt{valid}}}
 \newcommand{\prop}[2]{\mathcolor{green}{#1 \vdash #2\ \texttt{prop}}}
 \newcommand{\fullholds}[3]{\mathcolor{red}{#1 \pipe #2 \vdash #3}}
 \newcommand{\holds}[1]{\fullholds{\Gamma}{\Delta}{#1}}
@@ -515,24 +515,6 @@ There are many ways to add classical logic to the system, but we'll have a rule 
 
 \end{frame}
 
-\section{Exercises}
-
-\begin{frame}{Exercises}
-
-Just seeing a system like this won't be enough to convince anybody that it makes sense. Therefore, doing some exercises would be advised:
-
-\begin{itemize}
-  \item Assume that $A$ and $B$ are arbitrary types. Define functions $\texttt{swap} : \Fun{\Prod{A}{B}}{\Prod{B}{A}}$ and $\texttt{sweep} : \Fun{\Sum{A}{B}}{\Sum{B}{A}}$ and prove that they are involutive. Are they computationally involutive, i.e. involutive up to computational equality?
-  \item Can you prove that every term of a product type is a pair?
-  \item Can you prove that every term of a sum type is either $\inl[a]$ or $\inr[b]$ for some $a$ and $b$?
-  \item Add booleans to the language
-  \item Add natural numbers to the language.
-  \item Define addition of natural numbers and prove that it is associative and commutative.
-  \item Write an interesting program and prove an interesting theorem about it.
-\end{itemize}
-
-\end{frame}
-
 \section{More types}
 
 \newcommand{\Bool}{\texttt{Bool}}
@@ -548,7 +530,7 @@ Our current menagerie of type constructors isn't very expressive. In fact, since
 
 \newcommand{\elimUnit}[2]{\texttt{elim}_{\Unit}\ #1\ #2}
 
-\begin{frame}{More types -- eliminator for $\Unit$}
+\begin{frame}{Eliminator for $\Unit$}
 
 One little silly thing that we don't have is an eliminator for the $\Unit$ type. It's useless, but why not?
 
@@ -570,7 +552,7 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 
 \end{frame}
 
-\begin{frame}{More types -- booleans}
+\begin{frame}{Booleans}
 
 \begin{center}
   $\infrule{\tyctx{\Gamma}}{\typing{\true}{\Bool}}$ \quad
@@ -604,12 +586,28 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 
 \end{frame}
 
+\begin{frame}{Booleans -- congruence rules}
+
+\begin{center}
+  $\infrule[True-Congr]{\tyctx{\Gamma}}{\computation{\true}{\true}{\Bool}}$
+
+  \vspace{1em}
+
+  $\infrule[False-Congr]{\tyctx{\Gamma}}{\computation{\false}{\false}{\Bool}}$
+
+  \vspace{1em}
+
+  $\infrule[Bool-Elim-Congr]{\computation{e}{e'}{\Bool} \quad \computation{e_1}{e_1'}{A} \quad \computation{e_2}{e_2'}{A}}{\computation{\boolElim{e}{e_1}{e_2}}{\boolElim{e'}{e_1'}{e_2'}}{A}}$
+\end{center}
+
+\end{frame}
+
 \newcommand{\Nat}{\mathbb{N}}
 \newcommand{\zero}{\texttt{zero}}
 \renewcommand{\succ}[1][]{\texttt{succ}\ #1}
 \newcommand{\elimNat}[3]{\texttt{rec}_\Nat\ #1\ #2\ #3}
 
-\begin{frame}{More types -- natural numbers}
+\begin{frame}{Natural numbers}
 
 \begin{center}
   $\infrule{\tyctx{\Gamma}}{\typing{\zero}{\Nat}}$ \quad
@@ -634,12 +632,28 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 
 \end{frame}
 
+\begin{frame}{Natural numbers -- congruence rules}
+
+\begin{center}
+  $\infrule[Zero-Congr]{\tyctx{\Gamma}}{\computation{\zero}{\zero}{\Nat}}$
+
+  \vspace{1em}
+
+  $\infrule[Succ-Congr]{\computation{n}{n'}{\Nat}}{\computation{\succ[n]}{\succ[n']}{\Nat}}$
+
+  \vspace{1em}
+
+  $\infrule[Nat-Elim-Congr]{\computation{z}{z'}{A} \quad \computation{s}{s'}{\Fun{A}{A}} \quad \computation{n}{n'}{\Nat}}{\computation{\elimNat{z}{s}{n}}{\elimNat{z'}{s'}{n'}}{A}}$
+\end{center}
+
+\end{frame}
+
 \newcommand{\List}[1]{\text{List}\ #1}
 \newcommand{\nil}{\texttt{nil}}
 \newcommand{\cons}[2]{\texttt{cons}\ #1\ #2}
 \newcommand{\elimList}[3]{\texttt{fold}\ #1\ #2\ #3}
 
-\begin{frame}{More types -- lists}
+\begin{frame}{Lists}
 
 \begin{center}
   $\infrule{\tyctx{\Gamma}}{\typing{\nil}{\List{A}}}$ \quad
@@ -664,12 +678,28 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 
 \end{frame}
 
+\begin{frame}{Lists -- congruence rules}
+
+\begin{center}
+  $\infrule[Nil-Congr]{\tyctx{\Gamma}}{\computation{\nil}{\nil}{\List{A}}}$
+
+  \vspace{1em}
+
+  $\infrule[Cons-Congr]{\computation{h}{h'}{A} \quad \computation{t}{t'}{\List{A}}}{\computation{\cons{h}{t}}{\cons{h'}{t'}}{\List{A}}}$
+
+  \vspace{1em}
+
+  $\infrule[List-Elim-Congr]{\computation{n}{n'}{A} \quad \computation{c}{c'}{\Fun{A}{\Fun{B}{B}}} \quad \computation{l}{l'}{\List{A}}}{\computation{\elimList{n}{c}{l}}{\elimList{n'}{c'}{l'}}{B}}$
+\end{center}
+
+\end{frame}
+
 \newcommand{\AxiStream}[1]{\texttt{Stream}\ #1}
 \newcommand{\hd}[1][]{\texttt{hd}\ #1}
 \newcommand{\tl}[1][]{\texttt{tl}\ #1}
 \newcommand{\introStream}[2]{\texttt{scons}\ #1\ #2}
 
-\begin{frame}{More types -- streams}
+\begin{frame}{Streams}
 
 \begin{center}
 
@@ -691,111 +721,38 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 
 \end{frame}
 
-\begin{frame}{More types -- streams 2}
+\begin{frame}{Streams -- congruence rules}
 
 Streams do have all the congruence rules we would expect, but they don't have any uniqueness rules.
 
 \vspace{1em}
 
 \begin{center}
-
-  $\infrule{\computation{s}{s'}{A}}{\computation{\hd[s]}{\hd[s']}{A}}$ \quad
-  $\infrule{\computation{s}{s'}{A}}{\computation{\tl[s]}{\tl[s']}{\AxiStream{A}}}$
+  $\infrule[Hd-Congr]{\computation{s}{s'}{A}}{\computation{\hd[s]}{\hd[s']}{A}}$
 
   \vspace{1em}
 
-  $\infrule{\computation{a}{a'}{A} \quad \computation{f}{f'}{\Fun{A}{A}}}{\computation{\introStream{a}{f}}{\introStream{a'}{f'}}{\AxiStream{A}}}$
-\end{center}
+  $\infrule[Tl-Congr]{\computation{s}{s'}{A}}{\computation{\tl[s]}{\tl[s']}{\AxiStream{A}}}$
 
-\end{frame}
+  \vspace{1em}
 
-\begin{frame}{More types -- streams 3}
-
-But the real question is, how do proofs by coinduction look like?
-
-\vspace{1em}
-
-\begin{center}
+  $\infrule[Stream-Intro-Congr]{\computation{a}{a'}{A} \quad \computation{f}{f'}{\Fun{A}{A}}}{\computation{\introStream{a}{f}}{\introStream{a'}{f'}}{\AxiStream{A}}}$
 
   %$\infrule{\fullholds{\Gamma}{\assume{\Delta}{R}}{\Eq[A]{\hd{s_1}}{\hd{s_2}}} \quad \fullholds{\Gamma}{\assume{\Delta}{R}}{\subst{\subst{R}{x}{\tl[s_1]}}{y}{\tl[s_2]}}}{\holds{\Eq[\AxiStream{A}]{s_1}{s_2}}}$
 \end{center}
 
-\end{frame}
-
-\section{Additional features}
-
-\begin{frame}{Additional features -- intro}
-
-What other features might we add to our language? Let's find out.
+But the real question is, how do proofs by coinduction look like?
 
 \end{frame}
 
-\begin{frame}{Additional features -- definitions in context}
-
-We can change the definition of typing contexts to allow putting definitions in them. This can be handy for expressing let bindings and also makes fully formal derivations much shorter. However, it also requires adding a new judgement, the well-formed context judgement, because we want to allow adding only well-typed definitions to the context. We must also remember to include these definitions in computational equality.
-
-$\Gamma ::= \emptytypingctx \pipe \extend{\Gamma}{x}{A} \pipe \extenddef{\Gamma}{x}{A}{e}$
-
-\vspace{1em}
-
-\begin{center}
-  $\infrule[Ctx-Def]{\tyctx{\Gamma} \quad \typing{e}{A} \quad \sidecond{x \notin \Gamma}}{\tyctx{\extenddef{\Gamma}{x}{A}{e}}}$
-
-  \vspace{1em}
-
-  $\infrule[Comp-Ctx-Def]{\tyctx{\extenddef{\Gamma}{x}{A}{e}}}{\fullcomputation{\extenddef{\Gamma}{x}{A}{e}}{x}{e}{A}}$
-\end{center}
-
-\end{frame}
-
-\newcommand{\letin}[3]{\texttt{let}\ #1 = #2\ \texttt{in}\ #3}
-
-\begin{frame}{Additional features -- let bindings}
-
-\begin{center}
-  $\infrule[Let]{\typing{e_1}{A} \quad \fulltyping{\extend{\Gamma}{x}{A}}{e_2}{B}}{\typing{\letin{x}{e_1}{e_2}}{B}}$
-
-  \vspace{1em}
-
-  $\infrule[Let-Comp]{\typing{\letin{x}{e_1}{e_2}}{A}}{\computation{\letin{x}{e_1}{e_2}}{\subst{e_2}{x}{e_1}}{A}}$
-
-  \vspace{1em}
-
-  $\infrule[Let-Congr]{\computation{e_1}{e_1'}{A} \quad \computation{e_2}{e_2'}{B}}{\computation{\letin{x}{e_1}{e_2}}{\letin{x}{e_1'}{e_2'}}{B}}$
-\end{center}
-
-If definitions from the previous slide are available, we might modify the computation rule to make use of it.
-
-\begin{center}
-  $\infrule[Let-Comp-Def]{\fullcomputation{\extenddef{\Gamma}{x}{A}{e_1}}{e_2}{e_2'}{B}}{\computation{\letin{x}{e_1}{e_2}}{e_2'}{B}}$
-\end{center}
-
-\end{frame}
-
-\newcommand{\annot}[2]{(#1 : #2)}
-
-\begin{frame}{Additional features -- type annotations}
-
-\begin{center}
-  $\infrule[Annot]{\typing{e}{A}}{\typing{\annot{e}{A}}{A}}$
-
-  \vspace{1em}
-
-  $\infrule[Comp-Annot]{\typing{e}{A}}{\computation{\annot{e}{A}}{e}{A}}$
-\end{center}
-
-\end{frame}
+\newcommand{\recordtypes}[4]{\recordtype{#1_{#3} : #2_{#3}}_{#3 \in #4}}
+\newcommand{\records}[4]{\record{#1_{#3} := #2_{#3}}_{#3 \in #4}}
+\newcommand{\proj}[2]{#2.#1}
 
 \newcommand{\recordtype}[1]{\{#1\}}
-\newcommand{\recordtypes}[4]{\recordtype{#1_{#3} : #2_{#3}}_{#3 \in #4}}
 \newcommand{\record}[1]{\{#1\}}
-\newcommand{\records}[4]{\record{#1_{#3} := #2_{#3}}_{#3 \in #4}}
-\newcommand{\field}[2]{#1 := #2}
-\newcommand{\fields}[3]{#1_{#3} := #2_{#3}}
-\newcommand{\proj}[2]{#2.#1}
-\newcommand{\ctype}[2]{#1 : #2}
 
-\begin{frame}{Additional features -- record types}
+\begin{frame}{Record types}
 
 \begin{center}
   $\infrule[Record-Intro]{\forall i \in I. \quad \typing{e_i}{A_i}}{\typing{\records{\ell}{e}{i}{I}}{\recordtypes{\ell}{A}{i}{I}}}$
@@ -815,11 +772,23 @@ If definitions from the previous slide are available, we might modify the comput
 
 \end{frame}
 
+\begin{frame}{Record types -- congruence rules}
+
+\begin{center}
+  $\infrule[Record-Intro-Congr]{\forall i \in I. \quad \computation{e_i}{e_i'}{A_i}}{\computation{\records{\ell}{e}{i}{I}}{\records{\ell}{e'}{i}{I}}{\recordtypes{\ell}{A}{i}{I}}}$
+
+  \vspace{1em}
+
+  $\infrule[Record-Elim-Congr]{\computation{e}{e'}{\recordtypes{\ell}{A}{i}{I}} \quad \sidecond{j \in I}}{\computation{\proj{\ell_j}{e}}{\proj{\ell_j}{e'}}{A_j}}$
+\end{center}
+
+\end{frame}
+
 \newcommand{\varianttype}[1]{\left[#1\right]}
 \newcommand{\varianttypes}[4]{\varianttype{#1_{#3} : #2_{#3}}_{#3 \in #4}}
 \newcommand{\vcase}[2]{\texttt{vcase}\ #1\ \texttt{of}\ #2}
 
-\begin{frame}{Additional features -- variant types}
+\begin{frame}{Variant types}
 
 \begin{center}
   $\infrule[Variant-Intro]{\typing{e}{A_j} \quad \sidecond{j \in I}}{\typing{\app{c_j}{e}}{\varianttypes{c}{A}{i}{I}}}$
@@ -831,14 +800,18 @@ If definitions from the previous slide are available, we might modify the comput
   \vspace{1em}
 
   $\infrule[Variant-Comp]{\typing{e}{A_j} \quad \typing{r}{\recordtypes{c}{\Fun{A_i}{B}}{i}{I}} \quad \sidecond{j \in I}}{\computation{\vcase{(\app{c_j}{e})}{r}}{\app{\proj{c_j}{r}}{e}}{B}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Variant types -- congruence rules}
+
+\begin{center}
+  $\infrule[Variant-Intro-Congr]{\computation{e}{e'}{A_j} \quad \sidecond{j \in I}}{\computation{\app{c_j}{e}}{\app{c_j}{e'}}{\varianttypes{c}{A}{i}{I}}}$
 
   \vspace{1em}
 
-  $\infrule[Variant-Congr-I]{\computation{e}{e'}{A_j} \quad \sidecond{j \in I}}{\computation{\app{c_j}{e}}{\app{c_j}{e'}}{\varianttypes{c}{A}{i}{I}}}$
-
-  \vspace{1em}
-
-  $\infrule[Variant-Congr-E]{\computation{e}{e'}{\varianttypes{c}{A}{i}{I}} \quad \computation{r}{r'}{\recordtypes{c}{\Fun{A_i}{B}}{i}{I}}}{\computation{\vcase{e}{r}}{\vcase{e'}{r'}}{B}}$
+  $\infrule[Variant-Elim-Congr]{\computation{e}{e'}{\varianttypes{c}{A}{i}{I}} \quad \computation{r}{r'}{\recordtypes{c}{\Fun{A_i}{B}}{i}{I}}}{\computation{\vcase{e}{r}}{\vcase{e'}{r'}}{B}}$
 \end{center}
 
 \end{frame}
@@ -847,7 +820,95 @@ If definitions from the previous slide are available, we might modify the comput
 \newcommand{\fulltype}[2]{#1 \vdash #2\ \texttt{type}}
 \newcommand{\type}[1]{\fulltype{\Gamma}{#1}}
 
-\begin{frame}{Additional features -- setup for refinement types}
+\section{Exercises}
+
+\begin{frame}{Exercises}
+
+Just seeing a system like this won't be enough to convince anybody that it makes sense. Therefore, doing some exercises would be advised:
+
+\begin{itemize}
+  \item Assume that $A$ and $B$ are arbitrary types. Define functions $\texttt{swap} : \Fun{\Prod{A}{B}}{\Prod{B}{A}}$ and $\texttt{sweep} : \Fun{\Sum{A}{B}}{\Sum{B}{A}}$ and prove that they are involutive. Are they computationally involutive, i.e. involutive up to computational equality?
+  \item Can you prove that every term of a product type is a pair?
+  \item Can you prove that every term of a sum type is either $\inl[a]$ or $\inr[b]$ for some $a$ and $b$?
+  \item Add booleans to the language
+  \item Add natural numbers to the language.
+  \item Define addition of natural numbers and prove that it is associative and commutative.
+  \item Write an interesting program and prove an interesting theorem about it.
+\end{itemize}
+
+\end{frame}
+
+\section{Additional features}
+
+\begin{frame}{Additional features -- intro}
+
+What other features might we add to our language? Let's find out.
+
+\end{frame}
+
+\newcommand{\annot}[2]{(#1 : #2)}
+
+\begin{frame}{Type annotations}
+
+\begin{center}
+  $\infrule[Annot]{\typing{e}{A}}{\typing{\annot{e}{A}}{A}}$
+
+  \vspace{1em}
+
+  $\infrule[Comp-Annot]{\typing{e}{A}}{\computation{\annot{e}{A}}{e}{A}}$
+\end{center}
+
+\end{frame}
+
+\newcommand{\letin}[3]{\texttt{let}\ #1 = #2\ \texttt{in}\ #3}
+
+\begin{frame}{Let bindings}
+
+\begin{center}
+  $\infrule[Let]{\typing{e_1}{A} \quad \fulltyping{\extend{\Gamma}{x}{A}}{e_2}{B}}{\typing{\letin{x}{e_1}{e_2}}{B}}$
+
+  \vspace{1em}
+
+  $\infrule[Let-Comp]{\typing{\letin{x}{e_1}{e_2}}{A}}{\computation{\letin{x}{e_1}{e_2}}{\subst{e_2}{x}{e_1}}{A}}$
+
+  \vspace{1em}
+
+  $\infrule[Let-Congr]{\computation{e_1}{e_1'}{A} \quad \computation{e_2}{e_2'}{B}}{\computation{\letin{x}{e_1}{e_2}}{\letin{x}{e_1'}{e_2'}}{B}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Definitions in context}
+
+We can change the definition of typing contexts to allow putting definitions in them. This can be handy for expressing let bindings and also makes fully formal derivations much shorter. However, it also requires adding a new judgement, the well-formed context judgement, because we want to allow adding only well-typed definitions to the context. We must also remember to include these definitions in computational equality.
+
+$\Gamma ::= \emptytypingctx \pipe \extend{\Gamma}{x}{A} \pipe \extenddef{\Gamma}{x}{A}{e}$
+
+\vspace{1em}
+
+\begin{center}
+  $\infrule[Ctx-Def]{\tyctx{\Gamma} \quad \typing{e}{A} \quad \sidecond{x \notin \Gamma}}{\tyctx{\extenddef{\Gamma}{x}{A}{e}}}$
+
+  \vspace{1em}
+
+  $\infrule[Comp-Ctx-Def]{\tyctx{\extenddef{\Gamma}{x}{A}{e}}}{\fullcomputation{\extenddef{\Gamma}{x}{A}{e}}{x}{e}{A}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Definitions in context -- practical consequences}
+
+\begin{center}
+  $\infrule[App-Lam-Def]{\fullcomputation{\extenddef{\Gamma}{x}{A}{a}}{b}{b'}{B}}{\computation{\app{(\fun{x}{b})}{a}}{b'}{B}}$
+
+  \vspace{1em}
+
+  $\infrule[Let-Comp-Def]{\fullcomputation{\extenddef{\Gamma}{x}{A}{e_1}}{e_2}{e_2'}{B}}{\computation{\letin{x}{e_1}{e_2}}{e_2'}{B}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Refinement types and quotient types -- setup}
 
 For a moment, let's say that types can depend on propositions. This means that we have a well-formed type judgement which depends both on the typing context. We need to modify the valid context judgement to take this into account.
 
@@ -865,7 +926,7 @@ With such a setup, we can express refinement types, i.e. a kind of a subset of a
 \newcommand{\refine}[1]{\texttt{refine}\ #1}
 \newcommand{\unrefine}[1]{\texttt{unrefine}\ #1}
 
-\begin{frame}{Additional features -- refinement types}
+\begin{frame}{Refinement types}
 
 \begin{center}
   $\infrule[Refinement-Form]{\type{A} \quad \prop{\extend{\Gamma}{x}{A}}{P}}{\type{\refinement{x}{A}{P}}}$
@@ -897,7 +958,7 @@ With such a setup, we can express refinement types, i.e. a kind of a subset of a
 \newcommand{\qin}[1]{\texttt{qin}\ #1}
 \newcommand{\qout}[2]{\texttt{qout}\ #1\ #2}
 
-\begin{frame}{Additional features -- quotients}
+\begin{frame}{Quotient types}
 
 \begin{center}
   $\infrule[Quotient-Form]{\type{A} \quad \prop{\extend{\extend{\Gamma}{x}{A}}{y}{A}}{R} \quad \texttt{Equivalence}\ R}{\type{\quotient{A}{R}}}$
@@ -920,7 +981,7 @@ Where ``preserves'' is the judgement $\holds{\All{x}{A}{\All{y}{A}{\Impl{\app{\a
 
 \newcommand{\subtype}[2]{#1 <: #2}
 
-\begin{frame}{Additional features -- more}
+\begin{frame}{Additional feature proposals}
 
 \begin{itemize}
   \item Subtyping -- some types are now in a subtyping relation $\subtype{A}{B}$ and an $a : A$ can be used in every place where a term of type $B$ is expected.
