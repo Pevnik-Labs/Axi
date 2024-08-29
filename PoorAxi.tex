@@ -98,23 +98,49 @@ $P, Q ::=$ \\
 
 \end{frame}
 
-\begin{frame}{Contexts}
+\begin{frame}{Terms and types}
 
-Typing contexts: \\
-$\Gamma ::= \emptytypingctx \pipe \extend{\Gamma}{x}{A}$
-
-\vspace{1em}
-
-Assumption contexts: \\
-$\Delta ::= \emptyassctx \pipe \assume{\Delta}{P}$
+In the base language we have only function types, product types, sum types, $Unit$ (the type with one element) and $Empty$ (the type with no elements). Later we will add booleans, natural numbers, lists and streams.
 
 \vspace{1em}
 
-We make use of two kinds of contexts. Typing contexts tell us what the type of a variable is. They are used during typechecking and to see if a proposition is well-formed (since propositions can depend on term variables). Assumption contexts tell us what assumption were made. They are used during proof checking.
+Some of the less obvious terms: $\outl{e}$ and $\outr{e}$ are projections, $unit$ is the only varlue of the $Unit$ type and $\elimEmpty{e}$ is the eliminator of the empty type applied to $e$. $\case{e}{e_1}{e_2}$ is the eliminator of the sum type and its arguments $e_1, e_2$ are supposed to be functions.
 
 \end{frame}
 
-\begin{frame}{Judgements -- programming}
+\begin{frame}{Propositions}
+
+Our logic is typed (i.e. multi-sorted) first-order logic with equality. We treat negation and biconditional as defined notions ($\Not{P}$ is $\Impl{P}{\False}$, whereas $\Iff{P}{Q}$ is $\And{\Impl{P}{Q}}{\Impl{Q}{P}}$), so we won't need rules for them.
+
+\vspace{1em}
+
+Note that variables in quantifiers need to be annotated with the their types. Similarly, we need a type annotation in equations between terms.
+
+\end{frame}
+
+\begin{frame}{How to read it}
+
+We will present our language using the machinery of judgements and inference rules. Each kind of \textbf{judgement} represents a meta-level proposition about objects of our language: what is the type of a term, how do terms compute and so on. To make it easier for beginners to distinguish the various kinds of judgement, we will highlight each kind of judgement with a different color.
+
+\vspace{1em}
+
+An \textbf{inference rule} tells us how to derive a given judgement (its conclusion), given derivations of some other judgements and side conditions (the premises). The general form of an inference rule is
+
+\vspace{1em}
+
+$\infrule{\mathcal{J}_1 \dots \mathcal{J}_n}{\mathcal{J}}$
+
+\vspace{1em}
+
+where the premises (the judgements $\mathcal{J}_i$) are written above the bar and the conclusion (the judgement $\mathcal{J}$) is written below the bar. A rule can have many premises, but only a single conclusion. Most of the time it is best to read an inference rule upside down, i.e. to first read the conclusion and only then the premises.
+
+\end{frame}
+
+\section{Typing}
+
+\begin{frame}{Judgements -- programming language}
+
+
 
 \vspace{1em}
 
@@ -124,53 +150,34 @@ $\tyctx{\Gamma}$ -- $\Gamma$ is a well-formed typing context.
 \vspace{1em}
 
 Typing judgement: \\
-$\typing{e}{A}$ -- in typing context $\Gamma$, term $e$ is of type $A$
+$\typing{e}{A}$ -- in typing context $\Gamma$, term $e$ is of type $A$.
 
 \vspace{1em}
 
 Computational equality judgement: \\
-$\computation{e_1}{e_2}{A}$ -- in typing context $\Gamma$, terms $e_1$ and $e_2$ are computationally equal. Intuitively, $e_1$ and $e_2$ compute to the same normal form.
+$\computation{e_1}{e_2}{A}$ -- in typing context $\Gamma$, terms $e_1$ and $e_2$ are computationally equal.
 
 \end{frame}
 
-\begin{frame}{Judgements -- logic}
+\begin{frame}{Typing contexts}
 
-Valid assumption context judgement: \\
-$\assctx{\Gamma}{\Delta}$ -- in the typing context $\Gamma$, the assumption context $\Delta$ is valid.
-
-\vspace{1em}
-
-Well-formed proposition judgement: \\
-$\prop{\Gamma}{P}$ -- in the typing context $\Gamma$, proposition $P$ is well-formed.
+Typing contexts: \\
+$\Gamma ::= \emptytypingctx \pipe \extend{\Gamma}{x}{A}$
 
 \vspace{1em}
 
-True proposition judgement: \\
-$\holds{P}$ -- in typing context $\Gamma$ and propositional context $\Delta$, proposition $P$ holds.
-
-\end{frame}
-
-\section{Typing}
-
-\begin{frame}{Typing -- valid typing contexts}
-
-The valid typing context judgement is the simplest one. The empty context is valid and we can extend a valid context $\Gamma$ with a variable $x$ of type $A$ provided that $x$ does not already occur in $\Gamma$.
-
-\begin{center}
-  $\infrule[Ctx-Empty]{}{\tyctx{\emptytypingctx}}$ \quad
-  $\infrule[Ctx-Extend]{\tyctx{\Gamma} \quad \sidecond{x \notin \Gamma}}{\tyctx{\extend{\Gamma}{x}{A}}}$
-\end{center}
+Our judgements depend on hypotheses of the form $x : A$, which should be read as ``$x$ has type $A$''. We gather these hypotheses in a typing context, which can be either empty or be an extension of another typing context with a new hypothesis. We treat typing contexts as finite maps from variables to types, so that we don't need to worry about order of the hypotheses, repetition of variable names and other unimportant technical details.
 
 \end{frame}
 
 \begin{frame}{Typing -- basics}
 
-We treat typing contexts $\Gamma$ as sets, so that there is no need for the so-called structural rules. The basic rule for typing is that variables have whatever type the typing context tells us.
+The typing judgement tells us which terms have which types. The most important rule of typing is that variables have whatever type the typing context tells us. Note that the premise of the rule, $\mathcolor{orange}{(x : A) \in \Gamma}$, does not belong to any judgement -- we will call such premises \textcolor{orange}{side conditions}.
 
 \vspace{2em}
 
 \begin{center}
-  $\infrule[Var]{\tyctx{\Gamma} \quad \sidecond{(x : A) \in \Gamma}}{\typing{x}{A}}$
+  $\infrule[Var]{\sidecond{(x : A) \in \Gamma}}{\typing{x}{A}}$
 \end{center}
 
 \end{frame}
@@ -329,6 +336,23 @@ Also note that in the congruence rule for $\Empty$, the premise is always true b
 \begin{frame}{Logic -- well-formed proposition judgement}
 
 The role of the well-formed proposition judgement is twofold: to ensure that propositions are well-scoped (i.e. they don't contain free variables), and that propositional equality is formed only from well-typed terms. This judgement depends only on the typing context.
+
+\end{frame}
+
+\begin{frame}{Judgements -- logic}
+
+Valid assumption context judgement: \\
+$\assctx{\Gamma}{\Delta}$ -- in the typing context $\Gamma$, the assumption context $\Delta$ is valid.
+
+\vspace{1em}
+
+Well-formed proposition judgement: \\
+$\prop{\Gamma}{P}$ -- in the typing context $\Gamma$, proposition $P$ is well-formed.
+
+\vspace{1em}
+
+True proposition judgement: \\
+$\holds{P}$ -- in typing context $\Gamma$ and propositional context $\Delta$, proposition $P$ holds.
 
 \end{frame}
 
