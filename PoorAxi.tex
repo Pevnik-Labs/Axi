@@ -943,6 +943,83 @@ Just seeing a system like this won't be enough to convince anybody that it makes
 
 \end{frame}
 
+\newcommand{\delete}[1][]{\texttt{delete}\ #1}
+\newcommand{\create}[1][]{\texttt{create}\ #1}
+\newcommand{\id}[1][]{\texttt{id}\ #1}
+\newcommand{\comp}{\texttt{comp}}
+\newcommand{\swap}[1][]{\texttt{swap}\ #1}
+\newcommand{\swop}[1][]{\texttt{swop}\ #1}
+\newcommand{\notb}[1][]{\texttt{notb}\ #1}
+\newcommand{\andb}{\texttt{andb}}
+\newcommand{\add}{\texttt{add}}
+\newcommand{\length}[1][]{\texttt{length}\ #1}
+\newcommand{\replicate}{\texttt{replicate}}
+
+\begin{frame}{Example programs}
+
+Assume for a moment that $A, B, C$ are arbitrary types. Let's write some programs:
+
+\begin{itemize}
+  \item $\delete := \fun{x}{\unit}$
+  \item $\create := \fun{x}{\elimEmpty{x}}$
+  \item $\id := \fun{x}{x}$
+  \item $\comp := \fun{f}{\fun{g}{\fun{x}{\app{g}{(\app{f}{x})}}}}$
+  \item $\swap := \fun{p}{\pair{\outr{p}}{\outl{p}}}$
+  \item $\swop := \fun{x}{\case{x}{\fun{a}{\inr[a]}}{\fun{b}{\inl[b]}}}$
+  \item $\notb := \fun{b}{\boolElim{b}{\false}{\true}}$
+  \item $\andb := \fun{x}{\fun{y}{\boolElim{x}{y}{\false}}}$
+  \item $\add := \fun{n}{\fun{m}{\elimNat{m}{(\fun{r}{\succ[r]})}{n}}}$
+  \item $\length := \fun{l}{\elimList{\zero}{(\fun{h}{\fun{r}{\succ[r]}})}{l}}$
+  \item $\replicate := \fun{n}{\fun{x}{\elimNat{\nil}{(\fun{r}{\cons{x}{r}})}{n}}}$
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Example typings}
+
+What are the types of our programs?
+
+\begin{itemize}
+  \item $\typing{\delete}{\Fun{A}{\Unit}}$
+  \item $\typing{\create}{\Fun{\Empty}{A}}$
+  \item $\typing{\id}{\Fun{A}{A}}$
+  \item $\typing{\comp}{\Fun{(\Fun{A}{B})}{\Fun{(\Fun{B}{C})}{(\Fun{A}{C})}}}$
+  \item $\typing{\swap}{\Fun{\Prod{A}{B}}{\Prod{B}{A}}}$
+  \item $\typing{\swop}{\Fun{\Sum{A}{B}}{\Sum{B}{A}}}$
+  \item $\typing{\notb}{\Fun{\Bool}{\Bool}}$
+  \item $\typing{\andb}{\Fun{\Bool}{\Fun{\Bool}{\Bool}}}$
+  \item $\typing{\add}{\Fun{\Nat}{\Fun{\Nat}{\Nat}}}$
+  \item $\typing{\length}{\Fun{\List{A}}{\Nat}}$
+  \item $\typing{\replicate}{\Fun{\Nat}{\Fun{A}{\List{A}}}}$
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Example computations}
+
+\begin{itemize}
+  \item $\computation{\delete[a]}{\unit}{\Unit}$
+  \item $\computation{\id[a]}{a}{A}$
+  \item $\computation{\app{\app{\comp}{f}}{\id}}{f}{\Fun{A}{B}}$
+  \item $\computation{\app{\app{\comp}{\id}}{g}}{g}{\Fun{B}{C}}$
+  \item $\computation{\swap[(\swap[p])]}{p}{\Prod{A}{B}}$
+  \item $\computation{\swop[(\swop[(\inl[a])])]}{\inl[a]}{A}$
+  \item $\computation{\swop[(\swop[(\inr[b])])]}{\inr[b]}{B}$
+  \item $\computation{\notb[(\app{\app{\andb}{\true}}{\true})]}{\false}{\Bool}$
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Example theorems}
+
+\begin{itemize}
+  \item $\holds{\All{x}{\Sum{A}{B}}{\Or{(\Ex{a}{A}{\Eq{x}{\inl[a]}})}{(\Ex{b}{B}{\Eq{x}{\inr[b]}})}}}$
+  \item $\holds{\All{b}{\Bool}{\Eq{\notb[(\notb[b])]}{b}}}$
+  \item $\holds{\All{a}{\Nat}{\All{b}{\Nat}{\All{c}{\Nat}{\Eq{\app{\app{\add}{(\app{\app{\add}{a}}{b})}}{c}}{\app{\app{\add}{a}}{(\app{\app{\add}{b}}{c})}}}}}}$
+  \item $\holds{\All{n}{\Nat}{\All{a}{A}{\Eq{\length[(\app{\app{\replicate}{n}}{a})]}{n}}}}$
+\end{itemize}
+
+\end{frame}
 \section{Additional features}
 
 \begin{frame}{Additional features -- intro}
