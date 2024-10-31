@@ -2,6 +2,14 @@
 \usepackage[utf8]{inputenc}
 \usepackage{babel}
 \usepackage{xcolor}
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks = true,
+  linkcolor = blue,
+  urlcolor  = blue,
+  citecolor = blue,
+  anchorcolor = blue
+}
 
 % Pipes - used when specifying grammars in BDNF format.
 \newcommand{\pipe}{\ |\ }
@@ -261,6 +269,125 @@ Note: the terms are, in order of appearance, variables, functions, applications,
 
 \end{frame}
 
+\begin{frame}{Example (big-step) semantics -- values}
+
+\begin{center}
+  $\infrule{}{\val{\fun{x}{e}}}$
+
+  \vspace{2em}
+
+  $\infrule{\val{v_1} \quad \val{v_2}}{\val{\pair{v_1}{v_2}}}$
+
+  \vspace{2em}
+
+  $\infrule{\val{v}}{\val{\inl{v}}}$ \quad
+  $\infrule{\val{v}}{\val{\inr{v}}}$ \quad
+
+  \vspace{2em}
+
+  $\infrule{}{\val{\unit}}$
+\end{center}
+
+\vspace{2em}
+
+Values are the final results of computation. Note that a function is a value whether or not its body is. Other values are pairs of values, values injected into a sum on the left or right, and unit.
+
+\end{frame}
+
+\begin{frame}{Example (big-step) semantics -- evaluation}
+
+\begin{center}
+  $\infrule{}{\result{\fun{x}{e}}{\fun{x}{e}}}$ \quad
+  $\infrule{\result{e_1}{\fun{x}{e}} \quad \result{e_2}{v} \quad \result{\subst{e}{x}{v}}{v'}}{\result{\app{e_1}{e_2}}{v'}}$
+
+  \vspace{2em}
+
+  $\infrule{\result{e_1}{v_1} \quad \result{e_2}{v_2}}{\result{\pair{e_1}{e_2}}{\pair{v_1}{v_2}}}$ \quad
+  $\infrule{\result{e}{\pair{v_1}{v_2}}}{\result{\outl{e}}{v_1}}$ \quad
+  $\infrule{\result{e}{\pair{v_1}{v_2}}}{\result{\outr{e}}{v_2}}$ \quad
+
+  \vspace{2em}
+
+  $\infrule{\result{e}{v}}{\result{\inl{e}}{\inl{v}}}$ \quad
+  $\infrule{\result{e}{v}}{\result{\inr{e}}{\inr{v}}}$ \quad
+
+  \vspace{2em}
+
+  $\infrule{\result{e}{\inl{v}} \quad \result{\app{f}{v}}{v'}}{\result{\case{e}{f}{g}}{v'}}$ \quad
+  $\infrule{\result{e}{\inr{v}} \quad \result{\app{g}{v}}{v'}}{\result{\case{e}{f}{g}}{v'}}$
+
+  \vspace{2em}
+
+  $\infrule{}{\result{\unit}{\unit}}$ \quad
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Example (small-step) semantics -- basic rules}
+
+\begin{center}
+  $\infrule{\val{v}}{\compstep{\app{(\fun{x}{e})}{v}}{\subst{e}{x}{v}}}$
+
+  \vspace{2em}
+
+  $\infrule{\val{v_1} \quad \val{v_2}}{\compstep{\outl{\pair{v_1}{v_2}}}{v_1}}$ \quad
+  $\infrule{\val{v_1} \quad \val{v_2}}{\compstep{\outr{\pair{v_1}{v_2}}}{v_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\val{v}}{\compstep{\case{(\inl{v})}{f}{g}}{\app{f}{v}}}$
+
+  \vspace{2em}
+
+  $\infrule{\val{v}}{\compstep{\case{(\inr{v})}{f}{g}}{\app{g}{v}}}$
+
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Example (small-step) semantics -- boring rules}
+
+\begin{center}
+  $\infrule{\compstep{e_1}{e_1'}}{\compstep{\app{e_1}{e_2}}{\app{e_1'}{e_2}}}$ \quad
+  $\infrule{\val{v_1} \quad \compstep{e_2}{e_2'}}{\compstep{\app{v_1}{e_2}}{\app{v_1}{e_2'}}}$
+
+  \vspace{2em}
+
+  $\infrule{\compstep{e_1}{e_1'}}{\compstep{\pair{e_1}{e_2}}{\pair{e_1'}{e_2}}}$ \quad
+  $\infrule{\val{v_1} \quad \compstep{e_2}{e_2'}}{\compstep{\pair{v_1}{e_2}}{\pair{v_1}{e_2'}}}$
+
+  \vspace{2em}
+
+  $\infrule{\compstep{e}{e'}}{\compstep{\outl{e}}{\outl{e'}}}$ \quad
+  $\infrule{\compstep{e}{e'}}{\compstep{\outr{e}}{\outr{e'}}}$
+
+  \vspace{2em}
+
+  $\infrule{\compstep{e}{e'}}{\compstep{\inl{e}}{\inl{e'}}}$ \quad
+  $\infrule{\compstep{e}{e'}}{\compstep{\inr{e}}{\inr{e'}}}$
+
+  \vspace{2em}
+
+  $\infrule{\compstep{e}{e'}}{\compstep{\case{e}{f}{g}}{\case{e'}{f}{g}}}$
+
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Example semantics -- explanations}
+
+$\result{e}{v}$ should be read ``term $e$ evalutes to value $v$''. It describes computation in a coarse-grained manner, telling us what is the result of evaluating each term. If $\result{e}{v}$, then $\val{v}$.
+
+\vspace{2em}
+
+$\compstep{e}{e'}$ should be read ``term $e$ reduces to term $e'$''. It describes computation in a fine-grained manner, telling us what can happen in a single computation step. To actually describe computation fully in this style, we need to take the transitive closure of this relation, written $\compsteps{e}{v}$.
+
+\vspace{2em}
+
+Both presented semantics are call-by-value, i.e. we evaluate a function's argument before performing a substitution. They are equivalent, i.e. $\result{e}{v}$ if and only if $\compsteps{e}{v}$
+
+\end{frame}
+
 \begin{frame}{Declarative typing -- basics}
 
 \begin{center}
@@ -431,6 +558,16 @@ The basic rules are as presented in the previous slide. However, it is possible 
 \begin{frame}{(Non)uniqueness of typing}
 
 Similarly to Extrinsic STLC, typing is not unique in Bidirectional STLC. This is because while we do have annotations in terms, we are not forced to use them. Therefore, we can check terms like $\fun{x}{x}$ with any type of the form $\Fun{A}{A}$. However, inference is unique.
+
+\end{frame}
+
+\begin{frame}{Bidirectional typing -- how the sausage is made}
+
+We did not describe how to derive the algorithmic rules of Bidirectional STLC from the declarative rules of Extrinsic STLC. This ``bidirectional recipe'' can be found in the paper \href{https://arxiv.org/pdf/1908.05839}{Bidirectional Typing}, section 4. Sections 1-4 provide a nice introduction to the topic of bidirectional typing.
+
+\vspace{2em}
+
+\href{http://davidchristiansen.dk/tutorials/bidirectional.pdf}{Bidirectional Typing Rules: A Tutorial} is a nice tutorial paper which shows how to implement a bidirectional typechecker for STLC with booleans (but no products or sums).
 
 \end{frame}
 
