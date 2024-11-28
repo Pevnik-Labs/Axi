@@ -1,0 +1,320 @@
+\documentclass{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{babel}
+\usepackage{xcolor}
+\usepackage{AxiCommands}
+
+\newcommand{\true}{\True}
+\newcommand{\exfalso}[1]{\textbf{exfalso}\ #1}
+\newcommand{\implintro}[2]{\textbf{assume}\ #1\ \textbf{in}\ #2}
+\newcommand{\implelim}[2]{\textbf{modus-ponens}\ #1\ #2}
+\newcommand{\prooflet}[2]{#1; #2}
+\newcommand{\notintro}[2]{\textbf{suppose-absurd}\ #1\ \textbf{in}\ #2}
+\newcommand{\notelim}[2]{\textbf{absurd}\ #1\ #2}
+\newcommand{\andintro}[2]{\textbf{both}\ #1\ #2}
+\newcommand{\andeliml}[1]{\textbf{left-and}\ #1}
+\newcommand{\andelimr}[1]{\textbf{right-and}\ #1}
+\newcommand{\orintrol}[2]{\textbf{left-either}\ #1\ #2}
+\newcommand{\orintror}[2]{\textbf{right-either}\ #1\ #2}
+\newcommand{\orelim}[3]{\textbf{constructive-dilemma}\ #1\ #2\ #3}
+\newcommand{\iffintro}[2]{\textbf{equivalence}\ #1\ #2}
+\newcommand{\iffeliml}[1]{\textbf{left-iff}\ #1}
+\newcommand{\iffelimr}[1]{\textbf{right-iff}\ #1}
+
+\newcommand{\dn}[1]{\textbf{double-negation}\ #1}
+
+\newcommand{\allintro}[2]{\textbf{pick-any}\ #1\ \textbf{in}\ #2}
+\newcommand{\allelim}[2]{\textbf{specialize}\ #1\ \textbf{with}\ #2}
+\newcommand{\exintro}[2]{\textbf{exists}\ #1\ \textbf{such that}\ #2}
+\newcommand{\exelim}[3]{\textbf{pick-witness}\ #1\ \textbf{for}\ #2\ \textbf{in}\ #3}
+
+
+\newcommand{\sumind}[5]{\textbf{case}\ #1\ \textbf{of}\ (\inl{#2} \rightarrow #3, \inr{#4} \rightarrow #5)}
+
+\newcommand{\refl}[1]{\textbf{refl}\ #1}
+\newcommand{\rewrite}[2]{\textbf{rewrite}\ #1\ \textbf{in}\ #2}
+\newcommand{\funext}[1]{\textbf{funext}\ #1}
+
+\newcommand{\fullproves}[4]{#1 \pipe #2 \vdash #3 : #4}
+\newcommand{\proves}[2]{\fullproves{\Gamma}{\Delta}{#1}{#2}}
+
+\usetheme{Darmstadt}
+
+\title{Poor Man's Axi: DPL-like proofs in Type Theory}
+\author{Wojciech Kołowski}
+\date{}
+
+\begin{document}
+
+\frame{\titlepage}
+
+\section{Intro}
+
+\begin{frame}{Proofs}
+
+Proofs: \\
+$e ::=$ \\
+\qquad $P \pipe \implintro{P}{e} \pipe \implelim{e_1}{e_2} \pipe$ \\
+\qquad $\notintro{P}{e} \pipe \notelim{e_1}{e_2} \pipe$ \\
+\qquad $\andintro{e_1}{e_2} \pipe \andeliml{e} \pipe \andelimr{e} \pipe$ \\
+\qquad $\orintrol{P}{e} \pipe \orintror{P}{e} \pipe$ \\
+\qquad $\orelim{e_1}{e_2}{e_3} \pipe$ \\
+\qquad $\iffintro{e_1}{e_2} \pipe \iffeliml{e} \pipe \iffelimr{e} \pipe$ \\
+\qquad $\true \pipe \exfalso{e}$ \\
+\qquad $\allintro{x}{e} \pipe \allelim{e}{t} \pipe$ \\
+\qquad $\exintro{t}{e} \pipe \exelim{x}{e_1}{e_2} \pipe$ \\
+\qquad $\dn{e} \pipe$ \\
+\qquad $\sumind{e}{a}{e_1}{b}{e_2} \pipe$ \\
+\qquad $\refl{t} \pipe \rewrite{e_1}{e_2} \pipe$ \\
+\qquad $\prooflet{e_1}{e_2}$
+
+\end{frame}
+
+\section{Examples}
+
+\begin{frame}{Example -- propositional logic}
+
+Theorem: $\Impl{(\Impl{P}{Q})}{\Impl{(\Impl{Q}{R})}{\Impl{P}{R}}}$.
+
+\vspace{2em}
+
+Proof: \\
+$\implintro{\Impl{P}{Q}}{}$ \\
+\, $\implintro{\Impl{Q}{R}}{}$ \\
+\quad $\implintro{P}{}$ \\
+\qquad $\implelim{(\Impl{P}{Q})}{P};$ \\
+\qquad $\implelim{(\Impl{Q}{R})}{Q}$
+
+%$\implintro{\Impl{P}{Q}}{\implintro{\Impl{Q}{R}}}{\implintro{P}{\prooflet{\implelim{(\Impl{P}{Q})}{P}}{\implelim{(\Impl{Q}{R})}{Q}}}}$
+
+\vspace{2em}
+
+The proof looks the same as the DPL one (page 71 in the DPL thesis), except that we don't have $\textbf{begin}$ and $\textbf{end}$.
+
+\end{frame}
+
+\begin{frame}{Example -- first-order logic}
+
+Theorem: $\Impl{(\All{x}{A}{\And{\app{P}{x}}{\app{Q}{x}}})}{\And{(\All{x}{A}{\app{P}{x}})}{(\All{x}{A}{\app{Q}{x}})}}$
+
+\vspace{2em}
+
+Proof: \\
+$\implintro{\All{x}{A}{\And{\app{P}{x}}{\app{Q}{x}}}}{}$ \\
+\, ($\allintro{y}{}$ \\
+\quad $\allelim{\All{x}{A}{\And{\app{P}{x}}{\app{Q}{x}}}}{y};$ \\
+\quad $\andeliml{\And{\app{P}{y}}{\app{Q}{y}}}$) \\
+\, ($\allintro{y}{}$ \\
+\quad $\allelim{\All{x}{A}{\And{\app{P}{x}}{\app{Q}{x}}}}{y};$ \\
+\quad $\andelimr{\And{\app{P}{y}}{\app{Q}{y}}}$); \\
+\, $\andintro{(\All{y}{A}{\app{P}{y}})}{(\All{y}{A}{\app{Q}{y}})}$ \\
+
+\vspace{2em}
+
+Again, the proof looks the same as the DPL on (page 156 in the DPL thesis), except we uses parentheses instead of $\textbf{begin}$ and $\textbf{end}$.
+\end{frame}
+
+\newcommand{\swap}[1][]{\texttt{swap}\ #1}
+
+\begin{frame}{Example -- proof about a program}
+
+Program: $\swap := \fun{x}{\case{x}{\fun{a}{\inr[a]}}{\fun{b}{\inl[b]}}}$ \\
+Typing: $\typing{\swap}{\Fun{\Sum{A}{B}}{\Sum{B}{A}}}$ \\
+
+\vspace{2em}
+
+Theorem: $\All{x}{\Sum{A}{B}}{\Eq[]{\swap{(\swap{x})}}{x}}$
+
+\vspace{2em}
+
+Proof: \\
+$\allintro{x}{}$ \\
+\, $\sumind{x}{a}{\refl{a}}{b}{\refl{b}}$
+
+\vspace{2em}
+
+The proof has the same structure as the proofterm you would write in Coq, except for the syntactic differences.
+
+\end{frame}
+
+\section{Rules}
+
+\begin{frame}{Judgements}
+
+Valid assumption context judgement: \\
+$\assctx{\Gamma}{\Delta}$ -- in the typing context $\Gamma$, the assumption context $\Delta$ is valid.
+
+\vspace{1em}
+
+Well-formed proposition judgement: \\
+$\prop{\Gamma}{P}$ -- in the typing context $\Gamma$, proposition $P$ is well-formed.
+
+\vspace{1em}
+
+Proof judgement: \\
+$\proves{e}{P}$ -- in typing context $\Gamma$ and assumption context $\Delta$, $e$ is a proof of $P$.
+
+\end{frame}
+
+\begin{frame}{Assumptions}
+
+\begin{center}
+  $\infrule[Ass]{\assctx{\Gamma}{\Delta} \quad \sidecond{P \in \Delta}}{\proves{P}{P}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Implication}
+
+\begin{center}
+  $\infrule[Impl-Intro]{\fullproves{\Gamma}{\assume{\Delta}{P}}{e}{Q}}{\proves{\implintro{P}{e}}{\Impl{P}{Q}}}$
+
+  \vspace{2em}
+
+  $\infrule[Impl-Elim]{\proves{e_1}{\Impl{P}{Q}} \quad \proves{e_2}{P}}{\proves{\implelim{e_1}{e_2}}{Q}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Conjunction}
+
+\begin{center}
+  $\infrule[And-Intro]{\proves{e_1}{P} \quad \proves{e_2}{Q}}{\proves{\andintro{e_1}{e_2}}{\And{P}{Q}}}$
+
+  \vspace{2em}
+
+  $\infrule[And-Elim-L]{\proves{e}{\And{P}{Q}}}{\proves{\andeliml{e}}{P}}$
+
+  \vspace{2em}
+
+  $\infrule[And-Elim-R]{\proves{e}{\And{P}{Q}}}{\proves{\andelimr{e}}{Q}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Disjunction}
+
+\begin{center}
+  $\infrule[Or-Intro-L]{\proves{e}{P}}{\proves{\orintrol{Q}{e}}{\Or{P}{Q}}}$
+
+  \vspace{2em}
+
+  $\infrule[Or-Intro-R]{\proves{e}{Q}}{\proves{\orintror{P}{e}}{\Or{P}{Q}}}$
+
+  \vspace{2em}
+
+  $\infrule[Or-Elim]{\proves{e_1}{\Or{P}{Q}} \quad \proves{e_2}{\Impl{P}{R}} \quad \proves{e_3}{\Impl{Q}{R}}}{\proves{\orelim{e_1}{e_2}{e_3}}{R}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Biconditional}
+
+\begin{center}
+  $\infrule[Iff-Intro]{\proves{e_1}{\Impl{P}{Q}} \quad \proves{e_2}{\Impl{Q}{P}}}{\proves{\iffintro{e_1}{e_2}}{\Iff{P}{Q}}}$
+
+  \vspace{2em}
+
+  $\infrule[Iff-Elim-L]{\proves{e}{\Iff{P}{Q}}}{\proves{\iffeliml{e}}{\Impl{P}{Q}}}$
+
+  \vspace{2em}
+
+  $\infrule[Iff-Elim-R]{\proves{e}{\Iff{P}{Q}}}{\proves{\iffelimr{e}}{\Impl{Q}{P}}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Negation}
+
+\begin{center}
+  $\infrule[Not-Intro]{\fullproves{\Gamma}{\assume{\Delta}{P}}{e}{\False}}{\proves{\notintro{P}{e}}{\Not{P}}}$
+
+  \vspace{2em}
+
+  $\infrule[Not-Elim]{\proves{e_1}{\Not{P}} \quad \proves{e_2}{P}}{\proves{\notelim{e_1}{e_2}}{\False}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{True and false}
+
+\begin{center}
+  $\infrule[True-Intro]{\assctx{\Gamma}{\Delta}}{\proves{\true}{\True}}$
+
+  \vspace{2em}
+
+  $\infrule[False-Elim]{\proves{e}{\False}}{\proves{\exfalso{e}}{P}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Classical logic}
+
+\begin{center}
+  $\infrule[Classic]{\proves{e}{\Not{\Not{P}}}}{\proves{\dn{e}}{P}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Universal quantifier}
+
+\begin{center}
+  $\infrule[Forall-Intro]{\fullproves{\extend{\Gamma}{y}{A}}{\Delta}{e}{\subst{P}{x}{y}}}{\proves{\allintro{y}{e}}{\All{x}{A}{P}}}$
+
+  \vspace{2em}
+
+  $\infrule[Forall-Elim]{\proves{e}{\All{x}{A}{P}} \quad \typing{t}{A}}{\proves{\allelim{e}{t}}{\subst{P}{x}{t}}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Existential quantifier}
+
+\begin{center}
+  $\infrule[Exists-Intro]{\typing{t}{A} \quad \proves{e}{\subst{P}{x}{t}}}{\proves{\exintro{t}{e}}{\Ex{x}{A}{P}}}$
+
+  \vspace{2em}
+
+  $\infrule[Exists-Elim]{\proves{e_1}{\Ex{x}{A}{P}} \quad \fullproves{\extend{\Gamma}{y}{A}}{\assume{\Delta}{\subst{P}{x}{y}}}{e_2}{R}}{\proves{\exelim{y}{e_1}{e_2}}{R}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Reasoning by cases on terms (for sums)}
+
+\begin{center}
+  $\infrule{\typing{t}{\Sum{A}{B}} \quad \begin{array}{c} \fullproves{\extend{\Gamma}{a}{A}}{\Delta}{e_1}{\subst{P}{t}{\inl[a]}} \\ \fullproves{\extend{\Gamma}{b}{B}}{\Delta}{e_2}{\subst{P}{t}{\inr[b]}} \end{array}}{\proves{\sumind{t}{a}{e_1}{b}{e_2}}{P}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Equality}
+
+\begin{center}
+  $\infrule[Eq-Intro]{\assctx{\Gamma}{\Delta} \quad \typing{t}{A}}{\proves{\refl{t}}{\Eq[A]{t}{t}}}$
+
+  \vspace{2em}
+
+  $\infrule[Eq-Elim]{\proves{e}{\Eq[A]{t_1}{t_2}} \quad \prop{\extend{\Gamma}{x}{A}}{P} \quad \proves{e'}{\subst{P}{x}{t_1}}}{\proves{\rewrite{e}{e'}}{\subst{P}{x}{e_2}}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Equality of functions}
+
+\begin{center}
+  $\infrule[Funext]{\proves{e}{\All{x}{A}{\Eq[B]{\app{f}{x}}{\app{g}{x}}}}}{\proves{\funext{e}}{\Eq[\Fun{A}{B}]{f}{g}}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Proof composition (or let binding, really)}
+
+\begin{center}
+  $\infrule[Cut]{\proves{e_1}{P} \quad \fullproves{\Gamma}{\assume{\Delta}{P}}{e_2}{Q}}{\proves{\prooflet{e_1}{e_2}}{Q}}$
+\end{center}
+
+\end{frame}
+
+
+\end{document}
