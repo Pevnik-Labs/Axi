@@ -6,7 +6,7 @@
 
 \usetheme{Darmstadt}
 
-\title{STLC with Logic: Poor Man's Axi}
+\title{Poor Man's Axi: STLC with Logic}
 \date{}
 
 \begin{document}
@@ -324,17 +324,17 @@ Athena enjoyers can think of the assumption context as an assumption base.
 \begin{frame}{Judgements for logic}
 
 Valid assumption context judgement: \\
-$\assctx{\Gamma}{\Delta}$ -- in the typing context $\Gamma$, the assumption context $\Delta$ is valid.
+$\assctx{\Gamma}{\Delta}$ -- in typing context $\Gamma$, the assumption context $\Delta$ is valid.
 
 \vspace{1em}
 
 Well-formed proposition judgement: \\
-$\prop{\Gamma}{P}$ -- in the typing context $\Gamma$, proposition $P$ is well-formed.
+$\prop{\Gamma}{P}$ -- in typing context $\Gamma$, proposition $P$ is well-formed.
 
 \vspace{1em}
 
 True proposition judgement: \\
-$\holds{P}$ -- in typing context $\Gamma$ and propositional context $\Delta$, proposition $P$ holds.
+$\holds{P}$ -- in typing context $\Gamma$ and assumption context $\Delta$, proposition $P$ holds.
 
 \end{frame}
 
@@ -346,7 +346,7 @@ Similarly to the situation for typing and computation judgements, the logical ju
 
 \begin{frame}{Valid assumption context judgement}
 
-The valid assumption context judgement tells us which assumption contexts are valid. The crux of the matter is that we can extend an assumption context only with a well-formed proposition. This judgement depends on a typing context because proposition that we add to the assumption context can contain variables.
+The valid assumption context judgement tells us which assumption contexts are valid. The crux of the matter is that we can extend an assumption context only with a well-formed proposition. This judgement depends on a typing context because propositions that we add to the assumption context can contain variables.
 
 \begin{center}
   $\infrule[Valid-Empty]{}{\assctx{\Gamma}{\emptyassctx}}$
@@ -773,11 +773,11 @@ However, for now I have no idea how to formulate the rule of proof by coinductio
 
 \begin{frame}{Record types -- intro}
 
-The unfortunate reality of product types is that accessing components of nested pairs requires long sequences of $\outl$s and $\outr$s, which look ugly. To add insult to injury, product types are not strictly associative, so we need to keep track of parentheses in nested pairs.
+The unfortunate reality of product types is that accessing components of nested pairs requires long sequences of $\outl$ and $\outr$, which look ugly. To add insult to injury, product types are not strictly associative, so we need to keep track of parentheses in nested pairs.
 
 \vspace{1em}
 
-To free the programmer from these inconveniences, we add record types to the language. Records types are basically finite maps from field names to types, and records are finite maps from field names to values. The inference rules look somewhat ugly because they are rather generic, but everthing works like you'd expect.
+To free the programmer from these inconveniences, we add record types to the language. Records types are basically finite maps from field names to types, and records are finite maps from field names to values. The inference rules look somewhat ugly because they are rather generic, but everything works like you'd expect.
 
 \vspace{1em}
 

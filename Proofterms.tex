@@ -4,10 +4,10 @@
 \usepackage{xcolor}
 \usepackage{AxiCommands}
 
-\newcommand{\true}{\True}
-\newcommand{\exfalso}[1]{\textbf{exfalso}\ #1}
 \newcommand{\implintro}[2]{\textbf{assume}\ #1\ \textbf{in}\ #2}
 \newcommand{\implelim}[2]{\textbf{modus-ponens}\ #1\ #2}
+\newcommand{\true}{\textbf{true}}
+\newcommand{\exfalso}[1]{\textbf{exfalso}\ #1}
 \newcommand{\prooflet}[2]{#1; #2}
 \newcommand{\notintro}[2]{\textbf{suppose-absurd}\ #1\ \textbf{in}\ #2}
 \newcommand{\notelim}[2]{\textbf{absurd}\ #1\ #2}
@@ -50,9 +50,20 @@
 
 \section{Intro}
 
+\begin{frame}{Intro}
+
+In our original proposal of Poor Man's Axi, the language was split into two layers: a programming layer which consists of a strongly-typed functional programming language based on the Simply Typed Lambda Calculus, and a logical layer which consists of first-order classical logic with equality (although the ``first-order'' part is moot, because first-order quantifiers can quantify over functions).
+
+\vspace{2em}
+
+The logic was presented with a bunch of judgements, the most important being the true proposition judgement. While this presentation does a good job of explaining what the logic is like, it does not address the problem of writing proofs from the perspective of the user.
+
+
+\end{frame}
+
 \begin{frame}{Proofs}
 
-Proofs: \\
+Proofs (here $P$ are propositions, $t$ are terms, $x$ are variables): \\
 $e ::=$ \\
 \qquad $P \pipe \implintro{P}{e} \pipe \implelim{e_1}{e_2} \pipe$ \\
 \qquad $\notintro{P}{e} \pipe \notelim{e_1}{e_2} \pipe$ \\
@@ -101,17 +112,17 @@ Theorem: $\Impl{(\All{x}{A}{\And{\app{P}{x}}{\app{Q}{x}}})}{\And{(\All{x}{A}{\ap
 
 Proof: \\
 $\implintro{\All{x}{A}{\And{\app{P}{x}}{\app{Q}{x}}}}{}$ \\
-\, ($\allintro{y}{}$ \\
-\quad $\allelim{\All{x}{A}{\And{\app{P}{x}}{\app{Q}{x}}}}{y};$ \\
-\quad $\andeliml{\And{\app{P}{y}}{\app{Q}{y}}}$) \\
-\, ($\allintro{y}{}$ \\
-\quad $\allelim{\All{x}{A}{\And{\app{P}{x}}{\app{Q}{x}}}}{y};$ \\
-\quad $\andelimr{\And{\app{P}{y}}{\app{Q}{y}}}$); \\
-\, $\andintro{(\All{y}{A}{\app{P}{y}})}{(\All{y}{A}{\app{Q}{y}})}$ \\
+\quad $\allintro{y}{}$ \\
+\qquad $\allelim{\All{x}{A}{\And{\app{P}{x}}{\app{Q}{x}}}}{y};$ \\
+\qquad $\andeliml{\And{\app{P}{y}}{\app{Q}{y}}}$; \\
+\quad $\allintro{y}{}$ \\
+\qquad $\allelim{\All{x}{A}{\And{\app{P}{x}}{\app{Q}{x}}}}{y};$ \\
+\qquad $\andelimr{\And{\app{P}{y}}{\app{Q}{y}}}$; \\
+\quad $\andintro{(\All{y}{A}{\app{P}{y}})}{(\All{y}{A}{\app{Q}{y}})}$ \\
 
 \vspace{2em}
 
-Again, the proof looks the same as the DPL on (page 156 in the DPL thesis), except we uses parentheses instead of $\textbf{begin}$ and $\textbf{end}$.
+Again, the proof looks the same as the DPL on (page 156 in the DPL thesis), except we use indentation instead of $\textbf{begin}$ and $\textbf{end}$.
 \end{frame}
 
 \newcommand{\swap}[1][]{\texttt{swap}\ #1}
@@ -130,7 +141,6 @@ Theorem: $\All{x}{\Sum{A}{B}}{\Eq[]{\swap{(\swap{x})}}{x}}$
 Proof: \\
 $\allintro{x}{}$ \\
 \, $\sumind{x}{a}{\refl{a}}{b}{\refl{b}}$
-
 \vspace{2em}
 
 The proof has the same structure as the proofterm you would write in Coq, except for the syntactic differences.
@@ -139,17 +149,7 @@ The proof has the same structure as the proofterm you would write in Coq, except
 
 \section{Rules}
 
-\begin{frame}{Judgements}
-
-Valid assumption context judgement: \\
-$\assctx{\Gamma}{\Delta}$ -- in the typing context $\Gamma$, the assumption context $\Delta$ is valid.
-
-\vspace{1em}
-
-Well-formed proposition judgement: \\
-$\prop{\Gamma}{P}$ -- in the typing context $\Gamma$, proposition $P$ is well-formed.
-
-\vspace{1em}
+\begin{frame}{Proof judgement}
 
 Proof judgement: \\
 $\proves{e}{P}$ -- in typing context $\Gamma$ and assumption context $\Delta$, $e$ is a proof of $P$.
@@ -160,6 +160,18 @@ $\proves{e}{P}$ -- in typing context $\Gamma$ and assumption context $\Delta$, $
 
 \begin{center}
   $\infrule[Ass]{\assctx{\Gamma}{\Delta} \quad \sidecond{P \in \Delta}}{\proves{P}{P}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{True and false}
+
+\begin{center}
+  $\infrule[True-Intro]{\assctx{\Gamma}{\Delta}}{\proves{\true}{\True}}$
+
+  \vspace{2em}
+
+  $\infrule[False-Elim]{\proves{e}{\False}}{\proves{\exfalso{e}}{P}}$
 \end{center}
 
 \end{frame}
@@ -236,22 +248,18 @@ $\proves{e}{P}$ -- in typing context $\Gamma$ and assumption context $\Delta$, $
 
 \end{frame}
 
-\begin{frame}{True and false}
-
-\begin{center}
-  $\infrule[True-Intro]{\assctx{\Gamma}{\Delta}}{\proves{\true}{\True}}$
-
-  \vspace{2em}
-
-  $\infrule[False-Elim]{\proves{e}{\False}}{\proves{\exfalso{e}}{P}}$
-\end{center}
-
-\end{frame}
-
 \begin{frame}{Classical logic}
 
 \begin{center}
   $\infrule[Classic]{\proves{e}{\Not{\Not{P}}}}{\proves{\dn{e}}{P}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Proof composition (or let binding, really)}
+
+\begin{center}
+  $\infrule[Cut]{\proves{e_1}{P} \quad \fullproves{\Gamma}{\assume{\Delta}{P}}{e_2}{Q}}{\proves{\prooflet{e_1}{e_2}}{Q}}$
 \end{center}
 
 \end{frame}
@@ -275,7 +283,7 @@ $\proves{e}{P}$ -- in typing context $\Gamma$ and assumption context $\Delta$, $
 
   \vspace{2em}
 
-  $\infrule[Exists-Elim]{\proves{e_1}{\Ex{x}{A}{P}} \quad \fullproves{\extend{\Gamma}{y}{A}}{\assume{\Delta}{\subst{P}{x}{y}}}{e_2}{R}}{\proves{\exelim{y}{e_1}{e_2}}{R}}$
+  $\infrule[Exists-Elim]{\prop{\Gamma}{R} \quad \proves{e_1}{\Ex{x}{A}{P}} \quad \fullproves{\extend{\Gamma}{y}{A}}{\assume{\Delta}{\subst{P}{x}{y}}}{e_2}{R}}{\proves{\exelim{y}{e_1}{e_2}}{R}}$
 \end{center}
 
 \end{frame}
@@ -283,7 +291,7 @@ $\proves{e}{P}$ -- in typing context $\Gamma$ and assumption context $\Delta$, $
 \begin{frame}{Reasoning by cases on terms (for sums)}
 
 \begin{center}
-  $\infrule{\typing{t}{\Sum{A}{B}} \quad \begin{array}{c} \fullproves{\extend{\Gamma}{a}{A}}{\Delta}{e_1}{\subst{P}{t}{\inl[a]}} \\ \fullproves{\extend{\Gamma}{b}{B}}{\Delta}{e_2}{\subst{P}{t}{\inr[b]}} \end{array}}{\proves{\sumind{t}{a}{e_1}{b}{e_2}}{P}}$
+  $\infrule{\prop{\extend{\Gamma}{x}{A}}{P} \quad \typing{t}{\Sum{A}{B}} \quad \begin{array}{c} \fullproves{\extend{\Gamma}{a}{A}}{\Delta}{e_1}{\subst{P}{x}{\inl[a]}} \\ \fullproves{\extend{\Gamma}{b}{B}}{\Delta}{e_2}{\subst{P}{x}{\inr[b]}} \end{array}}{\proves{\sumind{t}{a}{e_1}{b}{e_2}}{\subst{P}{x}{t}}}$
 \end{center}
 
 \end{frame}
@@ -295,7 +303,7 @@ $\proves{e}{P}$ -- in typing context $\Gamma$ and assumption context $\Delta$, $
 
   \vspace{2em}
 
-  $\infrule[Eq-Elim]{\proves{e}{\Eq[A]{t_1}{t_2}} \quad \prop{\extend{\Gamma}{x}{A}}{P} \quad \proves{e'}{\subst{P}{x}{t_1}}}{\proves{\rewrite{e}{e'}}{\subst{P}{x}{e_2}}}$
+  $\infrule[Eq-Elim]{\proves{e}{\Eq[A]{t_1}{t_2}} \quad \prop{\extend{\Gamma}{x}{A}}{P} \quad \proves{e'}{\subst{P}{x}{t_1}}}{\proves{\rewrite{e}{e'}}{\subst{P}{x}{t_2}}}$
 \end{center}
 
 \end{frame}
@@ -308,13 +316,12 @@ $\proves{e}{P}$ -- in typing context $\Gamma$ and assumption context $\Delta$, $
 
 \end{frame}
 
-\begin{frame}{Proof composition (or let binding, really)}
+\begin{frame}{Conversion rule}
 
 \begin{center}
-  $\infrule[Cut]{\proves{e_1}{P} \quad \fullproves{\Gamma}{\assume{\Delta}{P}}{e_2}{Q}}{\proves{\prooflet{e_1}{e_2}}{Q}}$
+  $\infrule[Conv]{\prop{\extend{\Gamma}{x}{A}}{P} \quad \proves{e}{\subst{P}{x}{t_1}} \quad \computation{t_1}{t_2}{A}}{\proves{e}{\subst{P}{x}{t_2}}}$
 \end{center}
 
 \end{frame}
-
 
 \end{document}
