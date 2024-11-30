@@ -50,38 +50,72 @@
 
 \section{Intro}
 
-\begin{frame}{Intro}
+\begin{frame}{Layers in Poor Man's Axi}
 
-In our original proposal of Poor Man's Axi, the language was split into two layers: a programming layer which consists of a strongly-typed functional programming language based on the Simply Typed Lambda Calculus, and a logical layer which consists of first-order classical logic with equality (although the ``first-order'' part is moot, because first-order quantifiers can quantify over functions).
+In our original proposal of Poor Man's Axi, the language was split into two layers:
 
-\vspace{2em}
-
-The logic was presented with a bunch of judgements, the most important being the true proposition judgement. While this presentation does a good job of explaining what the logic is like, it does not address the problem of writing proofs from the perspective of the user.
-
+\begin{itemize}
+  \item A programming layer which consists of a strongly-typed functional programming language based on the Simply Typed Lambda Calculus.
+  \item A logical layer which consists of second-order classical logic with equality and some primitives for reasoning by cases and induction (note that it's not full second-order logic, because it only allows quantification over functions, but not over propositions, predicates or relations).
+\end{itemize}
 
 \end{frame}
 
-\begin{frame}{Proofs}
+\begin{frame}{Logic without proofterms}
 
-Proofs (here $P$ are propositions, $t$ are terms, $x$ are variables): \\
+The logic was presented with a bunch of judgements, the most important being the true proposition judgement $\holds{P}$. While this presentation does a good job of explaining what the logic is like, it does not address the problem of writing proofs from the perspective of the programmer.
+
+\end{frame}
+
+\begin{frame}{Logic with proofterms}
+
+To deal with this problem, we introduce proofterms (also known as proof certificates), which are expressions that will serve as the ``proofs'' that the user will write. The manipulation of judgements which establish their correctness (which we will describe soon) is left to the language's proof checker.
+
+\end{frame}
+
+\begin{frame}{Proofterms}
+
+Proofterms (here $P$ are propositions, $t$ are terms, $x$ are variables): \\
 $e ::=$ \\
-\qquad $P \pipe \implintro{P}{e} \pipe \implelim{e_1}{e_2} \pipe$ \\
+\qquad $P \pipe \true \pipe \exfalso{e}$ \\
+\qquad $\implintro{P}{e} \pipe \implelim{e_1}{e_2} \pipe$ \\
 \qquad $\notintro{P}{e} \pipe \notelim{e_1}{e_2} \pipe$ \\
 \qquad $\andintro{e_1}{e_2} \pipe \andeliml{e} \pipe \andelimr{e} \pipe$ \\
+\qquad $\iffintro{e_1}{e_2} \pipe \iffeliml{e} \pipe \iffelimr{e} \pipe$ \\
 \qquad $\orintrol{P}{e} \pipe \orintror{P}{e} \pipe$ \\
 \qquad $\orelim{e_1}{e_2}{e_3} \pipe$ \\
-\qquad $\iffintro{e_1}{e_2} \pipe \iffeliml{e} \pipe \iffelimr{e} \pipe$ \\
-\qquad $\true \pipe \exfalso{e}$ \\
+\qquad $\dn{e} \pipe$ \\
+\qquad $\prooflet{e_1}{e_2} \pipe$ \\
 \qquad $\allintro{x}{e} \pipe \allelim{e}{t} \pipe$ \\
 \qquad $\exintro{t}{e} \pipe \exelim{x}{e_1}{e_2} \pipe$ \\
-\qquad $\dn{e} \pipe$ \\
-\qquad $\sumind{e}{a}{e_1}{b}{e_2} \pipe$ \\
 \qquad $\refl{t} \pipe \rewrite{e_1}{e_2} \pipe$ \\
-\qquad $\prooflet{e_1}{e_2}$
+\qquad $\sumind{t}{a}{e_1}{b}{e_2} \pipe$
+
+\end{frame}
+
+\begin{frame}{Proofterms -- overview}
+
+A quick glance at the above grammar:
+
+\begin{itemize}
+  \item First, propositions are included in the syntactic category of proofterms, because we will refer to an assumption $P$ with $P$ itself.
+  \item Then we have some proofterms for dealing with propositional logic, divided as usual into introduction and elimination forms.
+  \item $\textbf{double-negation}$ is our way of making the logic classical.
+  \item $\prooflet{e_1}{e_2}$ is a cut (or, in programming language terms, a let-expression, although without any variable binding).
+  \item Then we have some proofterms to deal with quantifiers.
+  \item $\textbf{refl}$ and $\textbf{rewrite}$ are primitives for dealing with equality.
+  \item Finally, $\textbf{case}$ will be used for reasoning by cases on terms of type $\Sum{A}{B}$.
+\end{itemize}
 
 \end{frame}
 
 \section{Examples}
+
+\begin{frame}{Examples}
+
+Before we jump right into the rules, let's see some examples. The point of the first two is to show that our proofterms look very similar to proofs from DPLs. The third example shows how simple reasoning about programs might look like.
+
+\end{frame}
 
 \begin{frame}{Example -- propositional logic}
 
@@ -95,8 +129,6 @@ $\implintro{\Impl{P}{Q}}{}$ \\
 \quad $\implintro{P}{}$ \\
 \qquad $\implelim{(\Impl{P}{Q})}{P};$ \\
 \qquad $\implelim{(\Impl{Q}{R})}{Q}$
-
-%$\implintro{\Impl{P}{Q}}{\implintro{\Impl{Q}{R}}}{\implintro{P}{\prooflet{\implelim{(\Impl{P}{Q})}{P}}{\implelim{(\Impl{Q}{R})}{Q}}}}$
 
 \vspace{2em}
 
@@ -122,25 +154,27 @@ $\implintro{\All{x}{A}{\And{\app{P}{x}}{\app{Q}{x}}}}{}$ \\
 
 \vspace{2em}
 
-Again, the proof looks the same as the DPL on (page 156 in the DPL thesis), except we use indentation instead of $\textbf{begin}$ and $\textbf{end}$.
+Again, the proof looks the same as the DPL one (page 156 in the DPL thesis), except we use indentation instead of $\textbf{begin}$ and $\textbf{end}$.
 \end{frame}
 
 \newcommand{\swap}[1][]{\texttt{swap}\ #1}
 
 \begin{frame}{Example -- proof about a program}
 
-Program: $\swap := \fun{x}{\case{x}{\fun{a}{\inr[a]}}{\fun{b}{\inl[b]}}}$ \\
-Typing: $\typing{\swap}{\Fun{\Sum{A}{B}}{\Sum{B}{A}}}$ \\
+Consider the following program: \\
+$\texttt{swap} : \Fun{\Sum{A}{B}}{\Sum{B}{A}} := \fun{x}{\case{x}{\fun{a}{\inr[a]}}{\fun{b}{\inl[b]}}}$ \\
 
 \vspace{2em}
 
+It's pretty clear that this function is an involution. \\
 Theorem: $\All{x}{\Sum{A}{B}}{\Eq[]{\swap{(\swap{x})}}{x}}$
 
-\vspace{2em}
+\vspace{1em}
 
 Proof: \\
 $\allintro{x}{}$ \\
-\, $\sumind{x}{a}{\refl{a}}{b}{\refl{b}}$
+\quad $\sumind{x}{a}{\refl{a}}{b}{\refl{b}}$
+
 \vspace{2em}
 
 The proof has the same structure as the proofterm you would write in Coq, except for the syntactic differences.
@@ -149,10 +183,14 @@ The proof has the same structure as the proofterm you would write in Coq, except
 
 \section{Rules}
 
-\begin{frame}{Proof judgement}
+\begin{frame}{Correct proof judgement}
 
-Proof judgement: \\
-$\proves{e}{P}$ -- in typing context $\Gamma$ and assumption context $\Delta$, $e$ is a proof of $P$.
+We now proceed to describe proofterms in much greater detail. will modify the language in the following way: we throw away the true proposition judgement $\holds{P}$ and replace it with the correct proof judgement $\proves{e}{P}$ which should be read: in typing context $\Gamma$ and assumption context $\Delta$, $e$ is a proof of $P$.
+
+\vspace{2em}
+
+The other judgements we need in our logic, the valid assumption context judgement $\assctx{\Gamma}{\Delta}$ and the well-formed proposition judgement $\prop{\Gamma}{P}$, are unchanged. Note that we will set up the system so that $\proves{e}{P}$ entails $\assctx{\Gamma}{\Delta}$ and $\prop{\Gamma}{P}$ as sanity checks.
+
 
 \end{frame}
 
@@ -161,6 +199,10 @@ $\proves{e}{P}$ -- in typing context $\Gamma$ and assumption context $\Delta$, $
 \begin{center}
   $\infrule[Ass]{\assctx{\Gamma}{\Delta} \quad \sidecond{P \in \Delta}}{\proves{P}{P}}$
 \end{center}
+
+\vspace{2em}
+
+The basic rule of our logic is that we can use assumptions from the assumption context. Note that here $P$ denotes both the proposition and its proof.
 
 \end{frame}
 
@@ -173,6 +215,10 @@ $\proves{e}{P}$ -- in typing context $\Gamma$ and assumption context $\Delta$, $
 
   $\infrule[False-Elim]{\proves{e}{\False}}{\proves{\exfalso{e}}{P}}$
 \end{center}
+
+\vspace{2em}
+
+$\true$ establishes the truth of the true proposition $\True$, whereas $\exfalso{e}$ proves any proposition $P$ whatsoever, provided that $e$ proves $\False$.
 
 \end{frame}
 
