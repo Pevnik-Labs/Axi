@@ -45,7 +45,8 @@
 \newcommand{\fullholds}[3]{\mathcolor{red}{#1 \pipe #2 \vdash #3}}
 \newcommand{\holds}[1]{\fullholds{\Gamma}{\Delta}{#1}}
 
-\newcommand{\infrule}[3][]{\displaystyle \frac{#2}{#3} \textsc{\footnotesize{#1}}}
+\newcommand{\rulename}[1]{\textsc{\footnotesize{#1}}}
+\newcommand{\infrule}[3][]{\displaystyle \frac{#2}{#3} \rulename{#1}}
 
 \newcommand{\emptytypingctx}{\cdot}
 \newcommand{\extend}[3]{#1, #2 : #3}
