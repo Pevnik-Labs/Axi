@@ -176,7 +176,7 @@ Theorem: $\All{x}{\Sum{A}{B}}{\Eq[]{\swap{(\swap{x})}}{x}}$
 
 Proof: \\
 $\allintro{x}{}$ \\
-\quad $\sumind{x}{a}{\refl{a}}{b}{\refl{b}}$
+\quad $\sumind{x}{a}{\refl{(\inl[a])}}{b}{\refl{(\inr[b])}}$
 
 \vspace{2em}
 
@@ -216,7 +216,7 @@ The basic rule of our logic is that we can use assumptions from the assumption c
 
   \vspace{2em}
 
-  $\infrule[False-Elim]{\proves{e}{\False}}{\proves{\exfalso{e}}{P}}$
+  $\infrule[False-Elim]{\prop{\Gamma}{P} \quad \proves{e}{\False}}{\proves{\exfalso{e}}{P}}$
 \end{center}
 
 \vspace{2em}
@@ -328,11 +328,11 @@ Our presentation of the biconditional is exactly the same as in $\NDL$ (DPL thes
 \begin{frame}{Disjunction}
 
 \begin{center}
-  $\infrule[Or-Intro-L]{\proves{e}{P}}{\proves{\orintrol{Q}{e}}{\Or{P}{Q}}}$
+  $\infrule[Or-Intro-L]{\prop{\Gamma}{Q} \quad \proves{e}{P}}{\proves{\orintrol{Q}{e}}{\Or{P}{Q}}}$
 
   \vspace{2em}
 
-  $\infrule[Or-Intro-R]{\proves{e}{Q}}{\proves{\orintror{P}{e}}{\Or{P}{Q}}}$
+  $\infrule[Or-Intro-R]{\prop{\Gamma}{P} \quad \proves{e}{Q}}{\proves{\orintror{P}{e}}{\Or{P}{Q}}}$
 
   \vspace{2em}
 
@@ -623,7 +623,7 @@ Sums are not the only type for which we need to add a principle for reasoning by
 
 \vspace{2em}
 
-But for more complicated types, like the natural numbers or lists, reasoning by cases won't suffice, and so we would also need to add proofterms and rules for proofs by induction. We won't do this now for lack of space and time, but it's not much more difficult than handling reasoning by cases for sums.
+But for more complicated types, like the natural numbers or lists, reasoning by cases won't suffice, and so we would also need to add proofterms and rules for induction. We won't do this now for lack of space and time, but it's not much more difficult than handling reasoning by cases for sums.
 
 \end{frame}
 
