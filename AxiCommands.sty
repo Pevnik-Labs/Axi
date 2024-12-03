@@ -1,5 +1,7 @@
 \ProvidesPackage{AxiCommands}
 
+% PoorAxi.tex
+
 \newcommand{\pipe}{\ |\ }
 
 \newcommand{\Fun}[2]{#1 \to #2}
@@ -56,3 +58,40 @@
 \newcommand{\assume}[2]{#1, #2}
 
 \newcommand{\sidecond}[1]{\mathcolor{orange}{#1}}
+
+% Proofterms.tex
+
+\newcommand{\implintro}[2]{\textbf{assume}\ #1\ \textbf{in}\ #2}
+\newcommand{\implelim}[2]{\textbf{modus-ponens}\ #1\ #2}
+\newcommand{\true}{\textbf{true}}
+\newcommand{\exfalso}[1]{\textbf{exfalso}\ #1}
+\newcommand{\cut}[2]{#1; #2}
+\newcommand{\notintro}[2]{\textbf{suppose-absurd}\ #1\ \textbf{in}\ #2}
+\newcommand{\notelim}[2]{\textbf{absurd}\ #1\ #2}
+\newcommand{\andintro}[2]{\textbf{both}\ #1\ #2}
+\newcommand{\andeliml}[1]{\textbf{left-and}\ #1}
+\newcommand{\andelimr}[1]{\textbf{right-and}\ #1}
+\newcommand{\orintrol}[2]{\textbf{left-either}\ #1\ #2}
+\newcommand{\orintror}[2]{\textbf{right-either}\ #1\ #2}
+\newcommand{\orelim}[3]{\textbf{constructive-dilemma}\ #1\ #2\ #3}
+\newcommand{\iffintro}[2]{\textbf{equivalence}\ #1\ #2}
+\newcommand{\iffeliml}[1]{\textbf{left-iff}\ #1}
+\newcommand{\iffelimr}[1]{\textbf{right-iff}\ #1}
+
+\newcommand{\dn}[1]{\textbf{double-negation}\ #1}
+
+\newcommand{\allintro}[2]{\textbf{pick-any}\ #1\ \textbf{in}\ #2}
+\newcommand{\allelim}[2]{\textbf{specialize}\ #1\ \textbf{with}\ #2}
+\newcommand{\exintro}[2]{\textbf{exists}\ #1\ \textbf{such that}\ #2}
+\newcommand{\exelim}[3]{\textbf{pick-witness}\ #1\ \textbf{for}\ #2\ \textbf{in}\ #3}
+
+\newcommand{\sumind}[5]{\textbf{case}\ #1\ \textbf{of}\ (\inl{#2} \rightarrow #3, \inr{#4} \rightarrow #5)}
+
+\newcommand{\refl}[1]{\textbf{refl}\ #1}
+\newcommand{\rewrite}[2]{\textbf{rewrite}\ #1\ \textbf{in}\ #2}
+\newcommand{\funext}[1]{\textbf{funext}\ #1}
+
+\newcommand{\fullproves}[4]{#1 \pipe #2 \vdash #3 : #4}
+\newcommand{\proves}[2]{\fullproves{\Gamma}{\Delta}{#1}{#2}}
+
+\newcommand{\NDL}{\mathcal{NDL}}

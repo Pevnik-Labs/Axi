@@ -7,6 +7,7 @@
 \usetheme{Darmstadt}
 
 \title{Poor Man's Axi: STLC with Logic}
+\author{Wojciech Kołowski}
 \date{}
 
 \begin{document}
@@ -533,8 +534,8 @@ There are many ways to add classical logic to the system, but we'll have a rule 
 \section{More types}
 
 \newcommand{\Bool}{\texttt{Bool}}
-\newcommand{\true}{\texttt{true}}
-\newcommand{\false}{\texttt{false}}
+\newcommand{\btrue}{\texttt{true}}
+\newcommand{\bfalse}{\texttt{false}}
 \newcommand{\boolElim}[3]{\texttt{if}\ #1\ \texttt{then}\ #2\ \texttt{else}\ #3}
 
 \begin{frame}{Adding more types to the language}
@@ -574,8 +575,8 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 \begin{frame}{Booleans}
 
 \begin{center}
-  $\infrule{}{\typing{\true}{\Bool}}$ \quad
-  $\infrule{}{\typing{\false}{\Bool}}$
+  $\infrule{}{\typing{\btrue}{\Bool}}$ \quad
+  $\infrule{}{\typing{\bfalse}{\Bool}}$
 
   \vspace{1em}
 
@@ -583,8 +584,8 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 
   \vspace{1em}
 
-  %$\infrule{}{\computation{\true}{\true}{\Bool}}$ \quad
-  %$\infrule{}{\computation{\false}{\false}{\Bool}}$ \quad
+  %$\infrule{}{\computation{\btrue}{\btrue}{\Bool}}$ \quad
+  %$\infrule{}{\computation{\bfalse}{\bfalse}{\Bool}}$ \quad
 
   %\vspace{1em}
 
@@ -592,15 +593,15 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 
   %\vspace{1em}
 
-  $\infrule[Comp-If-True]{\typing{e_1}{A} \quad \typing{e_2}{A}}{\computation{\boolElim{\true}{e_1}{e_2}}{e_1}{A}}$
+  $\infrule[Comp-If-True]{\typing{e_1}{A} \quad \typing{e_2}{A}}{\computation{\boolElim{\btrue}{e_1}{e_2}}{e_1}{A}}$
 
   \vspace{1em}
 
-  $\infrule[Comp-If-False]{\typing{e_1}{A} \quad \typing{e_2}{A}}{\computation{\boolElim{\false}{e_1}{e_2}}{e_2}{A}}$
+  $\infrule[Comp-If-False]{\typing{e_1}{A} \quad \typing{e_2}{A}}{\computation{\boolElim{\bfalse}{e_1}{e_2}}{e_2}{A}}$
 
   \vspace{1em}
 
-  $\infrule[Bool-Ind]{\holds{\subst{P}{b}{\true}} \quad \holds{\subst{P}{b}{\false}}}{\holds{\All{b}{\Bool}{P}}}$
+  $\infrule[Bool-Ind]{\holds{\subst{P}{b}{\btrue}} \quad \holds{\subst{P}{b}{\bfalse}}}{\holds{\All{b}{\Bool}{P}}}$
 \end{center}
 
 \end{frame}
@@ -608,11 +609,11 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 \begin{frame}{Booleans -- congruence rules}
 
 \begin{center}
-  $\infrule[True-Congr]{}{\computation{\true}{\true}{\Bool}}$
+  $\infrule[True-Congr]{}{\computation{\btrue}{\btrue}{\Bool}}$
 
   \vspace{1em}
 
-  $\infrule[False-Congr]{}{\computation{\false}{\false}{\Bool}}$
+  $\infrule[False-Congr]{}{\computation{\bfalse}{\bfalse}{\Bool}}$
 
   \vspace{1em}
 
@@ -913,8 +914,8 @@ Assume for a moment that $A, B, C$ are arbitrary types. Let's write some program
   \item $\comp := \fun{f}{\fun{g}{\fun{x}{\app{g}{(\app{f}{x})}}}}$
   \item $\swap := \fun{p}{\pair{\outr{p}}{\outl{p}}}$
   \item $\swop := \fun{x}{\case{x}{\fun{a}{\inr[a]}}{\fun{b}{\inl[b]}}}$
-  \item $\notb := \fun{b}{\boolElim{b}{\false}{\true}}$
-  \item $\andb := \fun{x}{\fun{y}{\boolElim{x}{y}{\false}}}$
+  \item $\notb := \fun{b}{\boolElim{b}{\bfalse}{\btrue}}$
+  \item $\andb := \fun{x}{\fun{y}{\boolElim{x}{y}{\bfalse}}}$
   \item $\add := \fun{n}{\fun{m}{\elimNat{m}{(\fun{r}{\succ[r]})}{n}}}$
   \item $\length := \fun{l}{\elimList{\zero}{(\fun{h}{\fun{r}{\succ[r]}})}{l}}$
   \item $\replicate := \fun{n}{\fun{x}{\elimNat{\nil}{(\fun{r}{\cons{x}{r}})}{n}}}$
@@ -952,7 +953,7 @@ What are the types of our programs?
   \item $\computation{\swap[(\swap[p])]}{p}{\Prod{A}{B}}$
   \item $\computation{\swop[(\swop[(\inl[a])])]}{\inl[a]}{A}$
   \item $\computation{\swop[(\swop[(\inr[b])])]}{\inr[b]}{B}$
-  \item $\computation{\notb[(\app{\app{\andb}{\true}}{\true})]}{\false}{\Bool}$
+  \item $\computation{\notb[(\app{\app{\andb}{\btrue}}{\btrue})]}{\bfalse}{\Bool}$
 \end{itemize}
 
 \end{frame}
