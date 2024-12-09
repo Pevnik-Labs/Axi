@@ -148,35 +148,82 @@ The proof has the same structure as the proofterm you would write in Coq, except
 
 \end{frame}
 
-\section{Propositional logic}
+\section{Machinery}
 
-\begin{frame}{Correct proof judgement}
+\begin{frame}{New contexts}
 
-We now proceed to describe proofterms in much greater detail. We will modify the language in the following way: we throw away the true proposition judgement $\holds{P}$ and replace it with the correct proof judgement $\proves{e}{P}$, which should be read: in typing context $\Gamma$ and assumption context $\Delta$, $e$ is a proof of $P$.
+Contexts: \\
+$\Gamma ::= \emptytypingctx \pipe \extend{\Gamma}{x}{A} \pipe \assume{\Gamma}{P}$
 
 \vspace{2em}
 
-The other judgements we need in our logic, the valid assumption context judgement $\assctx{\Gamma}{\Delta}$ and the well-formed proposition judgement $\prop{\Gamma}{P}$, are unchanged. Note that we will set up the system so that $\proves{e}{P}$ entails $\assctx{\Gamma}{\Delta}$ and $\prop{\Gamma}{P}$ as sanity checks.
+In the previous presentation of our logic, we judged the truth of a proposition in two contexts, $\Gamma \pipe \Delta$, with $\Gamma$ storing typing assumptions and $\Delta$ storing propositional assumptions (so it was the ``assumption base''). We now change this, so that $\Gamma$ will store both of these.
 
+\vspace{2em}
+
+This change is not strictly necessary to introduce proofterms, but we go for it because it makes the rules more concise and will also bring benefits when implementation time comes.
 
 \end{frame}
+
+\begin{frame}{Judgements}
+
+We will modify the language in the following way: we throw away the true proposition judgement $\holds{P}$ and replace it with the correct proof judgement $\proves{e}{P}$, which should be read: in context $\Gamma$, $e$ is a proof of $P$.
+
+\vspace{2em}
+
+Because we no longer have separate assumption contexts, but still need to keep track of well-formedness of assumptions, we drop the valid assumption context judgement $\assctx{\Gamma}{\Delta}$ and replace it with the valid context judgement $\tyctx{\Gamma}$, which should be read: $\Gamma$ is a well-formed context.
+
+\vspace{2em}
+
+The well-formed proposition judgement $\prop{\Gamma}{P}$ stays unchanged.
+
+\end{frame}
+
+\begin{frame}{Sanity checks}
+
+Recall that our judgements should satisfy some ``sanity checks'', which can be summarized like this: a complex judgement should guarantee that its simpler components are well-formed.
+
+\vspace{1em}
+
+In case of our logic, we will set up the judgements so that the following sanity checks hold:
+
+\begin{itemize}
+  \item $\tyctx{\Gamma}$ entails nothing (because it is the simplest judgement)
+  \item $\prop{\Gamma}{P}$ entails $\tyctx{\Gamma}$
+  \item $\proves{e}{P}$ entails $\prop{\Gamma}{P}$
+\end{itemize}
+
+\vspace{1em}
+
+Note that the programming layer would need to be slightly modified so that it satisfies the following sanity checks:
+
+\begin{itemize}
+  \item $\typing{e}{A}$ entails $\tyctx{\Gamma}$
+  \item $\computation{e_1}{e_2}{A}$ entails $\typing{e_1}{A}$ and $\typing{e_2}{A}$
+\end{itemize}
+
+\end{frame}
+
+\section{Propositional logic}
+
+
 
 \begin{frame}{Assumptions}
 
 \begin{center}
-  $\infrule[Ass]{\assctx{\Gamma}{\Delta} \quad \sidecond{P \in \Delta}}{\proves{P}{P}}$
+  $\infrule[Ass]{\tyctx{\Gamma} \quad \sidecond{P \in \Gamma}}{\proves{P}{P}}$
 \end{center}
 
 \vspace{2em}
 
-The basic rule of our logic is that we can use assumptions from the assumption context. Note that here $P$ denotes both the proposition and its proof.
+The basic rule of our logic is that we can use assumptions from the context. Note that here $P$ denotes both the proposition and its proof.
 
 \end{frame}
 
 \begin{frame}{True and False}
 
 \begin{center}
-  $\infrule[True-Intro]{\assctx{\Gamma}{\Delta}}{\proves{\true}{\True}}$
+  $\infrule[True-Intro]{\tyctx{\Gamma}}{\proves{\true}{\True}}$
 
   \vspace{2em}
 
@@ -185,18 +232,18 @@ The basic rule of our logic is that we can use assumptions from the assumption c
 
 \vspace{2em}
 
-$\true$ proves the true proposition $\True$.
+$\true$ proves the true proposition $\True$ in any well-formed context.
 
 \vspace{1em}
 
-$\exfalso{e}$ proves any proposition $P$ whatsoever, provided that $e$ proves the false proposition $\False$.
+$\exfalso{e}$ proves any well-formed proposition $P$ whatsoever, provided that $e$ proves the false proposition $\False$.
 
 \end{frame}
 
 \begin{frame}{Implication}
 
 \begin{center}
-  $\infrule[Impl-Intro]{\fullproves{\Gamma}{\assume{\Delta}{P}}{e}{Q}}{\proves{\implintro{P}{e}}{\Impl{P}{Q}}}$
+  $\infrule[Impl-Intro]{\fullproves{\assume{\Gamma}{P}}{e}{Q}}{\proves{\implintro{P}{e}}{\Impl{P}{Q}}}$
 
   \vspace{2em}
 
@@ -205,7 +252,7 @@ $\exfalso{e}$ proves any proposition $P$ whatsoever, provided that $e$ proves th
 
 \vspace{2em}
 
-$\implintro{P}{e}$ proves $\Impl{P}{Q}$, provided that $e$ proves $Q$ in the assumption context extended with $P$.
+$\implintro{P}{e}$ proves $\Impl{P}{Q}$, provided that $e$ proves $Q$ in the context extended with the assumption $P$.
 
 \vspace{1em}
 
@@ -216,7 +263,7 @@ $\implelim{e_1}{e_2}$ proves $Q$, provided that $e_1$ proves $\Impl{P}{Q}$ and $
 \begin{frame}{Negation}
 
 \begin{center}
-  $\infrule[Not-Intro]{\fullproves{\Gamma}{\assume{\Delta}{P}}{e}{\False}}{\proves{\notintro{P}{e}}{\Not{P}}}$
+  $\infrule[Not-Intro]{\fullproves{\assume{\Gamma}{P}}{e}{\False}}{\proves{\notintro{P}{e}}{\Not{P}}}$
 
   \vspace{2em}
 
@@ -225,7 +272,7 @@ $\implelim{e_1}{e_2}$ proves $Q$, provided that $e_1$ proves $\Impl{P}{Q}$ and $
 
 \vspace{2em}
 
-$\notintro{P}{e}$ proves $\Not{P}$ provided that $e$ proves $\False$ in the context extended with $P$ as an assumption.
+$\notintro{P}{e}$ proves $\Not{P}$ provided that $e$ proves $\False$ in the context extended with the assumption $P$.
 
 \vspace{2em}
 
@@ -311,11 +358,11 @@ $\orintrol{Q}{e}$ proves $\Or{P}{Q}$ provided that $e$ proves $P$. $\orintror{P}
 
 \begin{frame}{Disjunction -- annotations}
 
-The first argument of $\orintrol{Q}{e}$, i.e. $Q$, is a proposition, not a proofterm, and serves as an annotation that clarifies what its conclusion is. $\orintror{P}{e}$ is analogous.
+The first argument of $\orintrol{Q}{e}$, i.e. $Q$, is a proposition, not a proofterm, and serves as an annotation that clarifies what its conclusion is. Note that it needs to be well-formed. $\orintror{P}{e}$ is analogous.
 
 \vspace{2em}
 
-This choice makes our system very close to $\NDL$ (DPL thesis, chapter 4, page 65), and also to the ``intrinsic'' presentation of the Simply Typed Lambda Calculus, but it is not the only one: we could do without the annotation, which would make the system less similar to $\NDL$ and more to the ``extrinsic'' presentation of Simply Typed Lambda Calculus.
+The choice to have annotations there makes our system very close to $\NDL$ (DPL thesis, chapter 4, page 65), and also to the ``intrinsic'' presentation of the Simply Typed Lambda Calculus, but it is not the only one: we could do without the annotations, which would make the system less similar to $\NDL$ and more to the ``extrinsic'' presentation of Simply Typed Lambda Calculus.
 
 \end{frame}
 
@@ -323,8 +370,10 @@ This choice makes our system very close to $\NDL$ (DPL thesis, chapter 4, page 6
 
 We also have a choice regarding the second and third arguments of $\orelim{e_1}{e_2}{e_3}$. To keep close to $\NDL$, they both must prove implications ($\Impl{P}{R}$ for $e_2$ and $\Impl{Q}{R}$ for $e_3$), but perhaps it would be more comfortable for the user if they only needed to prove the conclusion $R$ in a context extended with the appropriate assumption, so that he would be spared from having to write \textbf{assume} twice (once in $e_2$ and once in $e_3$). The alternative rule is as follows:
 
+\vspace{2em}
+
 \begin{center}
-  $\infrule[Or-Elim-Alt]{\proves{e_1}{\Or{P}{Q}} \quad \fullproves{\Gamma}{\assume{\Delta}{P}}{e_2}{R} \quad \fullproves{\Gamma}{\assume{\Delta}{Q}}{e_3}{R}}{\proves{\orelim{e_1}{e_2}{e_3}}{R}}$
+  $\infrule[Or-Elim-Alt]{\proves{e_1}{\Or{P}{Q}} \quad \fullproves{\assume{\Gamma}{P}}{e_2}{R} \quad \fullproves{\assume{\Gamma}{Q}}{e_3}{R}}{\proves{\orelim{e_1}{e_2}{e_3}}{R}}$
 \end{center}
 
 \end{frame}
@@ -376,7 +425,7 @@ The $\rulename{Cut}$ rule increases the comfort of doing forward proofs in our s
 \begin{frame}{Cut rule}
 
 \begin{center}
-  $\infrule[Cut]{\proves{e_1}{P} \quad \fullproves{\Gamma}{\assume{\Delta}{P}}{e_2}{Q}}{\proves{\cut{e_1}{e_2}}{Q}}$
+  $\infrule[Cut]{\proves{e_1}{P} \quad \fullproves{\assume{\Gamma}{P}}{e_2}{Q}}{\proves{\cut{e_1}{e_2}}{Q}}$
 \end{center}
 
 \vspace{2em}
@@ -400,7 +449,7 @@ Our rules, however, are subtly different in that we allow arbitrary proofs as ar
 \begin{frame}{Universal quantifier}
 
 \begin{center}
-  $\infrule[Forall-Intro]{\fullproves{\extend{\Gamma}{y}{A}}{\Delta}{e}{\subst{P}{x}{y}}}{\proves{\allintro{y}{e}}{\All{x}{A}{P}}}$
+  $\infrule[Forall-Intro]{\fullproves{\extend{\Gamma}{y}{A}}{e}{\subst{P}{x}{y}}}{\proves{\allintro{y}{e}}{\All{x}{A}{P}}}$
 
   \vspace{2em}
 
@@ -409,7 +458,7 @@ Our rules, however, are subtly different in that we allow arbitrary proofs as ar
 
 \vspace{2em}
 
-$\allintro{y}{e}$ proves $\All{x}{A}{P}$ provided that $e$ proves $P$ in which $y$ was substituted for $x$.
+$\allintro{y}{e}$ proves $\All{x}{A}{P}$ provided that $e$ proves $P$ in which $y$ was substituted for $x$ in the context extended with $y : A$.
 
 \vspace{2em}
 
@@ -424,7 +473,7 @@ $\allelim{e}{t}$ proves $P$ in which $t$ was substituted for $x$, provided that 
 
   \vspace{2em}
 
-  $\infrule[Exists-Elim]{\prop{\Gamma}{R} \quad \proves{e_1}{\Ex{x}{A}{P}} \quad \fullproves{\extend{\Gamma}{y}{A}}{\assume{\Delta}{\subst{P}{x}{y}}}{e_2}{R}}{\proves{\exelim{y}{e_1}{e_2}}{R}}$
+  $\infrule[Exists-Elim]{\prop{\Gamma}{R} \quad \proves{e_1}{\Ex{x}{A}{P}} \quad \fullproves{\assume{\extend{\Gamma}{y}{A}}{\subst{P}{x}{y}}}{e_2}{R}}{\proves{\exelim{y}{e_1}{e_2}}{R}}$
 \end{center}
 
 \vspace{2em}
@@ -433,7 +482,7 @@ $\exintro{t}{e}$ proves $\Ex{x}{A}{P}$ provided that $t$ is a term of type $A$ a
 
 \vspace{2em}
 
-$\exelim{y}{e_1}{e_2}$ proves $R$, provided that $e_1$ proves $\Ex{x}{A}{P}$ and $e_2$ proves $R$ in the typing context extended with $y : A$ and the assumption context extended with $P$ (in which $y$ was substituted for $x$).
+$\exelim{y}{e_1}{e_2}$ proves $R$, provided that $e_1$ proves $\Ex{x}{A}{P}$ and $e_2$ proves $R$ in the context extended with $y : A$ and $P$ (in which $y$ was substituted for $x$). Note that $R$ needs to be well-formed in $\Gamma$, i.e. it can't depend on $x$ or $y$.
 
 \end{frame}
 
@@ -445,7 +494,7 @@ The computational equality judgement $\computation{t_1}{t_2}{A}$ (sometimes also
 
 \vspace{2em}
 
-Computational equality is a part of the programming layer of our language and does not depend on the logical layer in any way. In particular, it does not have to change to accomodate proofterms. Computational equality is decidable and its use in proofs is handled entirely by the proof checker.
+Computational equality is a part of the programming layer of our language and does not depend on the logical layer in any way. In particular, it does not have to change to accomodate proofterms (except for a tiny change in the congruence rule for $\Unit$ to accomodate our new contexts). Computational equality is decidable and its use in proofs is handled entirely by the proof checker.
 
 \vspace{1em}
 
@@ -488,7 +537,7 @@ The main point of the conversion rule is to facilitate proving equalities which 
 \begin{frame}{Equality introduction and elimination}
 
 \begin{center}
-  $\infrule[Eq-Intro]{\assctx{\Gamma}{\Delta} \quad \typing{t}{A}}{\proves{\refl{t}}{\Eq[A]{t}{t}}}$
+  $\infrule[Eq-Intro]{\typing{t}{A}}{\proves{\refl{t}}{\Eq[A]{t}{t}}}$
 
   \vspace{2em}
 
@@ -552,7 +601,7 @@ $\funext{e}$ is in some sense ``higher-order'', i.e. $e$ is expected to be a pro
 \vspace{2em}
 
 \begin{center}
-  $\infrule[Funext-Alt]{\fullproves{\extend{\Gamma}{x}{A}}{\Delta}{e}{\Eq[B]{\app{f}{x}}{\app{g}{x}}}}{\proves{\funextalt{x}{e}}{\Eq[\Fun{A}{B}]{f}{g}}}$
+  $\infrule[Funext-Alt]{\fullproves{\extend{\Gamma}{x}{A}}{e}{\Eq[B]{\app{f}{x}}{\app{g}{x}}}}{\proves{\funextalt{x}{e}}{\Eq[\Fun{A}{B}]{f}{g}}}$
 \end{center}
 
 \end{frame}
@@ -562,12 +611,12 @@ $\funext{e}$ is in some sense ``higher-order'', i.e. $e$ is expected to be a pro
 \begin{frame}{Reasoning by cases (for sums)}
 
 \begin{center}
-  $\infrule{\prop{\extend{\Gamma}{x}{A}}{P} \quad \typing{t}{\Sum{A}{B}} \quad \begin{array}{c} \fullproves{\extend{\Gamma}{a}{A}}{\Delta}{e_1}{\subst{P}{x}{\inl[a]}} \\ \fullproves{\extend{\Gamma}{b}{B}}{\Delta}{e_2}{\subst{P}{x}{\inr[b]}} \end{array}}{\proves{\sumind{t}{a}{e_1}{b}{e_2}}{\subst{P}{x}{t}}}$
+  $\infrule{\prop{\extend{\Gamma}{x}{\Sum{A}{B}}}{P} \quad \typing{t}{\Sum{A}{B}} \quad \begin{array}{c} \fullproves{\extend{\Gamma}{a}{A}}{e_1}{\subst{P}{x}{\inl[a]}} \\ \fullproves{\extend{\Gamma}{b}{B}}{e_2}{\subst{P}{x}{\inr[b]}} \end{array}}{\proves{\sumind{t}{a}{e_1}{b}{e_2}}{\subst{P}{x}{t}}}$
 \end{center}
 
 \vspace{2em}
 
-$\sumind{t}{a}{e_1}{b}{e_2}$ proves $P$ with $t$ substituted for $x$, provided that $t$ is of type $\Sum{A}{B}$, that $e_1$ proves $P$ with $\inl[a]$ substituted for $x$ in a typing context extended with $a : A$, and that $e_2$ proves $P$ with $\inr[b]$ substituted for $x$ in a typing context extended with $b : B$.
+$\sumind{t}{a}{e_1}{b}{e_2}$ proves $P$ with $t$ substituted for $x$, provided that $t$ is of type $\Sum{A}{B}$, that $e_1$ proves $P$ with $\inl[a]$ substituted for $x$ in the context extended with $a : A$, and that $e_2$ proves $P$ with $\inr[b]$ substituted for $x$ in the context extended with $b : B$.
 
 \end{frame}
 
