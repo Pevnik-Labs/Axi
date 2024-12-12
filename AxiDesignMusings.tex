@@ -22,9 +22,13 @@ The purpose of this presentation is to discuss Axi design in an informal setting
 
 \end{frame}
 
-\begin{frame}{Plan of the presentation}
+\begin{frame}{Table of contents}
 
-%\tableofcontents
+\tableofcontents
+
+\end{frame}
+
+\begin{frame}{Plan of the presentation}
 
 \begin{itemize}
   \item Why languages have layers.
@@ -33,7 +37,7 @@ The purpose of this presentation is to discuss Axi design in an informal setting
   \item The logical layer.
   \item The tactic layer.
   \item The module layer.
-  \item Languages features.
+  \item Language features.
 \end{itemize}
 
 \end{frame}
@@ -52,10 +56,205 @@ Is the above sentence true or false? If we assume it is false, then apparently i
 
 \vspace{2em}
 
-This situation is deeply problematic -- it demonstrates that the English language doesn't fit into the confines of classical logic. We could try to analyze it as fitting some other kind of logical system, but alas, that would also fail -- G\"odel
+This situation is deeply problematic -- it demonstrates that the English language doesn't fit into the confines of classical logic. We could try to analyze it as fitting some other kind of logical system, but alas, that would also fail -- G\"odel's incompleteness theorem
 
 put on our philosopher hats and try to escape the problem by 
 
+\end{frame}
+
+\section{Do we need Axi?}
+
+\begin{frame}{No}
+
+Just kidding :)
+
+\end{frame}
+
+\begin{frame}{Code on-chain or off-chain?}
+
+\end{frame}
+
+\begin{frame}{? Source code on chain or compiled code on chain? }
+
+\end{frame}
+
+\section{GAS BILLS}
+
+\begin{frame}{Some jargon}
+
+``Semantics'' or ``dynamic semantics'' refers to the meaning and behaviour of programs at run-time.
+
+\vspace{2em}
+
+``Type system'' or ``static semantics'' refers to the constraints that are automatically checked before running programs.
+
+\vspace{2em}
+
+``Logic'' or ``proving'' refers to the correctness guarantees of programs that need to be proved manually. They are also pre-runtime.
+
+\end{frame}
+
+\begin{frame}{What does a programming language consist of?}
+
+\begin{itemize}
+  \item Concrete syntax (what the programmer writes).
+  \item Abstract syntax (the internal representation of what the programmer wrote).
+  \item Operational semantics (how programs are executed).
+  \item Type system (which programs are ok).
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Paying for on-chain execution}
+
+Execution of programs on-chain needs to be paid for. If it weren't, a malicious user could ask the blockchain to execute some really long-running program, or even worse, a non-terminating program, stalling the chain for long or forever. To prevent this, we require users to pay gas for executing their programs.
+
+\end{frame}
+
+\begin{frame}{Cost semantics}
+
+The language's operational semantics tell us how how computation proceeds. We can extend it with \textbf{cost semantics} which will also tell us how much that computation costs in terms of some resources, like time, memory or \textbf{gas}.
+
+\vspace{2em}
+
+Since computation on-chain costs gas, Axi will need a cost semantics. 
+
+\end{frame}
+
+\begin{frame}{Cost semantics -- a research opportunity}
+
+There's also a research opportunity. Since Axi will have a formal specification and powerful logic built-in, a question arises: can we do anything cool with the cost semantics, like proving upper bounds on gas costs?
+
+\vspace{2em}
+
+Note that the naive approach to this topic doesn't work, because programs that do the same thing (and thus are considered equal by the logic) may nevertheless use different amounts of resources. For example, programs which implement quick sort and selection sort are equal because for all inputs they return the same outputs (there's only one way of correctly sorting a list), but their time complexities are different (and so would be their ``gas complexities'').
+
+\end{frame}
+
+\begin{frame}{Out-of-gas exception in the operational semantics?}
+
+A question arises: do we need to model out-of-gas situations in the language semantics?
+
+\begin{itemize}
+  \item On the one hand, programs written in proof assistants (Coq, Lean, Agda) can encounter plenty of run-time problems, like stack overflows, but usually the operational semantics isn't concerned with them because it represents execution on an idealized computer.
+  \item On the other hand, it would make the semantics more realistic and more in line with the actual implementation of the VM (there are techniques to automatically turn a language semantics into a corresponding abstract machine).
+  
+\end{itemize}
+
+\vspace{2em}
+
+I think it would be preferable to not have to deal with out-of-gas situations in the operational semantics...
+
+\end{frame}
+
+\begin{frame}{No out-of-gas exception in the type system}
+
+If we have the out-of-gas exception in the semantics, further questions arise -- should we track it at the type system level?
+
+\vspace{2em}
+
+It seems that the out-of-gas exception:
+\begin{itemize}
+  \item Cannot be thrown by the programmer, as gas depends on VM internals.
+  \item Cannot be caught by the programmer, as the program can't proceed anyway, because it ran out of gas.
+\end{itemize}
+
+\vspace{2em}
+
+So it seems having the out-of-gas exception at the type system level is pointless, but I might be wrong.
+
+\end{frame}
+
+\begin{frame}{Type checking -- on-chain, not off-chain}
+
+Before running a program we need to type check it to make sure it doesn't contain obvious errors. A question arises: is the type-checking performed off-chain or on-chain?
+
+\vspace{2em}
+
+Type checking off-chain might seem preferable, because we don't need to pay for it (or rather, it's just much cheaper). However, what guarantees would we have that programs on-chain are well-typed? If type checking happened off-chain, an attacker could execute an ill-typed program on-chain, causing a crash. The only ways to avoid this is either performing type checking during run-time, which means the language effectively becomes dynamically typed, or performing type checking on-chain before execution.
+
+\end{frame}
+
+\begin{frame}{Type checking on-chain -- questions}
+
+With type checking happening on-chain, even more questions arise.
+
+\begin{itemize}
+  \item Does the user need to pay gas for type checking?
+  \item How much? Maybe the cost can be amortized over the cost of execution?
+  \item What's the time complexity of the type checker?
+  \item Does the type checker need its own cost semantics?
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Complexity of (Hindley-Milner) type inference}
+
+Hindley-Milner type inference (the foundation for languages like Haskell or OCaml) in the worst case takes time doubly exponential in the size of the program (example: $f_0(x) = (x, x); f_{n + 1} = f_n \circ f_n$; if I'm not mistaken, there should be $2^{2^n}$ type variables in the type of $f_n$).
+
+\vspace{2em}
+
+So in theory, Hindley-Milner is really bad. But in practice, it works well and fast. What gives?
+
+\end{frame}
+
+\begin{frame}{Type inference vs type checking}
+
+Wait a sec, so far I've been mostly talking about type checking, but Hindley-Milner is type inference, not type checking. In case you're missing the difference:
+
+\begin{itemize}
+  \item In type inference, you get the term as input and you need to output its type
+  \item In type checking, you get the term and its type as input and you need to check whether they are a good match.
+\end{itemize}
+
+\vspace{2em}
+
+It's easy to see that type checking can be reduced to type inference: just infer the type and compare it with the input type.
+
+\vspace{2em}
+
+\end{frame}
+
+\begin{frame}{Complexity of type checking}
+
+So, since the time complexity of pure type inference is very bad, at least in theory, what's the situation with type checking?
+
+\end{frame}
+
+\begin{frame}{Big table}
+
+\begin{itemize}
+  \item STLC without annotations: inference and checking equivalent and PTIME-complete.
+  \item Intrinsic STLC: inference in linear time, so checking too.
+  \item Dual Intrinsic STLC: checking in linear time, inference probably still PTIME-complete.
+  \item System F without annotations: inference and checking equivalent and undecidable.
+  \item System F with annotations: should still be linear time.
+  \item CoC without annotations: checking and inference undecidable.
+  \item CoC with enough annotations: decidable, but arbitrarily complex (we might need to run programs at type level).
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Big table'}
+
+\begin{table}
+  \centering
+  \begin{tabular}{|c|c|c|c|}
+      \hline
+      & Checking & Inference 2 & Column 3 \\ \hline
+      STLC without annotations & Data 1   & Data 2   & Data 3   \\ \hline
+      STLC with annotations    & Data 4   & Data 5   & Data 6   \\ \hline
+  \end{tabular}
+  \caption{A Simple Table}
+\end{table}
+
+\end{frame}
+
+\begin{frame}{Paying for type checking}
+
+\end{frame}
+
+\begin{frame}{Paying for proof checking}
 
 \end{frame}
 
