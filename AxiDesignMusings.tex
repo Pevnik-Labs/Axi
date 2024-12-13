@@ -105,6 +105,8 @@ Just kidding :)
 
 \end{frame}
 
+\section{Execution}
+
 \begin{frame}{Paying for on-chain execution}
 
 Execution of programs on-chain needs to be paid for. If it weren't, a malicious user could ask the blockchain to execute some really long-running program, or even worse, a non-terminating program, stalling the chain for long or forever. To prevent this, we require users to pay gas for executing their programs.
@@ -165,6 +167,8 @@ So it seems having the out-of-gas exception at the type system level is pointles
 
 \end{frame}
 
+\section{Type checking}
+
 \begin{frame}{Type checking -- on-chain, not off-chain}
 
 Before running a program we need to type check it to make sure it doesn't contain obvious errors. A question arises: is the type-checking performed off-chain or on-chain?
@@ -180,9 +184,8 @@ Type checking off-chain might seem preferable, because we don't need to pay for 
 With type checking happening on-chain, even more questions arise.
 
 \begin{itemize}
-  \item Does the user need to pay gas for type checking?
-  \item How much? Maybe the cost can be amortized over the cost of execution?
   \item What's the time complexity of the type checker?
+  \item Does the user need to pay gas for type checking?
   \item Does the type checker need its own cost semantics?
 \end{itemize}
 
@@ -215,44 +218,92 @@ It's easy to see that type checking can be reduced to type inference: just infer
 
 \end{frame}
 
-\begin{frame}{Complexity of type checking}
+\begin{frame}{Complexity of type checking and type inference}
 
-So, since the time complexity of pure type inference is very bad, at least in theory, what's the situation with type checking?
-
-\end{frame}
-
-\begin{frame}{Big table}
-
-\begin{itemize}
-  \item STLC without annotations: inference and checking equivalent and PTIME-complete.
-  \item Intrinsic STLC: inference in linear time, so checking too.
-  \item Dual Intrinsic STLC: checking in linear time, inference probably still PTIME-complete.
-  \item System F without annotations: inference and checking equivalent and undecidable.
-  \item System F with annotations: should still be linear time.
-  \item CoC without annotations: checking and inference undecidable.
-  \item CoC with enough annotations: decidable, but arbitrarily complex (we might need to run programs at type level).
-\end{itemize}
-
-\end{frame}
-
-\begin{frame}{Big table'}
+\vspace{1em}
 
 \begin{table}
   \centering
-  \begin{tabular}{|c|c|c|c|}
-      \hline
-      & Checking & Inference 2 & Column 3 \\ \hline
-      STLC without annotations & Data 1   & Data 2   & Data 3   \\ \hline
-      STLC with annotations    & Data 4   & Data 5   & Data 6   \\ \hline
+  \begin{tabular}{|c|c|c|}
+    \hline
+                   & Checking       & Inference          \\ \hline
+    STLC           & PTIME-complete & PTIME-complete     \\ \hline
+    Hindley-Milner &                & doubly exponential \\ \hline
+    System F       & undecidable    & undecidable        \\ \hline
+    CoC            & undecidable    & undecidable        \\ \hline
   \end{tabular}
-  \caption{A Simple Table}
+  \caption{No annotations}
+\end{table}
+
+\begin{table}
+  \centering
+  \begin{tabular}{|c|c|c|}
+    \hline
+             & Checking  & Inference \\ \hline
+    STLC     & Linear    & Linear    \\ \hline
+    System F & Linear    & Linear    \\ \hline
+    CoC      & decidable & decidable \\ \hline
+  \end{tabular}
+  \caption{All/enough annotations}
 \end{table}
 
 \end{frame}
 
 \begin{frame}{Paying for type checking}
 
+Since type checking happens on-chain and requires computational resources (mostly time), having to pay for it seems like a very reasonable default.
+
+\vspace{2em}
+
+However, I have a really bad feeling about this. It's hard to even imagine what kind of perverse incentives it would give to the programmer, especially one that is not FP-savvy. It could be that these incentives run counter to good practices, like when weaker or less informative types are cheaper to type check than stronger and more informative ones. This would result in weaker correctness guaranties, which is pretty incompatible with the entire formal logic thing.
+
 \end{frame}
+
+\begin{frame}{Arguments against paid type checking}
+
+\begin{itemize}
+  \item Possible perverse incentives to the programmer, as mentioned above.
+  \item Possible perverse incentives to us! We have less incentives to find smart solutions, since money can solve all the problems.
+  \item It makes the cost semantics of the language much less useful, becuase execution ceases to be the only cost.
+  \item It completely obliterates the research opportunities with respect to the cost semantics, because proving stuff about the cost of the type checking is a completely different kettle of fish from proving stuff about the cost of the program.
+  \item 
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{A possible solution (MP)}
+
+\begin{itemize}
+  \item Typing is split into two phases: off-chain and on-chain.
+  \item The off-chain phase can have comfortable type inference, possibly with bad complexity, and other goodies.
+  \item In addition to typing a term $t$, the off-chain phase also synthesises a new term $t'$, which has the same computational behaviour, but more type annotations.
+  \item The on-chain phase type checks the term $t'$ in linear time.
+  \item Since the on-chain phase takes linear time, we don't charge gas for it, but instead amortize the cost over the execution cost (or maybe not, maybe we can just make it free).
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Downsides of the possible solution}
+
+\begin{itemize}
+  \item The new term $t'$ can possibly be (doubly) exponentially bigger than the term $t$ (see the Hindley-Milner example).
+  \item Since $t'$ can be exponentially bigger, the on-chain phase can still be exponentially expensive! That makes amortization over the execution cost pointless.
+  \item Even if the size of $t'$ is not a problem, it still looks different from $t$, which is a bit unsettling -- after all, off-chain we wrote $t$ (and proved theorems about $t$), but on-chain we see $t'$.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{But it can work}
+
+\begin{itemize}
+  \item Synthesis must produce a term from which the original term can be easily reconstructed. This probably means that there will need to be two kinds of type annotations, programmer's annotations and autogenerated annotations.
+  \item When deploying code, we show the user the synthesized term, and he must accept.
+  \item Type checking is free and not amortized over execution, but the user pays for storage on-chain.
+\end{itemize}
+
+\end{frame}
+
+\section{Proof checking}
 
 \begin{frame}{Paying for proof checking}
 
