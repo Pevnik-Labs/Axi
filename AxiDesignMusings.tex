@@ -184,30 +184,50 @@ Type checking off-chain might seem preferable, because we don't need to pay for 
 With type checking happening on-chain, even more questions arise.
 
 \begin{itemize}
-  \item What's the time complexity of the type checker?
   \item Does the user need to pay gas for type checking?
+  \item What's the time complexity of the type checker?
   \item Does the type checker need its own cost semantics?
 \end{itemize}
 
 \end{frame}
 
-\begin{frame}{Complexity of (Hindley-Milner) type inference}
+\begin{frame}{Paying for type checking}
 
-Hindley-Milner type inference (the foundation for languages like Haskell or OCaml) in the worst case takes time doubly exponential in the size of the program (example: $f_0(x) = (x, x); f_{n + 1} = f_n \circ f_n$; if I'm not mistaken, there should be $2^{2^n}$ type variables in the type of $f_n$).
+Since type checking happens on-chain and requires computational resources (mostly time), having to pay for it seems like a very reasonable default.
 
 \vspace{2em}
 
-So in theory, Hindley-Milner is really bad. But in practice, it works well and fast. What gives?
+However, I have a really bad feeling about this. It's hard to even imagine what kind of demon it would summon, especially when faced by non FP-savvy programmers.
 
 \end{frame}
 
-\begin{frame}{Type inference vs type checking}
-
-Wait a sec, so far I've been mostly talking about type checking, but Hindley-Milner is type inference, not type checking. In case you're missing the difference:
+\begin{frame}{Arguments against paid type checking}
 
 \begin{itemize}
-  \item In type inference, you get the term as input and you need to output its type
-  \item In type checking, you get the term and its type as input and you need to check whether they are a good match.
+  \item Possible perverse incentives to the programmer. It could be that weaker and less informative types are cheaper to type check, which would result in less incentives to follow best practices, which leads to weaker correctness guarantees, and that runs directly counter to the entire point of having formal proofs.
+  \item Possible perverse incentives to us! We have less incentives to find smart solutions, since money can solve all the problems.
+  \item It makes the cost semantics of the language much less useful, becuase execution ceases to be the only cost. It also completely obliterates the research opportunities with respect to the cost semantics, because proving stuff about the cost of the type checking is a completely different kettle of fish from proving stuff about the cost of the program.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Free typing for the masses}
+
+I believe that typing must be free or else we are facing a scary and unknown territory full of bad things...
+
+\vspace{2em}
+
+Let's to find out what the complexity of typing is and try to come up with some kind of a solution to this dire problem.
+
+\end{frame}
+
+\begin{frame}{Type inference and type checking}
+
+Typing might be split into two related problems, type checking and type inference:
+
+\begin{itemize}
+  \item In type checking, you get the term and its type as input and you need to check whether this term has this type.
+  \item In type inference, you get the term as input and you need to find its type (preferably the best possible type -- the \textit{principal type} -- if it exists).
 \end{itemize}
 
 \vspace{2em}
@@ -216,24 +236,44 @@ It's easy to see that type checking can be reduced to type inference: just infer
 
 \vspace{2em}
 
+Also note that often, ``type checking'' is used as a synonym to ``typing''.
+
 \end{frame}
 
-\begin{frame}{Complexity of type checking and type inference}
+\begin{frame}{Complexity of typing -- intro}
 
-\vspace{1em}
+The problems of type checking and type inference are somewhat fragile to talk about, because even for a particular kind of language (we will consider STLC, System F and CoC), a lot depends on the concrete variant of the language in consideration. Also, nobody talks about it, because usually it doesn't matter.
+
+\vspace{2em}
+
+We will discuss two simple cases: no annotations at all, and ``enough'' or ``all'' annotations that we could wish for.
+
+\end{frame}
+
+\begin{frame}{Complexity of typing -- no annotations}
 
 \begin{table}
   \centering
   \begin{tabular}{|c|c|c|}
     \hline
-                   & Checking       & Inference          \\ \hline
-    STLC           & PTIME-complete & PTIME-complete     \\ \hline
-    Hindley-Milner &                & doubly exponential \\ \hline
-    System F       & undecidable    & undecidable        \\ \hline
-    CoC            & undecidable    & undecidable        \\ \hline
+                   & Checking    & Inference   \\ \hline
+    STLC           & P-complete  & P-complete  \\ \hline
+    System F       & undecidable & undecidable \\ \hline
+    CoC            & undecidable & undecidable \\ \hline
   \end{tabular}
-  \caption{No annotations}
 \end{table}
+
+In case there are no annotations whatsoever, the matter is rather simple. A quick search reveals that typing for STLC is P-complete, i.e. can be done in polynomial time, but is as hard as the hardest problems in P. GPT tells me that the actual complexity is $O(n^2)$ and the typical case takes linear time.
+
+\vspace{2em}
+
+However, as soon as we wander into polymorphism (System F), inference becomes undecidable (and so does checking, which is equivalent to it). CoC is even more powerful, so also undecidable.
+
+\end{frame}
+
+\begin{frame}{Complexity of typing -- enough annotations}
+
+\vspace{1em}
 
 \begin{table}
   \centering
@@ -244,30 +284,48 @@ It's easy to see that type checking can be reduced to type inference: just infer
     System F & Linear    & Linear    \\ \hline
     CoC      & decidable & decidable \\ \hline
   \end{tabular}
-  \caption{All/enough annotations}
 \end{table}
-
-\end{frame}
-
-\begin{frame}{Paying for type checking}
-
-Since type checking happens on-chain and requires computational resources (mostly time), having to pay for it seems like a very reasonable default.
 
 \vspace{2em}
 
-However, I have a really bad feeling about this. It's hard to even imagine what kind of perverse incentives it would give to the programmer, especially one that is not FP-savvy. It could be that these incentives run counter to good practices, like when weaker or less informative types are cheaper to type check than stronger and more informative ones. This would result in weaker correctness guaranties, which is pretty incompatible with the entire formal logic thing.
+With enough annotations, the situation changes drastically -- checking and inference for both STLC and System F now take linear time (but note that annotations that guarantee fast checking don't necessarily guarantee fast inference).
+
+\vspace{2em}
+
+The situation for CoC also changes, although with enough annotations both problems become merely decidable -- the source of complexity is different than in System F, as we will soon see.
 
 \end{frame}
 
-\begin{frame}{Arguments against paid type checking}
+\begin{frame}{Hindley-Milner}
+
+So far we've been talking about problems and giving answers in terms of complexity classes or decidability. Let's see how things look for something more down to earth, like the Hindley-Milner (HM) type inference.
+
+\vspace{1em}
+
+HM is a type system with polymorphism, but weaker than System F. HM polymorphism is prenex and rank-1, i.e. quantifiers are allowed only at the top-level and they cannot be nested. The HM type system is so simple that it admits a complete type inference algorithm that can always find a principal (i.e. best, most general) type. Type checking is performed by comparing the inferred type with the input type.
+
+\vspace{1em}
+
+HM lays at the foundation of languages like Haskell or OCaml. It is old and venerable, but rather outdated.
+
+\end{frame}
+
+\begin{frame}{Complexity of HM type inference}
+
+HM type inference  in the worst case takes time doubly exponential in the size of the program. For example:
 
 \begin{itemize}
-  \item Possible perverse incentives to the programmer, as mentioned above.
-  \item Possible perverse incentives to us! We have less incentives to find smart solutions, since money can solve all the problems.
-  \item It makes the cost semantics of the language much less useful, becuase execution ceases to be the only cost.
-  \item It completely obliterates the research opportunities with respect to the cost semantics, because proving stuff about the cost of the type checking is a completely different kettle of fish from proving stuff about the cost of the program.
-  \item 
+  \item $f_0(x) = (x, x)$
+  \item $f_{n + 1} = f_n \circ f_n$
 \end{itemize}
+
+\vspace{2em}
+
+If I'm not mistaken, there should be $2^{2^n}$ type variables in the type of $f_n$. Note that the indexing over $n$ happens at the meta-level, ie. we can't define $f$ in HM, but we can manually define $f_n$ for any $n$.
+
+\vspace{2em}
+
+So in theory, HM is really bad. But in practice, it works well and fast. What gives?
 
 \end{frame}
 
@@ -298,14 +356,68 @@ However, I have a really bad feeling about this. It's hard to even imagine what 
 \begin{itemize}
   \item Synthesis must produce a term from which the original term can be easily reconstructed. This probably means that there will need to be two kinds of type annotations, programmer's annotations and autogenerated annotations.
   \item When deploying code, we show the user the synthesized term, and he must accept.
-  \item Type checking is free and not amortized over execution, but the user pays for storage on-chain.
+  \item Type checking is free and not amortized over execution, but the user pays for storage on-chain. It could mean there are different rates for data and code, since code must be type checked, but data does not.
 \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Paying for on-chain storage -- another demon}
+
+Just as I had a bad feeling about paying for the type checking, I have a bad feeling about paying for storage of code.
+
+\vspace{2em}
+
+There are more perverse incentives lurking around the corner. For example, minified code takes less space than pristine code, so it is cheaper. Websites often minify their JS code for this reason.
+
+\vspace{2em}
+
+We would probably need some more precautions here, like computing the gas cost of storage based on the abstract syntax of the code instead of the concrete syntax. This still has some perverse incentives, as there are equivalent programs with different ASTs, and the cheaper one doesn't need to be the most clear one, but they are far smaller.
 
 \end{frame}
 
 \section{Proof checking}
 
 \begin{frame}{Paying for proof checking}
+
+The start point for proof checking is the same as for type checking: it takes time, so it makes sense to charge gas for it.
+ 
+\vspace{2em}
+
+I argued that paying for type checking is bad, so what about proof checking? This time, I'm actually not sure.
+
+\vspace{2em}
+
+Let's start by establishing a basic fact: given enough annotations, proof checking is decidable (of course it is, otherwise all these proof assistants wouldn't exist in the first place).
+
+\end{frame}
+
+\begin{frame}{Hello, Ackermann}
+
+Consider the following function, called the Ackermann function:
+
+\begin{itemize}
+  \item $f(0, n) = n + 1$
+  \item $f(m + 1, 0) = f(m, 1)$
+  \item $f(m + 1, n + 1) = f(n, f(m + 1, n))$
+\end{itemize}
+
+\vspace{2em}
+
+This function, even though it might not look like it, grows really fast, and this fact can be used to prove that it is not primitive recursive, which in turn means it takes a really long time to compute it.
+
+\end{frame}
+
+\begin{frame}{Complexity of proof checking}
+
+If our programming language has function types and recursion over the naturals, we can define the Ackermann function.
+
+\vspace{2em}
+
+If our logic has the conversion rule, we can prove that the Ackermann function, for some big input, returns an even bigger output, but that requires actually performing the computation, which takes long.
+
+\vspace{2em}
+
+Therefore, proof checking is decidable (given enough annotations), but not primitive recursive. This means that checking a proof can take a more or less arbitrarily long, but finite time, i.e. it is guaranteed to terminate.
 
 \end{frame}
 
