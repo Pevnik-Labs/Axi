@@ -22,86 +22,11 @@ The purpose of this presentation is to discuss Axi design in an informal setting
 
 \end{frame}
 
-\begin{frame}{Table of contents}
-
-\tableofcontents
-
-\end{frame}
-
-\begin{frame}{Plan of the presentation}
-
-\begin{itemize}
-  \item Why languages have layers.
-  \item Do we need Axi?
-  \item The programming layer.
-  \item The logical layer.
-  \item The tactic layer.
-  \item The module layer.
-  \item Language features.
-\end{itemize}
-
-\end{frame}
-
-\section{Layers}
-
-\begin{frame}{Why English is a bad logical system}
-
-\begin{center}
-  This sentence is false.
-\end{center}
-
-\vspace{2em}
-
-Is the above sentence true or false? If we assume it is false, then apparently it tells the truth about itself, so it is true... but if we assume it is true, then it lies about itself, so it is false.
-
-\vspace{2em}
-
-This situation is deeply problematic -- it demonstrates that the English language doesn't fit into the confines of classical logic. We could try to analyze it as fitting some other kind of logical system, but alas, that would also fail -- G\"odel's incompleteness theorem
-
-put on our philosopher hats and try to escape the problem by 
-
-\end{frame}
-
-\section{Do we need Axi?}
-
-\begin{frame}{No}
-
-Just kidding :)
-
-\end{frame}
-
 \begin{frame}{Code on-chain or off-chain?}
 
 \end{frame}
 
-\begin{frame}{? Source code on chain or compiled code on chain? }
-
-\end{frame}
-
-\section{GAS BILLS}
-
-\begin{frame}{Some jargon}
-
-``Semantics'' or ``dynamic semantics'' refers to the meaning and behaviour of programs at run-time.
-
-\vspace{2em}
-
-``Type system'' or ``static semantics'' refers to the constraints that are automatically checked before running programs.
-
-\vspace{2em}
-
-``Logic'' or ``proving'' refers to the correctness guarantees of programs that need to be proved manually. They are also pre-runtime.
-
-\end{frame}
-
-\begin{frame}{What does a programming language consist of?}
-
-\begin{itemize}
-  \item Concrete syntax (what the programmer writes).
-  \item Abstract syntax (the internal representation of what the programmer wrote).
-  \item Operational semantics (how programs are executed).
-  \item Type system (which programs are ok).
-\end{itemize}
+\begin{frame}{Source code on chain or compiled code on chain}
 
 \end{frame}
 
@@ -191,7 +116,7 @@ With type checking happening on-chain, even more questions arise.
 
 \end{frame}
 
-\begin{frame}{Paying for type checking}
+\begin{frame}{Paying for type checking?}
 
 Since type checking happens on-chain and requires computational resources (mostly time), having to pay for it seems like a very reasonable default.
 
@@ -263,9 +188,11 @@ We will discuss two simple cases: no annotations at all, and ``enough'' or ``all
   \end{tabular}
 \end{table}
 
+\vspace{1em}
+
 In case there are no annotations whatsoever, the matter is rather simple. A quick search reveals that typing for STLC is P-complete, i.e. can be done in polynomial time, but is as hard as the hardest problems in P. GPT tells me that the actual complexity is $O(n^2)$ and the typical case takes linear time.
 
-\vspace{2em}
+\vspace{1em}
 
 However, as soon as we wander into polymorphism (System F), inference becomes undecidable (and so does checking, which is equivalent to it). CoC is even more powerful, so also undecidable.
 
@@ -286,11 +213,11 @@ However, as soon as we wander into polymorphism (System F), inference becomes un
   \end{tabular}
 \end{table}
 
-\vspace{2em}
+\vspace{1em}
 
 With enough annotations, the situation changes drastically -- checking and inference for both STLC and System F now take linear time (but note that annotations that guarantee fast checking don't necessarily guarantee fast inference).
 
-\vspace{2em}
+\vspace{1em}
 
 The situation for CoC also changes, although with enough annotations both problems become merely decidable -- the source of complexity is different than in System F, as we will soon see.
 
@@ -371,23 +298,92 @@ There are more perverse incentives lurking around the corner. For example, minif
 
 \vspace{2em}
 
-We would probably need some more precautions here, like computing the gas cost of storage based on the abstract syntax of the code instead of the concrete syntax. This still has some perverse incentives, as there are equivalent programs with different ASTs, and the cheaper one doesn't need to be the most clear one, but they are far smaller.
+We would probably need some more precautions here, like computing the gas cost of storage based on the abstract syntax of the code instead of the concrete syntax. This still has some perverse incentives, as there are equivalent programs with different ASTs, and the cheaper one doesn't need to be the most clear one, but these perverse incentives are much weaker.
 
 \end{frame}
 
 \section{Proof checking}
 
-\begin{frame}{Paying for proof checking}
+\begin{frame}{Proof checking happens on-chain}
 
-The start point for proof checking is the same as for type checking: it takes time, so it makes sense to charge gas for it.
- 
+I won't belabor this point too much, because the argument is similar as for type checking. In fact, as we will see, throwing proof checking off-chain is even harder, because it would require some serious ZK (or rather, just succinct ``proof'') technology.
+
+\end{frame}
+
+\begin{frame}{Paying for proof checking?}
+
+I argued that paying for type checking is bad, so what about paying for proof checking? Is it also bad? The starting point is the same: it takes time, so it makes sense to charge gas for it. This time however, I don't have any bad feelings to guide my thinking, so to answer this question, we will need to investigate a few things first:
+
+\begin{itemize}
+  \item When is proof checking decidable?
+  \item What is the complexity of proof checking?
+  \item What is the typical performance of proof checking?
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{A ``decomposition'' of proof checking}
+
+\begin{center}
+  proof checking $\approx$ type checking $+$ program execution
+\end{center}
+
+\vspace{1em}
+
+Let's start with an oversimplification. We can think that proof checking consists of two components:
+
+\begin{itemize}
+  \item A type-checking-like component. For example, to check that $\textbf{both}\ e_1\ e_2$ proves $P \land Q$, we need to check that $e_1$ proves $P$ and that $e_2$ proves $Q$. This is basically the same story as type checking pairs: to check that $(t_1, t_2)$ has type $A \times B$, we need to check that $t_1$ has type $A$ and that $t_2$ has type $B$.
+  \item A program-execution-like component. For example, to check that $\textbf{refl}\ 4$ proves $2 + 2 = 4$, we need to reduce $2 + 2$ and see that the result is indeed $4$.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Proof checking can be decidable}
+
+We would like proof checking to be decidable. If it weren't, things would complicate greatly. Happily, proof checking can be decidable. Of course it can, otherwise all these proof assistants wouldn't exist in the first place!.
+
 \vspace{2em}
 
-I argued that paying for type checking is bad, so what about proof checking? This time, I'm actually not sure.
+However, decidability doesn't come for free. To secure it, we need to meet some requirements, one concerned with the type checking like part and one concerned with the program execution like part.
+
+\end{frame}
+
+\begin{frame}{Requirement 1 -- annotations}
+
+First, we need enough annotations, just like in the case of type checking. This time, however, there are two kinds of annotations: type annotations (like $A$ in $\forall x : A, P(x)$) and proposition annotations (like $P$ in $\textbf{left-either}\ P\ e$).
+
+\vspace{1em}
+
+If there aren't enough annotations, proof checking is undecidable, at least if the logic has quantification over propositions (I'm not sure if that's already the case for first-order logic). This is because quantification over propositions is the Curry-Howard counterpart of polymorphism, and as we have already seen, type checking for System F without annotations is undecidable.
+
+\vspace{1em}
+
+Fortunately, getting annotations right is easy and doesn't pose conceptual difficulties.
+
+\end{frame}
+
+\begin{frame}{Requirement 2 -- termination}
+
+Second, a much more drastic requirement: all programs must terminate.
 
 \vspace{2em}
 
-Let's start by establishing a basic fact: given enough annotations, proof checking is decidable (of course it is, otherwise all these proof assistants wouldn't exist in the first place).
+This should be rather obvious. If a program doesn't terminate, the proof checker might also not terminate when it has to execute this program!
+
+\vspace{2em}
+
+Ensuring that all programs terminate is a bit harder than managig annotations, but also possible. Ensuring termination is the responsibility of the \textit{termination checker}, but let's leave it for now -- we'll explore its possible designs later.
+
+\end{frame}
+
+\begin{frame}{Proof checking is decidable}
+
+Having said the above, here's our conclusion: if there's enough annotations and all programs terminate, then proof checking is decidable.
+
+\vspace{2em}
+
+We shouldn't be too happy, however. The problem is solvable, but how quickly, exactly?
 
 \end{frame}
 
@@ -407,17 +403,27 @@ This function, even though it might not look like it, grows really fast, and thi
 
 \end{frame}
 
-\begin{frame}{Complexity of proof checking}
+\begin{frame}{Proof checking is not primitive recursive}
 
 If our programming language has function types and recursion over the naturals, we can define the Ackermann function.
 
 \vspace{2em}
 
-If our logic has the conversion rule, we can prove that the Ackermann function, for some big input, returns an even bigger output, but that requires actually performing the computation, which takes long.
+If our logic has the conversion rule, we can use it to prove that the Ackermann function, for some big input, returns an even bigger output, but that requires actually performing the computation, which takes long.
 
 \vspace{2em}
 
-Therefore, proof checking is decidable (given enough annotations), but not primitive recursive. This means that checking a proof can take a more or less arbitrarily long, but finite time, i.e. it is guaranteed to terminate.
+Therefore, even for a simple language, proof checking is decidable but not primitive recursive. This means that checking a proof can take arbitrarily long, but it is guaranteed to terminate.
+
+\end{frame}
+
+\begin{frame}{A practical problem?}
+
+We know the theory, but what about practice? How long does proof checking take in practice? I am too lazy to research this topic, and also it's not something that people pay a lot of attention to, so we're entering a slightly slippery ground.
+
+\vspace{2em}
+
+In general, proof checking is very fast. 
 
 \end{frame}
 
