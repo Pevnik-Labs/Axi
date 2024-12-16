@@ -304,6 +304,28 @@ We would probably need some more precautions here, like computing the gas cost o
 
 \section{Proof checking}
 
+\begin{frame}{What is proof checking?}
+
+Proof checking is the following task: we are given a proof $e$ and a proposition $P$ and we need to check whether $e$ is a proof of $P$.
+
+\vspace{2em}
+
+The details proof checking depend on many circumstances, like the programming language (if we want theorems about programs), the logical system we're using, and how exactly these two parts are connected.
+
+\end{frame}
+
+\begin{frame}{Our setting}
+
+To make this section less vague, we will talk about proof checking in a setting similar to Poor Man's Axi, in particular:
+
+\begin{itemize}
+  \item Classical second order logic.
+  \item A purely functional programming language based on the lambda calculus.
+  \item Most importantly, the computational aspect of the programming language is plugged into the logic by means of the \textbf{conversion rule}, which allows proving equality of programs on concrete inputs by running them.
+\end{itemize}
+
+\end{frame}
+
 \begin{frame}{Proof checking happens on-chain}
 
 I won't belabor this point too much, because the argument is similar as for type checking. In fact, as we will see, throwing proof checking off-chain is even harder, because it would require some serious ZK (or rather, just succinct ``proof'') technology.
@@ -312,13 +334,41 @@ I won't belabor this point too much, because the argument is similar as for type
 
 \begin{frame}{Paying for proof checking?}
 
-I argued that paying for type checking is bad, so what about paying for proof checking? Is it also bad? The starting point is the same: it takes time, so it makes sense to charge gas for it. This time however, I don't have any bad feelings to guide my thinking, so to answer this question, we will need to investigate a few things first:
+I argued that paying for type checking is bad, so what about paying for proof checking? Is it also bad? The starting point is the same: it takes time, so it makes sense to charge gas for it.
+
+\vspace{2em}
+
+This time however, I don't have any bad feelings to guide my thinking, so to answer this question, we will need to investigate a few things first:
 
 \begin{itemize}
   \item When is proof checking decidable?
   \item What is the complexity of proof checking?
   \item What is the typical performance of proof checking?
 \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Proof checking should be decidable}
+
+Proof checking should be decidable, i.e. there should be a program (called the proof checker) that always performs it in finite time. To see why this is important, let's do some philosophy.
+
+\vspace{2em}
+
+Imagine we're dealing with a logical system in which proof checking is not decidable. Someone approaches us and claims to have proved a theorem. To support his claim, he offers us a ``proof'', but we think he might want to trick us. Happily, we can make sure by just checking the proof, which takes only infinitely long.
+
+\vspace{2em}
+
+The moral of the story is simple: if we can't tell proof from non-proof, bullshit from non-bullshit, in finite time, then we are not dealing with a proper logical system.
+
+\end{frame}
+
+\begin{frame}{Proof checking can be decidable}
+
+The good news is that proof checking can be decidable. Of course it can, otherwise all these proof assistants wouldn't exist in the first place!.
+
+\vspace{2em}
+
+However, decidability doesn't come for free. To secure it, we need to meet two requirements which arise from two distinct aspects that make up proof checking.
 
 \end{frame}
 
@@ -330,22 +380,12 @@ I argued that paying for type checking is bad, so what about paying for proof ch
 
 \vspace{1em}
 
-Let's start with an oversimplification. We can think that proof checking consists of two components:
+Let's start with an oversimplification. We can think of proof checking as consisting of two components:
 
 \begin{itemize}
-  \item A type-checking-like component. For example, to check that $\textbf{both}\ e_1\ e_2$ proves $P \land Q$, we need to check that $e_1$ proves $P$ and that $e_2$ proves $Q$. This is basically the same story as type checking pairs: to check that $(t_1, t_2)$ has type $A \times B$, we need to check that $t_1$ has type $A$ and that $t_2$ has type $B$.
+  \item A type-checking-like component. For example, to check that $\textbf{both}\ e_1\ e_2$ proves $P \land Q$, we need to check that $e_1$ proves $P$ and that $e_2$ proves $Q$. This is basically the same story as type checking pairs: to check that $(t_1, t_2)$ has type $A \times B$, we need to check that $t_1$ has type $A$ and that $t_2$ has type $B$. This is the Curry-Howard correspondence at work.
   \item A program-execution-like component. For example, to check that $\textbf{refl}\ 4$ proves $2 + 2 = 4$, we need to reduce $2 + 2$ and see that the result is indeed $4$.
 \end{itemize}
-
-\end{frame}
-
-\begin{frame}{Proof checking can be decidable}
-
-We would like proof checking to be decidable. If it weren't, things would complicate greatly. Happily, proof checking can be decidable. Of course it can, otherwise all these proof assistants wouldn't exist in the first place!.
-
-\vspace{2em}
-
-However, decidability doesn't come for free. To secure it, we need to meet some requirements, one concerned with the type checking like part and one concerned with the program execution like part.
 
 \end{frame}
 
@@ -413,17 +453,84 @@ If our logic has the conversion rule, we can use it to prove that the Ackermann 
 
 \vspace{2em}
 
-Therefore, even for a simple language, proof checking is decidable but not primitive recursive. This means that checking a proof can take arbitrarily long, but it is guaranteed to terminate.
+Therefore, even for a simple language, even though proof checking is decidable, it is not primitive recursive. This means that checking a proof can take arbitrarily long, but it is guaranteed to terminate.
 
 \end{frame}
 
-\begin{frame}{A practical problem?}
+\begin{frame}{Proof checking is fast in practice}
 
 We know the theory, but what about practice? How long does proof checking take in practice? I am too lazy to research this topic, and also it's not something that people pay a lot of attention to, so we're entering a slightly slippery ground.
 
+\vspace{1em}
+
+In general, proof checking is very fast and is certainly  not the bottleneck of anything. This is because typical proofs don't do a lot of computation. The prototypical case is a proof of a function's correctness, which is a universal statement proved by induction.
+
+\vspace{1em}
+
+The amount of computation in such a proof is scant -- every time we do something, like using a lemma, maybe there's an opportunity to perform a single step of computation, like rewriting the function's defining equation and that's it.
+
+\end{frame}
+
+\begin{frame}{Decomposing the solution}
+
+Recall the (oversimplified) decomposition of our problem:
+
+\vspace{1em}
+
+\begin{center}
+  proof checking $\approx$ type checking $+$ program execution
+\end{center}
+
+\vspace{1em}
+
+I argued that paying for type checking is bad and I feel similarly about the Curry-Howard analog of it in the proof checking world. Therefore, I think it would be nice to make this part free. Fortunately, it wouldn't be terribly difficult -- we can use the same trick as for type checking.
+
+\vspace{1em}
+
+Therefore, we only need to think through the execution part of proof checking.
+
+\end{frame}
+
+\begin{frame}{Four approaches}
+
+I see four possible approaches. The main distinction is between those that eschew the conversion rule (and computation during proof checking) and those that don't:
+
+\begin{itemize}
+  \item (``Naive'' solution) Keep the conversion rule. The programmer must pay for proof checking.
+  \item (``Paranoid'' solution) Remove the conversion rule. The programmer must pay for proof checking.
+  \item (``Optimal'' solution) Keep the conversion rule and provide a succinct/ZK ``proof'' system for proofs of execution. Proof checking is free because it takes linear time.
+  \item (``Realistic'' solution) Remove the conversion rule. Proof checking is free because it takes linear time.
+\end{itemize}
+
+\end{frame}
+
+\section{Termination checking}
+
+\begin{frame}{What is termination checking?}
+
+Termination checking is the following task: we are given the definition of a well-typed function $f : A \to B$ and we need to tell whether it terminates or not.
+
+\end{frame}
+
+\begin{frame}{Why should we care?}
+
+We already know that all functions must terminate for proof checking to be decidable. However, this isn't termination checking's raison d'être.
+
 \vspace{2em}
 
-In general, proof checking is very fast. 
+Neither has it anything to do with gas, or even what happens at runtime at all. After all, the universe is going to last a finite amount of time, so all functions will eventually terminate, right? Wrong.
+
+\vspace{2em}
+
+Termination is first and foremost a logical notion. It's evil twin, non-termination, manifests itself most strikingly not at runtime, where it cannot be observed at all (because it would take forever), but in the logic -- 
+
+\end{frame}
+
+\begin{frame}{Termination checking is undecidable}
+
+In general, termination checking is undecidable -- it means literally solving the Halting Problem! That's hard!
+
+\vspace{2em}
 
 \end{frame}
 
