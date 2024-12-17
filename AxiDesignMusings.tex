@@ -7,6 +7,7 @@
 \usetheme{Darmstadt}
 
 \title{Axi Design Musings}
+\subtitle{Putting type theory on the blockchain}
 \author{Wojciech Kołowski}
 \date{17 December 2024}
 
@@ -22,73 +23,29 @@ The purpose of this presentation is to discuss Axi design in an informal setting
 
 \end{frame}
 
-\begin{frame}{Code on-chain or off-chain?}
+\begin{frame}{Execution happens on-chain}
 
-\end{frame}
-
-\begin{frame}{Source code on chain or compiled code on chain}
-
-\end{frame}
-
-\section{Execution}
-
-\begin{frame}{Paying for on-chain execution}
-
-Execution of programs on-chain needs to be paid for. If it weren't, a malicious user could ask the blockchain to execute some really long-running program, or even worse, a non-terminating program, stalling the chain for long or forever. To prevent this, we require users to pay gas for executing their programs.
-
-\end{frame}
-
-\begin{frame}{Cost semantics}
-
-The language's operational semantics tell us how how computation proceeds. We can extend it with \textbf{cost semantics} which will also tell us how much that computation costs in terms of some resources, like time, memory or \textbf{gas}.
+Should program execution happen on-chain or off-chain? It might seem execution off-chain is preferable, but it poses some problems. There are the race conditions, as mentioned by the other Wojciech.
 
 \vspace{2em}
 
-Since computation on-chain costs gas, Axi will need a cost semantics. 
+But more importantly, if execution happens off-chain, why do we even need Axi? After all, programs could be written in any language the programmer wants. Even if he wanted to prove theorems about these programs, he could still choose a well-established proof assistant, like Coq or Lean.
+
+\vspace{2em}
+
+Since this is a presentation about Axi, and Axi only makes sense when execution happens on-chain, I will assume that this is indeed the case.
 
 \end{frame}
 
-\begin{frame}{Cost semantics -- a research opportunity}
+\begin{frame}{Source code on chain or compiled code on chain?}
 
-There's also a research opportunity. Since Axi will have a formal specification and powerful logic built-in, a question arises: can we do anything cool with the cost semantics, like proving upper bounds on gas costs?
-
-\vspace{2em}
-
-Note that the naive approach to this topic doesn't work, because programs that do the same thing (and thus are considered equal by the logic) may nevertheless use different amounts of resources. For example, programs which implement quick sort and selection sort are equal because for all inputs they return the same outputs (there's only one way of correctly sorting a list), but their time complexities are different (and so would be their ``gas complexities'').
+Since execution happens on-chain, programs must also live on-chain. But in what form? As source code or as compiled code?
 
 \end{frame}
 
-\begin{frame}{Out-of-gas exception in the operational semantics?}
+\begin{frame}{Let logic guide us}
 
-A question arises: do we need to model out-of-gas situations in the language semantics?
-
-\begin{itemize}
-  \item On the one hand, programs written in proof assistants (Coq, Lean, Agda) can encounter plenty of run-time problems, like stack overflows, but usually the operational semantics isn't concerned with them because it represents execution on an idealized computer.
-  \item On the other hand, it would make the semantics more realistic and more in line with the actual implementation of the VM (there are techniques to automatically turn a language semantics into a corresponding abstract machine).
-  
-\end{itemize}
-
-\vspace{2em}
-
-I think it would be preferable to not have to deal with out-of-gas situations in the operational semantics...
-
-\end{frame}
-
-\begin{frame}{No out-of-gas exception in the type system}
-
-If we have the out-of-gas exception in the semantics, further questions arise -- should we track it at the type system level?
-
-\vspace{2em}
-
-It seems that the out-of-gas exception:
-\begin{itemize}
-  \item Cannot be thrown by the programmer, as gas depends on VM internals.
-  \item Cannot be caught by the programmer, as the program can't proceed anyway, because it ran out of gas.
-\end{itemize}
-
-\vspace{2em}
-
-So it seems having the out-of-gas exception at the type system level is pointless, but I might be wrong.
+I think that the principle guiding this choice should be logic, because we want to prove theorems about our programs. Proving theorems about machine code or a low-level imperative assembly language is not TODO
 
 \end{frame}
 
@@ -302,6 +259,67 @@ We would probably need some more precautions here, like computing the gas cost o
 
 \end{frame}
 
+\section{Execution}
+
+\begin{frame}{Paying for on-chain execution}
+
+Execution of programs on-chain needs to be paid for. If it weren't, a malicious user could ask the blockchain to execute some really long-running program, or even worse, a non-terminating program, stalling the chain for long or forever. To prevent this, we require users to pay gas for executing their programs.
+
+\end{frame}
+
+\begin{frame}{Cost semantics}
+
+The language's operational semantics tell us how how computation proceeds. We can extend it with \textbf{cost semantics} which will also tell us how much that computation costs in terms of some resources, like time, memory or \textbf{gas}.
+
+\vspace{2em}
+
+Since computation on-chain costs gas, Axi will need a cost semantics.
+
+\end{frame}
+
+\begin{frame}{Cost semantics -- a research opportunity}
+
+There's also a research opportunity. Since Axi will have a formal specification and powerful logic built-in, a question arises: can we do anything cool with the cost semantics, like proving upper bounds on gas costs?
+
+\vspace{2em}
+
+Note that the naive approach to this topic doesn't work, because programs that do the same thing (and thus are considered equal by the logic) may nevertheless use different amounts of resources. For example, programs which implement quick sort and selection sort are equal because for all inputs they return the same outputs (there's only one way of correctly sorting a list), but their time complexities are different (and so would be their ``gas complexities'').
+
+\end{frame}
+
+\begin{frame}{Out-of-gas exception in the operational semantics?}
+
+A question arises: do we need to model out-of-gas situations in the language semantics?
+
+\begin{itemize}
+  \item On the one hand, programs written in proof assistants (Coq, Lean, Agda) can encounter plenty of run-time problems, like stack overflows, but usually the operational semantics isn't concerned with them because it represents execution on an idealized computer.
+  \item On the other hand, it would make the semantics more realistic and more in line with the actual implementation (there are techniques to automatically turn a language semantics into a corresponding abstract machine).
+\end{itemize}
+
+\vspace{2em}
+
+I think it would be preferable to not have to deal with out-of-gas situations in the operational semantics...
+
+\end{frame}
+
+\begin{frame}{No out-of-gas exception in the type system}
+
+If we have the out-of-gas exception in the semantics, further questions arise -- should we track it at the type system level?
+
+\vspace{2em}
+
+It seems that the out-of-gas exception:
+\begin{itemize}
+  \item Cannot be thrown by the programmer, as gas depends on VM internals.
+  \item Cannot be caught by the programmer, as the program can't proceed anyway, because it ran out of gas.
+\end{itemize}
+
+\vspace{2em}
+
+So it seems having the out-of-gas exception at the type system level is pointless, but I might be wrong.
+
+\end{frame}
+
 \section{Proof checking}
 
 \begin{frame}{What is proof checking?}
@@ -504,12 +522,39 @@ I see four possible approaches. The main distinction is between those that esche
 
 \end{frame}
 
-\section{Termination checking}
+\begin{frame}{No conclusion}
 
-\begin{frame}{What is termination checking?}
+I don't have a definite answer to the question of whether proof checking should be paid, but the names I gave to the solutions suggest that TODO
 
-Termination checking is the following task: we are given the definition of a well-typed function $f : A \to B$ and we need to tell whether it terminates or not.
+\end{frame}
 
+\section{Totality checking}
+
+\begin{frame}{What is a function, classically?}
+
+In classical mathematics, a relation $R$ between $A$ and $B$ is called a function when it is:
+
+\begin{itemize}
+  \item Right-unique (also called deterministic): for all $a : A$ and $b_1, b_2 : B$, if $R(a, b_1)$ and $R(a, b_2)$, then $b_1 = b_2$.
+  \item Right-total (also called total): for all $a : A$, there exists $b : B$ such that $R(a, b)$.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{What is a function, constructively?}
+
+In constructive mathematics, TODO
+\end{frame}
+
+\begin{frame}{What is totality checking?}
+
+Totality checking is the following task: we are given the definition of a well-typed function $f : A \to B$ and we need to tell whether it is total, i.e. whether $\forall a : A, \exists b : B, f(a) = b$. Spelled out in words: for all $a$ of type $A$, there exists $b$ of type $B$ such that $f(a)$ equals $b$.
+
+\end{frame}
+
+\begin{frame}{Why should we care?}
+
+Why should we care about totality checking? TODO
 \end{frame}
 
 \begin{frame}{Why should we care?}
@@ -522,7 +567,7 @@ Neither has it anything to do with gas, or even what happens at runtime at all. 
 
 \vspace{2em}
 
-Termination is first and foremost a logical notion. It's evil twin, non-termination, manifests itself most strikingly not at runtime, where it cannot be observed at all (because it would take forever), but in the logic -- 
+Termination is first and foremost a logical notion. It's evil twin, non-termination, manifests itself most strikingly not at runtime, where it cannot be observed at all (because it would take forever), but in the logic -- TODO
 
 \end{frame}
 
