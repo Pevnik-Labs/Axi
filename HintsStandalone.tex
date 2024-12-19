@@ -47,9 +47,9 @@
 % Computation.
 \newcommand{\subst}[3]{#1\left[#2 := #3\right]}
 \newcommand{\val}[1]{#1\ \texttt{value}}
-\newcommand{\compstep}[2]{#1 \longrightarrow #2}
-\newcommand{\compsteps}[2]{#1 \longrightarrow^* #2}
-\newcommand{\result}[2]{#1 \Downarrow #2}
+\newcommand{\smallstep}[2]{#1 \longrightarrow #2}
+\newcommand{\smallsteps}[2]{#1 \longrightarrow^* #2}
+\newcommand{\bigstep}[2]{#1 \Downarrow #2}
 
 % Dual Intrinsic terms.
 \newcommand{\iapp}[3]{\texttt{app}_{#1}\ #2\ #3}
@@ -297,28 +297,28 @@ Values are the final results of computation. Note that a function is a value whe
 \begin{frame}{Example (big-step) semantics -- evaluation}
 
 \begin{center}
-  $\infrule{}{\result{\fun{x}{e}}{\fun{x}{e}}}$ \quad
-  $\infrule{\result{e_1}{\fun{x}{e}} \quad \result{e_2}{v} \quad \result{\subst{e}{x}{v}}{v'}}{\result{\app{e_1}{e_2}}{v'}}$
+  $\infrule{}{\bigstep{\fun{x}{e}}{\fun{x}{e}}}$ \quad
+  $\infrule{\bigstep{e_1}{\fun{x}{e}} \quad \bigstep{e_2}{v} \quad \bigstep{\subst{e}{x}{v}}{v'}}{\bigstep{\app{e_1}{e_2}}{v'}}$
 
   \vspace{2em}
 
-  $\infrule{\result{e_1}{v_1} \quad \result{e_2}{v_2}}{\result{\pair{e_1}{e_2}}{\pair{v_1}{v_2}}}$ \quad
-  $\infrule{\result{e}{\pair{v_1}{v_2}}}{\result{\outl{e}}{v_1}}$ \quad
-  $\infrule{\result{e}{\pair{v_1}{v_2}}}{\result{\outr{e}}{v_2}}$ \quad
+  $\infrule{\bigstep{e_1}{v_1} \quad \bigstep{e_2}{v_2}}{\bigstep{\pair{e_1}{e_2}}{\pair{v_1}{v_2}}}$ \quad
+  $\infrule{\bigstep{e}{\pair{v_1}{v_2}}}{\bigstep{\outl{e}}{v_1}}$ \quad
+  $\infrule{\bigstep{e}{\pair{v_1}{v_2}}}{\bigstep{\outr{e}}{v_2}}$ \quad
 
   \vspace{2em}
 
-  $\infrule{\result{e}{v}}{\result{\inl{e}}{\inl{v}}}$ \quad
-  $\infrule{\result{e}{v}}{\result{\inr{e}}{\inr{v}}}$ \quad
+  $\infrule{\bigstep{e}{v}}{\bigstep{\inl{e}}{\inl{v}}}$ \quad
+  $\infrule{\bigstep{e}{v}}{\bigstep{\inr{e}}{\inr{v}}}$ \quad
 
   \vspace{2em}
 
-  $\infrule{\result{e}{\inl{v}} \quad \result{\app{f}{v}}{v'}}{\result{\case{e}{f}{g}}{v'}}$ \quad
-  $\infrule{\result{e}{\inr{v}} \quad \result{\app{g}{v}}{v'}}{\result{\case{e}{f}{g}}{v'}}$
+  $\infrule{\bigstep{e}{\inl{v}} \quad \bigstep{\app{f}{v}}{v'}}{\bigstep{\case{e}{f}{g}}{v'}}$ \quad
+  $\infrule{\bigstep{e}{\inr{v}} \quad \bigstep{\app{g}{v}}{v'}}{\bigstep{\case{e}{f}{g}}{v'}}$
 
   \vspace{2em}
 
-  $\infrule{}{\result{\unit}{\unit}}$ \quad
+  $\infrule{}{\bigstep{\unit}{\unit}}$ \quad
 \end{center}
 
 \end{frame}
@@ -326,20 +326,20 @@ Values are the final results of computation. Note that a function is a value whe
 \begin{frame}{Example (small-step) semantics -- basic rules}
 
 \begin{center}
-  $\infrule{\val{v}}{\compstep{\app{(\fun{x}{e})}{v}}{\subst{e}{x}{v}}}$
+  $\infrule{\val{v}}{\smallstep{\app{(\fun{x}{e})}{v}}{\subst{e}{x}{v}}}$
 
   \vspace{2em}
 
-  $\infrule{\val{v_1} \quad \val{v_2}}{\compstep{\outl{\pair{v_1}{v_2}}}{v_1}}$ \quad
-  $\infrule{\val{v_1} \quad \val{v_2}}{\compstep{\outr{\pair{v_1}{v_2}}}{v_2}}$
+  $\infrule{\val{v_1} \quad \val{v_2}}{\smallstep{\outl{\pair{v_1}{v_2}}}{v_1}}$ \quad
+  $\infrule{\val{v_1} \quad \val{v_2}}{\smallstep{\outr{\pair{v_1}{v_2}}}{v_2}}$
 
   \vspace{2em}
 
-  $\infrule{\val{v}}{\compstep{\case{(\inl{v})}{f}{g}}{\app{f}{v}}}$
+  $\infrule{\val{v}}{\smallstep{\case{(\inl{v})}{f}{g}}{\app{f}{v}}}$
 
   \vspace{2em}
 
-  $\infrule{\val{v}}{\compstep{\case{(\inr{v})}{f}{g}}{\app{g}{v}}}$
+  $\infrule{\val{v}}{\smallstep{\case{(\inr{v})}{f}{g}}{\app{g}{v}}}$
 
 \end{center}
 
@@ -348,27 +348,27 @@ Values are the final results of computation. Note that a function is a value whe
 \begin{frame}{Example (small-step) semantics -- boring rules}
 
 \begin{center}
-  $\infrule{\compstep{e_1}{e_1'}}{\compstep{\app{e_1}{e_2}}{\app{e_1'}{e_2}}}$ \quad
-  $\infrule{\val{v_1} \quad \compstep{e_2}{e_2'}}{\compstep{\app{v_1}{e_2}}{\app{v_1}{e_2'}}}$
+  $\infrule{\smallstep{e_1}{e_1'}}{\smallstep{\app{e_1}{e_2}}{\app{e_1'}{e_2}}}$ \quad
+  $\infrule{\val{v_1} \quad \smallstep{e_2}{e_2'}}{\smallstep{\app{v_1}{e_2}}{\app{v_1}{e_2'}}}$
 
   \vspace{2em}
 
-  $\infrule{\compstep{e_1}{e_1'}}{\compstep{\pair{e_1}{e_2}}{\pair{e_1'}{e_2}}}$ \quad
-  $\infrule{\val{v_1} \quad \compstep{e_2}{e_2'}}{\compstep{\pair{v_1}{e_2}}{\pair{v_1}{e_2'}}}$
+  $\infrule{\smallstep{e_1}{e_1'}}{\smallstep{\pair{e_1}{e_2}}{\pair{e_1'}{e_2}}}$ \quad
+  $\infrule{\val{v_1} \quad \smallstep{e_2}{e_2'}}{\smallstep{\pair{v_1}{e_2}}{\pair{v_1}{e_2'}}}$
 
   \vspace{2em}
 
-  $\infrule{\compstep{e}{e'}}{\compstep{\outl{e}}{\outl{e'}}}$ \quad
-  $\infrule{\compstep{e}{e'}}{\compstep{\outr{e}}{\outr{e'}}}$
+  $\infrule{\smallstep{e}{e'}}{\smallstep{\outl{e}}{\outl{e'}}}$ \quad
+  $\infrule{\smallstep{e}{e'}}{\smallstep{\outr{e}}{\outr{e'}}}$
 
   \vspace{2em}
 
-  $\infrule{\compstep{e}{e'}}{\compstep{\inl{e}}{\inl{e'}}}$ \quad
-  $\infrule{\compstep{e}{e'}}{\compstep{\inr{e}}{\inr{e'}}}$
+  $\infrule{\smallstep{e}{e'}}{\smallstep{\inl{e}}{\inl{e'}}}$ \quad
+  $\infrule{\smallstep{e}{e'}}{\smallstep{\inr{e}}{\inr{e'}}}$
 
   \vspace{2em}
 
-  $\infrule{\compstep{e}{e'}}{\compstep{\case{e}{f}{g}}{\case{e'}{f}{g}}}$
+  $\infrule{\smallstep{e}{e'}}{\smallstep{\case{e}{f}{g}}{\case{e'}{f}{g}}}$
 
 \end{center}
 
@@ -376,15 +376,15 @@ Values are the final results of computation. Note that a function is a value whe
 
 \begin{frame}{Example semantics -- explanations}
 
-$\result{e}{v}$ should be read ``term $e$ evalutes to value $v$''. It describes computation in a coarse-grained manner, telling us what is the result of evaluating each term. If $\result{e}{v}$, then $\val{v}$.
+$\bigstep{e}{v}$ should be read ``term $e$ evalutes to value $v$''. It describes computation in a coarse-grained manner, telling us what is the result of evaluating each term. If $\bigstep{e}{v}$, then $\val{v}$.
 
 \vspace{2em}
 
-$\compstep{e}{e'}$ should be read ``term $e$ reduces to term $e'$''. It describes computation in a fine-grained manner, telling us what can happen in a single computation step. To actually describe computation fully in this style, we need to take the transitive closure of this relation, written $\compsteps{e}{v}$.
+$\smallstep{e}{e'}$ should be read ``term $e$ reduces to term $e'$''. It describes computation in a fine-grained manner, telling us what can happen in a single computation step. To actually describe computation fully in this style, we need to take the transitive closure of this relation, written $\smallsteps{e}{v}$.
 
 \vspace{2em}
 
-Both presented semantics are call-by-value, i.e. we evaluate a function's argument before performing a substitution. They are equivalent, i.e. $\result{e}{v}$ if and only if $\compsteps{e}{v}$
+Both presented semantics are call-by-value, i.e. we evaluate a function's argument before performing a substitution. They are equivalent, i.e. $\bigstep{e}{v}$ if and only if $\smallsteps{e}{v}$
 
 \end{frame}
 

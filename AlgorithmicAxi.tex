@@ -1,0 +1,327 @@
+\documentclass{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{babel}
+\usepackage{xcolor}
+\usepackage{AxiCommands}
+
+\usetheme{Darmstadt}
+
+\title{Poor Man's Axi: Algorithmic Version}
+\author{Wojciech Kołowski}
+\date{}
+
+\begin{document}
+
+\frame{\titlepage}
+
+\section{Semantics}
+
+\begin{frame}{Values (cbv)}
+
+\begin{center}
+  $\infrule{}{\val{\fun{x}{e}}}$
+
+  \vspace{2em}
+
+  $\infrule{\val{v_1} \quad \val{v_2}}{\val{\pair{v_1}{v_2}}}$
+
+  \vspace{2em}
+
+  $\infrule{\val{v}}{\val{\inl{v}}}$ \quad
+  $\infrule{\val{v}}{\val{\inr{v}}}$ \quad
+
+  \vspace{2em}
+
+  $\infrule{}{\val{\unit}}$
+\end{center}
+
+\vspace{2em}
+
+Values are the final results of computation. Note that a function is a value whether or not its body is. Other values are pairs of values, values injected into a sum on the left or right, and unit.
+
+\end{frame}
+
+\begin{frame}{Big-step semantics (cbv)}
+
+\begin{center}
+  $\infrule{}{\bigstep{\fun{x}{e}}{\fun{x}{e}}}$ \quad
+  $\infrule{\bigstep{e_1}{\fun{x}{e}} \quad \bigstep{e_2}{v} \quad \bigstep{\subst{e}{x}{v}}{v'}}{\bigstep{\app{e_1}{e_2}}{v'}}$
+
+  \vspace{2em}
+
+  $\infrule{\bigstep{e_1}{v_1} \quad \bigstep{e_2}{v_2}}{\bigstep{\pair{e_1}{e_2}}{\pair{v_1}{v_2}}}$ \quad
+  $\infrule{\bigstep{e}{\pair{v_1}{v_2}}}{\bigstep{\outl{e}}{v_1}}$ \quad
+  $\infrule{\bigstep{e}{\pair{v_1}{v_2}}}{\bigstep{\outr{e}}{v_2}}$ \quad
+
+  \vspace{2em}
+
+  $\infrule{\bigstep{e}{v}}{\bigstep{\inl{e}}{\inl{v}}}$ \quad
+  $\infrule{\bigstep{e}{v}}{\bigstep{\inr{e}}{\inr{v}}}$ \quad
+
+  \vspace{2em}
+
+  $\infrule{\bigstep{e}{\inl{v}} \quad \bigstep{\app{f}{v}}{v'}}{\bigstep{\case{e}{f}{g}}{v'}}$ \quad
+  $\infrule{\bigstep{e}{\inr{v}} \quad \bigstep{\app{g}{v}}{v'}}{\bigstep{\case{e}{f}{g}}{v'}}$
+
+  \vspace{2em}
+
+  $\infrule{}{\bigstep{\unit}{\unit}}$ \quad
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Small-step semantics (cbv) -- basic rules}
+
+\begin{center}
+  $\infrule{\val{v}}{\smallstep{\app{(\fun{x}{e})}{v}}{\subst{e}{x}{v}}}$
+
+  \vspace{2em}
+
+  $\infrule{\val{v_1} \quad \val{v_2}}{\smallstep{\outl{\pair{v_1}{v_2}}}{v_1}}$ \quad
+  $\infrule{\val{v_1} \quad \val{v_2}}{\smallstep{\outr{\pair{v_1}{v_2}}}{v_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\val{v}}{\smallstep{\case{(\inl{v})}{f}{g}}{\app{f}{v}}}$
+
+  \vspace{2em}
+
+  $\infrule{\val{v}}{\smallstep{\case{(\inr{v})}{f}{g}}{\app{g}{v}}}$
+
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Small-step semantics (cbv) -- boring rules}
+
+\begin{center}
+  $\infrule{\smallstep{e_1}{e_1'}}{\smallstep{\app{e_1}{e_2}}{\app{e_1'}{e_2}}}$ \quad
+  $\infrule{\val{v_1} \quad \smallstep{e_2}{e_2'}}{\smallstep{\app{v_1}{e_2}}{\app{v_1}{e_2'}}}$
+
+  \vspace{2em}
+
+  $\infrule{\smallstep{e_1}{e_1'}}{\smallstep{\pair{e_1}{e_2}}{\pair{e_1'}{e_2}}}$ \quad
+  $\infrule{\val{v_1} \quad \smallstep{e_2}{e_2'}}{\smallstep{\pair{v_1}{e_2}}{\pair{v_1}{e_2'}}}$
+
+  \vspace{2em}
+
+  $\infrule{\smallstep{e}{e'}}{\smallstep{\outl{e}}{\outl{e'}}}$ \quad
+  $\infrule{\smallstep{e}{e'}}{\smallstep{\outr{e}}{\outr{e'}}}$
+
+  \vspace{2em}
+
+  $\infrule{\smallstep{e}{e'}}{\smallstep{\inl{e}}{\inl{e'}}}$ \quad
+  $\infrule{\smallstep{e}{e'}}{\smallstep{\inr{e}}{\inr{e'}}}$
+
+  \vspace{2em}
+
+  $\infrule{\smallstep{e}{e'}}{\smallstep{\case{e}{f}{g}}{\case{e'}{f}{g}}}$
+
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Example semantics -- explanations}
+
+$\bigstep{e}{v}$ should be read ``term $e$ evalutes to value $v$''. It describes computation in a coarse-grained manner, telling us what is the result of evaluating each term. If $\bigstep{e}{v}$, then $\val{v}$.
+
+\vspace{2em}
+
+$\smallstep{e}{e'}$ should be read ``term $e$ reduces to term $e'$''. It describes computation in a fine-grained manner, telling us what can happen in a single computation step. To actually describe computation fully in this style, we need to take the transitive closure of this relation, written $\smallsteps{e}{v}$.
+
+\vspace{2em}
+
+Both presented semantics are call-by-value, i.e. we evaluate a function's argument before performing a substitution. They are equivalent, i.e. $\bigstep{e}{v}$ if and only if $\smallsteps{e}{v}$
+
+\end{frame}
+
+\newcommand{\whnf}[1]{#1\ \texttt{whnf}}
+
+\begin{frame}{Weak head normal forms}
+
+\begin{center}
+  $\infrule{}{\whnf{x}}$
+
+  \vspace{2em}
+
+  $\infrule{}{\whnf{\fun{x}{e}}}$
+
+  \vspace{2em}
+
+  $\infrule{}{\whnf{\pair{e_1}{e_2}}}$
+
+  \vspace{2em}
+
+  $\infrule{}{\whnf{\inl{e}}}$ \quad
+  $\infrule{}{\whnf{\inr{e}}}$ \quad
+
+  \vspace{2em}
+
+  $\infrule{}{\whnf{\unit}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Weak head normal forms grammar}
+
+Weak head normal forms: \\
+$e ::=$ \\
+\qquad $n \pipe \fun{x}{e} \pipe$ \\
+\qquad $\pair{e_1}{e_2} \pipe$ \\
+\qquad $\inl[e] \pipe \inr[e] \pipe$ \\
+\qquad $\unit \pipe \elimEmpty{e}$
+
+\vspace{2em}
+
+Neutral forms: \\
+$n ::=$ \\
+\qquad $x \pipe \app{n}{e} \pipe$ \\
+\qquad $\outl[n] \pipe \outr[n] \pipe$ \\
+\qquad $\case{n}{e_1}{e_2} \pipe$ \\
+
+\end{frame}
+
+\newcommand{\smallstepwhnf}[2]{#1 \longrightarrow_{\texttt{whnf}} #2}
+
+\begin{frame}{Whnf reduction -- basic rules}
+
+\begin{center}
+  $\infrule{}{\smallstepwhnf{\app{(\fun{x}{e_1})}{e_2}}{\subst{e_1}{x}{e_2}}}$
+
+  \vspace{2em}
+
+  $\infrule{}{\smallstepwhnf{\outl{\pair{e_1}{e_2}}}{e_1}}$ \quad
+  $\infrule{}{\smallstepwhnf{\outr{\pair{e_1}{e_2}}}{e_2}}$
+
+  \vspace{2em}
+
+  $\infrule{}{\smallstepwhnf{\case{(\inl{e})}{f}{g}}{\app{f}{e}}}$
+
+  \vspace{2em}
+
+  $\infrule{}{\smallstepwhnf{\case{(\inr{e})}{f}{g}}{\app{g}{e}}}$
+
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Whnf reduction -- boring rules}
+
+\begin{center}
+  $\infrule{\smallstepwhnf{e_1}{e_1'}}{\smallstepwhnf{\app{e_1}{e_2}}{\app{e_1'}{e_2}}}$ \quad
+  $\infrule{\whnf{e_1} \quad \smallstepwhnf{e_2}{e_2'}}{\smallstepwhnf{\app{e_1}{e_2}}{\app{e_1}{e_2'}}}$
+
+  \vspace{2em}
+
+  $\infrule{\smallstepwhnf{e}{e'}}{\smallstepwhnf{\outl{e}}{\outl{e'}}}$ \quad
+  $\infrule{\smallstepwhnf{e}{e'}}{\smallstepwhnf{\outr{e}}{\outr{e'}}}$
+
+  \vspace{2em}
+
+  $\infrule{\smallstepwhnf{e}{e'}}{\smallstepwhnf{\case{e}{f}{g}}{\case{e'}{f}{g}}}$
+
+\end{center}
+
+\end{frame}
+
+\section{Algorithmic computational equality}
+
+\newcommand{\fullcheckcompeq}[4]{#1 \vdash #2 \equiv #3 \mathcolor{blue}{\Leftarrow} #4}
+\newcommand{\checkcompeq}[3]{\fullcheckcompeq{\Gamma}{#1}{#2}{#3}}
+
+\newcommand{\fullinfercompeq}[4]{#1 \vdash #2 \equiv #3 \mathcolor{red}{\Rightarrow} #4}
+\newcommand{\infercompeq}[3]{\fullinfercompeq{\Gamma}{#1}{#2}{#3}}
+
+\newcommand{\fullcheckcompeqwhnf}[4]{#1 \vdash #2 \equiv #3 \mathcolor{blue}{\Leftarrow}_{\texttt{whnf}} #4}
+\newcommand{\checkcompeqwhnf}[3]{\fullcheckcompeqwhnf{\Gamma}{#1}{#2}{#3}}
+
+\newcommand{\fullinfercompeqwhnf}[4]{#1 \vdash #2 \equiv #3 \mathcolor{red}{\Rightarrow}_{\texttt{whnf}} #4}
+\newcommand{\infercompeqwhnf}[3]{\fullinfercompeqwhnf{\Gamma}{#1}{#2}{#3}}
+
+\begin{frame}{Algorithmic computational equality 0}
+
+\begin{center}
+  $\infrule[Var]{\sidecond{(x : A) \in \Gamma}}{\infercompeq{x}{x}{A}}$
+
+  \vspace{2em}
+
+  %$\infrule[Annot]{\checkcompeq{e}{e'}{A}}{\infercompeq{\annot{e}{A}}{ź}{A}}$
+
+  \vspace{2em}
+
+  $\infrule[Sub]{\infercompeq{e}{e'}{B} \quad \sidecond{A = B}}{\checkcompeq{e}{e'}{A}}$
+
+  \vspace{2em}
+
+  $\infrule{\smallstepwhnf{e_1}{e_1'} \quad \smallstepwhnf{e_2}{e_2'} \quad \checkcompeq{e_1'}{e_2'}{A}}{\checkcompeqwhnf{e_1}{e_2}{A}}$
+
+  \vspace{2em}
+
+  $\infrule{\smallstepwhnf{e_1}{e_1'} \quad \smallstepwhnf{e_2}{e_2'} \quad \infercompeq{e_1'}{e_2'}{A}}{\infercompeqwhnf{e_1}{e_2}{A}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Algorithmic computational equality 1}
+
+\begin{center}
+  $\infrule{\fullcheckcompeqwhnf{\extend{\Gamma}{x}{A}}{e}{e'}{B}}{\checkcompeq{\fun{x}{e}}{\fun{x}{e'}}{\Fun{A}{B}}}$
+
+  \vspace{1em}
+
+  $\infrule{\infercompeq{f}{f'}{\Fun{A}{B}} \quad \checkcompeqwhnf{a}{a'}{A}}{\infercompeq{\app{f}{a}}{\app{f'}{a'}}{B}}$
+
+  \vspace{1em}
+
+  $\infrule{\checkcompeqwhnf{a}{a'}{A} \quad \checkcompeqwhnf{b}{b'}{B}}{\checkcompeq{\pair{a}{b}}{\pair{a'}{b'}}{\Prod{A}{B}}}$
+
+  \vspace{1em}
+
+  $\infrule{\infercompeq{e}{e'}{\Prod{A}{B}}}{\infercompeq{\outl[e]}{\outl[e']}{A}}$ \quad
+  $\infrule{\infercompeq{e}{e'}{\Prod{A}{B}}}{\infercompeq{\outr[e]}{\outr[e']}{B}}$
+
+  \vspace{1em}
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Algorithmic computational equality 2}
+
+\begin{center}
+  $\infrule{\checkcompeqwhnf{e}{e'}{A}}{\checkcompeq{\inl[e]}{\inl[e']}{\Sum{A}{B}}}$ \quad
+  $\infrule{\checkcompeqwhnf{e}{e'}{B}}{\checkcompeq{\inr[e]}{\inr[e']}{\Sum{A}{B}}}$
+
+  \vspace{2em}
+
+  $\infrule{\infercompeq{e}{e'}{\Sum{A}{B}} \quad \checkcompeqwhnf{f}{f'}{\Fun{A}{C}} \quad \checkcompeqwhnf{g}{g'}{\Fun{B}{C}}}{\infercompeq{\case{e}{f}{g}}{\case{e'}{f'}{g'}}{C}}$
+
+  \vspace{2em}
+
+  $\infrule{}{\checkcompeq{\unit}{\unit}{\Unit}}$ \quad
+  $\infrule{\checkcompeq{e}{e'}{\Empty}}{\checkcompeq{\elimEmpty[e]}{\elimEmpty[e']}{A}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Uniqueness rules}
+
+\begin{center}
+  $\infrule[Fun-Uniq]{\typing{f}{\Fun{A}{B}}}{\checkcompeq{f}{\fun{x}{\app{f}{x}}}{\Fun{A}{B}}}$
+
+  \vspace{1em}
+
+  $\infrule[Prod-Uniq]{\typing{e}{\Prod{A}{B}}}{\computation{e}{\pair{\outl[e]}{\outr[e]}}{\Prod{A}{B}}}$
+
+  \vspace{1em}
+
+  $\infrule[Unit-Uniq]{\typing{e_1}{\Unit} \quad \typing{e_2}{\Unit}}{\infercompeq{e_1}{e_2}{\Unit}}$
+
+  \vspace{1em}
+
+  $\infrule[Empty-Uniq]{\typing{e_1}{\Empty} \quad \typing{e_2}{\Empty}}{\infercompeq{e_1}{e_2}{\Empty}}$
+
+\end{center}
+
+\end{frame}
+
+\end{document}

@@ -34,7 +34,12 @@
 
 \newcommand{\Eq}[3][]{#2 =_{#1} #3}
 
+% Computation.
 \newcommand{\subst}[3]{#1\left[#2 := #3\right]}
+\newcommand{\val}[1]{#1\ \texttt{value}}
+\newcommand{\smallstep}[2]{#1 \longrightarrow #2}
+\newcommand{\smallsteps}[2]{#1 \longrightarrow^* #2}
+\newcommand{\bigstep}[2]{#1 \Downarrow #2}
 
 \newcommand{\tyctx}[1]{\mathcolor{brown}{#1\ \texttt{ctx}}}
 \newcommand{\fulltyping}[3]{#1 \vdash #2 : #3}

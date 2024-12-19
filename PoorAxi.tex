@@ -774,7 +774,7 @@ However, for now I have no idea how to formulate the rule of proof by coinductio
 
 \begin{frame}{Record types -- intro}
 
-The unfortunate reality of product types is that accessing components of nested pairs requires long sequences of $\outl$ and $\outr$, which look ugly. To add insult to injury, product types are not strictly associative, so we need to keep track of parentheses in nested pairs.
+The unfortunate reality of product types is that accessing components of nested pairs requires long sequences of left and right projections, which look ugly. To add insult to injury, product types are not strictly associative, so we need to keep track of parentheses in nested pairs.
 
 \vspace{1em}
 
@@ -838,11 +838,11 @@ The original sum type can be recovered as $\varianttype{\texttt{inl} : A; \textt
 
   \vspace{1em}
 
-  $\infrule[Variant-Elim]{\typing{e}{\varianttypes{c}{A}{i}{I}} \quad \typing{r}{\recordtypes{c}{\Fun{A_i}{B}}{i}{I}}}{\typing{\vcase{e}{r}}{B}}$
+  $\infrule[Variant-Elim]{\typing{e}{\varianttypes{c}{A}{i}{I}} \quad \typing{r}{\recordtype{c_i : \Fun{A_i}{B}}_{i \in I}}}{\typing{\vcase{e}{r}}{B}}$
 
   \vspace{1em}
 
-  $\infrule[Variant-Comp]{\typing{e}{A_j} \quad \typing{r}{\recordtypes{c}{\Fun{A_i}{B}}{i}{I}} \quad \sidecond{j \in I}}{\computation{\vcase{(\app{c_j}{e})}{r}}{\app{\proj{c_j}{r}}{e}}{B}}$
+  $\infrule[Variant-Comp]{\typing{e}{A_j} \quad \typing{r}{\recordtype{c_i : \Fun{A_i}{B}}_{i \in I}} \quad \sidecond{j \in I}}{\computation{\vcase{(\app{c_j}{e})}{r}}{\app{\proj{c_j}{r}}{e}}{B}}$
 \end{center}
 
 \end{frame}
@@ -854,7 +854,7 @@ The original sum type can be recovered as $\varianttype{\texttt{inl} : A; \textt
 
   \vspace{1em}
 
-  $\infrule[Variant-Elim-Congr]{\computation{e}{e'}{\varianttypes{c}{A}{i}{I}} \quad \computation{r}{r'}{\recordtypes{c}{\Fun{A_i}{B}}{i}{I}}}{\computation{\vcase{e}{r}}{\vcase{e'}{r'}}{B}}$
+  $\infrule[Variant-Elim-Congr]{\computation{e}{e'}{\varianttypes{c}{A}{i}{I}} \quad \computation{r}{r'}{\recordtype{c_i : \Fun{A_i}{B}}_{i \in I}}}{\computation{\vcase{e}{r}}{\vcase{e'}{r'}}{B}}$
 \end{center}
 
 \end{frame}
