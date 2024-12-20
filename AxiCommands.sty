@@ -146,6 +146,16 @@
 \newcommand{\fullproves}[3]{#1 \vdash #2 : #3}
 \newcommand{\proves}[2]{\fullproves{\Gamma}{#1}{#2}}
 
+% Algorithmic proof judgements.
+
+% Proof checking.
+\newcommand{\fullproofcheck}[3]{#1 \vdash #2 \mathcolor{blue}{\Leftarrow} #3}
+\newcommand{\proofcheck}[2]{\fullproofcheck{\Gamma}{#1}{#2}}
+
+% Proof inference.
+\newcommand{\fullproofinfer}[3]{#1 \vdash #2 \mathcolor{red}{\Rightarrow} #3}
+\newcommand{\proofinfer}[2]{\fullproofinfer{\Gamma}{#1}{#2}}
+
 % Inference rules.
 \newcommand{\rulename}[1]{\textsc{\footnotesize{#1}}}
 \newcommand{\infrule}[3][]{\displaystyle \frac{#2}{#3} \rulename{#1}}
