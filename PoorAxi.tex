@@ -27,8 +27,8 @@ These slides propose a basic calculus that could serve as a Poor Man's Axi. The 
 Terms: \\
 $e ::=$ \\
 \qquad $x \pipe \fun{x}{e} \pipe \app{e_1}{e_2} \pipe$ \\
-\qquad $\pair{e_1}{e_2} \pipe \outl[e] \pipe \outr[e] \pipe$ \\
-\qquad $\inl[e] \pipe \inr[e] \pipe \case{e}{e_1}{e_2} \pipe$ \\
+\qquad $\pair{e_1}{e_2} \pipe \outl{e} \pipe \outr{e} \pipe$ \\
+\qquad $\inl{e} \pipe \inr{e} \pipe \case{e}{e_1}{e_2} \pipe$ \\
 \qquad $\unit \pipe \elimEmpty{e}$
 
 \vspace{2em}
@@ -155,13 +155,13 @@ We omit names of these rules because it's easier to refer to them by the name of
   \vspace{2em}
 
   $\infrule{\typing{a}{A} \quad \typing{b}{B}}{\typing{\pair{a}{b}}{\Prod{A}{B}}}$ \quad
-  $\infrule{\typing{e}{\Prod{A}{B}}}{\typing{\outl[e]}{A}}$ \quad
-  $\infrule{\typing{e}{\Prod{A}{B}}}{\typing{\outr[e]}{B}}$
+  $\infrule{\typing{e}{\Prod{A}{B}}}{\typing{\outl{e}}{A}}$ \quad
+  $\infrule{\typing{e}{\Prod{A}{B}}}{\typing{\outr{e}}{B}}$
 
   \vspace{2em}
 
-  $\infrule{\typing{e}{A}}{\typing{\inl[e]}{\Sum{A}{B}}}$ \quad
-  $\infrule{\typing{e}{B}}{\typing{\inr[e]}{\Sum{A}{B}}}$
+  $\infrule{\typing{e}{A}}{\typing{\inl{e}}{\Sum{A}{B}}}$ \quad
+  $\infrule{\typing{e}{B}}{\typing{\inr{e}}{\Sum{A}{B}}}$
 
   \vspace{2em}
 
@@ -198,16 +198,16 @@ Computation rules describe the most essential computation steps. For example, wh
 
   \vspace{1em}
 
-  $\infrule{\typing{a}{A} \quad \typing{b}{B}}{\computation{\outl[\pair{a}{b}]}{a}{A}}$ \quad
-  $\infrule{\typing{a}{A} \quad \typing{b}{B}}{\computation{\outr[\pair{a}{b}]}{b}{B}}$
+  $\infrule{\typing{a}{A} \quad \typing{b}{B}}{\computation{\outl{\pair{a}{b}}}{a}{A}}$ \quad
+  $\infrule{\typing{a}{A} \quad \typing{b}{B}}{\computation{\outr{\pair{a}{b}}}{b}{B}}$
 
   \vspace{1em}
 
-  $\infrule[Case-Inl]{\typing{a}{A} \quad \typing{f}{\Fun{A}{C}} \quad \typing{g}{\Fun{B}{C}}}{\computation{\case{(\inl[a])}{f}{g}}{\app{f}{a}}{C}}$
+  $\infrule[Case-Inl]{\typing{a}{A} \quad \typing{f}{\Fun{A}{C}} \quad \typing{g}{\Fun{B}{C}}}{\computation{\case{(\inl{a})}{f}{g}}{\app{f}{a}}{C}}$
 
   \vspace{1em}
 
-  $\infrule[Case-Inr]{\typing{a}{A} \quad \typing{f}{\Fun{A}{C}} \quad \typing{g}{\Fun{B}{C}}}{\computation{\case{(\inr[b])}{f}{g}}{\app{g}{b}}{C}}$
+  $\infrule[Case-Inr]{\typing{a}{A} \quad \typing{f}{\Fun{A}{C}} \quad \typing{g}{\Fun{B}{C}}}{\computation{\case{(\inr{b})}{f}{g}}{\app{g}{b}}{C}}$
 \end{center}
 
 \end{frame}
@@ -221,7 +221,7 @@ Uniqueness rules establish that every term of a given type is computationally eq
 
   \vspace{1em}
 
-  $\infrule[Prod-Uniq]{\typing{e}{\Prod{A}{B}}}{\computation{e}{\pair{\outl[e]}{\outr[e]}}{\Prod{A}{B}}}$
+  $\infrule[Prod-Uniq]{\typing{e}{\Prod{A}{B}}}{\computation{e}{\pair{\outl{e}}{\outr{e}}}{\Prod{A}{B}}}$
 
   \vspace{1em}
 
@@ -271,13 +271,13 @@ The congruence rules state that computational equality is preserved by every lan
 
   \vspace{1em}
 
-  $\infrule{\computation{e}{e'}{\Prod{A}{B}}}{\computation{\outl[e]}{\outl[e']}{A}}$ \quad
-  $\infrule{\computation{e}{e'}{\Prod{A}{B}}}{\computation{\outr[e]}{\outr[e']}{B}}$
+  $\infrule{\computation{e}{e'}{\Prod{A}{B}}}{\computation{\outl{e}}{\outl{e'}}{A}}$ \quad
+  $\infrule{\computation{e}{e'}{\Prod{A}{B}}}{\computation{\outr{e}}{\outr{e'}}{B}}$
 
   \vspace{1em}
 
-  $\infrule{\computation{e}{e'}{A}}{\computation{\inl[e]}{\inl[e']}{\Sum{A}{B}}}$ \quad
-  $\infrule{\computation{e}{e'}{B}}{\computation{\inr[e]}{\inr[e']}{\Sum{A}{B}}}$
+  $\infrule{\computation{e}{e'}{A}}{\computation{\inl{e}}{\inl{e'}}{\Sum{A}{B}}}$ \quad
+  $\infrule{\computation{e}{e'}{B}}{\computation{\inr{e}}{\inr{e'}}{\Sum{A}{B}}}$
 
   \vspace{1em}
 
@@ -514,7 +514,7 @@ Note that so far, we haven't got any rules that allow reasoning by cases on term
 
   \vspace{1em}
 
-  $\infrule[Sum-Ind]{\fullholds{\extend{\Gamma}{a}{A}}{\Delta}{\subst{P}{x}{\inl[a]}} \quad \fullholds{\extend{\Gamma}{b}{B}}{\Delta}{\subst{P}{x}{\inr[b]}}}{\holds{\All{x}{\Sum{A}{B}}{P}}}$
+  $\infrule[Sum-Ind]{\fullholds{\extend{\Gamma}{a}{A}}{\Delta}{\subst{P}{x}{\inl{a}}} \quad \fullholds{\extend{\Gamma}{b}{B}}{\Delta}{\subst{P}{x}{\inr{b}}}}{\holds{\All{x}{\Sum{A}{B}}{P}}}$
 \end{center}
 
 \end{frame}
@@ -884,7 +884,7 @@ Just seeing a system like this won't be enough to convince anybody that it makes
 \begin{itemize}
   \item Assume that $A$ and $B$ are arbitrary types. Define functions $\texttt{swap} : \Fun{\Prod{A}{B}}{\Prod{B}{A}}$ and $\texttt{sweep} : \Fun{\Sum{A}{B}}{\Sum{B}{A}}$ and prove that they are involutive. Are they computationally involutive, i.e. involutive up to computational equality? Repeat the exercise using record and variant types.
   \item Can you prove that every term of a product type is a pair?
-  \item Can you prove that every term of a sum type is either $\inl[a]$ or $\inr[b]$ for some $a$ and $b$?
+  \item Can you prove that every term of a sum type is either $\inl{a}$ or $\inr{b}$ for some $a$ and $b$?
   \item Define addition of natural numbers and prove that it is associative and commutative.
   \item Write an interesting program and prove an interesting theorem about it.
 \end{itemize}
@@ -913,7 +913,7 @@ Assume for a moment that $A, B, C$ are arbitrary types. Let's write some program
   \item $\id := \fun{x}{x}$
   \item $\comp := \fun{f}{\fun{g}{\fun{x}{\app{g}{(\app{f}{x})}}}}$
   \item $\swap := \fun{p}{\pair{\outr{p}}{\outl{p}}}$
-  \item $\swop := \fun{x}{\case{x}{\fun{a}{\inr[a]}}{\fun{b}{\inl[b]}}}$
+  \item $\swop := \fun{x}{\case{x}{\fun{a}{\inr{a}}}{\fun{b}{\inl{b}}}}$
   \item $\notb := \fun{b}{\boolElim{b}{\bfalse}{\btrue}}$
   \item $\andb := \fun{x}{\fun{y}{\boolElim{x}{y}{\bfalse}}}$
   \item $\add := \fun{n}{\fun{m}{\elimNat{m}{(\fun{r}{\succ[r]})}{n}}}$
@@ -951,8 +951,8 @@ What are the types of our programs?
   \item $\computation{\app{\app{\comp}{f}}{\id}}{f}{\Fun{A}{B}}$
   \item $\computation{\app{\app{\comp}{\id}}{g}}{g}{\Fun{B}{C}}$
   \item $\computation{\swap[(\swap[p])]}{p}{\Prod{A}{B}}$
-  \item $\computation{\swop[(\swop[(\inl[a])])]}{\inl[a]}{A}$
-  \item $\computation{\swop[(\swop[(\inr[b])])]}{\inr[b]}{B}$
+  \item $\computation{\swop[(\swop[(\inl{a})])]}{\inl{a}}{A}$
+  \item $\computation{\swop[(\swop[(\inr{b})])]}{\inr{b}}{B}$
   \item $\computation{\notb[(\app{\app{\andb}{\btrue}}{\btrue})]}{\bfalse}{\Bool}$
 \end{itemize}
 
@@ -961,7 +961,7 @@ What are the types of our programs?
 \begin{frame}{Example theorems}
 
 \begin{itemize}
-  \item $\holds{\All{x}{\Sum{A}{B}}{\Or{(\Ex{a}{A}{\Eq{x}{\inl[a]}})}{(\Ex{b}{B}{\Eq{x}{\inr[b]}})}}}$
+  \item $\holds{\All{x}{\Sum{A}{B}}{\Or{(\Ex{a}{A}{\Eq{x}{\inl{a}}})}{(\Ex{b}{B}{\Eq{x}{\inr{b}}})}}}$
   \item $\holds{\All{b}{\Bool}{\Eq{\notb[(\notb[b])]}{b}}}$
   \item $\holds{\All{a}{\Nat}{\All{b}{\Nat}{\All{c}{\Nat}{\Eq{\app{\app{\add}{(\app{\app{\add}{a}}{b})}}{c}}{\app{\app{\add}{a}}{(\app{\app{\add}{b}}{c})}}}}}}$
   \item $\holds{\All{n}{\Nat}{\All{a}{A}{\Eq{\length[(\app{\app{\replicate}{n}}{a})]}{n}}}}$
@@ -976,8 +976,6 @@ What are the types of our programs?
 What other features might we add to our language? Let's find out.
 
 \end{frame}
-
-\newcommand{\annot}[2]{(#1 : #2)}
 
 \begin{frame}{Type annotations}
 

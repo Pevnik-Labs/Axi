@@ -168,7 +168,7 @@ Weak head normal forms: \\
 $e ::=$ \\
 \qquad $n \pipe \fun{x}{e} \pipe$ \\
 \qquad $\pair{e_1}{e_2} \pipe$ \\
-\qquad $\inl[e] \pipe \inr[e] \pipe$ \\
+\qquad $\inl{e} \pipe \inr{e} \pipe$ \\
 \qquad $\unit \pipe \elimEmpty{e}$
 
 \vspace{2em}
@@ -176,7 +176,7 @@ $e ::=$ \\
 Neutral forms: \\
 $n ::=$ \\
 \qquad $x \pipe \app{n}{e} \pipe$ \\
-\qquad $\outl[n] \pipe \outr[n] \pipe$ \\
+\qquad $\outl{n} \pipe \outr{n} \pipe$ \\
 \qquad $\case{n}{e_1}{e_2} \pipe$ \\
 
 \end{frame}
@@ -265,22 +265,20 @@ $n ::=$ \\
 \begin{frame}{Algorithmic computational equality 1}
 
 \begin{center}
-  $\infrule{\fullcheckcompeqwhnf{\extend{\Gamma}{x}{A}}{e}{e'}{B}}{\checkcompeq{\fun{x}{e}}{\fun{x}{e'}}{\Fun{A}{B}}}$
+  $\infrule{\fullcheckcompeqwhnf{\extend{\Gamma}{x}{A}}{e_1}{e_2}{B}}{\checkcompeq{\fun{x}{e_1}}{\fun{x}{e_2}}{\Fun{A}{B}}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
-  $\infrule{\infercompeq{f}{f'}{\Fun{A}{B}} \quad \checkcompeqwhnf{a}{a'}{A}}{\infercompeq{\app{f}{a}}{\app{f'}{a'}}{B}}$
+  $\infrule{\infercompeq{n_1}{n_2}{\Fun{A}{B}} \quad \checkcompeqwhnf{e_1}{e_2}{A}}{\infercompeq{\app{n_1}{e_1}}{\app{n_2}{e_2}}{B}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
-  $\infrule{\checkcompeqwhnf{a}{a'}{A} \quad \checkcompeqwhnf{b}{b'}{B}}{\checkcompeq{\pair{a}{b}}{\pair{a'}{b'}}{\Prod{A}{B}}}$
+  $\infrule{\checkcompeqwhnf{a_1}{a_2}{A} \quad \checkcompeqwhnf{b_1}{b_2}{B}}{\checkcompeq{\pair{a_1}{b_1}}{\pair{a_2}{b_2}}{\Prod{A}{B}}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
-  $\infrule{\infercompeq{e}{e'}{\Prod{A}{B}}}{\infercompeq{\outl[e]}{\outl[e']}{A}}$ \quad
-  $\infrule{\infercompeq{e}{e'}{\Prod{A}{B}}}{\infercompeq{\outr[e]}{\outr[e']}{B}}$
-
-  \vspace{1em}
+  $\infrule{\infercompeq{n_1}{n_2}{\Prod{A}{B}}}{\infercompeq{\outl{n_1}}{\outl{n_2}}{A}}$ \quad
+  $\infrule{\infercompeq{n_1}{n_2}{\Prod{A}{B}}}{\infercompeq{\outr{n_1}}{\outr{n_2}}{B}}$
 \end{center}
 
 \end{frame}
@@ -288,38 +286,33 @@ $n ::=$ \\
 \begin{frame}{Algorithmic computational equality 2}
 
 \begin{center}
-  $\infrule{\checkcompeqwhnf{e}{e'}{A}}{\checkcompeq{\inl[e]}{\inl[e']}{\Sum{A}{B}}}$ \quad
-  $\infrule{\checkcompeqwhnf{e}{e'}{B}}{\checkcompeq{\inr[e]}{\inr[e']}{\Sum{A}{B}}}$
+  $\infrule{\checkcompeqwhnf{e_1}{e_2}{A}}{\checkcompeq{\inl{e_1}}{\inl{e_2}}{\Sum{A}{B}}}$ \quad
+  $\infrule{\checkcompeqwhnf{e_1}{e_2}{B}}{\checkcompeq{\inr{e_1}}{\inr{e_2}}{\Sum{A}{B}}}$
 
   \vspace{2em}
 
-  $\infrule{\infercompeq{e}{e'}{\Sum{A}{B}} \quad \checkcompeqwhnf{f}{f'}{\Fun{A}{C}} \quad \checkcompeqwhnf{g}{g'}{\Fun{B}{C}}}{\infercompeq{\case{e}{f}{g}}{\case{e'}{f'}{g'}}{C}}$
+  $\infrule{\infercompeq{n_1}{n_2}{\Sum{A}{B}} \quad \begin{array}{c} \checkcompeqwhnf{f_1}{f_2}{\Fun{A}{C}} \\ \checkcompeqwhnf{g_1}{g_2}{\Fun{B}{C}} \end{array}}{\infercompeq{\case{n_1}{f_1}{g_1}}{\case{n_2}{f_2}{g_2}}{C}}$
 
   \vspace{2em}
 
   $\infrule{}{\checkcompeq{\unit}{\unit}{\Unit}}$ \quad
-  $\infrule{\checkcompeq{e}{e'}{\Empty}}{\checkcompeq{\elimEmpty[e]}{\elimEmpty[e']}{A}}$
+  $\infrule{\checkcompeq{e_1}{e_2}{\Empty}}{\checkcompeq{\elimEmpty[e]}{\elimEmpty[e']}{A}}$
 \end{center}
 
 \end{frame}
 
-\begin{frame}{Uniqueness rules}
+\begin{frame}{Uniqueness rules (asymmetric, contraction-like)}
 
 \begin{center}
-  $\infrule[Fun-Uniq]{\typing{f}{\Fun{A}{B}}}{\checkcompeq{f}{\fun{x}{\app{f}{x}}}{\Fun{A}{B}}}$
+  $\infrule[Fun-Uniq]{\check{f}{\Fun{A}{B}}}{\checkcompeq{f}{\fun{x}{\app{f}{x}}}{\Fun{A}{B}}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
-  $\infrule[Prod-Uniq]{\typing{e}{\Prod{A}{B}}}{\computation{e}{\pair{\outl[e]}{\outr[e]}}{\Prod{A}{B}}}$
+  $\infrule[Prod-Uniq]{\check{e}{\Prod{A}{B}}}{\checkcompeq{e}{\pair{\outl{e}}{\outr{e}}}{\Prod{A}{B}}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
-  $\infrule[Unit-Uniq]{\typing{e_1}{\Unit} \quad \typing{e_2}{\Unit}}{\infercompeq{e_1}{e_2}{\Unit}}$
-
-  \vspace{1em}
-
-  $\infrule[Empty-Uniq]{\typing{e_1}{\Empty} \quad \typing{e_2}{\Empty}}{\infercompeq{e_1}{e_2}{\Empty}}$
-
+  $\infrule[Unit-Uniq]{\check{e}{\Unit}}{\checkcompeq{e}{\unit}{\Unit}}$
 \end{center}
 
 \end{frame}
