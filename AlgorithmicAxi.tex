@@ -347,6 +347,16 @@ $n ::=$ \\
 
 \end{frame}
 
+\newcommand{\proofannot}[2]{\textbf{have}\ #1\ \textbf{from}\ #2}
+
+\begin{frame}{Annotations}
+
+\begin{center}
+  $\infrule[Proof-Annot]{\proofcheck{e}{P}}{\proofinfer{\proofannot{P}{e}}{P}}$
+\end{center}
+
+\end{frame}
+
 \begin{frame}{Assumptions}
 
 \begin{center}
@@ -358,7 +368,7 @@ $n ::=$ \\
 \begin{frame}{True and False}
 
 \begin{center}
-  $\infrule[True-Intro]{\tyctx{\Gamma}}{\proofcheck{\true}{\True}}$
+  $\infrule[True-Intro]{\tyctx{\Gamma}}{\proofinfer{\true}{\True}}$
 
   \vspace{2em}
 
@@ -370,7 +380,11 @@ $n ::=$ \\
 \begin{frame}{Implication}
 
 \begin{center}
-  $\infrule[Impl-Intro]{\fullproofcheck{\assume{\Gamma}{P}}{e}{Q}}{\proofcheck{\implintro{P}{e}}{\Impl{P}{Q}}}$
+  $\infrule[Impl-Intro-Check]{\fullproofcheck{\assume{\Gamma}{P}}{e}{Q}}{\proofcheck{\implintro{P}{e}}{\Impl{P}{Q}}}$
+
+  \vspace{2em}
+
+  $\infrule[Impl-Intro-Infer]{\fullproofinfer{\assume{\Gamma}{P}}{e}{Q}}{\proofinfer{\implintro{P}{e}}{\Impl{P}{Q}}}$
 
   \vspace{2em}
 
@@ -382,7 +396,7 @@ $n ::=$ \\
 \begin{frame}{Negation}
 
 \begin{center}
-  $\infrule[Not-Intro]{\fullproofcheck{\assume{\Gamma}{P}}{e}{\False}}{\proofcheck{\notintro{P}{e}}{\Not{P}}}$
+  $\infrule[Not-Intro]{\fullproofcheck{\assume{\Gamma}{P}}{e}{\False}}{\proofinfer{\notintro{P}{e}}{\Not{P}}}$
 
   \vspace{2em}
 
@@ -423,7 +437,7 @@ $n ::=$ \\
 
 \end{frame}
 
-\begin{frame}{Disjunction}
+\begin{frame}{Disjunction -- checking}
 
 \begin{center}
   $\infrule[Or-Intro-L]{\prop{\Gamma}{Q} \quad \proofcheck{e}{P}}{\proofcheck{\orintrol{Q}{e}}{\Or{P}{Q}}}$
@@ -434,7 +448,23 @@ $n ::=$ \\
 
   \vspace{2em}
 
-  $\infrule[Or-Elim]{\proofinfer{e_1}{\Or{P}{Q}} \quad \proofcheck{e_2}{\Impl{P}{R}} \quad \proofcheck{e_3}{\Impl{Q}{R}}}{\proofinfer{\orelim{e_1}{e_2}{e_3}}{R}}$
+  $\infrule[Or-Elim]{\proofinfer{e_1}{\Or{P}{Q}} \quad \proofcheck{e_2}{\Impl{P}{R}} \quad \proofcheck{e_3}{\Impl{Q}{R}}}{\proofcheck{\orelim{e_1}{e_2}{e_3}}{R}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Disjunction -- inference}
+
+\begin{center}
+  $\infrule[Or-Intro-L-Infer]{\prop{\Gamma}{Q} \quad \proofinfer{e}{P}}{\proofinfer{\orintrol{Q}{e}}{\Or{P}{Q}}}$
+
+  \vspace{2em}
+
+  $\infrule[Or-Intro-R-Infer]{\prop{\Gamma}{P} \quad \proofinfer{e}{Q}}{\proofinfer{\orintror{P}{e}}{\Or{P}{Q}}}$
+
+  \vspace{2em}
+
+  $\infrule[Or-Elim]{\proofinfer{e_1}{\Or{P}{Q}} \quad \proofinfer{e_2}{\Impl{P}{R}} \quad \proofinfer{e_3}{\Impl{Q}{R}}}{\proofinfer{\orelim{e_1}{e_2}{e_3}}{R}}$
 \end{center}
 
 \end{frame}
@@ -442,7 +472,11 @@ $n ::=$ \\
 \begin{frame}{Double Negation Elimination}
 
 \begin{center}
-  $\infrule[Classic]{\proofinfer{e}{\Not{\Not{P}}}}{\proofinfer{\dn{e}}{P}}$
+  $\infrule[Classic-Check]{\proofcheck{e}{\Not{\Not{P}}}}{\proofcheck{\dn{e}}{P}}$
+
+  \vspace{2em}
+
+  $\infrule[Classic-Infer]{\proofinfer{e}{\Not{\Not{P}}}}{\proofinfer{\dn{e}}{P}}$
 \end{center}
 
 \end{frame}
@@ -451,6 +485,10 @@ $n ::=$ \\
 
 \begin{center}
   $\infrule[Cut]{\proofinfer{e_1}{P} \quad \fullproofcheck{\assume{\Gamma}{P}}{e_2}{Q}}{\proofcheck{\cut{e_1}{e_2}}{Q}}$
+
+  \vspace{2em}
+
+  $\infrule[Cut-Infer]{\proofinfer{e_1}{P} \quad \fullproofinfer{\assume{\Gamma}{P}}{e_2}{Q}}{\proofinfer{\cut{e_1}{e_2}}{Q}}$
 \end{center}
 
 \end{frame}
@@ -459,6 +497,10 @@ $n ::=$ \\
 
 \begin{center}
   $\infrule[Forall-Intro]{\fullproofcheck{\extend{\Gamma}{y}{A}}{e}{\subst{P}{x}{y}}}{\proofcheck{\allintro{y}{e}}{\All{x}{A}{P}}}$
+
+  \vspace{2em}
+
+  $\infrule[Forall-Intro-Infer]{\fullproofinfer{\extend{\Gamma}{x}{A}}{e}{P}}{\proofinfer{\allintro{x : A}{e}}{\All{x}{A}{P}}}$
 
   \vspace{2em}
 
@@ -475,11 +517,15 @@ $n ::=$ \\
   \vspace{2em}
 
   $\infrule[Exists-Elim]{\prop{\Gamma}{R} \quad \proofinfer{e_1}{\Ex{x}{A}{P}} \quad \fullproofinfer{\assume{\extend{\Gamma}{y}{A}}{\subst{P}{x}{y}}}{e_2}{R}}{\proofinfer{\exelim{y}{e_1}{e_2}}{R}}$
+
+  \vspace{2em}
+
+  $\infrule[Exists-Elim-Check]{\prop{\Gamma}{R} \quad \proofinfer{e_1}{\Ex{x}{A}{P}} \quad \fullproofcheck{\assume{\extend{\Gamma}{y}{A}}{\subst{P}{x}{y}}}{e_2}{R}}{\proofcheck{\exelim{y}{e_1}{e_2}}{R}}$
 \end{center}
 
 \end{frame}
 
-\begin{frame}{Conversion rule}
+\begin{frame}{Conversion rule -- TODO}
 
 \begin{center}
   $\infrule[Conv]{\prop{\extend{\Gamma}{x}{A}}{P} \quad \computation{t_1}{t_2}{A} \quad \proves{e}{\subst{P}{x}{t_1}}}{\proves{e}{\subst{P}{x}{t_2}}}$
@@ -494,7 +540,19 @@ $n ::=$ \\
 
   \vspace{2em}
 
+  $\infrule[Eq-Intro-Infer]{\infer{t}{A}}{\proofinfer{\refl{t}}{\Eq[A]{t}{t}}}$
+
+  \vspace{2em}
+
   $\infrule[Eq-Elim]{\prop{\extend{\Gamma}{x}{A}}{P} \quad \proofinfer{e}{\Eq[A]{t_1}{t_2}} \quad \proofcheck{e'}{\subst{P}{x}{t_1}}}{\proofinfer{\rewrite{e}{e'}}{\subst{P}{x}{t_2}}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Experimenting with $\refl{}$}
+
+\begin{center}
+  $\infrule[Eq-Intro-Alt]{\checkcompeq{t_1}{t_2}{A}}{\proofcheck{\refl{}}{\Eq[A]{t_1}{t_2}}}$
 \end{center}
 
 \end{frame}
@@ -510,7 +568,7 @@ $n ::=$ \\
 \begin{frame}{Reasoning by cases (for sums)}
 
 \begin{center}
-  $\infrule{\prop{\extend{\Gamma}{x}{\Sum{A}{B}}}{P} \quad \infer{t}{\Sum{A}{B}} \quad \begin{array}{c} \fullproofinfer{\extend{\Gamma}{a}{A}}{e_1}{\subst{P}{x}{\inl{a}}} \\ \fullproofinfer{\extend{\Gamma}{b}{B}}{e_2}{\subst{P}{x}{\inr{b}}} \end{array}}{\proofinfer{\sumind{t}{a}{e_1}{b}{e_2}}{\subst{P}{x}{t}}}$
+  $\infrule{\prop{\extend{\Gamma}{x}{\Sum{A}{B}}}{P} \quad \infer{t}{\Sum{A}{B}} \quad \begin{array}{c} \fullproofcheck{\extend{\Gamma}{a}{A}}{e_1}{\subst{P}{x}{\inl{a}}} \\ \fullproofcheck{\extend{\Gamma}{b}{B}}{e_2}{\subst{P}{x}{\inr{b}}} \end{array}}{\proofinfer{\sumind{t}{a}{e_1}{b}{e_2}}{\subst{P}{x}{t}}}$
 \end{center}
 
 \end{frame}
