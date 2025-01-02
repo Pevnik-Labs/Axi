@@ -352,7 +352,7 @@ $n ::=$ \\
 \begin{frame}{Annotations}
 
 \begin{center}
-  $\infrule[Proof-Annot]{\proofcheck{e}{P}}{\proofinfer{\proofannot{P}{e}}{P}}$
+  $\infrule[Proof-Annot]{\prop{\Gamma}{P} \quad \proofcheck{e}{P}}{\proofinfer{\proofannot{P}{e}}{P}}$
 \end{center}
 
 \end{frame}
@@ -360,7 +360,7 @@ $n ::=$ \\
 \begin{frame}{Assumptions}
 
 \begin{center}
-  $\infrule[Ass]{\tyctx{\Gamma} \quad \sidecond{P \in \Gamma}}{\proofinfer{P}{P}}$
+  $\infrule[Ass]{\sidecond{P \in \Gamma}}{\proofinfer{P}{P}}$
 \end{center}
 
 \end{frame}
@@ -368,11 +368,11 @@ $n ::=$ \\
 \begin{frame}{True and False}
 
 \begin{center}
-  $\infrule[True-Intro]{\tyctx{\Gamma}}{\proofinfer{\true}{\True}}$
+  $\infrule[True-Intro]{}{\proofinfer{\true}{\True}}$
 
   \vspace{2em}
 
-  $\infrule[False-Elim]{\prop{\Gamma}{P} \quad \proofcheck{e}{\False}}{\proofcheck{\exfalso{e}}{P}}$
+  $\infrule[False-Elim]{\proofcheck{e}{\False}}{\proofcheck{\exfalso{e}}{P}}$
 \end{center}
 
 \end{frame}
@@ -384,7 +384,7 @@ $n ::=$ \\
 
   \vspace{2em}
 
-  $\infrule[Impl-Intro-Infer]{\fullproofinfer{\assume{\Gamma}{P}}{e}{Q}}{\proofinfer{\implintro{P}{e}}{\Impl{P}{Q}}}$
+  $\infrule[Impl-Intro-Infer]{\prop{\Gamma}{P} \quad \fullproofinfer{\assume{\Gamma}{P}}{e}{Q}}{\proofinfer{\implintro{P}{e}}{\Impl{P}{Q}}}$
 
   \vspace{2em}
 
@@ -396,7 +396,7 @@ $n ::=$ \\
 \begin{frame}{Negation}
 
 \begin{center}
-  $\infrule[Not-Intro]{\fullproofcheck{\assume{\Gamma}{P}}{e}{\False}}{\proofinfer{\notintro{P}{e}}{\Not{P}}}$
+  $\infrule[Not-Intro]{\prop{\Gamma}{P} \quad \fullproofcheck{\assume{\Gamma}{P}}{e}{\False}}{\proofinfer{\notintro{P}{e}}{\Not{P}}}$
 
   \vspace{2em}
 
@@ -409,6 +409,10 @@ $n ::=$ \\
 
 \begin{center}
   $\infrule[And-Intro]{\proofcheck{e_1}{P} \quad \proofcheck{e_2}{Q}}{\proofcheck{\andintro{e_1}{e_2}}{\And{P}{Q}}}$
+
+  \vspace{2em}
+
+  $\infrule[And-Intro-Infer]{\proofinfer{e_1}{P} \quad \proofinfer{e_2}{Q}}{\proofinfer{\andintro{e_1}{e_2}}{\And{P}{Q}}}$
 
   \vspace{2em}
 
@@ -437,14 +441,26 @@ $n ::=$ \\
 
 \end{frame}
 
-\begin{frame}{Disjunction -- checking}
+\begin{frame}{Biconditional -- inference}
 
 \begin{center}
-  $\infrule[Or-Intro-L]{\prop{\Gamma}{Q} \quad \proofcheck{e}{P}}{\proofcheck{\orintrol{Q}{e}}{\Or{P}{Q}}}$
+  $\infrule[Iff-Intro-Infer-L]{\proofinfer{e_1}{\Impl{P}{Q}} \quad \proofcheck{e_2}{\Impl{Q}{P}}}{\proofinfer{\iffintro{e_1}{e_2}}{\Iff{P}{Q}}}$
 
   \vspace{2em}
 
-  $\infrule[Or-Intro-R]{\prop{\Gamma}{P} \quad \proofcheck{e}{Q}}{\proofcheck{\orintror{P}{e}}{\Or{P}{Q}}}$
+  $\infrule[Iff-Intro-Infer-R]{\proofinfer{e_2}{\Impl{Q}{P}} \quad \proofcheck{e_1}{\Impl{P}{Q}}}{\proofinfer{\iffintro{e_1}{e_2}}{\Iff{P}{Q}}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Disjunction -- checking}
+
+\begin{center}
+  $\infrule[Or-Intro-L]{\proofcheck{e}{P}}{\proofcheck{\orintrol{Q}{e}}{\Or{P}{Q}}}$
+
+  \vspace{2em}
+
+  $\infrule[Or-Intro-R]{\proofcheck{e}{Q}}{\proofcheck{\orintror{P}{e}}{\Or{P}{Q}}}$
 
   \vspace{2em}
 
@@ -493,6 +509,8 @@ $n ::=$ \\
 
 \end{frame}
 
+\newcommand{\allintroannot}[3]{\allintro{#1 : #2}{#3}}
+
 \begin{frame}{Universal quantifier}
 
 \begin{center}
@@ -500,7 +518,7 @@ $n ::=$ \\
 
   \vspace{2em}
 
-  $\infrule[Forall-Intro-Infer]{\fullproofinfer{\extend{\Gamma}{x}{A}}{e}{P}}{\proofinfer{\allintro{x : A}{e}}{\All{x}{A}{P}}}$
+  $\infrule[Forall-Intro-Infer]{\fullproofinfer{\extend{\Gamma}{x}{A}}{e}{P}}{\proofinfer{\allintroannot{x}{A}{e}}{\All{x}{A}{P}}}$
 
   \vspace{2em}
 
@@ -516,11 +534,11 @@ $n ::=$ \\
 
   \vspace{2em}
 
-  $\infrule[Exists-Elim]{\prop{\Gamma}{R} \quad \proofinfer{e_1}{\Ex{x}{A}{P}} \quad \fullproofinfer{\assume{\extend{\Gamma}{y}{A}}{\subst{P}{x}{y}}}{e_2}{R}}{\proofinfer{\exelim{y}{e_1}{e_2}}{R}}$
+  $\infrule[Exists-Elim]{\proofinfer{e_1}{\Ex{x}{A}{P}} \quad \fullproofinfer{\assume{\extend{\Gamma}{y}{A}}{\subst{P}{x}{y}}}{e_2}{R}}{\proofinfer{\exelim{y}{e_1}{e_2}}{R}}$
 
   \vspace{2em}
 
-  $\infrule[Exists-Elim-Check]{\prop{\Gamma}{R} \quad \proofinfer{e_1}{\Ex{x}{A}{P}} \quad \fullproofcheck{\assume{\extend{\Gamma}{y}{A}}{\subst{P}{x}{y}}}{e_2}{R}}{\proofcheck{\exelim{y}{e_1}{e_2}}{R}}$
+  $\infrule[Exists-Elim-Check]{\proofinfer{e_1}{\Ex{x}{A}{P}} \quad \fullproofcheck{\assume{\extend{\Gamma}{y}{A}}{\subst{P}{x}{y}}}{e_2}{R}}{\proofcheck{\exelim{y}{e_1}{e_2}}{R}}$
 \end{center}
 
 \end{frame}
@@ -549,10 +567,12 @@ $n ::=$ \\
 
 \end{frame}
 
-\begin{frame}{Experimenting with $\refl{}$}
+\newcommand{\reflnaked}{\mathbf{refl}}
+
+\begin{frame}{Experimenting with $\reflnaked$}
 
 \begin{center}
-  $\infrule[Eq-Intro-Alt]{\checkcompeq{t_1}{t_2}{A}}{\proofcheck{\refl{}}{\Eq[A]{t_1}{t_2}}}$
+  $\infrule[Eq-Intro-Alt]{\checkcompeq{t_1}{t_2}{A}}{\proofcheck{\reflnaked}{\Eq[A]{t_1}{t_2}}}$
 \end{center}
 
 \end{frame}
