@@ -1,0 +1,113 @@
+// Basic kinds of objects: types, terms, propositions, proofs
+
+// Term declaration
+declare n : Nat
+
+// Term definition
+def answer : Nat := 42
+
+// Function definition (lambda)
+def id : Nat -> Nat := fun n : Nat => n
+
+// Function definition (short)
+def id (n : Nat) : Nat := n
+
+// Polymorphic function (should we overload forall?)
+def id : forall a. a -> a := fun x : a => x
+def id a (x : a) : a := x
+
+// Implicit arguments
+def id (x : a) : a := x
+
+def comp (f : a -> b) (g : b -> c) : a -> c :=
+  fun x => g (f x)
+
+// Nameless axiom
+axiom 2 + 2 = 42
+
+// Named axiom
+axiom why-not-lol := False
+
+// Theorem (tactic style)
+theorem comp_id_l :=
+  forall a b (f : a -> b). comp f id = f
+proof
+  pick-any a b f
+  funext x
+  refl
+qed
+
+// Theorem (term style, nameless)
+theorem forall a b (f : a -> b). comp f id = f :=
+  pick-any a b f in funext x in refl
+
+// Type declaration
+type T
+
+// Type definition (synonym)
+type NatToNat := Nat -> Nat
+
+// Type definition (record)
+type Point := {x of Nat; y of Nat}
+
+// Type definition (variant)
+type Bool :=
+| no
+| yes
+
+// Type definition (polymorphic variant)
+type Option a :=
+| no
+| yes of a
+
+type Sum a b :=
+| no of a
+| yes of b
+
+// Type definition (inductive)
+type List a :=
+| nil
+| cons of {hd : a; tl : List a}
+
+// Relation declaration
+relation R : Nat -> Nat -> Prop
+
+// Alternative version
+proposition R (n m : Nat)
+
+// Polymorphic
+proposition R a (x y : a)
+
+// Proposition definition
+proposition and P Q := P /\ Q
+proposition or P Q := P \/ Q
+proposition impl P Q := P => Q
+proposition iff P Q := P <=> Q
+proposition not P := ~ P
+
+// Recursive functions
+def map a b (f : a -> b) (l : List a) : List b :=
+| nil => nil
+| cons h t => cons (f h) (map f t)
+
+def app a (l1 l2 : List a) : List a :=
+| nil, _ => l2
+| cons h t , _ => cons h (app t l2)
+
+// Proof by induction
+theorem map_id :=
+  forall a (l : List a). map id l = l
+proof
+  pick-any a l
+  induction l
+  | nil => refl
+  | cons => rewrite (map id t = t) in refl
+qed
+
+theorem map_id : forall a l. map id l = l :=
+  pick-any a l =>
+  induction l
+  | nil => refl
+  | cons => rewrite (map id t = t) in refl
+
+
