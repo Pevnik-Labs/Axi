@@ -1,0 +1,154 @@
+
+type a
+declaration P Q R : Prop
+declaration S T : a -> a -> Prop
+
+theorem trivial : True :=
+  true
+
+theorem also-trivial : False --> P :=
+  assume False in exfalso False
+
+theorem also-trivial' : False --> P :=
+  assume (x = False) in exfalso x
+
+theorem also-trivial'' : False --> P :=
+  assume x in exfalso x
+
+theorem impl-refl : P --> P :=
+  assume P in P
+
+theorem impl-elim : (P --> Q) --> P --> Q :=
+  assume (P --> Q) P in modus-ponens (P --> Q) P
+
+theorem impl-elim' : (P --> Q) --> P --> Q :=
+  assume (P --> Q) P
+  modus-ponens (P --> Q) P
+
+theorem impl-elim : (P --> Q) --> P --> Q :=
+  assume (f = P --> Q) (x = P)
+  modus-ponens f x
+
+theorem not-intro : (P --> False) --> ~ P :=
+  assume (np = P --> False)
+  suppose-absurd P
+  modus-ponens np p
+
+theorem not-elim : ~ P --> P --> False :=
+  assume (~ P) P
+  absurd (~ P) P
+
+theorem and-intro : P --> Q --> P /\ Q :=
+  assume P Q
+  both P Q
+
+theorem and-elim-l : P /\ Q --> P :=
+  assume (P /\ Q)
+  left-and (P /\ Q)
+
+theorem iff-intro : (P --> Q) --> (Q --> P) --> P <--> Q :=
+  assume (P --> Q) (Q --> P)
+  equivalence (P --> Q) (Q --> P)
+
+theorem iff-elim-l : (P <--> Q) --> (P --> Q) :=
+  assume (P <--> Q)
+  left-iff (P <--> Q)
+
+theorem or-intro-l : P --> P \/ Q :=
+  assume P
+  left-either Q P
+
+theorem or-elim : (P --> R) --> (Q --> R) --> P \/ Q --> R :=
+  assume (P --> R) (Q --> R) (P \/ Q)
+  constructive-dilemma (P \/ Q) (P --> R) (Q --> R)
+
+theorem dn : ~ ~ P --> P :=
+  assume (~ ~ P)
+  double-negation (~ ~ P)
+
+// When the last argument is omitted, the rest of the block is treated as this argument.
+// This is our way of turning proofterms into tactics.
+theorem lem : P \/ ~ P :=
+  double-negation
+  suppose-absurd (x = ~ (P \/ ~ P))
+  modus-ponens x
+  right-either P
+  suppose-absurd P
+  modus-ponens x
+  left-either (~ P) P
+
+// Some exercises.
+
+theorem impl-trans : (P --> Q) --> (Q --> R) --> (P --> R) :=
+  assume (P --> Q) (Q --> R) P
+  modus-ponens (Q --> R)
+  modus-ponens (P --> Q)
+  P
+
+theorem impl-permute (P --> Q --> R) Q P : R :=
+  modus-ponens (P --> Q --> R) P Q
+
+theorem impl-dist : (P --> Q --> R) --> ((P --> Q) --> (P --> R)) :=
+  assume (pqr = P --> Q --> R) (pq = P --> Q) P
+  modus-ponens pqr P
+  modus-ponens pq
+  P
+
+theorem curry : (P /\ Q --> R) --> P --> Q --> R :=
+  assume (P /\ Q --> R) P Q
+  modus-ponens (P /\ Q --> R)
+  both P Q
+
+theorem uncurry : (P --> Q --> R) --> (P /\ Q --> R) :=
+  assume (P --> Q --> R) (P /\ Q)
+  modus-ponens (P --> Q --> R) (left-and (P /\ Q)) (right-and (P /\ Q))
+
+// When we want to omit more than one argument, we need to explicitly name the holes.
+theorem uncurry' : (P --> Q --> R) --> (P /\ Q --> R) :=
+  assume (P --> Q --> R) (P /\ Q)
+  modus-ponens (P --> Q --> R) ?l ?r
+  ?l: left-and (P /\ Q)
+  ?r: right-and (P /\ Q)
+
+// The subgoals' proofs don't need to be inline, they are ordinary proofs.
+theorem uncurry'' : (P --> Q --> R) --> (P /\ Q --> R) :=
+  assume (P --> Q --> R) (P /\ Q)
+  modus-ponens (P --> Q --> R) ?l ?r
+  ?l:
+    left-and
+    P /\ Q
+  ?r:
+    right-and
+    P /\ Q
+
+theorem or-comm : P \/ Q --> Q \/ P :=
+  assume (P \/ Q)
+  constructive-dilemma (P \/ Q) ?l ?r
+  ?l: right-either Q P
+  ?r: left-either P Q
+
+/* Coq version:
+Lemma or_comm_impl : P \/ Q -> Q \/ P.
+Proof.
+  intro.
+  destruct H as [p | q].
+    right. assumption.
+    left. assumption.
+Qed.
+*/
+
+theorem and-comm : P /\ Q --> Q /\ P :=
+  assume (P /\ Q)
+  both ?q ?p
+  ?q: right-and (P /\ Q)
+  ?p: left-and (P /\ Q)
+
+// Patterns in assume.
+theorem and-comm : P /\ Q --> Q /\ P :=
+  assume (both P Q)
+  both Q P
+
+theorem and-assoc : (P /\ Q) /\ R --> P /\ (Q /\ R) :=
+  assume (both (both P Q) R)
+  both P (both Q R)
+
