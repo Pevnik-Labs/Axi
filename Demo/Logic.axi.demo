@@ -3,71 +3,177 @@ type a
 declaration P Q R : Prop
 declaration S T : a -> a -> Prop
 
+// The syntax of propositions is as follows:
+// P, Q ::= True | False | P --> Q | P /\ Q | P \/ Q | P <--> Q
+
+// True introduction. There's no True elimination, because it's useless.
 theorem trivial : True :=
   true
 
-theorem also-trivial : False --> P :=
-  assume False in exfalso False
-
-theorem also-trivial' : False --> P :=
-  assume (x = False) in exfalso x
-
-theorem also-trivial'' : False --> P :=
-  assume x in exfalso x
-
+// Implication is written `-->`. The implication `P --> Q` is proved using
+// `assume P in q`, where `q` is a proof of `Q`.
+// Note that we claim the truth of P by writing just `P`, as in DPLs/Athena
+// and contrary to type theoretical systems, where we would refer to
+// something like `p : P`, a proof of P, instead.
+// Note that theorem names can contain '-'.
 theorem impl-refl : P --> P :=
   assume P in P
 
-theorem impl-elim : (P --> Q) --> P --> Q :=
-  assume (P --> Q) P in modus-ponens (P --> Q) P
+// The above proof was written in proofterm style, like in DPLs/Athena,
+// but we can also write proofs in tactic style, like in Coq or Lean.
+// Moreover, the tactic style directly corresponds to the proofterm style,
+// unlike in Coq or Lean. The mechanism is as follows: if we have a proofterm
+// that takes one argument, like `proof arg`, we can instead write it as a block
+// ```
+// proof
+// arg
+// ```
+// For proofterms that bind variables, we can omit the `in`, as in the
+// example below. Note that the proofterm doesn't need to be unary - it
+// just needs to be applied enough so that only the last argument is missing.
+// Also note that theorem names can contain an apostrophe.
+theorem impl-first : P --> Q --> P :=
+  assume P
+  assume Q
+  P
 
-theorem impl-elim' : (P --> Q) --> P --> Q :=
+// When two or more `assume`s follow each other, we can condense them into one.
+theorem assume-chaining : P --> Q --> P :=
+  assume P Q
+  P
+
+// When we need to introduce an assumption that won't be used, we can discard
+// it by writing an underscore.
+theorem assume-discard : P --> P --> P :=
+  assume P _
+  P
+
+// We can name assumptions inline with the syntax `assume (name = prop)`.
+theorem assume-naming : P --> Q --> P :=
+  assume (x = P) (y = Q)
+  x
+
+// If the propositions are really long to write down, we can omit them and
+// mention just their new names.
+theorem assume-only-naming : P --> Q --> P :=
+  assume (x = _) (y = _)
+  x
+
+// If we name all assumptions without writing them out in full, the syntax
+// can get a bit shorter.
+theorem assume-only-naming : P --> Q --> P :=
+  assume (x y = _)
+  x
+
+// Implication elimination is `modus-ponens`.
+theorem impl-elim : (P --> Q) --> P --> Q :=
   assume (P --> Q) P
   modus-ponens (P --> Q) P
 
-theorem impl-elim : (P --> Q) --> P --> Q :=
-  assume (f = P --> Q) (x = P)
-  modus-ponens f x
+// False elimination. There's no `False` introduction.
+theorem also-trivial : False --> P :=
+  assume False
+  exfalso False
 
+// Negation introduction is `suppose-absurd P in f`,
+// where `f` is a proof of `False`.
 theorem not-intro : (P --> False) --> ~ P :=
   assume (np = P --> False)
   suppose-absurd P
-  modus-ponens np p
+  modus-ponens np P
 
-theorem not-elim : ~ P --> P --> False :=
+// Negation elimination is `absurd (~ P) P`.
+theorem not-elim : ~ P --> (P --> False) :=
   assume (~ P) P
   absurd (~ P) P
 
+// Conjunction introduction is `both`.
 theorem and-intro : P --> Q --> P /\ Q :=
   assume P Q
   both P Q
 
+// Proofterms that are missing more than one argument can also be turned into
+// tactics, but the syntax is a bit different: we need to enclose each tactic
+// block into curly braces.
+theorem tactics-two-args-example : P --> Q --> P /\ Q :=
+  assume P Q
+  both
+  {
+    P
+  }
+  {
+    Q
+  }
+
+// Alternatively, we can use "-" as separators. These are called "bullets",
+// following Coq naming.
+theorem bullets-example : P --> Q --> P /\ Q :=
+  assume P Q
+  both
+  - P
+  - Q
+
+// Missing arguments can also be named and then they are provided as blocks
+// labeled with the corresponding names.
+theorem named-blocks-example : P --> Q --> P /\ Q :=
+  assume P Q
+  both ?p ?q
+  ?p: P
+  ?q: Q
+
+// I'm not yet sure what the best syntax for bullets is.
+theorem alternative-named-bullets-example : P --> Q --> P /\ Q :=
+  assume P Q
+  both ?p ?q
+  case ?p
+    P
+  case ?q
+    Q
+
+// Conjunction elimination is `left-and` and `right-and`.
 theorem and-elim-l : P /\ Q --> P :=
   assume (P /\ Q)
   left-and (P /\ Q)
 
+// We can also perform conjunction elimination with pattern matching
+// which is fused with `assume`.
+theorem assume-pattern-matching : P /\ Q --> P :=
+  assume (both P Q)
+  P
+
+// Biconditional introduction is `equivalence`.
 theorem iff-intro : (P --> Q) --> (Q --> P) --> P <--> Q :=
   assume (P --> Q) (Q --> P)
   equivalence (P --> Q) (Q --> P)
 
+// Biconditional elimination is `left-iff` and `right-iff`.
 theorem iff-elim-l : (P <--> Q) --> (P --> Q) :=
   assume (P <--> Q)
   left-iff (P <--> Q)
 
+// Similarly to conjunction, bicondtionals can be eliminated by pattern
+// matching fused with `assume`.
+theorem iff-elim-r-pattern-matching : (P <--> Q) --> (Q --> P) :=
+  assume (equivalence (P --> Q) (Q --> P))
+  Q --> P
+
+// Disjunction introduction is `left-either`.
 theorem or-intro-l : P --> P \/ Q :=
   assume P
-  left-either Q P
+  left-either P
 
+// Disjunction elimination is `constructive-dilemma`.
 theorem or-elim : (P --> R) --> (Q --> R) --> P \/ Q --> R :=
   assume (P --> R) (Q --> R) (P \/ Q)
   constructive-dilemma (P \/ Q) (P --> R) (Q --> R)
 
+// Double negation elimination is `double-negation`.
 theorem dn : ~ ~ P --> P :=
   assume (~ ~ P)
   double-negation (~ ~ P)
 
-// When the last argument is omitted, the rest of the block is treated as this argument.
-// This is our way of turning proofterms into tactics.
+// Some exercises.
+
 theorem lem : P \/ ~ P :=
   double-negation
   suppose-absurd (x = ~ (P \/ ~ P))
@@ -77,7 +183,6 @@ theorem lem : P \/ ~ P :=
   modus-ponens x
   left-either (~ P) P
 
-// Some exercises.
 
 theorem impl-trans : (P --> Q) --> (Q --> R) --> (P --> R) :=
   assume (P --> Q) (Q --> R) P
@@ -151,4 +256,3 @@ theorem and-comm : P /\ Q --> Q /\ P :=
 theorem and-assoc : (P /\ Q) /\ R --> P /\ (Q /\ R) :=
   assume (both (both P Q) R)
   both P (both Q R)
-
