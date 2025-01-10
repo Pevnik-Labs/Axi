@@ -1,14 +1,13 @@
-
-type a
-declaration P Q R : Prop
-declaration S T : a -> a -> Prop
-
 // The syntax of propositions is as follows:
 // P, Q ::= True | False | P --> Q | P /\ Q | P \/ Q | P <--> Q
 
-// Implication is written `-->`. The implication `P --> Q` is proved using
-// `assume P in q`, where `q` is a proof of `Q`.
-// Note that we claim the truth of P by writing just `P`, as in DPLs/Athena
+// We declare some propositions that we will use in the rest of this file.
+declaration P Q R : Prop
+
+// Implication is written `-->`.
+// The implication `P --> Q` is proved using `assume P in q`,
+// where `q` is a proof of `Q`.
+// Note that we claim the truth of `P` by writing just `P`, as in DPLs/Athena
 // and contrary to type theoretical systems, where we would refer to
 // something like `p : P`, a proof of P, instead.
 // Note that theorem names can contain '-'.
@@ -27,8 +26,7 @@ theorem impl-refl : P --> P :=
 // For proofterms that bind variables, we can omit the `in`, as in the
 // example below. Note that the proofterm doesn't need to be unary - it
 // just needs to be applied enough so that only the last argument is missing.
-// Also note that theorem names can contain an apostrophe.
-theorem impl-first : P --> Q --> P :=
+theorem weakening : P --> Q --> P :=
   assume P
   assume Q
   P
@@ -61,6 +59,21 @@ theorem assume-only-naming-short : P --> Q --> P :=
   assume (x y = _)
   x
 
+// It would be optimal if we could completely avoid the `= _` part, but I'm not
+// sure if that will be possible.
+theorem assume-only-naming-shortest : P --> Q --> :=
+  assume x y
+  x
+
+// If we want to avoid writing `assume` alltogether, we can put the premises
+// before the final colon.
+theorem no-assume P Q : P :=
+  P
+
+// When premises are to the left, we can still name them.
+theorem no-assume-naming (x = P) (y = Q) : P :=
+  x
+
 // If we don't want to bother with recalling assumption names, we can say
 // `assumption` instead.
 theorem assumption-example : P --> Q --> P :=
@@ -71,6 +84,12 @@ theorem assumption-example : P --> Q --> P :=
 theorem impl-elim : (P --> Q) --> P --> Q :=
   assume (P --> Q) P
   modus-ponens (P --> Q) P
+
+// We can also use `modus-ponens` with more arguments
+// when the implication is longer.
+theorem modus-ponens-many-args : (P --> Q --> R) --> (Q --> P --> R) :=
+  assume (P --> Q --> R) Q P
+  modus-ponens (P --> Q --> R) Q P
 
 // Just like for `assume`, `modus-ponens` can also be written in tactic style.
 theorem impl-trans : (P --> Q) --> (Q --> R) --> (P --> R) :=
@@ -86,28 +105,41 @@ theorem modus-ponens-chaining : (P --> Q) --> (Q --> R) --> (P --> R) :=
   modus-ponens (Q --> R), (P --> Q)
   P
 
-// True introduction. There's no True elimination, because it's useless.
+// We can chain many-argument `modus-ponens` just like the ordinary one.
+theorem impl-dist : (P --> Q --> R) --> ((P --> Q) --> (P --> R)) :=
+  assume (pqr = P --> Q --> R) (pq = P --> Q) P
+  modus-ponens pqr P, pq
+  P
+
+// The true proposition is written `True`.
+// We can prove `True` with `true`.
+// There's no `True` elimination, because it's useless.
 theorem trivial : True :=
   true
 
-// False elimination. There's no `False` introduction.
+// The false proposition is written `False`.
+// `False` elimination is `exfalso`.
+// There's no `False` introduction.
 theorem also-trivial : False --> P :=
   assume False
   exfalso False
 
-// Negation introduction is `suppose-absurd P in f`,
-// where `f` is a proof of `False`.
-theorem not-intro : (P --> False) --> ~ P :=
-  assume (np = P --> False)
-  suppose-absurd P
-  modus-ponens np P
+// The negation of `P` is written `~ P`.
+// `~ P` is not a primitive, but rather an abbreviation of `P --> False`.
+// Negation introduction is therefore `assume`, just as for implication.
+theorem not-false : ~ False :=
+  assume False
+  False
 
-// Negation elimination is `absurd (~ P) P`.
-theorem not-elim : ~ P --> (P --> False) :=
+// Negation elimination is `modus-ponens`.
+// The below theorem, called `absurd`, may also be used as an eliminator for
+// negation for the purpose of readability.
+theorem absurd : ~ P --> P --> False :=
   assume (~ P) P
-  absurd (~ P) P
+  modus-ponens (~ P) P
 
-// Conjunction introduction is `both`.
+// The conjunction of `P` and ~q~ is written `P /\ Q`.
+// Conjunction introduction is written `both`.
 theorem and-intro : P --> Q --> P /\ Q :=
   assume P Q
   both P Q
@@ -150,13 +182,12 @@ theorem alternative-named-bullets-example : P --> Q --> P /\ Q :=
   case ?q
     Q
 
-// Conjunction elimination is `left-and` and `right-and`.
-theorem and-elim-l : P /\ Q --> P :=
+// Conjunction elimination is `and-elim-l` and `and-elim-r`.
+theorem conjunction-elimination-example : P /\ Q --> P :=
   assume (P /\ Q)
-  left-and (P /\ Q)
+  and-elim-l (P /\ Q)
 
-// We can also perform conjunction elimination with pattern matching
-// which is fused with `assume`.
+// We can also eliminate conjunction by pattern matching directly in `assume`.
 theorem assume-pattern-matching : P /\ Q --> P :=
   assume (both P Q)
   P
@@ -168,85 +199,91 @@ theorem and-assoc : (P /\ Q) /\ R --> P /\ (Q /\ R) :=
   both P
   both Q R
 
-// Biconditional introduction is `equivalence`.
+// The biconditional is written `P <--> Q`.
+// `P <--> Q` is not a primitive, but an abbreviation of `(P --> Q) /\ (Q --> P)`.
+// Therefore, biconditional introduction is `both`, just as for conjunction.
 theorem iff-intro : (P --> Q) --> (Q --> P) --> P <--> Q :=
   assume (P --> Q) (Q --> P)
-  equivalence (P --> Q) (Q --> P)
+  both (P --> Q) (Q --> P)
 
-// Biconditional elimination is `left-iff` and `right-iff`.
+// Biconditional elimination is `and-elim-l` and `and-elim-r`, just as for
+// conjunction.
 theorem iff-elim-l : (P <--> Q) --> (P --> Q) :=
   assume (P <--> Q)
-  left-iff (P <--> Q)
+  and-elim-l (P <--> Q)
 
 // Similarly to conjunction, biconditionals can be eliminated by pattern
-// matching fused with `assume`.
+// matching directly in `assume`.
 theorem iff-elim-r-pattern-matching : (P <--> Q) --> (Q --> P) :=
-  assume (equivalence (P --> Q) (Q --> P))
+  assume (both (P --> Q) (Q --> P))
   Q --> P
 
-// Disjunction introduction is `left-either`.
+// The disjunction of `P` and `Q` is written `P \/ Q`.
+// Disjunction introduction is written `or-left`.
 theorem or-intro-l : P --> P \/ Q :=
   assume P
-  left-either P
+  or-left P
 
-// Disjunction elimination is `constructive-dilemma`.
-theorem or-elim : (P --> R) --> (Q --> R) --> P \/ Q --> R :=
-  assume (P --> R) (Q --> R) (P \/ Q)
-  constructive-dilemma (P \/ Q) (P --> R) (Q --> R)
+// Disjunction elimination is written `or-elim`.
+theorem or-idempotent : P \/ P --> P :=
+  assume (P \/ P)
+  or-elim (P \/ P) (assume P in P) (assume P in P)
 
-// Note that similarly to `both`, we can use `constructive-dilemma` partially
+// Note: we don't have to prove `P --> P` inline with `assume P in P`,
+// because we can use `impl-refl`, a theorem we already proved.
+// Also note that theorem names can contain an apostrophe.
+theorem or-idempotent' : P \/ P --> P :=
+  assume (P \/ P)
+  or-elim (P \/ P) impl-refl impl-refl
+
+// Note that similarly to `both`, we can use `or-elim` partially
 // applied in tactic style.
-theorem or-comm : P \/ Q --> Q \/ P :=
+theorem or-elim-tactic-style : P \/ Q --> Q \/ P :=
   assume (P \/ Q)
-  constructive-dilemma (P \/ Q)
+  or-elim (P \/ Q)
   {
     assume P
-    right-either P
+    or-right P
   }
   {
     assume Q
-    left-either Q
+    or-left Q
   }
 
-// Double negation elimination is `double-negation`.
+// The built-in way of classical reasoning is double negation elimination,
+// which is written `double-negation`.
 theorem dn : ~ ~ P --> P :=
   assume (~ ~ P)
   double-negation (~ ~ P)
 
-// Having seen the introduction and elimination rules, let's now take a look at
-// proofterms that are unrelated to the connectives.
-theorem let-example : (P <--> Q) --> (~ P <--> ~ Q) :=
-  follows (contraposition = forall P Q, (P --> Q) --> (~ Q --> ~ P)) from
-    assume (P --> Q) (~ Q)
-    suppose-absurd P
-    absurd (~ Q)
-    modus-ponens (P --> Q)
-    assumption
-  assume (equivalence (P --> Q) (Q --> P))
-  equivalence
-  - modus-ponens contraposition (Q --> P)
-  - modus-ponens contraposition (P --> Q)
+// We can prove a lemma inline with the construct `follows P from p`,
+// where `P` is a proposition and `p` is its proof.
+// Formally, this is called a 'cut'.
+theorem cut-example : P \/ P --> P :=
+  assume (P \/ P)
+  follows (P --> P) from
+    assume P
+    P
+  or-elim (P \/ P) (P --> P) (P --> P)
+
+// We can also name the lemma.
+theorem named-cut-example : P \/ P --> P :=
+  assume (P \/ P)
+  follows (lemma = P --> P) from
+    assume P
+    P
+  or-elim (P \/ P) lemma lemma
 
 // Some exercises.
 
 theorem lem : P \/ ~ P :=
   double-negation
-  suppose-absurd (x = ~ (P \/ ~ P))
-  modus-ponens x
-  right-either P
-  suppose-absurd P
-  modus-ponens x
-  left-either (~ P) P
-
-
-
-theorem impl-permute (P --> Q --> R) Q P : R :=
-  modus-ponens (P --> Q --> R) P Q
-
-theorem impl-dist : (P --> Q --> R) --> ((P --> Q) --> (P --> R)) :=
-  assume (pqr = P --> Q --> R) (pq = P --> Q) P
-  modus-ponens pqr P
-  modus-ponens pq
+  assume (not-lem = ~ (P \/ ~ P))
+  modus-ponens not-lem
+  or-right
+  assume P
+  modus-ponens not-lem
+  or-left
   P
 
 theorem curry : (P /\ Q --> R) --> P --> Q --> R :=
@@ -255,32 +292,18 @@ theorem curry : (P /\ Q --> R) --> P --> Q --> R :=
   both P Q
 
 theorem uncurry : (P --> Q --> R) --> (P /\ Q --> R) :=
-  assume (P --> Q --> R) (P /\ Q)
-  modus-ponens (P --> Q --> R) (left-and (P /\ Q)) (right-and (P /\ Q))
-
-// When we want to omit more than one argument, we need to explicitly name the holes.
-theorem uncurry' : (P --> Q --> R) --> (P /\ Q --> R) :=
-  assume (P --> Q --> R) (P /\ Q)
-  modus-ponens (P --> Q --> R) ?l ?r
-  ?l: left-and (P /\ Q)
-  ?r: right-and (P /\ Q)
-
-// The subgoals' proofs don't need to be inline, they are ordinary proofs.
-theorem uncurry'' : (P --> Q --> R) --> (P /\ Q --> R) :=
-  assume (P --> Q --> R) (P /\ Q)
-  modus-ponens (P --> Q --> R) ?l ?r
-  ?l:
-    left-and
-    P /\ Q
-  ?r:
-    right-and
-    P /\ Q
+  assume (P --> Q --> R) (both P Q)
+  modus-ponens (P --> Q --> R) P Q
 
 theorem or-comm : P \/ Q --> Q \/ P :=
   assume (P \/ Q)
-  constructive-dilemma (P \/ Q) ?l ?r
-  ?l: right-either Q P
-  ?r: left-either P Q
+  or-elim (P \/ Q) ?l ?r
+  case ?l
+    assume P
+    or-right P
+  case ?r
+    assume Q
+    or-left Q
 
 /* Coq version:
 Lemma or_comm_impl : P \/ Q -> Q \/ P.
@@ -293,65 +316,86 @@ Qed.
 */
 
 theorem and-comm : P /\ Q --> Q /\ P :=
-  assume (P /\ Q)
-  both ?q ?p
-  ?q: right-and (P /\ Q)
-  ?p: left-and (P /\ Q)
-
-// Patterns in assume.
-theorem and-comm : P /\ Q --> Q /\ P :=
   assume (both P Q)
   both Q P
 
-theorem and-assoc : (P /\ Q) /\ R --> P /\ (Q /\ R) :=
-  assume (both (both P Q) R)
-  both P (both Q R)
-
 theorem impl-or-neg : ~ P \/ Q --> (P --> Q) :=
   assume (~ P \/ Q) P
-  constructive-dilemma (~ P \/ Q)
-  - absurd (~ P) P
+  or-elim (~ P \/ Q)
+  - modus-ponens (~ P) P
   - assumption
 
 theorem noncontradiction : ~ (P /\ ~ P) :=
-  suppose-absurd (both P (~ P))
-  absurd (~ P) P
-
-theorem iff-not : (P <--> Q) --> (~ P <--> ~ Q) :=
-  assume (equivalence (P --> Q) (Q --> P))
-  equivalence
-  {
-    assume (~ P)
-    suppose-absurd Q
-    absurd (~ P)
-    modus-ponens (Q --> P)
-    assumption
-  }
-  {
-    assume (~ Q)
-    suppose-absurd P
-    absurd (~ Q)
-    modus-ponens (P --> Q)
-    assumption
-  }
+  assume (both P (~ P))
+  modus-ponens (~ P) P
 
 theorem contraposition : (P --> Q) --> (~ Q --> ~ P) :=
   assume (P --> Q) (~ Q)
-  suppose-absurd P
-  absurd (~ Q)
+  assume P
+  modus-ponens (~ Q)
   modus-ponens (P --> Q)
   assumption
 
 theorem iff-not : (P <--> Q) --> (~ P <--> ~ Q) :=
-  assume (equivalence (P --> Q) (Q --> P))
-  equivalence
-  { // ~ P --> ~ Q
-    modus-ponens contraposition (Q --> P)
-  }
-  {
-    modus-ponens contraposition (P --> Q)
-  }
+  assume (both (P --> Q) (Q --> P))
+  both
+  - modus-ponens contraposition (Q --> P)
+  - modus-ponens contraposition (P --> Q)
 
 theorem iff-elim : ((P --> Q) --> (Q --> P) --> R) --> ((P <--> Q) --> R) :=
-  assume (f = _) (equivalence (P --> Q) (Q --> P))
+  assume (f = _) (both (P --> Q) (Q --> P))
   modus-ponens f (P --> Q) (Q --> P)
+
+theorem resolution : (P \/ Q) /\ (~ P \/ R) --> Q \/ R :=
+  assume (both (P \/ Q) (~ P \/ R))
+  or-elim (P \/ Q) ?p ?q
+  case ?q
+    assume Q
+    or-left Q
+  case ?p
+    or-elim (~ P \/ R)
+    - assume (~ P)
+      absurd (~ P) P
+    - assume R
+      or-right R
+
+theorem resolution' : (P \/ Q) /\ (~ P \/ R) --> Q \/ R :=
+  assume (both (P \/ Q) (~ P \/ R))
+  or-elim (P \/ Q) (assume P in ?p) (assume Q in ?q)
+  case ?q
+    or-left Q
+  case ?p
+    or-elim (~ P \/ R)
+    - assume (~ P)
+      absurd (~ P) P
+    - assume R
+      or-right R
+
+/* Coq version:
+Proof.
+  intros [pq npr].
+  destruct pq as [p | q]; cycle 1.
+  - left.
+    assumption.
+  - destruct npr as [np | r].
+    + contradiction.
+    + right.
+      assumption.
+Qed.
+/*
+
+theorem funny-contraposition : (P --> ~ Q) --> (Q --> ~ P) :=
+  assume (P --> ~ Q) Q P
+  modus-ponens (P --> ~ Q) P Q
+
+theorem not_or : ~ (P \/ Q) --> ~ P /\ ~ Q :=
+  assume (npq = ~ (P \/ Q))
+  both
+  - assume P
+    modus-ponens npq
+    or-left
+    P
+  - assume Q
+    modus-ponens npq
+    or-right
+    Q
