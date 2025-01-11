@@ -138,7 +138,7 @@ theorem absurd : ~ P --> P --> False :=
   assume (~ P) P
   modus-ponens (~ P) P
 
-// The conjunction of `P` and ~q~ is written `P /\ Q`.
+// The conjunction of `P` and `Q` is written `P /\ Q`.
 // Conjunction introduction is written `both`.
 theorem and-intro : P --> Q --> P /\ Q :=
   assume P Q
@@ -250,14 +250,19 @@ theorem or-elim-tactic-style : P \/ Q --> Q \/ P :=
     or-left Q
   }
 
-// The built-in way of classical reasoning is double negation elimination,
-// which is written `double-negation`.
-theorem dn : ~ ~ P --> P :=
+// The built-in way of classical reasoning is `by-contradiction`.
+// ~ P |- e : False
+// ----------------
+// |- by-contradiction e : P
+// We can use `by-contradiction` to prove double negation elimination.
+theorem double-negation : ~ ~ P --> P :=
   assume (~ ~ P)
-  double-negation (~ ~ P)
+  by-contradiction
+  modus-ponens (~ ~ P) (~ P)
 
-// We can prove a lemma inline with the construct `follows P from p`,
-// where `P` is a proposition and `p` is its proof.
+// We can prove a lemma inline with the construct `follows P from p in q`,
+// where `P` is a proposition, `p` is its proof and `q` is the proof of
+// the main theorem.
 // Formally, this is called a 'cut'.
 theorem cut-example : P \/ P --> P :=
   assume (P \/ P)
@@ -330,10 +335,8 @@ theorem noncontradiction : ~ (P /\ ~ P) :=
   modus-ponens (~ P) P
 
 theorem contraposition : (P --> Q) --> (~ Q --> ~ P) :=
-  assume (P --> Q) (~ Q)
-  assume P
-  modus-ponens (~ Q)
-  modus-ponens (P --> Q)
+  assume (P --> Q) (~ Q) P
+  modus-ponens (~ Q), (P --> Q)
   assumption
 
 theorem iff-not : (P <--> Q) --> (~ P <--> ~ Q) :=
