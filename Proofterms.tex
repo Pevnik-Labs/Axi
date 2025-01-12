@@ -129,7 +129,7 @@ Again, the proof looks the same as the $\NDL$ one (DPL thesis, chapter 6, page 1
 \begin{frame}{Example -- proof about a program}
 
 Consider the following program: \\
-$\texttt{swap} : \Fun{\Sum{A}{B}}{\Sum{B}{A}} := \fun{x}{\case{x}{\fun{a}{\inr[a]}}{\fun{b}{\inl[b]}}}$ \\
+$\texttt{swap} : \Fun{\Sum{A}{B}}{\Sum{B}{A}} := \fun{x}{\case{x}{\fun{a}{\inr{a}}}{\fun{b}{\inl{b}}}}$ \\
 
 \vspace{2em}
 
@@ -140,7 +140,7 @@ Theorem: $\All{x}{\Sum{A}{B}}{\Eq[]{\swap{(\swap{x})}}{x}}$
 
 Proof: \\
 $\allintro{x}{}$ \\
-\quad $\sumind{x}{a}{\refl{(\inl[a])}}{b}{\refl{(\inr[b])}}$
+\quad $\sumind{x}{a}{\refl{(\inl{a})}}{b}{\refl{(\inr{b})}}$
 
 \vspace{2em}
 
@@ -609,12 +609,12 @@ $\funext{e}$ is in some sense ``higher-order'', i.e. $e$ is expected to be a pro
 \begin{frame}{Reasoning by cases (for sums)}
 
 \begin{center}
-  $\infrule{\prop{\extend{\Gamma}{x}{\Sum{A}{B}}}{P} \quad \typing{t}{\Sum{A}{B}} \quad \begin{array}{c} \fullproves{\extend{\Gamma}{a}{A}}{e_1}{\subst{P}{x}{\inl[a]}} \\ \fullproves{\extend{\Gamma}{b}{B}}{e_2}{\subst{P}{x}{\inr[b]}} \end{array}}{\proves{\sumind{t}{a}{e_1}{b}{e_2}}{\subst{P}{x}{t}}}$
+  $\infrule{\prop{\extend{\Gamma}{x}{\Sum{A}{B}}}{P} \quad \typing{t}{\Sum{A}{B}} \quad \begin{array}{c} \fullproves{\extend{\Gamma}{a}{A}}{e_1}{\subst{P}{x}{\inl{a}}} \\ \fullproves{\extend{\Gamma}{b}{B}}{e_2}{\subst{P}{x}{\inr{b}}} \end{array}}{\proves{\sumind{t}{a}{e_1}{b}{e_2}}{\subst{P}{x}{t}}}$
 \end{center}
 
 \vspace{2em}
 
-$\sumind{t}{a}{e_1}{b}{e_2}$ proves $P$ with $t$ substituted for $x$, provided that $t$ is of type $\Sum{A}{B}$, that $e_1$ proves $P$ with $\inl[a]$ substituted for $x$ in the context extended with $a : A$, and that $e_2$ proves $P$ with $\inr[b]$ substituted for $x$ in the context extended with $b : B$.
+$\sumind{t}{a}{e_1}{b}{e_2}$ proves $P$ with $t$ substituted for $x$, provided that $t$ is of type $\Sum{A}{B}$, that $e_1$ proves $P$ with $\inl{a}$ substituted for $x$ in the context extended with $a : A$, and that $e_2$ proves $P$ with $\inr{b}$ substituted for $x$ in the context extended with $b : B$.
 
 \end{frame}
 
