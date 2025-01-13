@@ -56,11 +56,29 @@ theorem eq-refl : forall x : A, x = x :=
   pick-any x
   refl
 
+
+// Leibniz equality.
+// foral x y : A, x = y <--> forall P, P x <--> P y
+
 theorem eq-sym : forall x y : A, x = y --> y = x :=
-  pick-any x y
-  assume (x = y)
-  rewrite (x = y)
+  pick-any x y             // x y : A |- x = y --> y = x
+  assume (x = y)           // x y : A, x = y |- y = x
+  rewrite (x = y)          // x y : A, x = y |- x = x
   refl
+
+
+//  conclude (forall x y : A, x = y --> y = x) by pick-any x y in
+//    conclude (x = y --> y = x) by assume (x = y) in
+//      conclude (y = x) by rewrite (x = y) in
+//        conclude (x = x) by refl
+
+//x = y, a : A |- a = x prop   x = y |- claim (x = y) : (x = y)   x = y |- refl : (x = x)
+//--------------------------------------------------------------------------------------
+//x = y |- rewrite (claim (x = y)) in refl : (y = x)
+
+//    P := (a = x)
+//    P[a := x] := (x = x)
+//    P[a := y] := (y = x)
 
 theorem eq-trans : forall x y z : A, x = y --> y = z --> x = z :=
   pick-any x y z
@@ -69,13 +87,20 @@ theorem eq-trans : forall x y z : A, x = y --> y = z --> x = z :=
   rewrite (y = z)
   refl
 
+//  rewrite t1 -> t2 by p
+
 theorem eq-trans' : forall x y z : A, x = y --> y = z --> x = z :=
   pick-any x y z
   assume (x = y) (y = z)
   rewrite (x = y), (y = z)
   refl
 
+
+// rewrite (y = z) at (x = y)
+// hypothesis : (x = z)
+// assumption
+
 theorem eq-trans'' : forall x y z : A, x = y --> y = z --> x = z :=
   pick-any x y z
-  assume refl refl
+  assume 
   refl

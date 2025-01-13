@@ -31,6 +31,12 @@ theorem weakening : P --> Q --> P :=
   assume Q
   P
 
+// In proofterm style, the above proof looks as follows.
+theorem weakening-term : P --> Q --> P :=
+  assume P in
+    assume Q in
+      P
+
 // When two or more `assume`s follow each other, we can condense them into one.
 theorem assume-chaining : P --> Q --> P :=
   assume P Q
@@ -42,26 +48,26 @@ theorem assume-discard : P --> P --> P :=
   assume P _
   P
 
-// We can name assumptions inline with the syntax `assume (name = prop)`.
+// We can name assumptions inline with the syntax `assume (name := prop)`.
 theorem assume-naming : P --> Q --> P :=
-  assume (x = P) (y = Q)
+  assume (x := P) (y := Q)
   x
 
 // If the propositions are really long to write down, we can omit them and
 // mention just their new names.
 theorem assume-only-naming : P --> Q --> P :=
-  assume (x = _) (y = _)
-  x
+  assume (x := _) (y := _)
+  P
 
 // If we name all assumptions without writing them out in full, the syntax
 // can get a bit shorter.
 theorem assume-only-naming-short : P --> Q --> P :=
-  assume (x y = _)
+  assume (x y := _)
   x
 
 // It would be optimal if we could completely avoid the `= _` part, but I'm not
 // sure if that will be possible.
-theorem assume-only-naming-shortest : P --> Q --> :=
+theorem assume-only-naming-shortest : P --> Q --> P :=
   assume x y
   x
 
@@ -71,7 +77,7 @@ theorem no-assume P Q : P :=
   P
 
 // When premises are to the left, we can still name them.
-theorem no-assume-naming (x = P) (y = Q) : P :=
+theorem no-assume-naming (x := P) (y := Q) : P :=
   x
 
 // If we don't want to bother with recalling assumption names, we can say
@@ -89,7 +95,12 @@ theorem impl-elim : (P --> Q) --> P --> Q :=
 // when the implication is longer.
 theorem modus-ponens-many-args : (P --> Q --> R) --> (Q --> P --> R) :=
   assume (P --> Q --> R) Q P
-  modus-ponens (P --> Q --> R) Q P
+  modus-ponens (P --> Q --> R) P Q
+
+// The above proof is equivalent to the more primitive one below.
+theorem modus-ponens-many-args : (P --> Q --> R) --> (Q --> P --> R) :=
+  assume (P --> Q --> R) Q P
+  modus-ponens (modus-ponens (P --> Q --> R) P) Q
 
 // Just like for `assume`, `modus-ponens` can also be written in tactic style.
 theorem impl-trans : (P --> Q) --> (Q --> R) --> (P --> R) :=
@@ -107,7 +118,7 @@ theorem modus-ponens-chaining : (P --> Q) --> (Q --> R) --> (P --> R) :=
 
 // We can chain many-argument `modus-ponens` just like the ordinary one.
 theorem impl-dist : (P --> Q --> R) --> ((P --> Q) --> (P --> R)) :=
-  assume (pqr = P --> Q --> R) (pq = P --> Q) P
+  assume (pqr := P --> Q --> R) (pq := P --> Q) P
   modus-ponens pqr P, pq
   P
 
@@ -170,17 +181,17 @@ theorem bullets-example : P --> Q --> P /\ Q :=
 theorem named-blocks-example : P --> Q --> P /\ Q :=
   assume P Q
   both ?p ?q
-  ?p: P
-  ?q: Q
+  ?p := P
+  ?q := Q
 
-// I'm not yet sure what the best syntax for bullets is.
-theorem alternative-named-bullets-example : P --> Q --> P /\ Q :=
+// Note that these named blocks don't need to be proved in the order they
+// were introduced in the proof. Below, we prove ?q first, even though we
+// first introduced ?p.
+theorem named-blocks-not-in-order-example : P --> Q --> P /\ Q :=
   assume P Q
   both ?p ?q
-  case ?p
-    P
-  case ?q
-    Q
+  ?q := Q
+  ?p := P
 
 // Conjunction elimination is `and-elim-l` and `and-elim-r`.
 theorem conjunction-elimination-example : P /\ Q --> P :=
@@ -198,6 +209,11 @@ theorem and-assoc : (P /\ Q) /\ R --> P /\ (Q /\ R) :=
   assume (both (both P Q) R)
   both P
   both Q R
+
+// In proofterm style, the above proof looks as follows.
+theorem and-assoc-term : (P /\ Q) /\ R --> P /\ (Q /\ R) :=
+  assume (both (both P Q) R) in
+    both P (both Q R)
 
 // The biconditional is written `P <--> Q`.
 // `P <--> Q` is not a primitive, but an abbreviation of `(P --> Q) /\ (Q --> P)`.
@@ -250,40 +266,66 @@ theorem or-elim-tactic-style : P \/ Q --> Q \/ P :=
     or-left Q
   }
 
-// The built-in way of classical reasoning is `by-contradiction`.
-// ~ P |- e : False
-// ----------------
-// |- by-contradiction e : P
-// We can use `by-contradiction` to prove double negation elimination.
+// We can prove a lemma inline with the construct `lemma x : P := p in q`,
+// where `x` is an (optional) name, `P` is a proposition, `p` is its proof
+// and `q` is the proof of the main theorem.
+theorem lemma-example : P \/ P --> P :=
+  assume (P \/ P)
+  lemma P --> P :=
+    assume P
+    P
+  or-elim (P \/ P) (P --> P) (P --> P)
+
+// In proofterm style, the above proof looks as follows.
+theorem lemma-term : P \/ P --> P :=
+  assume (P \/ P) in
+    lemma (P --> P) := (assume P in P) in
+      or-elim (P \/ P) (P --> P) (P --> P)
+
+// We can also name the lemma.
+theorem named-lemma-example : P \/ P --> P :=
+  assume (P \/ P)
+  lemma (pp := P --> P) from
+    assume P
+    P
+  or-elim (P \/ P) pp pp
+
+// An interesting idea: maybe the best syntax for named blocks is a kind of
+// reverse lemma?
+theorem reverse-lemma : P \/ P --> P :=
+  assume (P \/ P)
+  or-elim (P \/ P) ?pp ?pp
+  lemma (pp := P --> P) from
+    assume P
+    P
+
+// The syntax for lemmas isn't yet stable, so far these were proposed:
+// follows P from p
+// have P by p
+// lemma P by p
+// lemma _ : P := p
+// theorem _ : P := p
+
+// The built-in way of classical reasoning is `by-contradiction e`, which
+// proves `P` provided that `e` proves `False` in context extended with
+// the assumption `~ P`.
+// We can use `by-contradiction` to prove double negation elimination and
+// other classical laws.
 theorem double-negation : ~ ~ P --> P :=
   assume (~ ~ P)
   by-contradiction
   modus-ponens (~ ~ P) (~ P)
 
-// We can prove a lemma inline with the construct `follows P from p in q`,
-// where `P` is a proposition, `p` is its proof and `q` is the proof of
-// the main theorem.
-// Formally, this is called a 'cut'.
-theorem cut-example : P \/ P --> P :=
-  assume (P \/ P)
-  follows (P --> P) from
-    assume P
-    P
-  or-elim (P \/ P) (P --> P) (P --> P)
-
-// We can also name the lemma.
-theorem named-cut-example : P \/ P --> P :=
-  assume (P \/ P)
-  follows (lemma = P --> P) from
-    assume P
-    P
-  or-elim (P \/ P) lemma lemma
+// In proofterm style, the above proof looks as follows.
+theorem double-negation-term : ~ ~ P --> P :=
+  assume (~ ~ P) in
+    by-contradiction (modus-ponens (~ ~ P) (~ P))
 
 // Some exercises.
 
 theorem lem : P \/ ~ P :=
   double-negation
-  assume (not-lem = ~ (P \/ ~ P))
+  assume (not-lem := ~ (P \/ ~ P))
   modus-ponens not-lem
   or-right
   assume P
@@ -346,16 +388,16 @@ theorem iff-not : (P <--> Q) --> (~ P <--> ~ Q) :=
   - modus-ponens contraposition (P --> Q)
 
 theorem iff-elim : ((P --> Q) --> (Q --> P) --> R) --> ((P <--> Q) --> R) :=
-  assume (f = _) (both (P --> Q) (Q --> P))
+  assume (f := _) (both (P --> Q) (Q --> P))
   modus-ponens f (P --> Q) (Q --> P)
 
 theorem resolution : (P \/ Q) /\ (~ P \/ R) --> Q \/ R :=
   assume (both (P \/ Q) (~ P \/ R))
   or-elim (P \/ Q) ?p ?q
-  case ?q
+  ?q:
     assume Q
     or-left Q
-  case ?p
+  ?p:
     or-elim (~ P \/ R)
     - assume (~ P)
       absurd (~ P) P
@@ -392,7 +434,7 @@ theorem funny-contraposition : (P --> ~ Q) --> (Q --> ~ P) :=
   modus-ponens (P --> ~ Q) P Q
 
 theorem not_or : ~ (P \/ Q) --> ~ P /\ ~ Q :=
-  assume (npq = ~ (P \/ Q))
+  assume (npq := ~ (P \/ Q))
   both
   - assume P
     modus-ponens npq
