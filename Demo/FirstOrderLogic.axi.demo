@@ -1,106 +1,303 @@
-// The syntax of (new) propositions:
+// The syntax of quantifiers and equality is as follows.
 // P, Q ::= ... | forall x : A, P | exists x : A, P | t1 = t2
 
+// In the rest of the file, we will need a type `A`, a term `a` of type `A`,
+// and some predicates `P` and `Q` on type `A`.
 type A
 declaration a : A
 declaration P, Q : A -> Prop
 
+// The universal quantifier is written `forall x : A, P x`.
+// Its introduction rule is `pick-any x in e` with `x` bound in `e`.
 theorem forall-intro-example : forall x : A, P x \/ True :=
   pick-any x
   or-right
   true
 
+// In proofterm style, the above proof looks as follows.
+theorem forall-intro-example-term-style : forall x : A, P x \/ True :=
+  pick-any x in
+    or-right true
+
+// We can omit the type annotation in the quantifiers if it can be inferred
+// from the context. Below, it can be inferred from the type of `P`.
+theorem forall-no-annotation-example : forall x, P x \/ True :=
+  pick-any x
+  or-right
+  true
+
+// We can also put a type annotation on the variable in `pick-any`,
+// irrespective of whether it appears on the quantifier or not.
+theorem pick-any-annotation : forall x, P x \/ True :=
+  pick-any (x : A)
+  or-right
+  true
+
+// The universal quantifier is eliminated with `specialize e with x`.
 theorem forall-elim-example : (forall x : A, P x) --> P a :=
   assume (forall x : A, P x)
   specialize (forall x : A, P x) with a
 
+// In proofterm style, the above proof looks as follows.
+theorem forall-elim-example-term-style : (forall x : A, P x) --> P a :=
+  assume (forall x : A, P x) in
+    specialize (forall x : A, P x) with a
+
+// With some naming, the proof can be shortened by a lot.
 theorem forall-elim-example' : (forall x : A, P x) --> P a :=
   assume (f = _)
   specialize f with a
 
-theorem forall-wut :
-  (forall x : A, P x) \/ (forall x : A, Q x) --> forall x : A, P x \/ Q x :=
-  assume (h = _)
-  pick-any x
-  or-elim h
-  - assume (p = _)
-    or-left
-    specialize p with x
-  - assume (q = _)
-    or-left
-    specialize q with x
-
+// The existential quantifier is written `exists x : A, P x`.
+// Its introduction rule is `exists x such-that e`.
 theorem exists-intro-example : exists x : A, P x \/ True :=
   exists a such-that
   or-right
   true
 
+// In proofterm style, the above proof looks as follows.
+theorem exists-intro-example-term-style : exists x : A, P x \/ True :=
+  exists a such-that
+    or-right true
+
+// Similarly to the universal quantifier, the annotation on the variable
+// can be omitted if it can be inferred from context, like from `P` below.
+theorem exists-no-annotation-example : exists x, P x \/ True :=
+  exists a such-that
+  or-right
+  true
+
+// We can also put a type annotation on the variable in `exists`,
+// irrespective of whether it appears on the quantifier or not.
+theorem exists-annotation : exists x, P x \/ True :=
+  exists (a : A) such-that
+  or-right
+  true
+
+// The existential quantifier is eliminated with `pick-witness x for e1 in e2`,
+// where x is bound in `e2`.
 theorem exists-elim-example : (exists x : A, P x /\ Q x) --> exists x : A, P x :=
   assume (ex = _)
   pick-witness x for ex
   exists x such-that
   and-elim-l (P x /\ Q x)
 
+// In proofterm style, the above proof looks as follows.
+theorem exists-elim-example-term-style : (exists x : A, P x /\ Q x) --> exists x : A, P x :=
+  assume (ex = _) in
+    pick-witness x for ex in
+      exists x such-that
+        and-elim-l (P x /\ Q x)
+
+// Similarly to conjunction and biconditional, the existential quantifier can
+// be eliminated by pattern matching fused with `assume`. In the proof below,
+// we match not only to eliminate the existential, but also the conjunction,
+// which makes the proof much shorter.
 theorem exists-elim-example' : (exists x : A, P x /\ Q x) --> exists x : A, P x :=
-  assume (exists x such-that both (P x) (Q x))
-  exists x such that (P x)
+  assume (exists x such-that (both (P x) (Q x)))
+  exists x such-that (P x)
 
-theorem test :
-  (forall x : A, P x --> Q x) --> (forall x : A, P x) --> (forall x : A, Q x) :=
-  assume (pq = _) (p = _)
-  pick-any x
-  modus-ponens (specialize pq with x)
-  specialize p with x
-
+// Equality is written `t1 = t2`.
+// We can prove `t = t` for any `t` using `refl`.
 theorem eq-refl : forall x : A, x = x :=
   pick-any x
   refl
 
+// In proofterm style, the above proof looks as follows.
+theorem eq-refl-term-style : forall x : A, x = x :=
+  pick-any x in
+    refl
 
-// Leibniz equality.
-// foral x y : A, x = y <--> forall P, P x <--> P y
-
+// Equality elimination is `rewrite e in e'`, where `e : l = r`.
+// The effect is that all occurrences of `l` are replaced with `r`
+// in the type of `e'`.
 theorem eq-sym : forall x y : A, x = y --> y = x :=
-  pick-any x y             // x y : A |- x = y --> y = x
-  assume (x = y)           // x y : A, x = y |- y = x
-  rewrite (x = y)          // x y : A, x = y |- x = x
-  refl
-
-
-//  conclude (forall x y : A, x = y --> y = x) by pick-any x y in
-//    conclude (x = y --> y = x) by assume (x = y) in
-//      conclude (y = x) by rewrite (x = y) in
-//        conclude (x = x) by refl
-
-//x = y, a : A |- a = x prop   x = y |- claim (x = y) : (x = y)   x = y |- refl : (x = x)
-//--------------------------------------------------------------------------------------
-//x = y |- rewrite (claim (x = y)) in refl : (y = x)
-
-//    P := (a = x)
-//    P[a := x] := (x = x)
-//    P[a := y] := (y = x)
-
-theorem eq-trans : forall x y z : A, x = y --> y = z --> x = z :=
-  pick-any x y z
-  assume (x = y) (y = z)
+  pick-any x y
+  assume (x = y)
   rewrite (x = y)
-  rewrite (y = z)
   refl
 
-//  rewrite t1 -> t2 by p
+// In case you are confused by the above proof, here is the entire context
+// after each step.
+theorem eq-sym : forall x y : A, x = y --> y = x :=
+  pick-any x y       // x y : A |- x = y --> y = x
+  assume (x = y)     // x y : A, x = y |- y = x
+  rewrite (x = y)    // x y : A, x = y |- y = y
+  refl
 
-theorem eq-trans' : forall x y z : A, x = y --> y = z --> x = z :=
+// In proofterm style, the above proof looks as follows.
+theorem eq-sym : forall x y : A, x = y --> y = x :=
+  pick-any x y in
+    assume (x = y) in
+      rewrite (x = y) in
+        refl
+
+// By default, the left-hand side of the equation is replaced with
+// the right-hand side. We can do the opposite by attaching the
+// modifier `<-` to the equation.
+theorem eq-sym' : forall x y : A, x = y --> y = x :=
+  pick-any x y        // x y : A |- x = y --> y = x
+  assume (x = y)      // x y : A, x = y |- y = x
+  rewrite <-(x = y)   // x y : A, x = y |- x = x
+  refl
+
+// Although there is no need to do so, we can also mark the default
+// left-to-right rewriting direction with the modifier `->`.
+theorem eq-sym'' : forall x y : A, x = y --> y = x :=
+  pick-any x y         // x y : A |- x = y --> y = x
+  assume (x = y)       // x y : A, x = y |- y = x
+  rewrite ->(x = y)    // x y : A, x = y |- y = y
+  refl
+
+// When we need to do two or more rewrites in a row, we can condense
+// them into a single one.
+theorem eq-trans : forall x y z : A, x = y --> y = z --> x = z :=
   pick-any x y z
   assume (x = y) (y = z)
   rewrite (x = y), (y = z)
   refl
 
+// The `<-` and `->` modifiers are still valid for these bunched rewrites.
+theorem rewrite-chaining-modifiers : forall x y z : A, x = y --> y = z --> x = z :=
+  pick-any x y z
+  assume (x = y) (y = z)
+  rewrite <-(y = z), <-(x = y)
+  refl
 
+// Similarly to conjunction, biconditional and existential quantifier,
+// we can eliminate equality by pattern matching fused with `assume`.
+// The pattern to do this are `=->` (for left-to-right rewriting)
+// and `<-=` (for right-to-left rewriting).
+theorem eq-elim-pattern-matching : forall x y z : A, x = y --> y = z --> x = z :=
+  pick-any x y z
+  assume =-> =->
+  refl
+
+// Besides `rewrite` and pattern matching in `assume`, there's yet another way
+// of proving equations - chaining, inspired by Agda and Athena.
+theorem equational-chaining : forall x y z : A, x = y --> y = z --> x = z :=
+  pick-any x y z
+  assume (x = y) (y = z)
+  chaining x
+    = y       by (x = y)
+    = z       by (y = z)
+
+// In proofterm style, the above proof looks as follows.
+theorem equational-chaining-term-style :
+  forall x y z : A, x = y --> y = z --> x = z :=
+  pick-any x y z in
+    assume (x = y) (y = z) in
+      chaining x
+        = y       by (x = y)
+        = z       by (y = z)
+
+// In general, a chain of the form
+// ```
+// chaining t
+//   = t1      by e1
+//   ...
+//   = tn      by en
+// ```
+// proves `t = tn` and is a notation for `rewrite e1, ..., en`.
+
+// Sometimes chaining can be clearer than `rewrite`.
+theorem chaining-assumption : forall x y z : A, x = y --> y = z --> x = z :=
+  pick-any x y z
+  assume (x = y) (y = z)
+  chaining x
+    = y       by assumption
+    = z       by assumption
+
+
+// rewrite t1 -> t2 by p
 // rewrite (y = z) at (x = y)
 // hypothesis : (x = z)
 // assumption
 
-theorem eq-trans'' : forall x y z : A, x = y --> y = z --> x = z :=
-  pick-any x y z
-  assume 
-  refl
+
+
+theorem test :
+  (forall x : A, P x --> Q x) --> (forall x : A, P x) --> (forall x : A, Q x) :=
+  assume (pq := _) (p := _)
+  pick-any x
+  modus-ponens (specialize pq with x)
+  specialize p with x
+
+theorem forall-or :
+  (forall x : A, P x) \/ (forall x : A, Q x) --> forall x : A, P x \/ Q x :=
+  assume (all := _)
+  pick-any x
+  or-elim all
+  - assume (p := _)
+    or-left
+    specialize p with x
+  - assume (q := _)
+    or-left
+    specialize q with x
+
+theorem all-and-dist :
+  (forall x : A, P x /\ Q x) <--> (forall x : A, P x) /\ (forall x : A, Q x) :=
+  both
+  - assume (all := _)
+    both
+    - pick-any x
+      and-elim-l (specialize all with x)
+    - pick-any x
+      and-elim-r (specialize all with x)
+  - assume (both (forall x : A, P x) (forall x : A, Q x))
+    pick-any x
+    both
+    - specialize (forall x : A, P x) with x
+    - specialize (forall x : A, Q x) with x
+
+theorem ex-or-dist :
+  (exists x : A, P x \/ Q x) <--> (exists x : A, P x) \/ (exists x : A, Q x) :=
+  both
+  - assume (exists x such-that (P x \/ Q x))
+    or-elim (P x \/ Q x)
+    - assume (P x)
+      left
+      exists x
+      assumption
+    - assume (Q x)
+      right
+      exists x
+      assumption
+  - assume (orex := _)
+    or-elim orex
+    - assume (exists x such-that (P x))
+      exists x
+      left
+      assumption
+    - assume (exists x such-that (Q x))
+      exists x
+      right
+      assumption
+
+theorem not-exists :
+  ~ (exists x : A, P x) <--> (forall x : A, ~ P x) :=
+  both
+  - assume (nex := _)
+    pick-any x
+    assume (P x)
+    modus-ponens nex
+    exists x
+    assumption
+  - assume (all := _) (exists x such-that (P x))
+    modus-ponens (specialize all with x)
+    assumption
+
+theorem exists-not : (exists x : A, ~ P x) --> ~ forall x : A, P x :=
+  assume (exists x such-that (~ P x)) (all := _)
+  modus-ponens (~ P x)
+  specialize all with x
+
+theorem not-forall : ~ (forall x : A, P x) --> exists x : A, ~ P x :=
+  assume (nall := _)
+  by-contradiction
+  modus-ponens nall
+  pick-any x
+  by-contradiction
+  modus-ponens (~ exists x : A, ~ P x)
+  exists x
+  assumption
