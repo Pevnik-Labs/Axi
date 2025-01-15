@@ -1,0 +1,35 @@
+##
+## Makefile for the document, based on:
+##
+## https://tex.stackexchange.com/questions/40738/how-to-properly-make-a-latex-project
+##
+
+PDFLATEX="pdflatex -interaction=nonstopmode -synctex=1"
+
+# Include non-file targets in .PHONY so they are run regardless of any
+# file of the given name existing.
+.PHONY: all clean
+
+# -pdf tells latexmk to generate PDF directly (instead of DVI).
+
+# -pdflatex="" tells latexmk to call a specific backend with specific options.
+
+# -use-make tells latexmk to call make for generating missing files.
+
+# -interaction=nonstopmode keeps the pdflatex backend from stopping at a
+# missing file reference and interactively asking you for an alternative.
+
+# -synctex=1 enables syncronization between the LaTeX sources and the generated
+# PDF so that it is possible to jump to the source file when clicking on the
+# PDF, and vice-versa. Note that this option requires that the viewer and the
+# editor are properly configured.
+
+all:
+	latexmk -pdf -pdflatex=$(PDFLATEX) -use-make
+
+clean:
+	latexmk -CA
+
+install:
+	mkdir -pv ${out}/nix-support/
+	cp *.pdf ${out}/
