@@ -1,6 +1,6 @@
 \ProvidesPackage{Commands}
 
-% Pipes - used when specifying grammars in BDNF format.
+% Pipes - used when specifying grammars in BNF format.
 \newcommand{\pipe}{\ |\ }
 
 % Types.
@@ -14,6 +14,10 @@
 % Base types.
 \newcommand{\Int}{\texttt{Int}}
 \newcommand{\String}{\texttt{String}}
+
+% Commands for coloring differences in term syntax between calculi.
+\newcommand{\newterm}[1]{\mathcolor{green}{#1}}
+\newcommand{\termdiff}[1]{\mathcolor{red}{#1}}
 
 % Terms.
 \newcommand{\annot}[2]{(#1 : #2)}
@@ -47,13 +51,9 @@
 % Computation.
 \newcommand{\subst}[3]{#1\left[#2 := #3\right]}
 \newcommand{\val}[1]{#1\ \texttt{value}}
-\newcommand{\compstep}[2]{#1 \longrightarrow #2}
-\newcommand{\compsteps}[2]{#1 \longrightarrow^* #2}
-\newcommand{\result}[2]{#1 \Downarrow #2}
-
-% Commands for coloring differences in terms syntax between calculi.
-\newcommand{\newterm}[1]{\mathcolor{green}{#1}}
-\newcommand{\termdiff}[1]{\mathcolor{red}{#1}}
+\newcommand{\smallstep}[2]{#1 \longrightarrow #2}
+\newcommand{\smallsteps}[2]{#1 \longrightarrow^* #2}
+\newcommand{\bigstep}[2]{#1 \Downarrow #2}
 
 % Hints.
 \newcommand{\Hole}{\textbf{?}}
