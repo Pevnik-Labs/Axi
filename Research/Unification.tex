@@ -2,7 +2,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{babel}
 \usepackage{xcolor}
-\usepackage{../Commands}
+\usepackage{../AxiCommands}
 
 \usetheme{Darmstadt}
 
@@ -24,7 +24,7 @@ $e ::=$ \\
 \qquad $\fun{x}{e} \pipe \app{e_1}{e_2} \pipe$ \\
 \qquad $\pair{e_1}{e_2} \pipe \outl{e} \pipe \outr{e} \pipe$ \\
 \qquad $\inl{e} \pipe \inr{e} \pipe \case{e}{e_1}{e_2} \pipe$ \\
-\qquad $\unit \pipe \exfalso{e}$
+\qquad $\unit \pipe \elimEmpty{e}$
 
 \vspace{1em}
 
@@ -93,7 +93,7 @@ $\fulloutctx{\Gamma}{e}{H}{H'}{\Gamma'}$ -- in context $\Gamma$, term $e$ checks
 
   $\infrule{}{\fulloutctx{\Gamma}{\unit}{\Unit}{\Unit}{\Gamma}}$
   \quad
-  $\infrule{\outctx{e}{\Empty}{\Empty}}{\outctx{\exfalso{e}}{A}{A}}$
+  $\infrule{\outctx{e}{\Empty}{\Empty}}{\outctx{\elimEmpty{e}}{A}{A}}$
 \end{center}
 
 \end{frame}
@@ -208,7 +208,7 @@ If $\fulloutctx{\Gamma}{e}{A}{B}{\Gamma'}$, then:
   \vspace{2em}
 
   $\infrule{}{\shortoutctx{\unit}{\Unit}{\Unit}}$ \quad
-  $\infrule{\shortoutctx{e}{\Empty}{\Empty}}{\shortoutctx{\exfalso{e}}{A}{A}}$
+  $\infrule{\shortoutctx{e}{\Empty}{\Empty}}{\shortoutctx{\elimEmpty{e}}{A}{A}}$
 \end{center}
 
 \end{frame}
@@ -235,7 +235,7 @@ $e ::=$ \\
 \qquad $\fun{x}{e} \pipe \app{e_1}{e_2} \pipe$ \\
 \qquad $\pair{e_1}{e_2} \pipe \outl{e} \pipe \outr{e} \pipe$ \\
 \qquad $\inl{e} \pipe \inr{e} \pipe \case{e}{e_1}{e_2} \pipe$ \\
-\qquad $\unit \pipe \exfalso{e}$
+\qquad $\unit \pipe \elimEmpty{e}$
 
 \vspace{2em}
 
@@ -314,7 +314,7 @@ $\fulluniftyping{\Gamma}{e}{H}{H'}{\Gamma'}$ -- in context $\Gamma$, term $e$ ch
 
   $\infrule{}{\fulluniftyping{\Gamma}{\unit}{\Unit}{\Unit}{\Gamma}}$
   \quad
-  $\infrule{\uniftyping{e}{\Empty}{\Empty}}{\uniftyping{\exfalso{e}}{A}{A}}$
+  $\infrule{\uniftyping{e}{\Empty}{\Empty}}{\uniftyping{\elimEmpty{e}}{A}{A}}$
 \end{center}
 
 \end{frame}

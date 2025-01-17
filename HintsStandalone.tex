@@ -10,7 +10,7 @@
   citecolor = blue,
   anchorcolor = blue
 }
-\usepackage{Commands}
+\usepackage{AxiCommands}
 
 \usetheme{Darmstadt}
 
@@ -164,7 +164,7 @@ $e ::=$ \\
 \qquad $\fun{x}{e} \pipe \app{e_1}{e_2} \pipe$ \\
 \qquad $\pair{e_1}{e_2} \pipe \outl{e} \pipe \outr{e} \pipe$ \\
 \qquad $\inl{e} \pipe \inr{e} \pipe \case{e}{e_1}{e_2} \pipe$ \\
-\qquad $\unit \pipe \exfalso{e}$
+\qquad $\unit \pipe \elimEmpty{e}$
 
 \vspace{2em}
 
@@ -323,7 +323,7 @@ Both presented semantics are call-by-value, i.e. we evaluate a function's argume
   \vspace{2em}
 
   $\infrule{}{\typing{\unit}{\Unit}}$ \quad
-  $\infrule{\typing{e}{\Empty}}{\typing{\exfalso{e}}{A}}$
+  $\infrule{\typing{e}{\Empty}}{\typing{\elimEmpty{e}}{A}}$
 \end{center}
 
 \end{frame}
@@ -367,7 +367,7 @@ $e ::=$ \\
 \qquad $\fun{x}{e} \pipe \app{e_1}{e_2} \pipe$ \\
 \qquad $\pair{e_1}{e_2} \pipe \outl{e} \pipe \outr{e} \pipe$ \\
 \qquad $\inl{e} \pipe \inr{e} \pipe \case{e}{e_1}{e_2} \pipe$ \\
-\qquad $\unit \pipe \exfalso{e}$
+\qquad $\unit \pipe \elimEmpty{e}$
 
 \vspace{2em}
 
@@ -433,7 +433,7 @@ Note: the only rules shown are those which were not present in Extrinsic STLC.
   \vspace{2em}
 
   $\infrule{}{\check{\unit}{\Unit}}$ \quad
-  $\infrule{\check{e}{\Empty}}{\check{\exfalso{e}}{A}}$
+  $\infrule{\check{e}{\Empty}}{\check{\elimEmpty{e}}{A}}$
 \end{center}
 
 \end{frame}
@@ -583,7 +583,7 @@ $e ::=$ \\
 \qquad $\fun{x}{e} \pipe \termdiff{\iapp{A}{e_1}{e_2}} \pipe$ \\
 \qquad $\pair{e_1}{e_2} \pipe \termdiff{\ioutl{A}{e}} \pipe \termdiff{\ioutr{A}{e}} \pipe$ \\
 \qquad $\inl{e} \pipe \inr{e} \pipe \termdiff{\icase{A}{B}{e}{e_1}{e_2}} \pipe$ \\
-\qquad $\unit \pipe \exfalso{e}$
+\qquad $\unit \pipe \elimEmpty{e}$
 
 \vspace{2em}
 
@@ -648,7 +648,7 @@ Thanks to abundant type annotations, we can (re)interpret the typing judgement $
   \vspace{2em}
 
   $\infrule{}{\check{\unit}{\Unit}}$ \quad
-  $\infrule{\check{e}{\Empty}}{\check{\exfalso{e}}{A}}$
+  $\infrule{\check{e}{\Empty}}{\check{\elimEmpty{e}}{A}}$
 \end{center}
 
 \end{frame}
@@ -765,7 +765,7 @@ $e ::=$ \\
 \qquad $\fun{x}{e} \pipe \app{e_1}{e_2} \pipe$ \\
 \qquad $\pair{e_1}{e_2} \pipe \outl{e} \pipe \outr{e} \pipe$ \\
 \qquad $\inl{e} \pipe \inr{e} \pipe \case{e}{e_1}{e_2} \pipe$ \\
-\qquad $\unit \pipe \exfalso{e}$
+\qquad $\unit \pipe \elimEmpty{e}$
 
 \vspace{2em}
 
@@ -843,7 +843,7 @@ Note that the rule $\rulename{Hole}$ can only be applied once, because $\hintfor
   \vspace{2em}
 
   $\infrule{}{\hinting{\unit}{\Unit}{\Unit}}$ \quad
-  $\infrule{\hinting{e}{\Empty}{\Empty}}{\hinting{\exfalso{e}}{A}{A}}$
+  $\infrule{\hinting{e}{\Empty}{\Empty}}{\hinting{\elimEmpty{e}}{A}{A}}$
 \end{center}
 
 \end{frame}
@@ -879,7 +879,7 @@ We can embed Intrinsic STLC terms:
   \item $\ifun{x}{A}{e} :\equiv \annot{\fun{x}{e}}{\Fun{A}{\Hole}}$ \\
   \item $\iinl{B}{e} :\equiv \annot{\inl{e}}{\Sum{\Hole}{B}}$ \\
   \item $\iinr{A}{e} :\equiv \annot{\inr{e}}{\Sum{A}{\Hole}}$ \\
-  \item $\iexfalso{A}{e} :\equiv \annot{\exfalso{e}}{A}$
+  \item $\iexfalso{A}{e} :\equiv \annot{\elimEmpty{e}}{A}$
 \end{itemize}
 
 We can also embed Dual Intrinsic STLC terms:
