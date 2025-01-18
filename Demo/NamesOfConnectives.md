@@ -17,7 +17,7 @@
 | Disjunction elim    | or-elim e1 e2 e3    | constructive-dilemma    | cases e1 e2 e3  |
 | Forall intro        | forall-intro x e    | pick-any x in e         |                 |
 | Forall elim         | forall-elim e t     | specialize e with t     |                 |
-| Exists intro        | exists-intro t e    | exists t such-that e    |                 |
+| Exists intro        | exists-intro t e    | exists t such-that e    | exists t such-that e |
 | Exists elim         | exists-elim x e1 e2 | pick-witness x for e1 in e2 |             |
 | Equality intro      | eq-intro            | refl                    | reflexivity     |
 | Equality elim       | eq-elim e e'        | rewrite e in e'         | rewrite e in e' |

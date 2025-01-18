@@ -123,17 +123,17 @@ theorem impl-dist : (P --> Q --> R) --> ((P --> Q) --> (P --> R)) :=
   P
 
 // The true proposition is written `True`.
-// We can prove `True` with `true`.
+// We can prove `True` with `trivial`.
 // There's no `True` elimination, because it's useless.
-theorem trivial : True :=
-  true
+theorem true-intro-example : True :=
+  trivial
 
 // The false proposition is written `False`.
-// `False` elimination is `exfalso`.
+// `False` elimination is `absurd`.
 // There's no `False` introduction.
-theorem also-trivial : False --> P :=
+theorem false-elim-example : False --> P :=
   assume False
-  exfalso False
+  absurd False
 
 // The negation of `P` is written `~ P`.
 // `~ P` is not a primitive, but rather an abbreviation of `P --> False`.
@@ -143,9 +143,9 @@ theorem not-false : ~ False :=
   False
 
 // Negation elimination is `modus-ponens`.
-// The below theorem, called `absurd`, may also be used as an eliminator for
-// negation for the purpose of readability.
-theorem absurd : ~ P --> P --> False :=
+// The below theorem, called `contradiction`, may also be used as an
+// eliminator for negation for the purpose of readability.
+theorem contradiction : ~ P --> P --> False :=
   assume (~ P) P
   modus-ponens (~ P) P
 
@@ -344,13 +344,15 @@ theorem uncurry : (P --> Q --> R) --> (P /\ Q --> R) :=
 
 theorem or-comm : P \/ Q --> Q \/ P :=
   assume (P \/ Q)
-  or-elim (P \/ Q) ?l ?r
-  case ?l
-    assume P
+  or-elim (P \/ Q)
+  - assume P
     or-right P
-  case ?r
-    assume Q
+  - assume Q
     or-left Q
+
+theorem or-comm' : P \/ Q --> Q \/ P :=
+  assume (P \/ Q)
+  or-elim (P \/ Q) or-right or-left
 
 /* Coq version:
 Lemma or_comm_impl : P \/ Q -> Q \/ P.
@@ -381,15 +383,15 @@ theorem contraposition : (P --> Q) --> (~ Q --> ~ P) :=
   modus-ponens (~ Q), (P --> Q)
   assumption
 
+theorem iff-elim : ((P --> Q) --> (Q --> P) --> R) --> ((P <--> Q) --> R) :=
+  assume (f := _) (both (P --> Q) (Q --> P))
+  modus-ponens f (P --> Q) (Q --> P)
+
 theorem iff-not : (P <--> Q) --> (~ P <--> ~ Q) :=
   assume (both (P --> Q) (Q --> P))
   both
   - modus-ponens contraposition (Q --> P)
   - modus-ponens contraposition (P --> Q)
-
-theorem iff-elim : ((P --> Q) --> (Q --> P) --> R) --> ((P <--> Q) --> R) :=
-  assume (f := _) (both (P --> Q) (Q --> P))
-  modus-ponens f (P --> Q) (Q --> P)
 
 theorem resolution : (P \/ Q) /\ (~ P \/ R) --> Q \/ R :=
   assume (both (P \/ Q) (~ P \/ R))
@@ -400,7 +402,7 @@ theorem resolution : (P \/ Q) /\ (~ P \/ R) --> Q \/ R :=
   ?p:
     or-elim (~ P \/ R)
     - assume (~ P)
-      absurd (~ P) P
+      contradiction (~ P) P
     - assume R
       or-right R
 
@@ -412,7 +414,7 @@ theorem resolution' : (P \/ Q) /\ (~ P \/ R) --> Q \/ R :=
   case ?p
     or-elim (~ P \/ R)
     - assume (~ P)
-      absurd (~ P) P
+      contradiction (~ P) P
     - assume R
       or-right R
 
@@ -433,7 +435,15 @@ theorem funny-contraposition : (P --> ~ Q) --> (Q --> ~ P) :=
   assume (P --> ~ Q) Q P
   modus-ponens (P --> ~ Q) P Q
 
-theorem not_or : ~ (P \/ Q) --> ~ P /\ ~ Q :=
+theorem not-or-intro : ~ P /\ ~ Q --> ~ (P \/ Q) :=
+  assume (both (~ P) (~ Q)) (npq := _)
+  or-elim npq
+  - assume p
+    modus-ponens (~ P) P
+  - assume q
+    modus-ponens (~ Q) Q
+
+theorem not-or-elim : ~ (P \/ Q) --> ~ P /\ ~ Q :=
   assume (npq := ~ (P \/ Q))
   both
   - assume P
