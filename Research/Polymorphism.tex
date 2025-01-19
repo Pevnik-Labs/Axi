@@ -36,15 +36,15 @@ $\typing{e}{A}$, $\type{A}$
 \begin{frame}{Valid context judgement}
 
 \begin{center}
-  $\infrule[Ctx-Empty]{}{\tyctx{\emptytypingctx}}$
+  $\infrule[Ctx-Empty]{}{\ctx{\emptytypingctx}}$
 
   \vspace{2em}
 
-  $\infrule[Ctx-Extend]{\tyctx{\Gamma} \quad \sidecond{x \notin \Gamma} \quad \type{A}}{\tyctx{\extend{\Gamma}{x}{A}}}$
+  $\infrule[Ctx-Extend]{\ctx{\Gamma} \quad \sidecond{x \notin \Gamma} \quad \type{A}}{\ctx{\extend{\Gamma}{x}{A}}}$
 
   \vspace{2em}
 
-  $\infrule[Ctx-ExtendType]{\tyctx{\Gamma} \quad \sidecond{\alpha \notin \Gamma}}{\tyctx{\extendtype{\Gamma}{\alpha}}}$
+  $\infrule[Ctx-ExtendType]{\ctx{\Gamma} \quad \sidecond{\alpha \notin \Gamma}}{\ctx{\extendtype{\Gamma}{\alpha}}}$
 \end{center}
 
 \end{frame}
@@ -52,7 +52,7 @@ $\typing{e}{A}$, $\type{A}$
 \begin{frame}{Valid type judgement}
 
 \begin{center}
-  $\infrule[TyVar]{\tyctx{\Gamma} \quad \sidecond{\alpha \in \Gamma}}{\type{\alpha}}$
+  $\infrule[TyVar]{\ctx{\Gamma} \quad \sidecond{\alpha \in \Gamma}}{\type{\alpha}}$
 
   \vspace{2em}
 
@@ -68,8 +68,8 @@ $\typing{e}{A}$, $\type{A}$
 \begin{frame}{Sanity checks}
 
 \begin{itemize}
-  \item If $\type{A}$, then $\tyctx{\Gamma}$
-  \item If $\tyctx{\Gamma}$ and $(x : A) \in \Gamma$, then $\type{A}$
+  \item If $\type{A}$, then $\ctx{\Gamma}$
+  \item If $\ctx{\Gamma}$ and $(x : A) \in \Gamma$, then $\type{A}$
   \item We will set up the system so that if $\typing{e}{A}$, then $\type{A}$
 \end{itemize}
 
@@ -90,7 +90,7 @@ $e ::=$ \\
 \begin{frame}{Declarative typing}
 
 \begin{center}
-  $\infrule[Var]{\tyctx{\Gamma} \quad \sidecond{(x : A) \in \Gamma}}{\typing{x}{A}}$
+  $\infrule[Var]{\ctx{\Gamma} \quad \sidecond{(x : A) \in \Gamma}}{\typing{x}{A}}$
 
   \vspace{2em}
 
@@ -111,7 +111,7 @@ $e ::=$ \\
 \begin{frame}{Algorithmic typing}
 
 \begin{center}
-  $\infrule[Var]{\tyctx{\Gamma} \quad \sidecond{(x : A) \in \Gamma}}{\infer{x}{A}}$
+  $\infrule[Var]{\ctx{\Gamma} \quad \sidecond{(x : A) \in \Gamma}}{\infer{x}{A}}$
 
   \vspace{2em}
 
@@ -144,7 +144,7 @@ $e ::=$ \\
 \begin{frame}{Declarative typing}
 
 \begin{center}
-  $\infrule[Var]{\tyctx{\Gamma} \quad \sidecond{(x : A) \in \Gamma}}{\typing{x}{A}}$
+  $\infrule[Var]{\ctx{\Gamma} \quad \sidecond{(x : A) \in \Gamma}}{\typing{x}{A}}$
 
   \vspace{2em}
 
@@ -165,7 +165,7 @@ $e ::=$ \\
 \begin{frame}{Algorithmic typing}
 
 \begin{center}
-  $\infrule[Var]{\tyctx{\Gamma} \quad \sidecond{(x : A) \in \Gamma}}{\check{x}{A}}$
+  $\infrule[Var]{\ctx{\Gamma} \quad \sidecond{(x : A) \in \Gamma}}{\check{x}{A}}$
 
   \vspace{2em}
 
@@ -197,7 +197,7 @@ $e ::=$ \\
 \begin{frame}{Declarative typing}
 
 \begin{center}
-  $\infrule[Var]{\tyctx{\Gamma} \quad \sidecond{(x : A) \in \Gamma}}{\typing{x}{A}}$
+  $\infrule[Var]{\ctx{\Gamma} \quad \sidecond{(x : A) \in \Gamma}}{\typing{x}{A}}$
 
   \vspace{2em}
 
@@ -230,11 +230,11 @@ $H ::= \Hole \pipe \Fun{H_1}{H_2} \pipe \ForallT{\alpha}{H} \pipe \alpha$
 \begin{frame}{Valid hint judgement}
 
 \begin{center}
-  $\infrule[Hint-Hole]{\tyctx{\Gamma}}{\validhint{\Hole}}$
+  $\infrule[Hint-Hole]{\ctx{\Gamma}}{\validhint{\Hole}}$
 
   \vspace{2em}
 
-  $\infrule[Hint-TyVar]{\tyctx{\Gamma} \quad \sidecond{\alpha \in \Gamma}}{\validhint{\alpha}}$
+  $\infrule[Hint-TyVar]{\ctx{\Gamma} \quad \sidecond{\alpha \in \Gamma}}{\validhint{\alpha}}$
 
   \vspace{2em}
 
@@ -257,7 +257,7 @@ $H ::= \Hole \pipe \Fun{H_1}{H_2} \pipe \ForallT{\alpha}{H} \pipe \alpha$
 
   \vspace{2em}
 
-  $\infrule{\tyctx{\Gamma}}{\hintorderinctx{\alpha}{\alpha}}$
+  $\infrule{\ctx{\Gamma}}{\hintorderinctx{\alpha}{\alpha}}$
 
   \vspace{2em}
 
@@ -303,7 +303,7 @@ $e ::=$ \\
 \begin{frame}{Declarative typing}
 
 \begin{center}
-  $\infrule[Var]{\tyctx{\Gamma} \quad \sidecond{(x : A) \in \Gamma}}{\typing{x}{A}}$
+  $\infrule[Var]{\ctx{\Gamma} \quad \sidecond{(x : A) \in \Gamma}}{\typing{x}{A}}$
 
   \vspace{2em}
 
@@ -328,7 +328,7 @@ $e ::=$ \\
 \begin{frame}{Algorithmic typing -- basic rules}
 
 \begin{center}
-  $\infrule[Var]{\tyctx{\Gamma} \quad \sidecond{(x : A) \in \Gamma} \quad \sidecond{\hintorderinctx{H}{A}}}{\hinting{x}{H}{A}}$
+  $\infrule[Var]{\ctx{\Gamma} \quad \sidecond{(x : A) \in \Gamma} \quad \sidecond{\hintorderinctx{H}{A}}}{\hinting{x}{H}{A}}$
 
   \vspace{2em}
 

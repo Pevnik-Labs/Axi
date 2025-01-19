@@ -80,11 +80,11 @@ $e ::=$ \\
 \qquad $\fun{x}{e} \pipe \app{e_1}{e_2} \pipe$ \\
 \qquad $\pair{e_1}{e_2} \pipe \outl{e} \pipe \outr{e} \pipe$ \\
 \qquad $\inl{e} \pipe \inr{e} \pipe \case{e}{e_1}{e_2} \pipe$ \\
-\qquad $\unit \pipe \elimEmpty{e}$
+\qquad $\unit \pipe \emptyelim{e}$
 
 \vspace{2em}
 
-Note: $\unit$ is the term of the $\Top$ type, whereas $\elimEmpty$ is the eliminator of the $\Bot$ type.
+Note: $\unit$ is the term of the $\Top$ type, whereas $\emptyelim$ is the eliminator of the $\Bot$ type.
 
 \end{frame}
 
@@ -183,7 +183,7 @@ $e ::=$ \\
 \qquad $\fun{x}{e} \pipe \app{e_1}{e_2} \pipe$ \\
 \qquad $\pair{e_1}{e_2} \pipe \outl{e} \pipe \outr{e} \pipe$ \\
 \qquad $\inl{e} \pipe \inr{e} \pipe \case{e}{e_1}{e_2} \pipe$ \\
-\qquad $\unit \pipe \elimEmpty{e}$
+\qquad $\unit \pipe \emptyelim{e}$
 
 \vspace{2em}
 
@@ -269,7 +269,7 @@ Note that the rule $\rulename{Hole}$ can only be applied once, because $\hintfor
   \vspace{2em}
 
   $\infrule{}{\hinting{\unit}{\Top}{\Top}}$ \quad
-  $\infrule{\hinting{e}{\Bot}{\Bot}}{\hinting{\elimEmpty{e}}{A}{A}}$
+  $\infrule{\hinting{e}{\Bot}{\Bot}}{\hinting{\emptyelim{e}}{A}{A}}$
 \end{center}
 
 \end{frame}

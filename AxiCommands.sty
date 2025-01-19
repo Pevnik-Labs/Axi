@@ -32,13 +32,13 @@
 \newcommand{\inr}[1]{\texttt{inr}\ #1}
 \newcommand{\case}[3]{\texttt{case}\ #1\ \texttt{of}\ (#2, #3)}
 \newcommand{\unit}{\texttt{unit}}
-\newcommand{\elimEmpty}[1]{\texttt{elim}_{\Empty}\ #1}
+\newcommand{\emptyelim}[1]{\Empty\texttt{-elim}\ #1}
 
 % Intrinsic terms.
 \newcommand{\ifun}[3]{\lambda #1 : #2.\, #3}
 \newcommand{\iinl}[2]{\texttt{inl}_{#1}\ #2}
 \newcommand{\iinr}[2]{\texttt{inr}_{#1}\ #2}
-\newcommand{\iexfalso}[2]{\texttt{exfalso}_{#1}\ #2}
+\newcommand{\iemptyelim}[2]{\Empty\texttt{-elim}_{#1}\ #2}
 
 % Dual Intrinsic terms.
 \newcommand{\iapp}[3]{\texttt{app}_{#1}\ #2\ #3}
@@ -97,8 +97,8 @@
 % Propositional logic.
 \newcommand{\implintro}[2]{\textbf{assume}\ #1\ \textbf{in}\ #2}
 \newcommand{\implelim}[2]{\textbf{modus-ponens}\ #1\ #2}
-\newcommand{\true}{\textbf{true}}
-\newcommand{\exfalso}[1]{\textbf{exfalso}\ #1}
+\newcommand{\trueintro}{\textbf{true}}
+\newcommand{\falseelim}[1]{\textbf{exfalso}\ #1}
 \newcommand{\cut}[2]{#1; #2}
 \newcommand{\notintro}[2]{\textbf{suppose-absurd}\ #1\ \textbf{in}\ #2}
 \newcommand{\notelim}[2]{\textbf{absurd}\ #1\ #2}
@@ -177,24 +177,24 @@
 \newcommand{\shortoutctx}[3]{#1 \mathcolor{blue}{\Leftarrow} #2 \mathcolor{red}{\Rightarrow} #3}
 
 % Computational equality.
-\newcommand{\fullcomputation}[4]{#1 \vdash #2 \equiv #3 : #4}
-\newcommand{\computation}[3]{\fullcomputation{\Gamma}{#1}{#2}{#3}}
+\newcommand{\fullcompeq}[4]{#1 \vdash #2 \equiv #3 : #4}
+\newcommand{\compeq}[3]{\fullcompeq{\Gamma}{#1}{#2}{#3}}
 
 % Valid context.
-\newcommand{\tyctx}[1]{#1\ \texttt{ctx}}
+\newcommand{\ctx}[1]{#1\ \texttt{ctx}}
 
 % Valid type.
 \newcommand{\fulltype}[2]{#1 \vdash #2\ \texttt{type}}
 \newcommand{\type}[1]{\fulltype{\Gamma}{#1}}
 
 % Valid assumption context.
-\newcommand{\assctx}[2]{\mathcolor{cyan}{#1\ \vdash #2\ \texttt{valid}}}
+\newcommand{\assctx}[2]{#1\ \vdash #2\ \texttt{valid}}
 
 % Well-formed proposition.
-\newcommand{\prop}[2]{\mathcolor{green}{#1 \vdash #2\ \texttt{prop}}}
+\newcommand{\prop}[2]{#1 \vdash #2\ \texttt{prop}}
 
 % Proposition holds.
-\newcommand{\fullholds}[3]{\mathcolor{red}{#1 \pipe #2 \vdash #3}}
+\newcommand{\fullholds}[3]{#1 \pipe #2 \vdash #3}
 \newcommand{\holds}[1]{\fullholds{\Gamma}{\Delta}{#1}}
 
 % Proof judgement.
@@ -216,7 +216,7 @@
 \newcommand{\infrule}[3][]{\displaystyle \frac{#2}{#3} \rulename{#1}}
 
 % Side conditions - this command semantically marks side conditions in inference rules, but otherwise does nothing.
-\newcommand{\sidecond}[1]{\mathcolor{orange}{#1}}
+\newcommand{\sidecond}[1]{#1}
 
 % Proofterms.tex
 \newcommand{\NDL}{\mathcal{NDL}}

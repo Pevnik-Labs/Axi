@@ -43,7 +43,7 @@ To deal with this problem, we introduce proofterms (also known as proof certific
 
 Proofterms (here $P$ are propositions, $t$ are terms, $x$ are variables): \\
 $e ::=$ \\
-\qquad $P \pipe \true \pipe \exfalso{e}$ \\
+\qquad $P \pipe \trueintro \pipe \falseelim{e}$ \\
 \qquad $\implintro{P}{e} \pipe \implelim{e_1}{e_2} \pipe$ \\
 \qquad $\notintro{P}{e} \pipe \notelim{e_1}{e_2} \pipe$ \\
 \qquad $\andintro{e_1}{e_2} \pipe \andeliml{e} \pipe \andelimr{e} \pipe$ \\
@@ -171,7 +171,7 @@ We will modify the language in the following way: we throw away the true proposi
 
 \vspace{2em}
 
-Because we no longer have separate assumption contexts, but still need to keep track of well-formedness of assumptions, we drop the valid assumption context judgement $\assctx{\Gamma}{\Delta}$ and replace it with the valid context judgement $\tyctx{\Gamma}$, which should be read: $\Gamma$ is a well-formed context.
+Because we no longer have separate assumption contexts, but still need to keep track of well-formedness of assumptions, we drop the valid assumption context judgement $\assctx{\Gamma}{\Delta}$ and replace it with the valid context judgement $\ctx{\Gamma}$, which should be read: $\Gamma$ is a well-formed context.
 
 \vspace{2em}
 
@@ -188,8 +188,8 @@ Recall that our judgements should satisfy some ``sanity checks'', which can be s
 In case of our logic, we will set up the judgements so that the following sanity checks hold:
 
 \begin{itemize}
-  \item $\tyctx{\Gamma}$ entails nothing (because it is the simplest judgement)
-  \item $\prop{\Gamma}{P}$ entails $\tyctx{\Gamma}$
+  \item $\ctx{\Gamma}$ entails nothing (because it is the simplest judgement)
+  \item $\prop{\Gamma}{P}$ entails $\ctx{\Gamma}$
   \item $\proves{e}{P}$ entails $\prop{\Gamma}{P}$
 \end{itemize}
 
@@ -198,8 +198,8 @@ In case of our logic, we will set up the judgements so that the following sanity
 Note that the programming layer would need to be slightly modified so that it satisfies the following sanity checks:
 
 \begin{itemize}
-  \item $\typing{e}{A}$ entails $\tyctx{\Gamma}$
-  \item $\computation{e_1}{e_2}{A}$ entails $\typing{e_1}{A}$ and $\typing{e_2}{A}$
+  \item $\typing{e}{A}$ entails $\ctx{\Gamma}$
+  \item $\compeq{e_1}{e_2}{A}$ entails $\typing{e_1}{A}$ and $\typing{e_2}{A}$
 \end{itemize}
 
 \end{frame}
@@ -209,7 +209,7 @@ Note that the programming layer would need to be slightly modified so that it sa
 \begin{frame}{Assumptions}
 
 \begin{center}
-  $\infrule[Ass]{\tyctx{\Gamma} \quad \sidecond{P \in \Gamma}}{\proves{P}{P}}$
+  $\infrule[Ass]{\ctx{\Gamma} \quad \sidecond{P \in \Gamma}}{\proves{P}{P}}$
 \end{center}
 
 \vspace{2em}
@@ -221,20 +221,20 @@ The basic rule of our logic is that we can use assumptions from the context. Not
 \begin{frame}{True and False}
 
 \begin{center}
-  $\infrule[True-Intro]{\tyctx{\Gamma}}{\proves{\true}{\True}}$
+  $\infrule[True-Intro]{\ctx{\Gamma}}{\proves{\trueintro}{\True}}$
 
   \vspace{2em}
 
-  $\infrule[False-Elim]{\prop{\Gamma}{P} \quad \proves{e}{\False}}{\proves{\exfalso{e}}{P}}$
+  $\infrule[False-Elim]{\prop{\Gamma}{P} \quad \proves{e}{\False}}{\proves{\falseelim{e}}{P}}$
 \end{center}
 
 \vspace{2em}
 
-$\true$ proves the true proposition $\True$ in any well-formed context.
+$\trueintro$ proves the true proposition $\True$ in any well-formed context.
 
 \vspace{1em}
 
-$\exfalso{e}$ proves any well-formed proposition $P$ whatsoever, provided that $e$ proves the false proposition $\False$.
+$\falseelim{e}$ proves any well-formed proposition $P$ whatsoever, provided that $e$ proves the false proposition $\False$.
 
 \end{frame}
 
@@ -506,7 +506,7 @@ $\exelim{y}{e_1}{e_2}$ proves $R$, provided that $e_1$ proves $\Ex{x}{A}{P}$ and
 
 \begin{frame}{Computational equality -- refresher}
 
-The computational equality judgement $\computation{t_1}{t_2}{A}$ (sometimes also called judgemental equality, or simply convertibility) is the way in which we express computation in our language. Its intuitive meaning is that $t_1$ and $t_2$ compute to the same result (although the rules we gave in the previous slides don't look like this at all).
+The computational equality judgement $\compeq{t_1}{t_2}{A}$ (sometimes also called judgemental equality, or simply convertibility) is the way in which we express computation in our language. Its intuitive meaning is that $t_1$ and $t_2$ compute to the same result (although the rules we gave in the previous slides don't look like this at all).
 
 \vspace{2em}
 
@@ -535,7 +535,7 @@ We also include a rule that asserts function extensionality, i.e. the principle 
 \begin{frame}{Conversion rule}
 
 \begin{center}
-  $\infrule[Conv]{\prop{\extend{\Gamma}{x}{A}}{P} \quad \computation{t_1}{t_2}{A} \quad \proves{e}{\subst{P}{x}{t_1}}}{\proves{e}{\subst{P}{x}{t_2}}}$
+  $\infrule[Conv]{\prop{\extend{\Gamma}{x}{A}}{P} \quad \compeq{t_1}{t_2}{A} \quad \proves{e}{\subst{P}{x}{t_1}}}{\proves{e}{\subst{P}{x}{t_2}}}$
 \end{center}
 
 \vspace{2em}

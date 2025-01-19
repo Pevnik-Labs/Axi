@@ -29,7 +29,7 @@ $e ::=$ \\
 \qquad $x \pipe \fun{x}{e} \pipe \app{e_1}{e_2} \pipe$ \\
 \qquad $\pair{e_1}{e_2} \pipe \outl{e} \pipe \outr{e} \pipe$ \\
 \qquad $\inl{e} \pipe \inr{e} \pipe \case{e}{e_1}{e_2} \pipe$ \\
-\qquad $\unit \pipe \elimEmpty{e}$
+\qquad $\unit \pipe \emptyelim{e}$
 
 \vspace{2em}
 
@@ -52,7 +52,7 @@ In the base language we have only function types, product types, sum types, $Uni
 
 \vspace{1em}
 
-Some of the less obvious terms: $\outl{e}$ and $\outr{e}$ are projections, $unit$ is the only value of the $Unit$ type and $\elimEmpty{e}$ is the eliminator of the empty type applied to $e$. $\case{e}{e_1}{e_2}$ is the eliminator of the sum type and its arguments $e_1, e_2$ are supposed to be functions. Note that we don't have a type annotation on the lambda, and no type annotations in the language in general. This is not an oversight -- we postpone deciding this detail for later.
+Some of the less obvious terms: $\outl{e}$ and $\outr{e}$ are projections, $unit$ is the only value of the $Unit$ type and $\emptyelim{e}$ is the eliminator of the empty type applied to $e$. $\case{e}{e_1}{e_2}$ is the eliminator of the sum type and its arguments $e_1, e_2$ are supposed to be functions. Note that we don't have a type annotation on the lambda, and no type annotations in the language in general. This is not an oversight -- we postpone deciding this detail for later.
 
 \end{frame}
 
@@ -110,19 +110,19 @@ $\typing{e}{A}$ -- in typing context $\Gamma$, term $e$ is of type $A$.
 \vspace{1em}
 
 Computational equality judgement: \\
-$\computation{e_1}{e_2}{A}$ -- in typing context $\Gamma$, terms $e_1$ and $e_2$ are computationally equal.
+$\compeq{e_1}{e_2}{A}$ -- in typing context $\Gamma$, terms $e_1$ and $e_2$ are computationally equal.
 
 \end{frame}
 
 \begin{frame}{Sanity checks}
 
-The inference rules of the system will guarantee that whenever we derive a judgement, then another simpler judgement (called a \textbf{sanity condition}) also holds. For the computational equality $\computation{e_1}{e_2}{A}$ the sanity conditions are $\typing{e_1}{A}$ and $\typing{e_2}{A}$. The typing judgement $\typing{e}{A}$ does not have a sanity condition, but we can think that its sanity condition is the fact that the typing context $\Gamma$ is a well-formed finite partial map from variables to types.
+The inference rules of the system will guarantee that whenever we derive a judgement, then another simpler judgement (called a \textbf{sanity condition}) also holds. For the computational equality $\compeq{e_1}{e_2}{A}$ the sanity conditions are $\typing{e_1}{A}$ and $\typing{e_2}{A}$. The typing judgement $\typing{e}{A}$ does not have a sanity condition, but we can think that its sanity condition is the fact that the typing context $\Gamma$ is a well-formed finite partial map from variables to types.
 
 \end{frame}
 
 \begin{frame}{Typing -- basics}
 
-The typing judgement tells us which terms have which types. The most important rule of typing is that variables have whatever type the typing context tells us -- we will call ths the variable rule. Note that the premise of the rule, $\mathcolor{orange}{(x : A) \in \Gamma}$, does not belong to any judgement -- we will call such premises \textbf{side conditions} and highlight them in orange.
+The typing judgement tells us which terms have which types. The most important rule of typing is that variables have whatever type the typing context tells us -- we will call ths the variable rule. Note that the premise of the rule, $\sidecond{(x : A) \in \Gamma}$, does not belong to any judgement -- we will call such premises \textbf{side conditions}.
 
 \vspace{2em}
 
@@ -170,7 +170,7 @@ We omit names of these rules because it's easier to refer to them by the name of
   \vspace{2em}
 
   $\infrule{}{\typing{\unit}{\Unit}}$ \quad
-  $\infrule{\typing{e}{\Empty}}{\typing{\elimEmpty[e]}{A}}$
+  $\infrule{\typing{e}{\Empty}}{\typing{\emptyelim{e}}{A}}$
 \end{center}
 
 \end{frame}
@@ -194,20 +194,20 @@ To state the computation rules, we need a substitution operation. Our notation i
 Computation rules describe the most essential computation steps. For example, what happens when we project the first element out of a pair? Note that not all types have computation rules. For example, $\Unit$ and $\Empty$ have no computation rules because there's no computation going on in these types.
 
 \begin{center}
-  $\infrule[App-Lam]{\fulltyping{\extend{\Gamma}{x}{A}}{b}{B} \quad \typing{a}{A}}{\computation{\app{(\fun{x}{b})}{a}}{\subst{b}{x}{a}}{B}}$
+  $\infrule[App-Lam]{\fulltyping{\extend{\Gamma}{x}{A}}{b}{B} \quad \typing{a}{A}}{\compeq{\app{(\fun{x}{b})}{a}}{\subst{b}{x}{a}}{B}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{a}{A} \quad \typing{b}{B}}{\computation{\outl{\pair{a}{b}}}{a}{A}}$ \quad
-  $\infrule{\typing{a}{A} \quad \typing{b}{B}}{\computation{\outr{\pair{a}{b}}}{b}{B}}$
+  $\infrule{\typing{a}{A} \quad \typing{b}{B}}{\compeq{\outl{\pair{a}{b}}}{a}{A}}$ \quad
+  $\infrule{\typing{a}{A} \quad \typing{b}{B}}{\compeq{\outr{\pair{a}{b}}}{b}{B}}$
 
   \vspace{1em}
 
-  $\infrule[Case-Inl]{\typing{a}{A} \quad \typing{f}{\Fun{A}{C}} \quad \typing{g}{\Fun{B}{C}}}{\computation{\case{(\inl{a})}{f}{g}}{\app{f}{a}}{C}}$
+  $\infrule[Case-Inl]{\typing{a}{A} \quad \typing{f}{\Fun{A}{C}} \quad \typing{g}{\Fun{B}{C}}}{\compeq{\case{(\inl{a})}{f}{g}}{\app{f}{a}}{C}}$
 
   \vspace{1em}
 
-  $\infrule[Case-Inr]{\typing{a}{A} \quad \typing{f}{\Fun{A}{C}} \quad \typing{g}{\Fun{B}{C}}}{\computation{\case{(\inr{b})}{f}{g}}{\app{g}{b}}{C}}$
+  $\infrule[Case-Inr]{\typing{a}{A} \quad \typing{f}{\Fun{A}{C}} \quad \typing{g}{\Fun{B}{C}}}{\compeq{\case{(\inr{b})}{f}{g}}{\app{g}{b}}{C}}$
 \end{center}
 
 \end{frame}
@@ -217,19 +217,19 @@ Computation rules describe the most essential computation steps. For example, wh
 Uniqueness rules establish that every term of a given type is computationally equal to a constructor of the type. For example, every term of a product type is a pair. The rules for $\Unit$ and $\Empty$ are a bit broader -- they establish that all terms of these types are equal. Note that there are no uniqueness rules for sums.
 
 \begin{center}
-  $\infrule[Fun-Uniq]{\typing{f}{\Fun{A}{B}}}{\computation{f}{\fun{x}{\app{f}{x}}}{\Fun{A}{B}}}$
+  $\infrule[Fun-Uniq]{\typing{f}{\Fun{A}{B}}}{\compeq{f}{\fun{x}{\app{f}{x}}}{\Fun{A}{B}}}$
 
   \vspace{1em}
 
-  $\infrule[Prod-Uniq]{\typing{e}{\Prod{A}{B}}}{\computation{e}{\pair{\outl{e}}{\outr{e}}}{\Prod{A}{B}}}$
+  $\infrule[Prod-Uniq]{\typing{e}{\Prod{A}{B}}}{\compeq{e}{\pair{\outl{e}}{\outr{e}}}{\Prod{A}{B}}}$
 
   \vspace{1em}
 
-  $\infrule[Unit-Uniq]{\typing{e_1}{\Unit} \quad \typing{e_2}{\Unit}}{\computation{e_1}{e_2}{\Unit}}$
+  $\infrule[Unit-Uniq]{\typing{e_1}{\Unit} \quad \typing{e_2}{\Unit}}{\compeq{e_1}{e_2}{\Unit}}$
 
   \vspace{1em}
 
-  $\infrule[Empty-Uniq]{\typing{e_1}{\Empty} \quad \typing{e_2}{\Empty}}{\computation{e_1}{e_2}{\Empty}}$
+  $\infrule[Empty-Uniq]{\typing{e_1}{\Empty} \quad \typing{e_2}{\Empty}}{\compeq{e_1}{e_2}{\Empty}}$
 
 \end{center}
 
@@ -240,15 +240,15 @@ Uniqueness rules establish that every term of a given type is computationally eq
 Computational equality is an equivalence relation, i.e. it is reflexive, symmetric and transitive.
 
 \begin{center}
-  $\infrule[Comp-Refl]{\typing{e}{A}}{\computation{e}{e}{A}}$
+  $\infrule[Comp-Refl]{\typing{e}{A}}{\compeq{e}{e}{A}}$
 
   \vspace{2em}
 
-  $\infrule[Comp-Sym]{\computation{e_1}{e_2}{A}}{\computation{e_2}{e_1}{A}}$
+  $\infrule[Comp-Sym]{\compeq{e_1}{e_2}{A}}{\compeq{e_2}{e_1}{A}}$
 
   \vspace{2em}
 
-  $\infrule[Comp-Trans]{\computation{e_1}{e_2}{A} \quad \computation{e_2}{e_3}{A}}{\computation{e_1}{e_3}{A}}$
+  $\infrule[Comp-Trans]{\compeq{e_1}{e_2}{A} \quad \compeq{e_2}{e_3}{A}}{\compeq{e_1}{e_3}{A}}$
 \end{center}
 
 \end{frame}
@@ -262,31 +262,31 @@ The congruence rules state that computational equality is preserved by every lan
 \begin{frame}{Congruence rules 2}
 
 \begin{center}
-  $\infrule{\fullcomputation{\extend{\Gamma}{x}{A}}{e}{e'}{B}}{\computation{\fun{x}{e}}{\fun{x}{e'}}{\Fun{A}{B}}}$ \quad
-  $\infrule{\computation{f}{f'}{\Fun{A}{B}} \quad \computation{a}{a'}{A}}{\computation{\app{f}{a}}{\app{f'}{a'}}{B}}$
+  $\infrule{\fullcompeq{\extend{\Gamma}{x}{A}}{e}{e'}{B}}{\compeq{\fun{x}{e}}{\fun{x}{e'}}{\Fun{A}{B}}}$ \quad
+  $\infrule{\compeq{f}{f'}{\Fun{A}{B}} \quad \compeq{a}{a'}{A}}{\compeq{\app{f}{a}}{\app{f'}{a'}}{B}}$
 
   \vspace{1em}
 
-  $\infrule{\computation{a}{a'}{A} \quad \computation{b}{b'}{B}}{\computation{\pair{a}{b}}{\pair{a'}{b'}}{\Prod{A}{B}}}$
+  $\infrule{\compeq{a}{a'}{A} \quad \compeq{b}{b'}{B}}{\compeq{\pair{a}{b}}{\pair{a'}{b'}}{\Prod{A}{B}}}$
 
   \vspace{1em}
 
-  $\infrule{\computation{e}{e'}{\Prod{A}{B}}}{\computation{\outl{e}}{\outl{e'}}{A}}$ \quad
-  $\infrule{\computation{e}{e'}{\Prod{A}{B}}}{\computation{\outr{e}}{\outr{e'}}{B}}$
+  $\infrule{\compeq{e}{e'}{\Prod{A}{B}}}{\compeq{\outl{e}}{\outl{e'}}{A}}$ \quad
+  $\infrule{\compeq{e}{e'}{\Prod{A}{B}}}{\compeq{\outr{e}}{\outr{e'}}{B}}$
 
   \vspace{1em}
 
-  $\infrule{\computation{e}{e'}{A}}{\computation{\inl{e}}{\inl{e'}}{\Sum{A}{B}}}$ \quad
-  $\infrule{\computation{e}{e'}{B}}{\computation{\inr{e}}{\inr{e'}}{\Sum{A}{B}}}$
+  $\infrule{\compeq{e}{e'}{A}}{\compeq{\inl{e}}{\inl{e'}}{\Sum{A}{B}}}$ \quad
+  $\infrule{\compeq{e}{e'}{B}}{\compeq{\inr{e}}{\inr{e'}}{\Sum{A}{B}}}$
 
   \vspace{1em}
 
-  $\infrule{\computation{e}{e'}{\Sum{A}{B}} \quad \computation{f}{f'}{\Fun{A}{C}} \quad \computation{g}{g'}{\Fun{B}{C}}}{\computation{\case{e}{f}{g}}{\case{e'}{f'}{g'}}{C}}$
+  $\infrule{\compeq{e}{e'}{\Sum{A}{B}} \quad \compeq{f}{f'}{\Fun{A}{C}} \quad \compeq{g}{g'}{\Fun{B}{C}}}{\compeq{\case{e}{f}{g}}{\case{e'}{f'}{g'}}{C}}$
 
   \vspace{1em}
 
-  $\infrule{}{\computation{\unit}{\unit}{\Unit}}$ \quad
-  $\infrule{\computation{e}{e'}{\Empty}}{\computation{\elimEmpty[e]}{\elimEmpty[e']}{A}}$
+  $\infrule{}{\compeq{\unit}{\unit}{\Unit}}$ \quad
+  $\infrule{\compeq{e}{e'}{\Empty}}{\compeq{\emptyelim{e}}{\emptyelim{e'}}{A}}$
 \end{center}
 
 \end{frame}
@@ -474,7 +474,7 @@ Propositional equality is an equivalence relation that can be substitued in proo
 \vspace{2em}
 
 \begin{center}
-  $\infrule[Eq-Refl]{\assctx{\Gamma}{\Delta} \quad \computation{e_1}{e_2}{A}}{\holds{\Eq[A]{e_1}{e_2}}}$
+  $\infrule[Eq-Refl]{\assctx{\Gamma}{\Delta} \quad \compeq{e_1}{e_2}{A}}{\holds{\Eq[A]{e_1}{e_2}}}$
 
   \vspace{1em}
 
@@ -548,22 +548,22 @@ In the following slides, we will introduce new types and their terms one by one.
 
 \end{frame}
 
-\newcommand{\elimUnit}[2]{\texttt{elim}_{\Unit}\ #1\ #2}
+\newcommand{\unitelim}[2]{\Unit\texttt{-elim}\ #1\ #2}
 
 \begin{frame}{Eliminator for $\Unit$}
 
 One little silly thing that we don't have is an eliminator for the $\Unit$ type. It's useless, but why not?
 
 \begin{center}
-  $\infrule[Unit-Elim]{\typing{e}{A} \quad \typing{u}{\Unit}}{\typing{\elimUnit{e}{u}}{A}}$
+  $\infrule[Unit-Elim]{\typing{e}{A} \quad \typing{u}{\Unit}}{\typing{\unitelim{e}{u}}{A}}$
 
   \vspace{1em}
 
-  $\infrule[Comp-Unit]{\typing{e}{A}}{\computation{\elimUnit{e}{\unit}}{e}{A}}$
+  $\infrule[Comp-Unit]{\typing{e}{A}}{\compeq{\unitelim{e}{\unit}}{e}{A}}$
 
   \vspace{1em}
 
-  $\infrule[Congr-Unit-Elim]{\computation{e}{e'}{A} \quad \computation{u}{u'}{\Unit}}{\computation{\elimUnit{e}{u}}{\elimUnit{e'}{u'}}{A}}$
+  $\infrule[Congr-Unit-Elim]{\compeq{e}{e'}{A} \quad \compeq{u}{u'}{\Unit}}{\compeq{\unitelim{e}{u}}{\unitelim{e'}{u'}}{A}}$
 
   \vspace{1em}
 
@@ -584,20 +584,20 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 
   \vspace{1em}
 
-  %$\infrule{}{\computation{\btrue}{\btrue}{\Bool}}$ \quad
-  %$\infrule{}{\computation{\bfalse}{\bfalse}{\Bool}}$ \quad
+  %$\infrule{}{\compeq{\btrue}{\btrue}{\Bool}}$ \quad
+  %$\infrule{}{\compeq{\bfalse}{\bfalse}{\Bool}}$ \quad
 
   %\vspace{1em}
 
-  %$\infrule{\computation{e}{e'}{\Bool} \quad \computation{e_1}{e_1'}{A} \quad \computation{e_2}{e_2'}{A}}{\computation{\boolElim{e}{e_1}{e_2}}{\boolElim{e'}{e_1'}{e_2'}}{A}}$
+  %$\infrule{\compeq{e}{e'}{\Bool} \quad \compeq{e_1}{e_1'}{A} \quad \compeq{e_2}{e_2'}{A}}{\compeq{\boolElim{e}{e_1}{e_2}}{\boolElim{e'}{e_1'}{e_2'}}{A}}$
 
   %\vspace{1em}
 
-  $\infrule[Comp-If-True]{\typing{e_1}{A} \quad \typing{e_2}{A}}{\computation{\boolElim{\btrue}{e_1}{e_2}}{e_1}{A}}$
+  $\infrule[Comp-If-True]{\typing{e_1}{A} \quad \typing{e_2}{A}}{\compeq{\boolElim{\btrue}{e_1}{e_2}}{e_1}{A}}$
 
   \vspace{1em}
 
-  $\infrule[Comp-If-False]{\typing{e_1}{A} \quad \typing{e_2}{A}}{\computation{\boolElim{\bfalse}{e_1}{e_2}}{e_2}{A}}$
+  $\infrule[Comp-If-False]{\typing{e_1}{A} \quad \typing{e_2}{A}}{\compeq{\boolElim{\bfalse}{e_1}{e_2}}{e_2}{A}}$
 
   \vspace{1em}
 
@@ -609,15 +609,15 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 \begin{frame}{Booleans -- congruence rules}
 
 \begin{center}
-  $\infrule[True-Congr]{}{\computation{\btrue}{\btrue}{\Bool}}$
+  $\infrule[True-Congr]{}{\compeq{\btrue}{\btrue}{\Bool}}$
 
   \vspace{1em}
 
-  $\infrule[False-Congr]{}{\computation{\bfalse}{\bfalse}{\Bool}}$
+  $\infrule[False-Congr]{}{\compeq{\bfalse}{\bfalse}{\Bool}}$
 
   \vspace{1em}
 
-  $\infrule[If-Congr]{\computation{e}{e'}{\Bool} \quad \computation{e_1}{e_1'}{A} \quad \computation{e_2}{e_2'}{A}}{\computation{\boolElim{e}{e_1}{e_2}}{\boolElim{e'}{e_1'}{e_2'}}{A}}$
+  $\infrule[If-Congr]{\compeq{e}{e'}{\Bool} \quad \compeq{e_1}{e_1'}{A} \quad \compeq{e_2}{e_2'}{A}}{\compeq{\boolElim{e}{e_1}{e_2}}{\boolElim{e'}{e_1'}{e_2'}}{A}}$
 \end{center}
 
 \end{frame}
@@ -639,11 +639,11 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 
   \vspace{1em}
 
-  $\infrule[Rec-Zero]{\typing{z}{A} \quad \typing{s}{\Fun{A}{A}}}{\computation{\elimNat{z}{s}{\zero}}{z}{A}}$
+  $\infrule[Rec-Zero]{\typing{z}{A} \quad \typing{s}{\Fun{A}{A}}}{\compeq{\elimNat{z}{s}{\zero}}{z}{A}}$
 
   \vspace{1em}
 
-  $\infrule[Rec-Succ]{\typing{z}{A} \quad \typing{s}{\Fun{A}{A}} \quad \typing{n}{\Nat}}{\computation{\elimNat{z}{s}{(\succ[n])}}{\app{s}{(\elimNat{z}{s}{n})}}{A}}$
+  $\infrule[Rec-Succ]{\typing{z}{A} \quad \typing{s}{\Fun{A}{A}} \quad \typing{n}{\Nat}}{\compeq{\elimNat{z}{s}{(\succ[n])}}{\app{s}{(\elimNat{z}{s}{n})}}{A}}$
 
   \vspace{1em}
 
@@ -655,15 +655,15 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 \begin{frame}{Natural numbers -- congruence rules}
 
 \begin{center}
-  $\infrule[Zero-Congr]{}{\computation{\zero}{\zero}{\Nat}}$
+  $\infrule[Zero-Congr]{}{\compeq{\zero}{\zero}{\Nat}}$
 
   \vspace{1em}
 
-  $\infrule[Succ-Congr]{\computation{n}{n'}{\Nat}}{\computation{\succ[n]}{\succ[n']}{\Nat}}$
+  $\infrule[Succ-Congr]{\compeq{n}{n'}{\Nat}}{\compeq{\succ[n]}{\succ[n']}{\Nat}}$
 
   \vspace{1em}
 
-  $\infrule[Nat-Elim-Congr]{\computation{z}{z'}{A} \quad \computation{s}{s'}{\Fun{A}{A}} \quad \computation{n}{n'}{\Nat}}{\computation{\elimNat{z}{s}{n}}{\elimNat{z'}{s'}{n'}}{A}}$
+  $\infrule[Nat-Elim-Congr]{\compeq{z}{z'}{A} \quad \compeq{s}{s'}{\Fun{A}{A}} \quad \compeq{n}{n'}{\Nat}}{\compeq{\elimNat{z}{s}{n}}{\elimNat{z'}{s'}{n'}}{A}}$
 \end{center}
 
 \end{frame}
@@ -685,11 +685,11 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 
   \vspace{1em}
 
-  $\infrule[Fold-Nil]{\typing{n}{B} \quad \typing{c}{\Fun{A}{\Fun{B}{B}}}}{\computation{\elimList{n}{c}{\nil}}{n}{B}}$
+  $\infrule[Fold-Nil]{\typing{n}{B} \quad \typing{c}{\Fun{A}{\Fun{B}{B}}}}{\compeq{\elimList{n}{c}{\nil}}{n}{B}}$
 
   \vspace{1em}
 
-  $\infrule[Fold-Cons]{\typing{n}{B} \quad \typing{c}{\Fun{A}{\Fun{B}{B}}} \quad \typing{h}{A} \quad \typing{t}{\List{A}}}{\computation{\elimList{n}{c}{(\cons{h}{t})}}{\app{\app{c}{h}}{(\elimList{n}{c}{t})}}{B}}$
+  $\infrule[Fold-Cons]{\typing{n}{B} \quad \typing{c}{\Fun{A}{\Fun{B}{B}}} \quad \typing{h}{A} \quad \typing{t}{\List{A}}}{\compeq{\elimList{n}{c}{(\cons{h}{t})}}{\app{\app{c}{h}}{(\elimList{n}{c}{t})}}{B}}$
 
   \vspace{1em}
 
@@ -701,15 +701,15 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 \begin{frame}{Lists -- congruence rules}
 
 \begin{center}
-  $\infrule[Nil-Congr]{}{\computation{\nil}{\nil}{\List{A}}}$
+  $\infrule[Nil-Congr]{}{\compeq{\nil}{\nil}{\List{A}}}$
 
   \vspace{1em}
 
-  $\infrule[Cons-Congr]{\computation{h}{h'}{A} \quad \computation{t}{t'}{\List{A}}}{\computation{\cons{h}{t}}{\cons{h'}{t'}}{\List{A}}}$
+  $\infrule[Cons-Congr]{\compeq{h}{h'}{A} \quad \compeq{t}{t'}{\List{A}}}{\compeq{\cons{h}{t}}{\cons{h'}{t'}}{\List{A}}}$
 
   \vspace{1em}
 
-  $\infrule[List-Elim-Congr]{\computation{n}{n'}{A} \quad \computation{c}{c'}{\Fun{A}{\Fun{B}{B}}} \quad \computation{l}{l'}{\List{A}}}{\computation{\elimList{n}{c}{l}}{\elimList{n'}{c'}{l'}}{B}}$
+  $\infrule[List-Elim-Congr]{\compeq{n}{n'}{A} \quad \compeq{c}{c'}{\Fun{A}{\Fun{B}{B}}} \quad \compeq{l}{l'}{\List{A}}}{\compeq{\elimList{n}{c}{l}}{\elimList{n'}{c'}{l'}}{B}}$
 \end{center}
 
 \end{frame}
@@ -732,11 +732,11 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 
   \vspace{1em}
 
-  $\infrule[Hd-Scons]{\typing{a}{A} \quad \typing{f}{\Fun{A}{A}}}{\computation{\hd[(\introStream{a}{f})]}{a}{A}}$
+  $\infrule[Hd-Scons]{\typing{a}{A} \quad \typing{f}{\Fun{A}{A}}}{\compeq{\hd[(\introStream{a}{f})]}{a}{A}}$
 
   \vspace{1em}
 
-  $\infrule[Tl-Scons]{\typing{a}{A} \quad \typing{f}{\Fun{A}{A}}}{\computation{\tl[(\introStream{a}{f})]}{\introStream{(\app{f}{a})}{f}}{\AxiStream{A}}}$
+  $\infrule[Tl-Scons]{\typing{a}{A} \quad \typing{f}{\Fun{A}{A}}}{\compeq{\tl[(\introStream{a}{f})]}{\introStream{(\app{f}{a})}{f}}{\AxiStream{A}}}$
 \end{center}
 
 \end{frame}
@@ -748,15 +748,15 @@ Streams do have all the congruence rules we would expect, but they don't have an
 \vspace{1em}
 
 \begin{center}
-  $\infrule[Hd-Congr]{\computation{s}{s'}{A}}{\computation{\hd[s]}{\hd[s']}{A}}$
+  $\infrule[Hd-Congr]{\compeq{s}{s'}{A}}{\compeq{\hd[s]}{\hd[s']}{A}}$
 
   \vspace{1em}
 
-  $\infrule[Tl-Congr]{\computation{s}{s'}{A}}{\computation{\tl[s]}{\tl[s']}{\AxiStream{A}}}$
+  $\infrule[Tl-Congr]{\compeq{s}{s'}{A}}{\compeq{\tl[s]}{\tl[s']}{\AxiStream{A}}}$
 
   \vspace{1em}
 
-  $\infrule[Scons-Congr]{\computation{a}{a'}{A} \quad \computation{f}{f'}{\Fun{A}{A}}}{\computation{\introStream{a}{f}}{\introStream{a'}{f'}}{\AxiStream{A}}}$
+  $\infrule[Scons-Congr]{\compeq{a}{a'}{A} \quad \compeq{f}{f'}{\Fun{A}{A}}}{\compeq{\introStream{a}{f}}{\introStream{a'}{f'}}{\AxiStream{A}}}$
 
   %$\infrule{\fullholds{\Gamma}{\assume{\Delta}{R}}{\Eq[A]{\hd{s_1}}{\hd{s_2}}} \quad \fullholds{\Gamma}{\assume{\Delta}{R}}{\subst{\subst{R}{x}{\tl[s_1]}}{y}{\tl[s_2]}}}{\holds{\Eq[\AxiStream{A}]{s_1}{s_2}}}$
 \end{center}
@@ -797,11 +797,11 @@ The original product types could be represented using record types as $\recordty
 
   \vspace{1em}
 
-  $\infrule[Record-Comp]{\typing{\records{\ell}{e}{i}{I}}{\recordtypes{\ell}{A}{i}{I}} \quad \sidecond{j \in I}}{\computation{\proj{\ell_j}{\records{\ell}{e}{i}{I}}}{e_j}{A_j}}$
+  $\infrule[Record-Comp]{\typing{\records{\ell}{e}{i}{I}}{\recordtypes{\ell}{A}{i}{I}} \quad \sidecond{j \in I}}{\compeq{\proj{\ell_j}{\records{\ell}{e}{i}{I}}}{e_j}{A_j}}$
 
   \vspace{1em}
 
-  $\infrule[Record-Uniq]{\typing{r}{\recordtypes{\ell}{A}{i}{I}}}{\computation{r}{\records{\ell}{\proj{\ell}{r}}{i}{I}}{\recordtypes{\ell}{A}{i}{I}}}$
+  $\infrule[Record-Uniq]{\typing{r}{\recordtypes{\ell}{A}{i}{I}}}{\compeq{r}{\records{\ell}{\proj{\ell}{r}}{i}{I}}{\recordtypes{\ell}{A}{i}{I}}}$
 \end{center}
 
 \end{frame}
@@ -809,11 +809,11 @@ The original product types could be represented using record types as $\recordty
 \begin{frame}{Record types -- congruence rules}
 
 \begin{center}
-  $\infrule[Record-Intro-Congr]{\forall i \in I. \quad \computation{e_i}{e_i'}{A_i}}{\computation{\records{\ell}{e}{i}{I}}{\records{\ell}{e'}{i}{I}}{\recordtypes{\ell}{A}{i}{I}}}$
+  $\infrule[Record-Intro-Congr]{\forall i \in I. \quad \compeq{e_i}{e_i'}{A_i}}{\compeq{\records{\ell}{e}{i}{I}}{\records{\ell}{e'}{i}{I}}{\recordtypes{\ell}{A}{i}{I}}}$
 
   \vspace{1em}
 
-  $\infrule[Record-Elim-Congr]{\computation{e}{e'}{\recordtypes{\ell}{A}{i}{I}} \quad \sidecond{j \in I}}{\computation{\proj{\ell_j}{e}}{\proj{\ell_j}{e'}}{A_j}}$
+  $\infrule[Record-Elim-Congr]{\compeq{e}{e'}{\recordtypes{\ell}{A}{i}{I}} \quad \sidecond{j \in I}}{\compeq{\proj{\ell_j}{e}}{\proj{\ell_j}{e'}}{A_j}}$
 \end{center}
 
 \end{frame}
@@ -842,7 +842,7 @@ The original sum type can be recovered as $\varianttype{\texttt{inl} : A; \textt
 
   \vspace{1em}
 
-  $\infrule[Variant-Comp]{\typing{e}{A_j} \quad \typing{r}{\recordtype{c_i : \Fun{A_i}{B}}_{i \in I}} \quad \sidecond{j \in I}}{\computation{\vcase{(\app{c_j}{e})}{r}}{\app{\proj{c_j}{r}}{e}}{B}}$
+  $\infrule[Variant-Comp]{\typing{e}{A_j} \quad \typing{r}{\recordtype{c_i : \Fun{A_i}{B}}_{i \in I}} \quad \sidecond{j \in I}}{\compeq{\vcase{(\app{c_j}{e})}{r}}{\app{\proj{c_j}{r}}{e}}{B}}$
 \end{center}
 
 \end{frame}
@@ -850,11 +850,11 @@ The original sum type can be recovered as $\varianttype{\texttt{inl} : A; \textt
 \begin{frame}{Variant types -- congruence rules}
 
 \begin{center}
-  $\infrule[Variant-Intro-Congr]{\computation{e}{e'}{A_j} \quad \sidecond{j \in I}}{\computation{\app{c_j}{e}}{\app{c_j}{e'}}{\varianttypes{c}{A}{i}{I}}}$
+  $\infrule[Variant-Intro-Congr]{\compeq{e}{e'}{A_j} \quad \sidecond{j \in I}}{\compeq{\app{c_j}{e}}{\app{c_j}{e'}}{\varianttypes{c}{A}{i}{I}}}$
 
   \vspace{1em}
 
-  $\infrule[Variant-Elim-Congr]{\computation{e}{e'}{\varianttypes{c}{A}{i}{I}} \quad \computation{r}{r'}{\recordtype{c_i : \Fun{A_i}{B}}_{i \in I}}}{\computation{\vcase{e}{r}}{\vcase{e'}{r'}}{B}}$
+  $\infrule[Variant-Elim-Congr]{\compeq{e}{e'}{\varianttypes{c}{A}{i}{I}} \quad \compeq{r}{r'}{\recordtype{c_i : \Fun{A_i}{B}}_{i \in I}}}{\compeq{\vcase{e}{r}}{\vcase{e'}{r'}}{B}}$
 \end{center}
 
 \end{frame}
@@ -906,7 +906,7 @@ Assume for a moment that $A, B, C$ are arbitrary types. Let's write some program
 
 \begin{itemize}
   \item $\delete := \fun{x}{\unit}$
-  \item $\create := \fun{x}{\elimEmpty{x}}$
+  \item $\create := \fun{x}{\emptyelim{x}}$
   \item $\id := \fun{x}{x}$
   \item $\comp := \fun{f}{\fun{g}{\fun{x}{\app{g}{(\app{f}{x})}}}}$
   \item $\swap := \fun{p}{\pair{\outr{p}}{\outl{p}}}$
@@ -943,14 +943,14 @@ What are the types of our programs?
 \begin{frame}{Example computations}
 
 \begin{itemize}
-  \item $\computation{\delete[a]}{\unit}{\Unit}$
-  \item $\computation{\id[a]}{a}{A}$
-  \item $\computation{\app{\app{\comp}{f}}{\id}}{f}{\Fun{A}{B}}$
-  \item $\computation{\app{\app{\comp}{\id}}{g}}{g}{\Fun{B}{C}}$
-  \item $\computation{\swap[(\swap[p])]}{p}{\Prod{A}{B}}$
-  \item $\computation{\swop[(\swop[(\inl{a})])]}{\inl{a}}{A}$
-  \item $\computation{\swop[(\swop[(\inr{b})])]}{\inr{b}}{B}$
-  \item $\computation{\notb[(\app{\app{\andb}{\btrue}}{\btrue})]}{\bfalse}{\Bool}$
+  \item $\compeq{\delete[a]}{\unit}{\Unit}$
+  \item $\compeq{\id[a]}{a}{A}$
+  \item $\compeq{\app{\app{\comp}{f}}{\id}}{f}{\Fun{A}{B}}$
+  \item $\compeq{\app{\app{\comp}{\id}}{g}}{g}{\Fun{B}{C}}$
+  \item $\compeq{\swap[(\swap[p])]}{p}{\Prod{A}{B}}$
+  \item $\compeq{\swop[(\swop[(\inl{a})])]}{\inl{a}}{A}$
+  \item $\compeq{\swop[(\swop[(\inr{b})])]}{\inr{b}}{B}$
+  \item $\compeq{\notb[(\app{\app{\andb}{\btrue}}{\btrue})]}{\bfalse}{\Bool}$
 \end{itemize}
 
 \end{frame}
@@ -983,11 +983,11 @@ A practical programming language certainly needs a way for the programmer to put
 
   \vspace{1em}
 
-  $\infrule[Comp-Annot]{\typing{e}{A}}{\computation{\annot{e}{A}}{e}{A}}$
+  $\infrule[Comp-Annot]{\typing{e}{A}}{\compeq{\annot{e}{A}}{e}{A}}$
 
   \vspace{1em}
 
-  $\infrule[Annot-Congr]{\computation{e}{e'}{A}}{\computation{\annot{e}{A}}{\annot{e'}{A}}{A}}$
+  $\infrule[Annot-Congr]{\compeq{e}{e'}{A}}{\compeq{\annot{e}{A}}{\annot{e'}{A}}{A}}$
 \end{center}
 
 \end{frame}
@@ -1002,11 +1002,11 @@ Let-bindings are a useful programming language feature, so we could add them. No
 
   \vspace{1em}
 
-  $\infrule[Let-Comp]{\typing{\letin{x}{e_1}{e_2}}{A}}{\computation{\letin{x}{e_1}{e_2}}{\subst{e_2}{x}{e_1}}{A}}$
+  $\infrule[Let-Comp]{\typing{\letin{x}{e_1}{e_2}}{A}}{\compeq{\letin{x}{e_1}{e_2}}{\subst{e_2}{x}{e_1}}{A}}$
 
   \vspace{1em}
 
-  $\infrule[Let-Congr]{\computation{e_1}{e_1'}{A} \quad \computation{e_2}{e_2'}{B}}{\computation{\letin{x}{e_1}{e_2}}{\letin{x}{e_1'}{e_2'}}{B}}$
+  $\infrule[Let-Congr]{\compeq{e_1}{e_1'}{A} \quad \compeq{e_2}{e_2'}{B}}{\compeq{\letin{x}{e_1}{e_2}}{\letin{x}{e_1'}{e_2'}}{B}}$
 \end{center}
 
 \end{frame}
@@ -1020,12 +1020,12 @@ $\Gamma ::= \emptytypingctx \pipe \extend{\Gamma}{x}{A} \pipe \extenddef{\Gamma}
 \vspace{0.5em}
 
 \begin{center}
-  $\infrule[Ctx-Empty]{}{\tyctx{\emptytypingctx}}$ \quad
-  $\infrule[Ctx-Extend]{\tyctx{\Gamma} \quad \sidecond{x \notin \Gamma}}{\tyctx{\extend{\Gamma}{x}{A}}}$
+  $\infrule[Ctx-Empty]{}{\ctx{\emptytypingctx}}$ \quad
+  $\infrule[Ctx-Extend]{\ctx{\Gamma} \quad \sidecond{x \notin \Gamma}}{\ctx{\extend{\Gamma}{x}{A}}}$
 
   \vspace{1em}
 
-  $\infrule[Ctx-Def]{\tyctx{\Gamma} \quad \typing{e}{A} \quad \sidecond{x \notin \Gamma}}{\tyctx{\extenddef{\Gamma}{x}{A}{e}}}$
+  $\infrule[Ctx-Def]{\ctx{\Gamma} \quad \typing{e}{A} \quad \sidecond{x \notin \Gamma}}{\ctx{\extenddef{\Gamma}{x}{A}{e}}}$
 \end{center}
 
 \end{frame}
@@ -1036,12 +1036,12 @@ We now need two rules for typing variables: one for when the variable is defined
 
 \begin{center}
 
-  $\infrule[Var-Ext]{\tyctx{\Gamma} \quad \sidecond{(x : A) \in \Gamma}}{\typing{x}{A}}$ \quad
-  $\infrule[Var-Def]{\tyctx{\Gamma} \quad \sidecond{(x : A := e) \in \Gamma}}{\typing{x}{A}}$
+  $\infrule[Var-Ext]{\ctx{\Gamma} \quad \sidecond{(x : A) \in \Gamma}}{\typing{x}{A}}$ \quad
+  $\infrule[Var-Def]{\ctx{\Gamma} \quad \sidecond{(x : A := e) \in \Gamma}}{\typing{x}{A}}$
 
   \vspace{1em}
 
-  $\infrule[Comp-Var]{\tyctx{\Gamma} \quad \sidecond{(x : A := e) \in \Gamma}}{\computation{x}{e}{A}}$
+  $\infrule[Comp-Var]{\ctx{\Gamma} \quad \sidecond{(x : A := e) \in \Gamma}}{\compeq{x}{e}{A}}$
 \end{center}
 
 \end{frame}
@@ -1051,11 +1051,11 @@ We now need two rules for typing variables: one for when the variable is defined
 The computation rule for function can (but need not!) look very different when we can put definitions into contexts. This time, instead of substituting $a$ for $x$ in $b$, we simply extend the context with the definition $x : A := a$ and then proceed with the computation. The rule for $\texttt{let}$ also gets simpler (and this time we should prefer this rule, because it makes so much more sense).
 
 \begin{center}
-  $\infrule[App-Lam-Def]{\fullcomputation{\extenddef{\Gamma}{x}{A}{a}}{b}{b'}{B}}{\computation{\app{(\fun{x}{b})}{a}}{b'}{B}}$
+  $\infrule[App-Lam-Def]{\fullcompeq{\extenddef{\Gamma}{x}{A}{a}}{b}{b'}{B}}{\compeq{\app{(\fun{x}{b})}{a}}{b'}{B}}$
 
   \vspace{1em}
 
-  $\infrule[Let-Comp-Def]{\fullcomputation{\extenddef{\Gamma}{x}{A}{e_1}}{e_2}{e_2'}{B}}{\computation{\letin{x}{e_1}{e_2}}{e_2'}{B}}$
+  $\infrule[Let-Comp-Def]{\fullcompeq{\extenddef{\Gamma}{x}{A}{e_1}}{e_2}{e_2'}{B}}{\compeq{\letin{x}{e_1}{e_2}}{e_2'}{B}}$
 \end{center}
 
 \end{frame}
@@ -1067,10 +1067,10 @@ For a moment, let's say that types can depend on propositions. This means that w
 \vspace{1em}
 
 \begin{center}
-  $\infrule[Ctx-Extend]{\tyctx{\Gamma} \quad \type{A} \quad \sidecond{x \notin \Gamma}}{\tyctx{\extend{\Gamma}{x}{A}}}$
+  $\infrule[Ctx-Extend]{\ctx{\Gamma} \quad \type{A} \quad \sidecond{x \notin \Gamma}}{\ctx{\extend{\Gamma}{x}{A}}}$
 \end{center}
 
-With such a setup, $\tyctx{\Gamma}$ is a sanity condition for $\type{A}$, whereas $\type{A}$ is a sanity condition for $\typing{x}{A}$.
+With such a setup, $\ctx{\Gamma}$ is a sanity condition for $\type{A}$, whereas $\type{A}$ is a sanity condition for $\typing{x}{A}$.
 
 \end{frame}
 
@@ -1099,11 +1099,11 @@ A refinement type can be thought of a subset of the base type for which some pro
 
   \vspace{1em}
 
-  $\infrule[Refinement-Comp]{\fulltyping{\Gamma \pipe \Delta}{e}{A} \quad \holds{P}}{\computation{\unrefine{(\refine{e})}}{e}{A}}$
+  $\infrule[Refinement-Comp]{\fulltyping{\Gamma \pipe \Delta}{e}{A} \quad \holds{P}}{\compeq{\unrefine{(\refine{e})}}{e}{A}}$
 
   \vspace{1em}
 
-  $\infrule[Refinement-Uniq]{\fulltyping{\Gamma \pipe \Delta}{e}{\refinement{x}{A}{P}}}{\computation{e}{\refine{(\unrefine{e})}}{\refinement{x}{A}{P}}}$
+  $\infrule[Refinement-Uniq]{\fulltyping{\Gamma \pipe \Delta}{e}{\refinement{x}{A}{P}}}{\compeq{e}{\refine{(\unrefine{e})}}{\refinement{x}{A}{P}}}$
 
   \vspace{1em}
 
@@ -1146,7 +1146,7 @@ Athena enjoyers can think of quotient types as akin to Athena's structures, exce
 
   \vspace{1em}
 
-  $\infrule[Quotient-Comp]{\fulltyping{\Gamma \pipe \Delta}{e}{A} \quad \fulltyping{\Gamma \pipe \Delta}{f}{\Fun{A}{B}} \quad \mathcolor{red}{f\ \texttt{preserves}\ R}}{\computation{\qout{f}{(\qin{e})}}{\app{f}{e}}{B}}$
+  $\infrule[Quotient-Comp]{\fulltyping{\Gamma \pipe \Delta}{e}{A} \quad \fulltyping{\Gamma \pipe \Delta}{f}{\Fun{A}{B}} \quad \mathcolor{red}{f\ \texttt{preserves}\ R}}{\compeq{\qout{f}{(\qin{e})}}{\app{f}{e}}{B}}$
 \end{center}
 
 Where ``preserves'' is $\holds{\All{x}{A}{\All{y}{A}{\Impl{\app{\app{R}{x}}{y}}{\Eq[B]{\app{f}{x}}{\app{f}{y}}}}}}$

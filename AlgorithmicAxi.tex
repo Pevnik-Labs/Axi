@@ -158,7 +158,7 @@ Values are the final results of computation. Note that a function is a value whe
   \vspace{2em}
 
   $\infrule{}{\whnf{\unit}}$ \quad
-  $\infrule{}{\whnf{\elimEmpty{e}}}$
+  $\infrule{}{\whnf{\emptyelim{e}}}$
 \end{center}
 
 \end{frame}
@@ -170,7 +170,7 @@ $e ::=$ \\
 \qquad $n \pipe \fun{x}{e} \pipe$ \\
 \qquad $\pair{e_1}{e_2} \pipe$ \\
 \qquad $\inl{e} \pipe \inr{e} \pipe$ \\
-\qquad $\unit \pipe \elimEmpty{e}$
+\qquad $\unit \pipe \emptyelim{e}$
 
 \vspace{2em}
 
@@ -295,7 +295,7 @@ $n ::=$ \\
   \vspace{2em}
 
   $\infrule{}{\checkcompeq{\unit}{\unit}{\Unit}}$ \quad
-  $\infrule{\checkcompeq{e_1}{e_2}{\Empty}}{\checkcompeq{\elimEmpty{e_1}}{\elimEmpty{e_2}}{A}}$
+  $\infrule{\checkcompeq{e_1}{e_2}{\Empty}}{\checkcompeq{\emptyelim{e_1}}{\emptyelim{e_2}}{A}}$
 \end{center}
 
 \end{frame}
@@ -368,11 +368,11 @@ $n ::=$ \\
 \begin{frame}{True and False}
 
 \begin{center}
-  $\infrule[True-Intro]{}{\proofinfer{\true}{\True}}$
+  $\infrule[True-Intro]{}{\proofinfer{\trueintro}{\True}}$
 
   \vspace{2em}
 
-  $\infrule[False-Elim]{\proofcheck{e}{\False}}{\proofcheck{\exfalso{e}}{P}}$
+  $\infrule[False-Elim]{\proofcheck{e}{\False}}{\proofcheck{\falseelim{e}}{P}}$
 \end{center}
 
 \end{frame}
@@ -546,7 +546,7 @@ $n ::=$ \\
 \begin{frame}{Conversion rule -- TODO}
 
 \begin{center}
-  $\infrule[Conv]{\prop{\extend{\Gamma}{x}{A}}{P} \quad \computation{t_1}{t_2}{A} \quad \proves{e}{\subst{P}{x}{t_1}}}{\proves{e}{\subst{P}{x}{t_2}}}$
+  $\infrule[Conv]{\prop{\extend{\Gamma}{x}{A}}{P} \quad \compeq{t_1}{t_2}{A} \quad \proves{e}{\subst{P}{x}{t_1}}}{\proves{e}{\subst{P}{x}{t_2}}}$
 \end{center}
 
 \end{frame}

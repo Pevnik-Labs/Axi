@@ -24,7 +24,7 @@ $e ::=$ \\
 \qquad $\fun{x}{e} \pipe \app{e_1}{e_2} \pipe$ \\
 \qquad $\pair{e_1}{e_2} \pipe \outl{e} \pipe \outr{e} \pipe$ \\
 \qquad $\inl{e} \pipe \inr{e} \pipe \case{e}{e_1}{e_2} \pipe$ \\
-\qquad $\unit \pipe \elimEmpty{e}$
+\qquad $\unit \pipe \emptyelim{e}$
 
 \vspace{1em}
 
@@ -93,7 +93,7 @@ $\fulloutctx{\Gamma}{e}{H}{H'}{\Gamma'}$ -- in context $\Gamma$, term $e$ checks
 
   $\infrule{}{\fulloutctx{\Gamma}{\unit}{\Unit}{\Unit}{\Gamma}}$
   \quad
-  $\infrule{\outctx{e}{\Empty}{\Empty}}{\outctx{\elimEmpty{e}}{A}{A}}$
+  $\infrule{\outctx{e}{\Empty}{\Empty}}{\outctx{\emptyelim{e}}{A}{A}}$
 \end{center}
 
 \end{frame}
@@ -175,15 +175,15 @@ If $\fulloutctx{\Gamma}{e}{A}{B}{\Gamma'}$, then:
 \begin{center}
   $\infrule{\fulloutctx{\extend{\Gamma}{x}{A}}{e}{B}{B'}{\extend{\Gamma'}{x}{A'}}}{\outctx{\fun{x}{e}}{\Fun{A}{B}}{\Fun{A'}{B'}}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule{\shortoutctx{f}{\Fun{\Hole}{B}}{\Fun{A}{B'}} \quad \shortoutctx{a}{A}{A'}}{\shortoutctx{\app{f}{a}}{B}{B'}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule{\shortoutctx{a}{A}{A'} \quad \shortoutctx{b}{B}{B'}}{\shortoutctx{\pair{a}{b}}{\Prod{A}{B}}{\Prod{A'}{B'}}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule{\shortoutctx{e}{\Prod{A}{\Hole}}{\Prod{A'}{B}}}{\shortoutctx{\outl{e}}{A}{A'}}$
   \quad
@@ -208,7 +208,7 @@ If $\fulloutctx{\Gamma}{e}{A}{B}{\Gamma'}$, then:
   \vspace{2em}
 
   $\infrule{}{\shortoutctx{\unit}{\Unit}{\Unit}}$ \quad
-  $\infrule{\shortoutctx{e}{\Empty}{\Empty}}{\shortoutctx{\elimEmpty{e}}{A}{A}}$
+  $\infrule{\shortoutctx{e}{\Empty}{\Empty}}{\shortoutctx{\emptyelim{e}}{A}{A}}$
 \end{center}
 
 \end{frame}
@@ -235,7 +235,7 @@ $e ::=$ \\
 \qquad $\fun{x}{e} \pipe \app{e_1}{e_2} \pipe$ \\
 \qquad $\pair{e_1}{e_2} \pipe \outl{e} \pipe \outr{e} \pipe$ \\
 \qquad $\inl{e} \pipe \inr{e} \pipe \case{e}{e_1}{e_2} \pipe$ \\
-\qquad $\unit \pipe \elimEmpty{e}$
+\qquad $\unit \pipe \emptyelim{e}$
 
 \vspace{2em}
 
@@ -314,7 +314,7 @@ $\fulluniftyping{\Gamma}{e}{H}{H'}{\Gamma'}$ -- in context $\Gamma$, term $e$ ch
 
   $\infrule{}{\fulluniftyping{\Gamma}{\unit}{\Unit}{\Unit}{\Gamma}}$
   \quad
-  $\infrule{\uniftyping{e}{\Empty}{\Empty}}{\uniftyping{\elimEmpty{e}}{A}{A}}$
+  $\infrule{\uniftyping{e}{\Empty}{\Empty}}{\uniftyping{\emptyelim{e}}{A}{A}}$
 \end{center}
 
 \end{frame}

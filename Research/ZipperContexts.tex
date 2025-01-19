@@ -54,7 +54,7 @@ The answer is interesting: contexts would turn into zippers!
 \newcommand{\extendcaseldef}[6]{#1, \case{#2}{#4.\, \ctxmark}{#3}, #4 : #5 := #6}
 \newcommand{\extendcaser}[5]{#1, \case{#2}{#3}{#4.\, \ctxmark}, #4 : #5}
 \newcommand{\extendcaserdef}[6]{#1, \case{#2}{#3}{#4.\, \ctxmark}, #4 : #5 := #6}
-\newcommand{\extendelimEmpty}[1]{#1, \elimEmpty{\ctxmark}}
+\newcommand{\extendemptyelim}[1]{#1, \emptyelim{\ctxmark}}
 
 \begin{frame}{Contexts as zippers}
 
@@ -65,7 +65,7 @@ $\Gamma ::=$ \\
 \qquad $\extendpairl{\Gamma}{e_2} \pipe \extendpairr{\Gamma}{e_1} \pipe \extendoutl{\Gamma} \pipe \extendoutr{\Gamma} \pipe$ \\
 \qquad $\extendinl{\Gamma} \pipe \extendinr{\Gamma} \pipe \extendcasearg{\Gamma}{f}{g} \pipe$ \\
 \qquad $\extendcasel{\Gamma}{e}{x}{A}{g} \pipe \extendcaser{\Gamma}{e}{f}{x}{A} \pipe$ \\
-\qquad $\extendelimEmpty{\Gamma}$
+\qquad $\extendemptyelim{\Gamma}$
 
 \end{frame}
 
@@ -83,7 +83,7 @@ $e ::=$ \\
 \qquad $\fun{x}{e} \pipe \app{e_1}{e_2} \pipe$ \\
 \qquad $\pair{e_1}{e_2} \pipe \outl{e} \pipe \outr{e} \pipe$ \\
 \qquad $\inl{e} \pipe \inr{e} \pipe \case{e}{e_1}{e_2} \pipe$ \\
-\qquad $\unit \pipe \elimEmpty{e}$
+\qquad $\unit \pipe \emptyelim{e}$
 
 \end{frame}
 
@@ -126,7 +126,7 @@ $e ::=$ \\
   \vspace{2em}
 
   $\infrule{}{\typing{\unit}{\Unit}}$ \quad
-  $\infrule{\fulltyping{\extendelimEmpty{\Gamma}}{e}{\Empty}}{\typing{\elimEmpty{e}}{A}}$
+  $\infrule{\fulltyping{\extendemptyelim{\Gamma}}{e}{\Empty}}{\typing{\emptyelim{e}}{A}}$
 \end{center}
 
 \end{frame}

@@ -164,7 +164,7 @@ $e ::=$ \\
 \qquad $\fun{x}{e} \pipe \app{e_1}{e_2} \pipe$ \\
 \qquad $\pair{e_1}{e_2} \pipe \outl{e} \pipe \outr{e} \pipe$ \\
 \qquad $\inl{e} \pipe \inr{e} \pipe \case{e}{e_1}{e_2} \pipe$ \\
-\qquad $\unit \pipe \elimEmpty{e}$
+\qquad $\unit \pipe \emptyelim{e}$
 
 \vspace{2em}
 
@@ -323,7 +323,7 @@ Both presented semantics are call-by-value, i.e. we evaluate a function's argume
   \vspace{2em}
 
   $\infrule{}{\typing{\unit}{\Unit}}$ \quad
-  $\infrule{\typing{e}{\Empty}}{\typing{\elimEmpty{e}}{A}}$
+  $\infrule{\typing{e}{\Empty}}{\typing{\emptyelim{e}}{A}}$
 \end{center}
 
 \end{frame}
@@ -367,13 +367,13 @@ $e ::=$ \\
 \qquad $\fun{x}{e} \pipe \app{e_1}{e_2} \pipe$ \\
 \qquad $\pair{e_1}{e_2} \pipe \outl{e} \pipe \outr{e} \pipe$ \\
 \qquad $\inl{e} \pipe \inr{e} \pipe \case{e}{e_1}{e_2} \pipe$ \\
-\qquad $\unit \pipe \elimEmpty{e}$
+\qquad $\unit \pipe \emptyelim{e}$
 
-\vspace{2em}
+\vspace{1em}
 
 Note: green color marks terms which were not present in Extrinsic STLC.
 
-\vspace{2em}
+\vspace{1em}
 
 Judgements: \\
 $\fullcheck{\Gamma}{e}{A}$ -- in context $\Gamma$, term $e$ checks against type $A$ ($A$ is an input) \\
@@ -433,7 +433,7 @@ Note: the only rules shown are those which were not present in Extrinsic STLC.
   \vspace{2em}
 
   $\infrule{}{\check{\unit}{\Unit}}$ \quad
-  $\infrule{\check{e}{\Empty}}{\check{\elimEmpty{e}}{A}}$
+  $\infrule{\check{e}{\Empty}}{\check{\emptyelim{e}}{A}}$
 \end{center}
 
 \end{frame}
@@ -489,8 +489,8 @@ $e ::=$ \\
 \qquad $x \pipe$ \\
 \qquad $\termdiff{\ifun{x}{A}{e}} \pipe \app{e_1}{e_2} \pipe$ \\
 \qquad $\pair{e_1}{e_2} \pipe \outl{e} \pipe \outr{e} \pipe$ \\
-\qquad $\termdiff{\iinl{A}{e}} \pipe \termdiff{\iinr{A}{e}} \pipe \case{e}{e_1}{e_2} \pipe$ \\
-\qquad $\unit \pipe \termdiff{\iexfalso{A}{e}}$
+\qquad $\termdiff{\iinl{B}{e}} \pipe \termdiff{\iinr{A}{e}} \pipe \case{e}{e_1}{e_2} \pipe$ \\
+\qquad $\unit \pipe \termdiff{\iemptyelim{A}{e}}$
 
 \vspace{2em}
 
@@ -510,7 +510,7 @@ Note: red color marks places which differ from Extrinsic STLC.
 
   \vspace{2em}
 
-  $\infrule{\typing{e}{\Empty}}{\typing{\iexfalso{A}{e}}{A}}$
+  $\infrule{\typing{e}{\Empty}}{\typing{\iemptyelim{A}{e}}{A}}$
 \end{center}
 
 \vspace{2em}
@@ -555,7 +555,7 @@ Thanks to abundant type annotations, we can (re)interpret the typing judgement $
   \vspace{2em}
 
   $\infrule{}{\infer{\unit}{\Unit}}$ \quad
-  $\infrule{\infer{e}{\Empty}}{\infer{\iexfalso{A}{e}}{A}}$
+  $\infrule{\infer{e}{\Empty}}{\infer{\iemptyelim{A}{e}}{A}}$
 \end{center}
 
 \end{frame}
@@ -581,9 +581,9 @@ Terms: \\
 $e ::=$ \\
 \qquad $x \pipe$ \\
 \qquad $\fun{x}{e} \pipe \termdiff{\iapp{A}{e_1}{e_2}} \pipe$ \\
-\qquad $\pair{e_1}{e_2} \pipe \termdiff{\ioutl{A}{e}} \pipe \termdiff{\ioutr{A}{e}} \pipe$ \\
+\qquad $\pair{e_1}{e_2} \pipe \termdiff{\ioutl{B}{e}} \pipe \termdiff{\ioutr{A}{e}} \pipe$ \\
 \qquad $\inl{e} \pipe \inr{e} \pipe \termdiff{\icase{A}{B}{e}{e_1}{e_2}} \pipe$ \\
-\qquad $\unit \pipe \elimEmpty{e}$
+\qquad $\unit \pipe \emptyelim{e}$
 
 \vspace{2em}
 
@@ -648,7 +648,7 @@ Thanks to abundant type annotations, we can (re)interpret the typing judgement $
   \vspace{2em}
 
   $\infrule{}{\check{\unit}{\Unit}}$ \quad
-  $\infrule{\check{e}{\Empty}}{\check{\elimEmpty{e}}{A}}$
+  $\infrule{\check{e}{\Empty}}{\check{\emptyelim{e}}{A}}$
 \end{center}
 
 \end{frame}
@@ -765,7 +765,7 @@ $e ::=$ \\
 \qquad $\fun{x}{e} \pipe \app{e_1}{e_2} \pipe$ \\
 \qquad $\pair{e_1}{e_2} \pipe \outl{e} \pipe \outr{e} \pipe$ \\
 \qquad $\inl{e} \pipe \inr{e} \pipe \case{e}{e_1}{e_2} \pipe$ \\
-\qquad $\unit \pipe \elimEmpty{e}$
+\qquad $\unit \pipe \emptyelim{e}$
 
 \vspace{2em}
 
@@ -843,7 +843,7 @@ Note that the rule $\rulename{Hole}$ can only be applied once, because $\hintfor
   \vspace{2em}
 
   $\infrule{}{\hinting{\unit}{\Unit}{\Unit}}$ \quad
-  $\infrule{\hinting{e}{\Empty}{\Empty}}{\hinting{\elimEmpty{e}}{A}{A}}$
+  $\infrule{\hinting{e}{\Empty}{\Empty}}{\hinting{\emptyelim{e}}{A}{A}}$
 \end{center}
 
 \end{frame}
@@ -879,7 +879,7 @@ We can embed Intrinsic STLC terms:
   \item $\ifun{x}{A}{e} :\equiv \annot{\fun{x}{e}}{\Fun{A}{\Hole}}$ \\
   \item $\iinl{B}{e} :\equiv \annot{\inl{e}}{\Sum{\Hole}{B}}$ \\
   \item $\iinr{A}{e} :\equiv \annot{\inr{e}}{\Sum{A}{\Hole}}$ \\
-  \item $\iexfalso{A}{e} :\equiv \annot{\elimEmpty{e}}{A}$
+  \item $\iemptyelim{A}{e} :\equiv \annot{\emptyelim{e}}{A}$
 \end{itemize}
 
 We can also embed Dual Intrinsic STLC terms:
@@ -915,7 +915,7 @@ We can also embed Dual Intrinsic STLC terms:
 
   \vspace{2em}
 
-  $\infrule{\infer{e}{\Empty}}{\infer{\iexfalso{A}{e}}{A}}$
+  $\infrule{\infer{e}{\Empty}}{\infer{\iemptyelim{A}{e}}{A}}$
 \end{center}
 
 \end{frame}
