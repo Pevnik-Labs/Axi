@@ -549,9 +549,9 @@ We can also embed Intrinsic STLC. First, we define the missing terms using parti
 
 \begin{itemize}
   \item $\ifun{x}{A}{e} :\equiv \annot{\fun{x}{e}}{\Fun{A}{\Hole}}$ \\
-  \item $\iinl{B}{e} :\equiv \annot{\inl{e}}{\Sum{\Hole}{B}}$ \\
-  \item $\iinr{A}{e} :\equiv \annot{\inr{e}}{\Sum{A}{\Hole}}$ \\
-  \item $\iemptyelim{A}{e} :\equiv \annot{\emptyelim{e}}{A}$
+  \item $\inl[B]{e} :\equiv \annot{\inl{e}}{\Sum{\Hole}{B}}$ \\
+  \item $\inr[A]{e} :\equiv \annot{\inr{e}}{\Sum{A}{\Hole}}$ \\
+  \item $\emptyelim[A]{e} :\equiv \annot{\emptyelim{e}}{A}$
 \end{itemize}
 
 \vspace{2em}
@@ -567,12 +567,12 @@ Second, we will show that the typing rules are admissible in the hint-based syst
 
   \vspace{2em}
 
-  $\infrule{\infer{e}{A}}{\infer{\iinl{B}{e}}{\Sum{A}{B}}}$ \quad
-  $\infrule{\infer{e}{B}}{\infer{\iinr{A}{e}}{\Sum{A}{B}}}$
+  $\infrule{\infer{e}{A}}{\infer{\inl[B]{e}}{\Sum{A}{B}}}$ \quad
+  $\infrule{\infer{e}{B}}{\infer{\inr[A]{e}}{\Sum{A}{B}}}$
 
   \vspace{2em}
 
-  $\infrule{\infer{e}{\Empty}}{\infer{\iemptyelim{A}{e}}{A}}$
+  $\infrule{\infer{e}{\Empty}}{\infer{\emptyelim[A]{e}}{A}}$
 \end{center}
 
 \vspace{2em}
@@ -587,8 +587,8 @@ We can also embed Dual Intrinsic STLC. First, we define the missing terms using 
 
 \begin{itemize}
   \item $\iapp{A}{f}{a} :\equiv \app{\annot{f}{\Fun{A}{\Hole}}}{a}$
-  \item $\ioutl{B}{e} :\equiv \outl{\annot{e}{\Prod{\Hole}{B}}}$
-  \item $\ioutr{A}{e} :\equiv \outr{\annot{e}{\Prod{A}{\Hole}}}$
+  \item $\outl[B]{e} :\equiv \outl{\annot{e}{\Prod{\Hole}{B}}}$
+  \item $\outr[A]{e} :\equiv \outr{\annot{e}{\Prod{A}{\Hole}}}$
   \item $\icase{A}{B}{e}{f}{g} :\equiv \case{\annot{e}{\Sum{A}{B}}}{f}{g}$
 \end{itemize}
 
@@ -605,8 +605,8 @@ Second, we will show that the typing rules are admissible in the hint-based syst
 
   \vspace{2em}
 
-  $\infrule{\check{e}{\Prod{A}{B}}}{\check{\ioutl{B}{e}}{A}}$ \enspace
-  $\infrule{\check{e}{\Prod{A}{B}}}{\check{\ioutr{A}{e}}{B}}$
+  $\infrule{\check{e}{\Prod{A}{B}}}{\check{\outl[B]{e}}{A}}$ \enspace
+  $\infrule{\check{e}{\Prod{A}{B}}}{\check{\outr[A]{e}}{B}}$
 
   \vspace{2em}
 

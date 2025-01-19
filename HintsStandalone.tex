@@ -489,8 +489,8 @@ $e ::=$ \\
 \qquad $x \pipe$ \\
 \qquad $\termdiff{\ifun{x}{A}{e}} \pipe \app{e_1}{e_2} \pipe$ \\
 \qquad $\pair{e_1}{e_2} \pipe \outl{e} \pipe \outr{e} \pipe$ \\
-\qquad $\termdiff{\iinl{B}{e}} \pipe \termdiff{\iinr{A}{e}} \pipe \case{e}{e_1}{e_2} \pipe$ \\
-\qquad $\unit \pipe \termdiff{\iemptyelim{A}{e}}$
+\qquad $\termdiff{\inl[B]{e}} \pipe \termdiff{\inr[A]{e}} \pipe \case{e}{e_1}{e_2} \pipe$ \\
+\qquad $\unit \pipe \termdiff{\emptyelim[A]{e}}$
 
 \vspace{2em}
 
@@ -505,12 +505,12 @@ Note: red color marks places which differ from Extrinsic STLC.
 
   \vspace{2em}
 
-  $\infrule{\typing{e}{A}}{\typing{\iinl{B}{e}}{\Sum{A}{B}}}$ \quad
-  $\infrule{\typing{e}{B}}{\typing{\iinr{A}{e}}{\Sum{A}{B}}}$
+  $\infrule{\typing{e}{A}}{\typing{\inl[B]{e}}{\Sum{A}{B}}}$ \quad
+  $\infrule{\typing{e}{B}}{\typing{\inr[A]{e}}{\Sum{A}{B}}}$
 
   \vspace{2em}
 
-  $\infrule{\typing{e}{\Empty}}{\typing{\iemptyelim{A}{e}}{A}}$
+  $\infrule{\typing{e}{\Empty}}{\typing{\emptyelim[A]{e}}{A}}$
 \end{center}
 
 \vspace{2em}
@@ -545,8 +545,8 @@ Thanks to abundant type annotations, we can (re)interpret the typing judgement $
 
   \vspace{2em}
 
-  $\infrule{\infer{e}{A}}{\infer{\iinl{B}{e}}{\Sum{A}{B}}}$ \quad
-  $\infrule{\infer{e}{B}}{\infer{\iinr{A}{e}}{\Sum{A}{B}}}$
+  $\infrule{\infer{e}{A}}{\infer{\inl[B]{e}}{\Sum{A}{B}}}$ \quad
+  $\infrule{\infer{e}{B}}{\infer{\inr[A]{e}}{\Sum{A}{B}}}$
 
   \vspace{2em}
 
@@ -555,7 +555,7 @@ Thanks to abundant type annotations, we can (re)interpret the typing judgement $
   \vspace{2em}
 
   $\infrule{}{\infer{\unit}{\Unit}}$ \quad
-  $\infrule{\infer{e}{\Empty}}{\infer{\iemptyelim{A}{e}}{A}}$
+  $\infrule{\infer{e}{\Empty}}{\infer{\emptyelim[A]{e}}{A}}$
 \end{center}
 
 \end{frame}
@@ -581,7 +581,7 @@ Terms: \\
 $e ::=$ \\
 \qquad $x \pipe$ \\
 \qquad $\fun{x}{e} \pipe \termdiff{\iapp{A}{e_1}{e_2}} \pipe$ \\
-\qquad $\pair{e_1}{e_2} \pipe \termdiff{\ioutl{B}{e}} \pipe \termdiff{\ioutr{A}{e}} \pipe$ \\
+\qquad $\pair{e_1}{e_2} \pipe \termdiff{\outl[B]{e}} \pipe \termdiff{\outr[A]{e}} \pipe$ \\
 \qquad $\inl{e} \pipe \inr{e} \pipe \termdiff{\icase{A}{B}{e}{e_1}{e_2}} \pipe$ \\
 \qquad $\unit \pipe \emptyelim{e}$
 
@@ -598,8 +598,8 @@ Note: red color marks places which differ from Extrinsic STLC.
 
   \vspace{2em}
 
-  $\infrule{\typing{e}{\Prod{A}{B}}}{\typing{\ioutl{B}{e}}{A}}$ \quad
-  $\infrule{\typing{e}{\Prod{A}{B}}}{\typing{\ioutr{A}{e}}{B}}$ \quad
+  $\infrule{\typing{e}{\Prod{A}{B}}}{\typing{\outl[B]{e}}{A}}$ \quad
+  $\infrule{\typing{e}{\Prod{A}{B}}}{\typing{\outr[A]{e}}{B}}$ \quad
 
   \vspace{2em}
 
@@ -633,8 +633,8 @@ Thanks to abundant type annotations, we can (re)interpret the typing judgement $
   \vspace{2em}
 
   $\infrule{\check{a}{A} \quad \check{b}{B}}{\check{\pair{a}{b}}{\Prod{A}{B}}}$ \enspace
-  $\infrule{\check{e}{\Prod{A}{B}}}{\check{\ioutl{B}{e}}{A}}$ \enspace
-  $\infrule{\check{e}{\Prod{A}{B}}}{\check{\ioutr{A}{e}}{B}}$
+  $\infrule{\check{e}{\Prod{A}{B}}}{\check{\outl[B]{e}}{A}}$ \enspace
+  $\infrule{\check{e}{\Prod{A}{B}}}{\check{\outr[A]{e}}{B}}$
 
   \vspace{2em}
 
@@ -877,17 +877,17 @@ We can embed Intrinsic STLC terms:
 
 \begin{itemize}
   \item $\ifun{x}{A}{e} :\equiv \annot{\fun{x}{e}}{\Fun{A}{\Hole}}$ \\
-  \item $\iinl{B}{e} :\equiv \annot{\inl{e}}{\Sum{\Hole}{B}}$ \\
-  \item $\iinr{A}{e} :\equiv \annot{\inr{e}}{\Sum{A}{\Hole}}$ \\
-  \item $\iemptyelim{A}{e} :\equiv \annot{\emptyelim{e}}{A}$
+  \item $\inl[B]{e} :\equiv \annot{\inl{e}}{\Sum{\Hole}{B}}$ \\
+  \item $\inr[A]{e} :\equiv \annot{\inr{e}}{\Sum{A}{\Hole}}$ \\
+  \item $\emptyelim[A]{e} :\equiv \annot{\emptyelim{e}}{A}$
 \end{itemize}
 
 We can also embed Dual Intrinsic STLC terms:
 
 \begin{itemize}
   \item $\iapp{A}{f}{a} :\equiv \app{\annot{f}{\Fun{A}{\Hole}}}{a}$
-  \item $\ioutl{B}{e} :\equiv \outl{\annot{e}{\Prod{\Hole}{B}}}$
-  \item $\ioutr{A}{e} :\equiv \outr{\annot{e}{\Prod{A}{\Hole}}}$
+  \item $\outl[B]{e} :\equiv \outl{\annot{e}{\Prod{\Hole}{B}}}$
+  \item $\outr[A]{e} :\equiv \outr{\annot{e}{\Prod{A}{\Hole}}}$
   \item $\icase{A}{B}{e}{f}{g} :\equiv \case{\annot{e}{\Sum{A}{B}}}{f}{g}$
 \end{itemize}
 
@@ -901,13 +901,13 @@ We can also embed Dual Intrinsic STLC terms:
 
   \vspace{2em}
 
-  $\infrule{\check{e}{\Prod{A}{B}}}{\check{\ioutl{B}{e}}{A}}$ \enspace
-  $\infrule{\check{e}{\Prod{A}{B}}}{\check{\ioutr{A}{e}}{B}}$
+  $\infrule{\check{e}{\Prod{A}{B}}}{\check{\outl[B]{e}}{A}}$ \enspace
+  $\infrule{\check{e}{\Prod{A}{B}}}{\check{\outr[A]{e}}{B}}$
 
   \vspace{2em}
 
-  $\infrule{\infer{e}{A}}{\infer{\iinl{B}{e}}{\Sum{A}{B}}}$ \quad
-  $\infrule{\infer{e}{B}}{\infer{\iinr{A}{e}}{\Sum{A}{B}}}$
+  $\infrule{\infer{e}{A}}{\infer{\inl[B]{e}}{\Sum{A}{B}}}$ \quad
+  $\infrule{\infer{e}{B}}{\infer{\inr[A]{e}}{\Sum{A}{B}}}$
 
   \vspace{2em}
 
@@ -915,7 +915,7 @@ We can also embed Dual Intrinsic STLC terms:
 
   \vspace{2em}
 
-  $\infrule{\infer{e}{\Empty}}{\infer{\iemptyelim{A}{e}}{A}}$
+  $\infrule{\infer{e}{\Empty}}{\infer{\emptyelim[A]{e}}{A}}$
 \end{center}
 
 \end{frame}

@@ -26,24 +26,19 @@
 \newcommand{\fun}[2]{\lambda #1.\, #2}
 \newcommand{\app}[2]{#1\ #2}
 \newcommand{\pair}[2]{(#1, #2)}
-\newcommand{\outl}[1]{\texttt{outl}\ #1}
-\newcommand{\outr}[1]{\texttt{outr}\ #1}
-\newcommand{\inl}[1]{\texttt{inl}\ #1}
-\newcommand{\inr}[1]{\texttt{inr}\ #1}
+\newcommand{\outl}[2][]{\texttt{outl}_{#1}\ #2}
+\newcommand{\outr}[2][]{\texttt{outr}_{#1}\ #2}
+\newcommand{\inl}[2][]{\texttt{inl}_{#1}\ #2}
+\newcommand{\inr}[2][]{\texttt{inr}_{#1}\ #2}
 \newcommand{\case}[3]{\texttt{case}\ #1\ \texttt{of}\ (#2, #3)}
 \newcommand{\unit}{\texttt{unit}}
-\newcommand{\emptyelim}[1]{\Empty\texttt{-elim}\ #1}
+\newcommand{\emptyelim}[2][]{\Empty\texttt{-elim}_{#1}\ #2}
 
 % Intrinsic terms.
 \newcommand{\ifun}[3]{\lambda #1 : #2.\, #3}
-\newcommand{\iinl}[2]{\texttt{inl}_{#1}\ #2}
-\newcommand{\iinr}[2]{\texttt{inr}_{#1}\ #2}
-\newcommand{\iemptyelim}[2]{\Empty\texttt{-elim}_{#1}\ #2}
 
 % Dual Intrinsic terms.
 \newcommand{\iapp}[3]{\texttt{app}_{#1}\ #2\ #3}
-\newcommand{\ioutl}[2]{\texttt{outl}_{#1}\ #2}
-\newcommand{\ioutr}[2]{\texttt{outr}_{#1}\ #2}
 \newcommand{\icase}[5]{\texttt{case}_{#1, #2}\ #3\ \texttt{of}\ (#4, #5)}
 
 % Polymorphic terms.
@@ -69,6 +64,8 @@
 \newcommand{\termorder}[2]{#1 \sqsubseteq #2}
 \newcommand{\stricttermorder}[2]{#1 \sqsubset #2}
 \newcommand{\tripletermorder}[3]{#1 \sqsubseteq #2 \sqsubseteq #3}
+\newcommand{\ctxorder}[2]{#1 \sqsubseteq #2}
+\newcommand{\triplectxorder}[3]{#1 \sqsubseteq #2 \sqsubseteq #3}
 
 % Subtyping.
 \newcommand{\Top}{\top}
@@ -86,48 +83,7 @@
 \newcommand{\extenddef}[4]{#1, #2 : #3 := #4}
 \newcommand{\extendtype}[2]{#1, #2}
 
-% Output contexts.
-\newcommand{\ctxorder}[2]{#1 \sqsubseteq #2}
-\newcommand{\triplectxorder}[3]{#1 \sqsubseteq #2 \sqsubseteq #3}
-
 % Logic.
-
-% Proofterms.
-
-% Propositional logic.
-\newcommand{\implintro}[2]{\textbf{assume}\ #1\ \textbf{in}\ #2}
-\newcommand{\implelim}[2]{\textbf{modus-ponens}\ #1\ #2}
-\newcommand{\trueintro}{\textbf{true}}
-\newcommand{\falseelim}[1]{\textbf{exfalso}\ #1}
-\newcommand{\cut}[2]{#1; #2}
-\newcommand{\notintro}[2]{\textbf{suppose-absurd}\ #1\ \textbf{in}\ #2}
-\newcommand{\notelim}[2]{\textbf{absurd}\ #1\ #2}
-\newcommand{\andintro}[2]{\textbf{both}\ #1\ #2}
-\newcommand{\andeliml}[1]{\textbf{left-and}\ #1}
-\newcommand{\andelimr}[1]{\textbf{right-and}\ #1}
-\newcommand{\orintrol}[2]{\textbf{left-either}\ #1\ #2}
-\newcommand{\orintror}[2]{\textbf{right-either}\ #1\ #2}
-\newcommand{\orelim}[3]{\textbf{constructive-dilemma}\ #1\ #2\ #3}
-\newcommand{\iffintro}[2]{\textbf{equivalence}\ #1\ #2}
-\newcommand{\iffeliml}[1]{\textbf{left-iff}\ #1}
-\newcommand{\iffelimr}[1]{\textbf{right-iff}\ #1}
-
-% Classical logic.
-\newcommand{\dn}[1]{\textbf{double-negation}\ #1}
-
-% Quantifiers.
-\newcommand{\allintro}[2]{\textbf{pick-any}\ #1\ \textbf{in}\ #2}
-\newcommand{\allelim}[2]{\textbf{specialize}\ #1\ \textbf{with}\ #2}
-\newcommand{\exintro}[2]{\textbf{exists}\ #1\ \textbf{such that}\ #2}
-\newcommand{\exelim}[3]{\textbf{pick-witness}\ #1\ \textbf{for}\ #2\ \textbf{in}\ #3}
-
-% Equality.
-\newcommand{\refl}[1]{\textbf{refl}\ #1}
-\newcommand{\rewrite}[2]{\textbf{rewrite}\ #1\ \textbf{in}\ #2}
-\newcommand{\funext}[1]{\textbf{funext}\ #1}
-
-% Induction.
-\newcommand{\sumind}[5]{\textbf{case}\ #1\ \textbf{of}\ (\inl{#2} \rightarrow #3, \inr{#4} \rightarrow #5)}
 
 % Propositions.
 
@@ -146,6 +102,44 @@
 
 % Equality.
 \newcommand{\Eq}[3][]{#2 =_{#1} #3}
+
+% Proofterms.
+
+% Propositional logic.
+\newcommand{\implintro}[2]{\textbf{assume}\ #1\ \textbf{in}\ #2}
+\newcommand{\implelim}[2]{\textbf{modus-ponens}\ #1\ #2}
+\newcommand{\trueintro}{\textbf{true}}
+\newcommand{\falseelim}[1]{\textbf{exfalso}\ #1}
+\newcommand{\notintro}[2]{\textbf{suppose-absurd}\ #1\ \textbf{in}\ #2}
+\newcommand{\notelim}[2]{\textbf{absurd}\ #1\ #2}
+\newcommand{\andintro}[2]{\textbf{both}\ #1\ #2}
+\newcommand{\andeliml}[1]{\textbf{left-and}\ #1}
+\newcommand{\andelimr}[1]{\textbf{right-and}\ #1}
+\newcommand{\orintrol}[2]{\textbf{left-either}\ #1\ #2}
+\newcommand{\orintror}[2]{\textbf{right-either}\ #1\ #2}
+\newcommand{\orelim}[3]{\textbf{constructive-dilemma}\ #1\ #2\ #3}
+\newcommand{\iffintro}[2]{\textbf{equivalence}\ #1\ #2}
+\newcommand{\iffeliml}[1]{\textbf{left-iff}\ #1}
+\newcommand{\iffelimr}[1]{\textbf{right-iff}\ #1}
+\newcommand{\cut}[2]{#1; #2}
+
+% Classical logic.
+\newcommand{\bycontradiction}[1]{\textbf{by-contradiction}\ #1}
+\newcommand{\dn}[1]{\textbf{double-negation}\ #1}
+
+% Quantifiers.
+\newcommand{\allintro}[2]{\textbf{pick-any}\ #1\ \textbf{in}\ #2}
+\newcommand{\allelim}[2]{\textbf{specialize}\ #1\ \textbf{with}\ #2}
+\newcommand{\exintro}[2]{\textbf{exists}\ #1\ \textbf{such that}\ #2}
+\newcommand{\exelim}[3]{\textbf{pick-witness}\ #1\ \textbf{for}\ #2\ \textbf{in}\ #3}
+
+% Equality.
+\newcommand{\refl}[1]{\textbf{refl}\ #1}
+\newcommand{\rewrite}[2]{\textbf{rewrite}\ #1\ \textbf{in}\ #2}
+\newcommand{\funext}[1]{\textbf{funext}\ #1}
+
+% Induction.
+\newcommand{\sumind}[5]{\textbf{case}\ #1\ \textbf{of}\ (\inl{#2} \rightarrow #3, \inr{#4} \rightarrow #5)}
 
 % Contexts.
 
