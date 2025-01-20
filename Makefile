@@ -8,7 +8,7 @@ PDFLATEX="pdflatex -interaction=nonstopmode -synctex=1"
 
 # Include non-file targets in .PHONY so they are run regardless of any
 # file of the given name existing.
-.PHONY: all clean
+.PHONY: all clean install
 
 # -pdf tells latexmk to generate PDF directly (instead of DVI).
 
@@ -25,11 +25,14 @@ PDFLATEX="pdflatex -interaction=nonstopmode -synctex=1"
 # editor are properly configured.
 
 all:
+	cd Research; latexmk -pdf -pdflatex=$(PDFLATEX) -use-make
 	latexmk -pdf -pdflatex=$(PDFLATEX) -use-make
 
 clean:
+	cd Research; latexmk -CA
 	latexmk -CA
 
 install:
-	mkdir -pv ${out}/nix-support/
+	mkdir -p ${out}/Research
+	cp Research/*.pdf ${out}/Research/
 	cp *.pdf ${out}/
