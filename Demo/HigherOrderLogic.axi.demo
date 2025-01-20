@@ -1,0 +1,167 @@
+// The syntax of quantifiers over types is as follows.
+// P, Q ::= ... | forall type A, P | exists type A, P
+
+
+theorem forall-type-intro-example : forall-type a, forall x : A, x = x :=
+  pick-any-type a
+  pick-any x
+  refl
+
+theorem forall-type-elim-example :
+  (forall-type a, forall x : A, x = x) --> forall n : Nat, n = n :=
+  assume (f := _)
+  specialize-type f Nat
+
+theorem exists-type-intro-example : exists-type a, forall x : A, x = x :=
+  exists-type Nat
+  pick-any x
+  refl
+
+theorem exists-type-elim-example : exists-type a, 
+
+
+
+// Higher-order logic is added to the system in the following way.
+// We extend the type language with a new type, called `Prop`, which serves
+// as the type of propositions. Functions into `Prop` are identified with
+// predicates and relations.
+// There's a subtlety, however. These new types exist only in the logical
+// part of the language, for example when writing type annotations in quantifiers.
+// In the programming part of the language, these types are not present, so for
+// example it is not possible to implement a program that takes a propositions as
+// an argument.
+
+theorem forall-prop-intro-example : forall P : Prop, P --> P :=
+  pick-any P
+  assume P
+  assumption
+
+theorem forall-prop-intro-example' : forall P Q : Prop, P --> P \/ Q :=
+  pick-any P Q
+  assume P
+  or-left
+  assumption
+
+theorem forall-prop-elim-example : (forall P : Prop, P) --> False :=
+  assume (all := _)
+  specialize all with False
+
+
+// Higher-order classical logic.
+
+injective (A B : Type) (f : A -> B) : Prop :=
+  forall x y : A, f x = f y --> x = y
+
+surjective (A B : Type) (f : A -> B) : Prop :=
+  forall y : B, exists x : A, f x = y
+
+bijective (A B : Type) (f : A -> B) : Prop :=
+  surjective A B f /\ injective A B f
+
+has-inverse (A B : Type) (f : A -> B) : Prop :=
+  exists g : B -> A, (forall a : A, g (f a) = a) /\ (forall b : B, f (g b) = b)
+
+declaration choice :
+  forall (A B : Type) (R : A -> B -> Prop),
+    (forall a : A, exists b : B, R a b) -->
+      exists f : A -> B, forall a : A, R a (f a)
+
+// Weird stuff starts happening.
+theorem has-inverse-bijective :
+  forall (A B : Type) (f : A -> B),
+    bijective A B f --> has-inverse A B f :=
+  pick-any-type A B
+  pick-any f
+  assume (both (sur := _) (inj := _))
+  exists ?g such-that (both ?invl ?invr)
+  case ?g
+    fun b : B =>
+    pick-witness a for (specialize sur with b) // illegal
+    a
+  case ?invl
+    pick-any (a : A)             // g (f a) = a
+    unfold g
+    pick-witness 
+
+  case ?
+  modus-ponens (specialize (specialize-type choice with A B) with _)
+  pick-any (a : A)
+
+
+
+// Defining logical connectives using higher-order quantification.
+
+myfalse : Prop := forall R : Prop, R
+
+theorem myfalse-spec : myfalse <--> False :=
+  both
+  - assume (mf := _)
+    specialize mf with False
+  - assume False
+    absurd False
+
+mytrue : Prop := foral R : Prop, R --> R
+
+theorem mytrue-spec : mytrue <--> True :=
+  both
+  - assume _
+    trivial
+  - assume _
+    pick-any R
+    assume R
+    assumption
+
+myand (P Q : Prop) : Prop := forall R : Prop, (P --> Q --> R) --> R
+
+theorem myand-spec : forall P Q : Prop, myand P Q <--> P /\ Q :=
+  pick-any P Q
+  both
+  - assume (pq := _)
+    both
+    - modus-ponens (specialize pq with P)
+      assume P _
+      assumption
+    - modus-ponens (specialize pq with Q)
+      assume _ Q
+      assumption
+  - assume (both P Q)
+    pick-any R
+    assume (pqr := _)
+    modus-ponens pqr
+    - assumption
+    - assumption
+
+myor (P Q : Prop) : Prop := forall R : Prop, (P --> R) --> (Q --> R) --> R
+
+theorem myor-spec : forall P Q : Prop, myor P Q <--> P \/ Q :=
+  pick-any P Q
+  both
+  - assume (pq := _)
+    modus-ponens (specialize pq with (P \/ Q))
+    - or-left
+    - or-right
+  - assume (P \/ Q)
+    pick-any R
+    assume (P --> R)
+    assume (Q --> R)
+    or-elim (P \/ Q) (P --> R) (Q --> R)
+
+myex (a : Type) (P : a -> Prop) : Prop :=
+  forall R : Prop, (forall x : A, P x --> R) --> R
+
+theorem myex-spec :
+  forall-type a, forall P : a -> Prop, myex a P <--> exists x : A, P x :=
+  pick-any-type a
+  pick-any P
+  both
+  - assume (mx := _)
+    modus-ponens (specialize myex with (exists x : A, P x))
+    pick-any (x : A)
+    assume (P x)
+    exists x
+    assumption
+  - assume (exists x such-that (P x))
+    pick-any R
+    assume (all := _)
+    specialize all with x
+    assumption
