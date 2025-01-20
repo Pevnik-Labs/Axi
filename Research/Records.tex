@@ -126,7 +126,7 @@ $\funsig{(\extendsig{\Sigma}{\ell}{A})}{B} = (\extendsig{\funsig{\Sigma}{B}}{\el
 \begin{frame}{Declarative typing -- type-directed rules}
 
 \begin{center}
-  $\infrule{\fulltyping{\extend{\Gamma}{x}{A}}{e}{B}}{\typing{\fun{x}{e}}{\Fun{A}{B}}}$ \quad
+  $\infrule{\typing[\extend{\Gamma}{x}{A}]{e}{B}}{\typing{\fun{x}{e}}{\Fun{A}{B}}}$ \quad
   $\infrule{\typing{f}{\Fun{A}{B}} \quad \typing{a}{A}}{\typing{\app{f}{a}}{B}}$
 
   \vspace{2em}
@@ -166,7 +166,7 @@ $\funsig{(\extendsig{\Sigma}{\ell}{A})}{B} = (\extendsig{\funsig{\Sigma}{B}}{\el
 \begin{frame}{Algorithmic typing -- functions}
 
 \begin{center}
-  $\infrule{\fullhinting{\extend{\Gamma}{x}{A}}{e}{H}{B}}{\hinting{\fun{x}{e}}{\Fun{A}{H}}{\Fun{A}{B}}}$
+  $\infrule{\hinting[\extend{\Gamma}{x}{A}]{e}{H}{B}}{\hinting{\fun{x}{e}}{\Fun{A}{H}}{\Fun{A}{B}}}$
 
   \vspace{2em}
 

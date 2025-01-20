@@ -53,10 +53,10 @@ There are two kinds of lambda calculi, intrinsically typed also called (Church-s
 \begin{frame}{Intrinsic calculi -- examples}
 
 \begin{itemize}
-  \item $\ifun{x}{\Int}{x}$ -- the identity function at type $\Int$.
-  \item $\ifun{x}{\String}{x}$ -- the identity function at type $\String$. This is a different term from the above.
+  \item $\fun{x}[\Int]{x}$ -- the identity function at type $\Int$.
+  \item $\fun{x}[\String]{x}$ -- the identity function at type $\String$. This is a different term from the above.
   \item $\fun{x}{x}$ -- not a term, because it cannot be assigned a unique type.
-  \item $\app{(\ifun{x}{\String}{x})}{5}$ -- not a term, as it cannot be assigned a type because of a type error.
+  \item $\app{(\fun{x}[\String]{x})}{5}$ -- not a term, as it cannot be assigned a type because of a type error.
 \end{itemize}
 
 \end{frame}
@@ -75,7 +75,7 @@ Of course, from the language designer's point of view, ill-typed ``terms'' still
 
 \begin{itemize}
   \item $\fun{x}{x}$ -- the identity function. It can be assigned many types, like $\Fun{\Int}{\Int}$ or $\Fun{\String}{\String}$, so there's no need to have many identity functions for different types.
-  \item $\app{(\ifun{x}{\String}{x})}{5}$ -- this is a term, but it cannot be assigned a type because of a type-error.
+  \item $\app{(\fun{x}[\String]{x})}{5}$ -- this is a term, but it cannot be assigned a type because of a type-error.
 \end{itemize}
 
 \end{frame}
@@ -130,7 +130,7 @@ $\Gamma ::= \emptytypingctx \pipe \extend{\Gamma}{x}{A}$
 \vspace{2em}
 
 Judgements: \\
-$\fulltyping{\Gamma}{e}{A}$
+$\typing[\Gamma]{e}{A}$
 
 \end{frame}
 
@@ -144,7 +144,7 @@ Contexts are either empty (denote by the symbol $\emptytypingctx$) or they are a
 
 \vspace{2em}
 
-The judgement $\fulltyping{\Gamma}{e}{A}$ means that in context $\Gamma$, the term $e$ has type $A$.
+The judgement $\typing[\Gamma]{e}{A}$ means that in context $\Gamma$, the term $e$ has type $A$.
 
 \end{frame}
 
@@ -302,7 +302,7 @@ Both presented semantics are call-by-value, i.e. we evaluate a function's argume
 \begin{frame}{Declarative typing -- type-directed rules}
 
 \begin{center}
-  $\infrule{\fulltyping{\extend{\Gamma}{x}{A}}{e}{B}}{\typing{\fun{x}{e}}{\Fun{A}{B}}}$ \quad
+  $\infrule{\typing[\extend{\Gamma}{x}{A}]{e}{B}}{\typing{\fun{x}{e}}{\Fun{A}{B}}}$ \quad
   $\infrule{\typing{f}{\Fun{A}{B}} \quad \typing{a}{A}}{\typing{\app{f}{a}}{B}}$
 
   \vspace{2em}
@@ -376,8 +376,8 @@ Note: green color marks terms which were not present in Extrinsic STLC.
 \vspace{1em}
 
 Judgements: \\
-$\fullcheck{\Gamma}{e}{A}$ -- in context $\Gamma$, term $e$ checks against type $A$ ($A$ is an input) \\
-$\fullinfer{\Gamma}{e}{A}$ -- in context $\Gamma$, term $e$ infers type $A$ ($A$ is an output)
+$\check[\Gamma]{e}{A}$ -- in context $\Gamma$, term $e$ checks against type $A$ ($A$ is an input) \\
+$\infer[\Gamma]{e}{A}$ -- in context $\Gamma$, term $e$ infers type $A$ ($A$ is an output)
 
 \end{frame}
 
@@ -412,7 +412,7 @@ Note: the only rules shown are those which were not present in Extrinsic STLC.
 \begin{frame}{Bidirectional typing -- type-directed rules}
 
 \begin{center}
-  $\infrule{\fullcheck{\extend{\Gamma}{x}{A}}{e}{B}}{\check{\fun{x}{e}}{\Fun{A}{B}}}$ \quad
+  $\infrule{\check[\extend{\Gamma}{x}{A}]{e}{B}}{\check{\fun{x}{e}}{\Fun{A}{B}}}$ \quad
   $\infrule{\infer{f}{\Fun{A}{B}} \quad \check{a}{A}}{\infer{\app{f}{a}}{B}}$
 
   \vspace{2em}
@@ -487,7 +487,7 @@ Intrinsic STLC is the most widespread version of simply typed lambda calculus. T
 Terms: \\
 $e ::=$ \\
 \qquad $x \pipe$ \\
-\qquad $\termdiff{\ifun{x}{A}{e}} \pipe \app{e_1}{e_2} \pipe$ \\
+\qquad $\termdiff{\fun{x}[A]{e}} \pipe \app{e_1}{e_2} \pipe$ \\
 \qquad $\pair{e_1}{e_2} \pipe \outl{e} \pipe \outr{e} \pipe$ \\
 \qquad $\termdiff{\inl[B]{e}} \pipe \termdiff{\inr[A]{e}} \pipe \case{e}{e_1}{e_2} \pipe$ \\
 \qquad $\unit \pipe \termdiff{\emptyelim[A]{e}}$
@@ -501,7 +501,7 @@ Note: red color marks places which differ from Extrinsic STLC.
 \begin{frame}{Declarative typing -- differences}
 
 \begin{center}
-  $\infrule{\fulltyping{\extend{\Gamma}{x}{A}}{e}{B}}{\typing{\ifun{x}{A}{e}}{\Fun{A}{B}}}$
+  $\infrule{\typing[\extend{\Gamma}{x}{A}]{e}{B}}{\typing{\fun{x}[A]{e}}{\Fun{A}{B}}}$
 
   \vspace{2em}
 
@@ -521,7 +521,7 @@ Note: the only rules shown are those that differ from Extrinsic STLC.
 
 \begin{frame}{Type inference -- basics}
 
-Thanks to abundant type annotations, we can (re)interpret the typing judgement $\fulltyping{\Gamma}{e}{A}$ as a type inference judgement $\fullinfer{\Gamma}{e}{A}$.
+Thanks to abundant type annotations, we can (re)interpret the typing judgement $\typing[\Gamma]{e}{A}$ as a type inference judgement $\infer[\Gamma]{e}{A}$.
 
 \vspace{2em}
 
@@ -534,7 +534,7 @@ Thanks to abundant type annotations, we can (re)interpret the typing judgement $
 \begin{frame}{Type inference -- type-directed rules}
 
 \begin{center}
-  $\infrule{\fullinfer{\extend{\Gamma}{x}{A}}{e}{B}}{\infer{\ifun{x}{A}{e}}{\Fun{A}{B}}}$ \quad
+  $\infrule{\infer[\extend{\Gamma}{x}{A}]{e}{B}}{\infer{\fun{x}[A]{e}}{\Fun{A}{B}}}$ \quad
   $\infrule{\infer{f}{\Fun{A}{B}} \quad \infer{a}{A}}{\infer{\app{f}{a}}{B}}$
 
   \vspace{2em}
@@ -580,9 +580,9 @@ If the usual Intrinsic STLC turns out to be a system in which we can infer all t
 Terms: \\
 $e ::=$ \\
 \qquad $x \pipe$ \\
-\qquad $\fun{x}{e} \pipe \termdiff{\iapp{A}{e_1}{e_2}} \pipe$ \\
+\qquad $\fun{x}{e} \pipe \termdiff{\app[A]{e_1}{e_2}} \pipe$ \\
 \qquad $\pair{e_1}{e_2} \pipe \termdiff{\outl[B]{e}} \pipe \termdiff{\outr[A]{e}} \pipe$ \\
-\qquad $\inl{e} \pipe \inr{e} \pipe \termdiff{\icase{A}{B}{e}{e_1}{e_2}} \pipe$ \\
+\qquad $\inl{e} \pipe \inr{e} \pipe \termdiff{\caseannot{A}{B}{e}{e_1}{e_2}} \pipe$ \\
 \qquad $\unit \pipe \emptyelim{e}$
 
 \vspace{2em}
@@ -594,7 +594,7 @@ Note: red color marks places which differ from Extrinsic STLC.
 \begin{frame}{Declarative typing -- differences}
 
 \begin{center}
-  $\infrule{\typing{f}{\Fun{A}{B}} \quad \typing{a}{A}}{\typing{\iapp{A}{f}{a}}{B}}$
+  $\infrule{\typing{f}{\Fun{A}{B}} \quad \typing{a}{A}}{\typing{\app[A]{f}{a}}{B}}$
 
   \vspace{2em}
 
@@ -603,7 +603,7 @@ Note: red color marks places which differ from Extrinsic STLC.
 
   \vspace{2em}
 
-  $\infrule{\typing{e}{\Sum{A}{B}} \quad \typing{f}{\Fun{A}{C}} \quad \typing{g}{\Fun{B}{C}}}{\typing{\icase{A}{B}{e}{f}{g}}{C}}$
+  $\infrule{\typing{e}{\Sum{A}{B}} \quad \typing{f}{\Fun{A}{C}} \quad \typing{g}{\Fun{B}{C}}}{\typing{\caseannot{A}{B}{e}{f}{g}}{C}}$
 \end{center}
 
 \vspace{2em}
@@ -614,7 +614,7 @@ Note: the only rules shown are those that differ from Extrinsic STLC.
 
 \begin{frame}{Type checking -- basics}
 
-Thanks to abundant type annotations, we can (re)interpret the typing judgement $\fulltyping{\Gamma}{e}{A}$ as a type checking judgement $\fullcheck{\Gamma}{e}{A}$.
+Thanks to abundant type annotations, we can (re)interpret the typing judgement $\typing[\Gamma]{e}{A}$ as a type checking judgement $\check[\Gamma]{e}{A}$.
 
 \vspace{2em}
 
@@ -627,8 +627,8 @@ Thanks to abundant type annotations, we can (re)interpret the typing judgement $
 \begin{frame}{Type checking -- type-directed rules}
 
 \begin{center}
-  $\infrule{\fullcheck{\extend{\Gamma}{x}{A}}{e}{B}}{\check{\fun{x}{e}}{\Fun{A}{B}}}$ \enspace
-  $\infrule{\check{f}{\Fun{A}{B}} \quad \check{a}{A}}{\check{\iapp{A}{f}{a}}{B}}$
+  $\infrule{\check[\extend{\Gamma}{x}{A}]{e}{B}}{\check{\fun{x}{e}}{\Fun{A}{B}}}$ \enspace
+  $\infrule{\check{f}{\Fun{A}{B}} \quad \check{a}{A}}{\check{\app[A]{f}{a}}{B}}$
 
   \vspace{2em}
 
@@ -643,7 +643,7 @@ Thanks to abundant type annotations, we can (re)interpret the typing judgement $
 
   \vspace{2em}
 
-  $\infrule{\check{e}{\Sum{A}{B}} \quad \check{f}{\Fun{A}{C}} \quad \check{g}{\Fun{B}{C}}}{\check{\icase{A}{B}{e}{f}{g}}{C}}$
+  $\infrule{\check{e}{\Sum{A}{B}} \quad \check{f}{\Fun{A}{C}} \quad \check{g}{\Fun{B}{C}}}{\check{\caseannot{A}{B}{e}{f}{g}}{C}}$
 
   \vspace{2em}
 
@@ -774,7 +774,7 @@ Note: red color marks differences from Bidirectional STLC.
 \vspace{2em}
 
 Judgements: \\
-$\fullhinting{\Gamma}{e}{H}{A}$ -- in context $\Gamma$, term $e$ checks with hint $H$ and infers type $A$
+$\hinting[\Gamma]{e}{H}{A}$ -- in context $\Gamma$, term $e$ checks with hint $H$ and infers type $A$
 
 \end{frame}
 
@@ -809,7 +809,7 @@ Note that the rule $\rulename{Hole}$ can only be applied once, because $\hintfor
 \begin{frame}{Hinting -- type-directed rules}
 
 \begin{center}
-  $\infrule{\fullhinting{\extend{\Gamma}{x}{A}}{e}{H}{B}}{\hinting{\fun{x}{e}}{\Fun{A}{H}}{\Fun{A}{B}}}$
+  $\infrule{\hinting[\extend{\Gamma}{x}{A}]{e}{H}{B}}{\hinting{\fun{x}{e}}{\Fun{A}{H}}{\Fun{A}{B}}}$
 
   \vspace{1em}
 
@@ -876,7 +876,7 @@ We can introduce some handy notations:
 We can embed Intrinsic STLC terms:
 
 \begin{itemize}
-  \item $\ifun{x}{A}{e} :\equiv \annot{\fun{x}{e}}{\Fun{A}{\Hole}}$ \\
+  \item $\fun{x}[A]{e} :\equiv \annot{\fun{x}{e}}{\Fun{A}{\Hole}}$ \\
   \item $\inl[B]{e} :\equiv \annot{\inl{e}}{\Sum{\Hole}{B}}$ \\
   \item $\inr[A]{e} :\equiv \annot{\inr{e}}{\Sum{A}{\Hole}}$ \\
   \item $\emptyelim[A]{e} :\equiv \annot{\emptyelim{e}}{A}$
@@ -885,10 +885,10 @@ We can embed Intrinsic STLC terms:
 We can also embed Dual Intrinsic STLC terms:
 
 \begin{itemize}
-  \item $\iapp{A}{f}{a} :\equiv \app{\annot{f}{\Fun{A}{\Hole}}}{a}$
+  \item $\app[A]{f}{a} :\equiv \app{\annot{f}{\Fun{A}{\Hole}}}{a}$
   \item $\outl[B]{e} :\equiv \outl{\annot{e}{\Prod{\Hole}{B}}}$
   \item $\outr[A]{e} :\equiv \outr{\annot{e}{\Prod{A}{\Hole}}}$
-  \item $\icase{A}{B}{e}{f}{g} :\equiv \case{\annot{e}{\Sum{A}{B}}}{f}{g}$
+  \item $\caseannot{A}{B}{e}{f}{g} :\equiv \case{\annot{e}{\Sum{A}{B}}}{f}{g}$
 \end{itemize}
 
 \end{frame}
@@ -896,8 +896,8 @@ We can also embed Dual Intrinsic STLC terms:
 \begin{frame}{Rules for derived terms}
 
 \begin{center}
-  $\infrule{\fullinfer{\extend{\Gamma}{x}{A}}{e}{B}}{\infer{\ifun{x}{A}{e}}{\Fun{A}{B}}}$ \quad
-  $\infrule{\check{f}{\Fun{A}{B}} \quad \check{a}{A}}{\check{\iapp{A}{f}{a}}{B}}$
+  $\infrule{\infer[\extend{\Gamma}{x}{A}]{e}{B}}{\infer{\fun{x}[A]{e}}{\Fun{A}{B}}}$ \quad
+  $\infrule{\check{f}{\Fun{A}{B}} \quad \check{a}{A}}{\check{\app[A]{f}{a}}{B}}$
 
   \vspace{2em}
 
@@ -911,7 +911,7 @@ We can also embed Dual Intrinsic STLC terms:
 
   \vspace{2em}
 
-  $\infrule{\check{e}{\Sum{A}{B}} \quad \check{f}{\Fun{A}{C}} \quad \check{g}{\Fun{B}{C}}}{\check{\icase{A}{B}{e}{f}{g}}{C}}$
+  $\infrule{\check{e}{\Sum{A}{B}} \quad \check{f}{\Fun{A}{C}} \quad \check{g}{\Fun{B}{C}}}{\check{\caseannot{A}{B}{e}{f}{g}}{C}}$
 
   \vspace{2em}
 

@@ -225,17 +225,10 @@ $n ::=$ \\
 
 \end{frame}
 
-\newcommand{\fullcheckcompeq}[4]{#1 \vdash #2 \equiv #3 \mathcolor{blue}{\Leftarrow} #4}
-\newcommand{\checkcompeq}[3]{\fullcheckcompeq{\Gamma}{#1}{#2}{#3}}
-
-\newcommand{\fullinfercompeq}[4]{#1 \vdash #2 \equiv #3 \mathcolor{red}{\Rightarrow} #4}
-\newcommand{\infercompeq}[3]{\fullinfercompeq{\Gamma}{#1}{#2}{#3}}
-
-\newcommand{\fullcheckcompeqwhnf}[4]{#1 \vdash #2 \equiv #3 \mathcolor{blue}{\Leftarrow}_{\texttt{whnf}} #4}
-\newcommand{\checkcompeqwhnf}[3]{\fullcheckcompeqwhnf{\Gamma}{#1}{#2}{#3}}
-
-\newcommand{\fullinfercompeqwhnf}[4]{#1 \vdash #2 \equiv #3 \mathcolor{red}{\Rightarrow}_{\texttt{whnf}} #4}
-\newcommand{\infercompeqwhnf}[3]{\fullinfercompeqwhnf{\Gamma}{#1}{#2}{#3}}
+\NewDocumentCommand{\checkcompeq}{O{\Gamma} m m m}{#1 \vdash #2 \equiv #3 \mathcolor{blue}{\Leftarrow} #4}
+\NewDocumentCommand{\infercompeq}{O{\Gamma} m m m}{#1 \vdash #2 \equiv #3 \mathcolor{red}{\Rightarrow} #4}
+\NewDocumentCommand{\checkcompeqwhnf}{O{\Gamma} m m m}{#1 \vdash #2 \equiv #3 \mathcolor{blue}{\Leftarrow}_{\texttt{whnf}} #4}
+\NewDocumentCommand{\infercompeqwhnf}{O{\Gamma} m m m}{#1 \vdash #2 \equiv #3 \mathcolor{red}{\Rightarrow}_{\texttt{whnf}} #4}
 
 \begin{frame}{Algorithmic computational equality 0}
 
@@ -264,7 +257,7 @@ $n ::=$ \\
 \begin{frame}{Algorithmic computational equality 1}
 
 \begin{center}
-  $\infrule{\fullcheckcompeqwhnf{\extend{\Gamma}{x}{A}}{e_1}{e_2}{B}}{\checkcompeq{\fun{x}{e_1}}{\fun{x}{e_2}}{\Fun{A}{B}}}$
+  $\infrule{\checkcompeqwhnf[\extend{\Gamma}{x}{A}]{e_1}{e_2}{B}}{\checkcompeq{\fun{x}{e_1}}{\fun{x}{e_2}}{\Fun{A}{B}}}$
 
   \vspace{2em}
 
@@ -319,7 +312,7 @@ $n ::=$ \\
 \begin{frame}{Uniqueness rules (symmetric, prop-like)}
 
 \begin{center}
-  $\infrule[Fun-Uniq-Alt]{\fullcheckcompeq{\extend{\Gamma}{x}{A}}{\app{f}{x}}{\app{g}{x}}{B}}{\checkcompeq{f}{g}{\Fun{A}{B}}}$
+  $\infrule[Fun-Uniq-Alt]{\checkcompeq[\extend{\Gamma}{x}{A}]{\app{f}{x}}{\app{g}{x}}{B}}{\checkcompeq{f}{g}{\Fun{A}{B}}}$
 
   \vspace{2em}
 
@@ -352,7 +345,7 @@ $n ::=$ \\
 \begin{frame}{Annotations}
 
 \begin{center}
-  $\infrule[Proof-Annot]{\prop{\Gamma}{P} \quad \proofcheck{e}{P}}{\proofinfer{\proofannot{P}{e}}{P}}$
+  $\infrule[Proof-Annot]{\prop[\Gamma]{P} \quad \proofcheck{e}{P}}{\proofinfer{\proofannot{P}{e}}{P}}$
 \end{center}
 
 \end{frame}
@@ -380,11 +373,11 @@ $n ::=$ \\
 \begin{frame}{Implication}
 
 \begin{center}
-  $\infrule[Impl-Intro-Check]{\fullproofcheck{\assume{\Gamma}{P}}{e}{Q}}{\proofcheck{\implintro{P}{e}}{\Impl{P}{Q}}}$
+  $\infrule[Impl-Intro-Check]{\proofcheck[\assume{\Gamma}{P}]{e}{Q}}{\proofcheck{\implintro{P}{e}}{\Impl{P}{Q}}}$
 
   \vspace{2em}
 
-  $\infrule[Impl-Intro-Infer]{\prop{\Gamma}{P} \quad \fullproofinfer{\assume{\Gamma}{P}}{e}{Q}}{\proofinfer{\implintro{P}{e}}{\Impl{P}{Q}}}$
+  $\infrule[Impl-Intro-Infer]{\prop[\Gamma]{P} \quad \proofinfer[\assume{\Gamma}{P}]{e}{Q}}{\proofinfer{\implintro{P}{e}}{\Impl{P}{Q}}}$
 
   \vspace{2em}
 
@@ -396,7 +389,7 @@ $n ::=$ \\
 \begin{frame}{Negation}
 
 \begin{center}
-  $\infrule[Not-Intro]{\prop{\Gamma}{P} \quad \fullproofcheck{\assume{\Gamma}{P}}{e}{\False}}{\proofinfer{\notintro{P}{e}}{\Not{P}}}$
+  $\infrule[Not-Intro]{\prop[\Gamma]{P} \quad \proofcheck[\assume{\Gamma}{P}]{e}{\False}}{\proofinfer{\notintro{P}{e}}{\Not{P}}}$
 
   \vspace{2em}
 
@@ -472,11 +465,11 @@ $n ::=$ \\
 \begin{frame}{Disjunction -- inference}
 
 \begin{center}
-  $\infrule[Or-Intro-L-Infer]{\prop{\Gamma}{Q} \quad \proofinfer{e}{P}}{\proofinfer{\orintrol{Q}{e}}{\Or{P}{Q}}}$
+  $\infrule[Or-Intro-L-Infer]{\prop[\Gamma]{Q} \quad \proofinfer{e}{P}}{\proofinfer{\orintrol{Q}{e}}{\Or{P}{Q}}}$
 
   \vspace{2em}
 
-  $\infrule[Or-Intro-R-Infer]{\prop{\Gamma}{P} \quad \proofinfer{e}{Q}}{\proofinfer{\orintror{P}{e}}{\Or{P}{Q}}}$
+  $\infrule[Or-Intro-R-Infer]{\prop[\Gamma]{P} \quad \proofinfer{e}{Q}}{\proofinfer{\orintror{P}{e}}{\Or{P}{Q}}}$
 
   \vspace{2em}
 
@@ -500,29 +493,27 @@ $n ::=$ \\
 \begin{frame}{Cut rule}
 
 \begin{center}
-  $\infrule[Cut]{\proofinfer{e_1}{P} \quad \fullproofcheck{\assume{\Gamma}{P}}{e_2}{Q}}{\proofcheck{\cut{e_1}{e_2}}{Q}}$
+  $\infrule[Cut]{\proofinfer{e_1}{P} \quad \proofcheck[\assume{\Gamma}{P}]{e_2}{Q}}{\proofcheck{\cut{e_1}{e_2}}{Q}}$
 
   \vspace{2em}
 
-  $\infrule[Cut-Infer]{\proofinfer{e_1}{P} \quad \fullproofinfer{\assume{\Gamma}{P}}{e_2}{Q}}{\proofinfer{\cut{e_1}{e_2}}{Q}}$
+  $\infrule[Cut-Infer]{\proofinfer{e_1}{P} \quad \proofinfer[\assume{\Gamma}{P}]{e_2}{Q}}{\proofinfer{\cut{e_1}{e_2}}{Q}}$
 \end{center}
 
 \end{frame}
 
-\newcommand{\allintroannot}[3]{\allintro{#1 : #2}{#3}}
-
 \begin{frame}{Universal quantifier}
 
 \begin{center}
-  $\infrule[Forall-Intro]{\fullproofcheck{\extend{\Gamma}{y}{A}}{e}{\subst{P}{x}{y}}}{\proofcheck{\allintro{y}{e}}{\All{x}{A}{P}}}$
+  $\infrule[Forall-Intro]{\proofcheck[\extend{\Gamma}{y}{A}]{e}{\subst{P}{x}{y}}}{\proofcheck{\allintro{y}{e}}{\All{x}[A]{P}}}$
 
   \vspace{2em}
 
-  $\infrule[Forall-Intro-Infer]{\fullproofinfer{\extend{\Gamma}{x}{A}}{e}{P}}{\proofinfer{\allintroannot{x}{A}{e}}{\All{x}{A}{P}}}$
+  $\infrule[Forall-Intro-Infer]{\proofinfer[\extend{\Gamma}{x}{A}]{e}{P}}{\proofinfer{\allintro{x}[A]{e}}{\All{x}[A]{P}}}$
 
   \vspace{2em}
 
-  $\infrule[Forall-Elim]{\proofinfer{e}{\All{x}{A}{P}} \quad \check{t}{A}}{\proofinfer{\allelim{e}{t}}{\subst{P}{x}{t}}}$
+  $\infrule[Forall-Elim]{\proofinfer{e}{\All{x}[A]{P}} \quad \check{t}{A}}{\proofinfer{\allelim{e}{t}}{\subst{P}{x}{t}}}$
 \end{center}
 
 \end{frame}
@@ -530,15 +521,15 @@ $n ::=$ \\
 \begin{frame}{Existential quantifier}
 
 \begin{center}
-  $\infrule[Exists-Intro]{\check{t}{A} \quad \proofcheck{e}{\subst{P}{x}{t}}}{\proofcheck{\exintro{t}{e}}{\Ex{x}{A}{P}}}$
+  $\infrule[Exists-Intro]{\check{t}{A} \quad \proofcheck{e}{\subst{P}{x}{t}}}{\proofcheck{\exintro{t}{e}}{\Ex{x}[A]{P}}}$
 
   \vspace{2em}
 
-  $\infrule[Exists-Elim]{\proofinfer{e_1}{\Ex{x}{A}{P}} \quad \fullproofinfer{\assume{\extend{\Gamma}{y}{A}}{\subst{P}{x}{y}}}{e_2}{R}}{\proofinfer{\exelim{y}{e_1}{e_2}}{R}}$
+  $\infrule[Exists-Elim]{\proofinfer{e_1}{\Ex{x}[A]{P}} \quad \proofinfer[\assume{\extend{\Gamma}{y}{A}}{\subst{P}{x}{y}}]{e_2}{R}}{\proofinfer{\exelim{y}{e_1}{e_2}}{R}}$
 
   \vspace{2em}
 
-  $\infrule[Exists-Elim-Check]{\proofinfer{e_1}{\Ex{x}{A}{P}} \quad \fullproofcheck{\assume{\extend{\Gamma}{y}{A}}{\subst{P}{x}{y}}}{e_2}{R}}{\proofcheck{\exelim{y}{e_1}{e_2}}{R}}$
+  $\infrule[Exists-Elim-Check]{\proofinfer{e_1}{\Ex{x}[A]{P}} \quad \proofcheck[\assume{\extend{\Gamma}{y}{A}}{\subst{P}{x}{y}}]{e_2}{R}}{\proofcheck{\exelim{y}{e_1}{e_2}}{R}}$
 \end{center}
 
 \end{frame}
@@ -546,7 +537,7 @@ $n ::=$ \\
 \begin{frame}{Conversion rule -- TODO}
 
 \begin{center}
-  $\infrule[Conv]{\prop{\extend{\Gamma}{x}{A}}{P} \quad \compeq{t_1}{t_2}{A} \quad \proves{e}{\subst{P}{x}{t_1}}}{\proves{e}{\subst{P}{x}{t_2}}}$
+  $\infrule[Conv]{\prop[\extend{\Gamma}{x}{A}]{P} \quad \compeq{t_1}{t_2}{A} \quad \proves{e}{\subst{P}{x}{t_1}}}{\proves{e}{\subst{P}{x}{t_2}}}$
 \end{center}
 
 \end{frame}
@@ -562,7 +553,7 @@ $n ::=$ \\
 
   \vspace{2em}
 
-  $\infrule[Eq-Elim]{\prop{\extend{\Gamma}{x}{A}}{P} \quad \proofinfer{e}{\Eq[A]{t_1}{t_2}} \quad \proofcheck{e'}{\subst{P}{x}{t_1}}}{\proofinfer{\rewrite{e}{e'}}{\subst{P}{x}{t_2}}}$
+  $\infrule[Eq-Elim]{\prop[\extend{\Gamma}{x}{A}]{P} \quad \proofinfer{e}{\Eq[A]{t_1}{t_2}} \quad \proofcheck{e'}{\subst{P}{x}{t_1}}}{\proofinfer{\rewrite{e}{e'}}{\subst{P}{x}{t_2}}}$
 \end{center}
 
 \end{frame}
@@ -580,7 +571,7 @@ $n ::=$ \\
 \begin{frame}{Function extensionality}
 
 \begin{center}
-  $\infrule[Funext]{\proofcheck{e}{\All{x}{A}{\Eq[B]{\app{f}{x}}{\app{g}{x}}}}}{\proofcheck{\funext{e}}{\Eq[\Fun{A}{B}]{f}{g}}}$
+  $\infrule[Funext]{\proofcheck{e}{\All{x}[A]{\Eq[B]{\app{f}{x}}{\app{g}{x}}}}}{\proofcheck{\funext{e}}{\Eq[\Fun{A}{B}]{f}{g}}}$
 \end{center}
 
 \end{frame}
@@ -588,7 +579,7 @@ $n ::=$ \\
 \begin{frame}{Reasoning by cases (for sums)}
 
 \begin{center}
-  $\infrule{\prop{\extend{\Gamma}{x}{\Sum{A}{B}}}{P} \quad \infer{t}{\Sum{A}{B}} \quad \begin{array}{c} \fullproofcheck{\extend{\Gamma}{a}{A}}{e_1}{\subst{P}{x}{\inl{a}}} \\ \fullproofcheck{\extend{\Gamma}{b}{B}}{e_2}{\subst{P}{x}{\inr{b}}} \end{array}}{\proofinfer{\sumind{t}{a}{e_1}{b}{e_2}}{\subst{P}{x}{t}}}$
+  $\infrule{\prop[\extend{\Gamma}{x}{\Sum{A}{B}}]{P} \quad \infer{t}{\Sum{A}{B}} \quad \begin{array}{c} \proofcheck[\extend{\Gamma}{a}{A}]{e_1}{\subst{P}{x}{\inl{a}}} \\ \proofcheck[\extend{\Gamma}{b}{B}]{e_2}{\subst{P}{x}{\inr{b}}} \end{array}}{\proofinfer{\sumind{t}{a}{e_1}{b}{e_2}}{\subst{P}{x}{t}}}$
 \end{center}
 
 \end{frame}

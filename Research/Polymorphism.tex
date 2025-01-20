@@ -56,7 +56,7 @@ $\typing{e}{A}$, $\type{A}$
 
   \vspace{2em}
 
-  $\infrule[All]{\fulltype{\extendtype{\Gamma}{\alpha}}{A}}{\type{\ForallT{\alpha}{A}}}$
+  $\infrule[All]{\type[\extendtype{\Gamma}{\alpha}]{A}}{\type{\ForallT{\alpha}{A}}}$
 
   \vspace{2em}
 
@@ -82,7 +82,7 @@ $\typing{e}{A}$, $\type{A}$
 Terms: \\
 $e ::=$ \\
 \qquad $x \pipe $ \\
-\qquad $\ifun{x}{A}{e} \pipe \app{e_1}{e_2} \pipe$ \\
+\qquad $\fun{x}[A]{e} \pipe \app{e_1}{e_2} \pipe$ \\
 \qquad $\tfun{\alpha}{e} \pipe \tapp{e}{A}$
 
 \end{frame}
@@ -94,12 +94,12 @@ $e ::=$ \\
 
   \vspace{2em}
 
-  $\infrule{\fulltyping{\extend{\Gamma}{x}{A}}{e}{B}}{\typing{\ifun{x}{A}{e}}{\Fun{A}{B}}}$ \quad
+  $\infrule{\typing[\extend{\Gamma}{x}{A}]{e}{B}}{\typing{\fun{x}[A]{e}}{\Fun{A}{B}}}$ \quad
   $\infrule{\typing{f}{\Fun{A}{B}} \quad \typing{a}{A}}{\typing{\app{f}{a}}{B}}$
 
   \vspace{2em}
 
-  $\infrule{\fulltyping{\extendtype{\Gamma}{\alpha}}{e}{A}}{\typing{\tfun{\alpha}{e}}{\ForallT{\alpha}{A}}}$
+  $\infrule{\typing[\extendtype{\Gamma}{\alpha}]{e}{A}}{\typing{\tfun{\alpha}{e}}{\ForallT{\alpha}{A}}}$
 
   \vspace{2em}
 
@@ -115,12 +115,12 @@ $e ::=$ \\
 
   \vspace{2em}
 
-  $\infrule{\fullinfer{\extend{\Gamma}{x}{A}}{e}{B}}{\infer{\ifun{x}{A}{e}}{\Fun{A}{B}}}$ \quad
+  $\infrule{\infer[\extend{\Gamma}{x}{A}]{e}{B}}{\infer{\fun{x}[A]{e}}{\Fun{A}{B}}}$ \quad
   $\infrule{\infer{f}{\Fun{A}{B}} \quad \infer{a}{A}}{\infer{\app{f}{a}}{B}}$
 
   \vspace{2em}
 
-  $\infrule{\fullinfer{\extendtype{\Gamma}{\alpha}}{e}{A}}{\infer{\tfun{\alpha}{e}}{\ForallT{\alpha}{A}}}$
+  $\infrule{\infer[\extendtype{\Gamma}{\alpha}]{e}{A}}{\infer{\tfun{\alpha}{e}}{\ForallT{\alpha}{A}}}$
 
   \vspace{2em}
 
@@ -136,7 +136,7 @@ $e ::=$ \\
 Terms: \\
 $e ::=$ \\
 \qquad $x \pipe $ \\
-\qquad $\fun{x}{e} \pipe \iapp{A}{e_1}{e_2} \pipe$ \\
+\qquad $\fun{x}{e} \pipe \app[A]{e_1}{e_2} \pipe$ \\
 \qquad $\tapp{e}{A}$
 
 \end{frame}
@@ -148,12 +148,12 @@ $e ::=$ \\
 
   \vspace{2em}
 
-  $\infrule{\fulltyping{\extend{\Gamma}{x}{A}}{e}{B}}{\typing{\fun{x}{e}}{\Fun{A}{B}}}$ \quad
-  $\infrule{\typing{f}{\Fun{A}{B}} \quad \typing{a}{A}}{\typing{\iapp{A}{f}{a}}{B}}$
+  $\infrule{\typing[\extend{\Gamma}{x}{A}]{e}{B}}{\typing{\fun{x}{e}}{\Fun{A}{B}}}$ \quad
+  $\infrule{\typing{f}{\Fun{A}{B}} \quad \typing{a}{A}}{\typing{\app[A]{f}{a}}{B}}$
 
   \vspace{2em}
 
-  $\infrule{\fulltyping{\extendtype{\Gamma}{\alpha}}{e}{A}}{\typing{e}{\ForallT{\alpha}{A}}}$
+  $\infrule{\typing[\extendtype{\Gamma}{\alpha}]{e}{A}}{\typing{e}{\ForallT{\alpha}{A}}}$
 
   \vspace{2em}
 
@@ -169,12 +169,12 @@ $e ::=$ \\
 
   \vspace{2em}
 
-  $\infrule{\fullcheck{\extend{\Gamma}{x}{A}}{e}{B}}{\check{\fun{x}{e}}{\Fun{A}{B}}}$ \quad
-  $\infrule{\check{f}{\Fun{A}{B}} \quad \check{a}{A}}{\check{\iapp{A}{f}{a}}{B}}$
+  $\infrule{\check[\extend{\Gamma}{x}{A}]{e}{B}}{\check{\fun{x}{e}}{\Fun{A}{B}}}$ \quad
+  $\infrule{\check{f}{\Fun{A}{B}} \quad \check{a}{A}}{\check{\app[A]{f}{a}}{B}}$
 
   \vspace{2em}
 
-  $\infrule{\fullcheck{\extendtype{\Gamma}{\alpha}}{e}{A}}{\check{e}{\ForallT{\alpha}{A}}}$
+  $\infrule{\check[\extendtype{\Gamma}{\alpha}]{e}{A}}{\check{e}{\ForallT{\alpha}{A}}}$
 
   \vspace{2em}
 
@@ -201,12 +201,12 @@ $e ::=$ \\
 
   \vspace{2em}
 
-  $\infrule{\fulltyping{\extend{\Gamma}{x}{A}}{e}{B}}{\typing{\fun{x}{e}}{\Fun{A}{B}}}$ \quad
+  $\infrule{\typing[\extend{\Gamma}{x}{A}]{e}{B}}{\typing{\fun{x}{e}}{\Fun{A}{B}}}$ \quad
   $\infrule{\typing{f}{\Fun{A}{B}} \quad \typing{a}{A}}{\typing{\app{f}{a}}{B}}$
 
   \vspace{2em}
 
-  $\infrule{\fulltyping{\extendtype{\Gamma}{\alpha}}{e}{A}}{\typing{e}{\ForallT{\alpha}{A}}}$
+  $\infrule{\typing[\extendtype{\Gamma}{\alpha}]{e}{A}}{\typing{e}{\ForallT{\alpha}{A}}}$
 
   \vspace{2em}
 
@@ -217,8 +217,7 @@ $e ::=$ \\
 
 \section{System F with Hints}
 
-\newcommand{\fullvalidhint}[2]{#1 \vdash #2\ \texttt{hint}}
-\newcommand{\validhint}[1]{\fullvalidhint{\Gamma}{#1}}
+\NewDocumentCommand{\validhint}{O{\Gamma} m}{#1 \vdash #2\ \texttt{hint}}
 
 \begin{frame}{Hints}
 
@@ -238,7 +237,7 @@ $H ::= \Hole \pipe \Fun{H_1}{H_2} \pipe \ForallT{\alpha}{H} \pipe \alpha$
 
   \vspace{2em}
 
-  $\infrule[Hint-All]{\fullvalidhint{\extendtype{\Gamma}{\alpha}}{H}}{\validhint{\ForallT{\alpha}{H}}}$
+  $\infrule[Hint-All]{\validhint[\extendtype{\Gamma}{\alpha}]{H}}{\validhint{\ForallT{\alpha}{H}}}$
 
   \vspace{2em}
 
@@ -311,12 +310,12 @@ $e ::=$ \\
 
   \vspace{2em}
 
-  $\infrule{\fulltyping{\extend{\Gamma}{x}{A}}{e}{B}}{\typing{\fun{x}{e}}{\Fun{A}{B}}}$ \quad
+  $\infrule{\typing[\extend{\Gamma}{x}{A}]{e}{B}}{\typing{\fun{x}{e}}{\Fun{A}{B}}}$ \quad
   $\infrule{\typing{f}{\Fun{A}{B}} \quad \typing{a}{A}}{\typing{\app{f}{a}}{B}}$
 
   \vspace{2em}
 
-  $\infrule{\fulltyping{\extendtype{\Gamma}{\alpha}}{e}{A}}{\typing{e}{\ForallT{\alpha}{A}}}$
+  $\infrule{\typing[\extendtype{\Gamma}{\alpha}]{e}{A}}{\typing{e}{\ForallT{\alpha}{A}}}$
 
   \vspace{2em}
 
@@ -344,7 +343,7 @@ $e ::=$ \\
 \begin{frame}{Algorithmic typing -- other rules}
 
 \begin{center}
-  $\infrule{\fullhinting{\extend{\Gamma}{x}{A}}{e}{H}{B}}{\hinting{\fun{x}{e}}{\Fun{A}{H}}{\Fun{A}{B}}}$
+  $\infrule{\hinting[\extend{\Gamma}{x}{A}]{e}{H}{B}}{\hinting{\fun{x}{e}}{\Fun{A}{H}}{\Fun{A}{B}}}$
 
   \vspace{2em}
 
@@ -352,7 +351,7 @@ $e ::=$ \\
 
   \vspace{2em}
 
-  $\infrule{\fullhinting{\extendtype{\Gamma}{\alpha}}{e}{H}{A}}{\hinting{e}{\ForallT{\alpha}{H}}{\ForallT{\alpha}{A}}}$
+  $\infrule{\hinting[\extendtype{\Gamma}{\alpha}]{e}{H}{A}}{\hinting{e}{\ForallT{\alpha}{H}}{\ForallT{\alpha}{A}}}$
 \end{center}
 
 \end{frame}
@@ -360,8 +359,8 @@ $e ::=$ \\
 \begin{frame}{Embedding}
 
 \begin{itemize}
-  \item $\ifun{x}{A}{e} :\equiv \annot{\fun{x}{e}}{\Fun{A}{\Hole}}$ \\
-  \item $\iapp{A}{f}{a} :\equiv \app{\annot{f}{\Fun{A}{\Hole}}}{a}$
+  \item $\fun{x}[A]{e} :\equiv \annot{\fun{x}{e}}{\Fun{A}{\Hole}}$ \\
+  \item $\app[A]{f}{a} :\equiv \app{\annot{f}{\Fun{A}{\Hole}}}{a}$
   \item $\tfun{\alpha}{e} :\equiv \annot{e}{\ForallT{\alpha}{\Hole}}$
   \item $\tapp{e}{A} :\equiv \qquad ???$
 \end{itemize}

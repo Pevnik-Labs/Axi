@@ -27,7 +27,7 @@
 \begin{frame}{Old rules}
 
 \begin{center}
-  $\infrule[Abs]{\fullhinting{\extend{\Gamma}{x}{A}}{e}{H}{B}}{\hinting{\fun{x}{e}}{\Fun{A}{H}}{\Fun{A}{B}}}$
+  $\infrule[Abs]{\hinting[\extend{\Gamma}{x}{A}]{e}{H}{B}}{\hinting{\fun{x}{e}}{\Fun{A}{H}}{\Fun{A}{B}}}$
 
   \vspace{2em}
 
@@ -40,8 +40,6 @@
 
 \end{frame}
 
-\newcommand{\funcase}{\texttt{case}}
-
 \begin{frame}{Wut}
 
 Easy for the original rule $\rulename{App}$, but hard for the alternative $\rulename{AltApp}$: $\app{f}{e_1}$, $\app{\app{f}{e_1}}{e_2}$, etc.
@@ -52,13 +50,12 @@ Easy for the alternative rule $\rulename{AltApp}$, but hard for the original one
 
 \vspace{2em}
 
-Hard for both: $\app{\app{\app{\app{\funcase}{(\fun{a}{e_1})}}{(\fun{b}{e_2})}}{x}}{}$
+Hard for both: $\app{\app{\app{\app{\casefun}{(\fun{a}{e_1})}}{(\fun{b}{e_2})}}{x}}{}$
 \end{frame}
 
 \section{Quick Look}
 
-\newcommand{\fullquicklookinfer}[3]{#1 \vdash #2 \mathcolor{green}{\Rightarrow} #3}
-\newcommand{\quicklookinfer}[2]{\fullquicklookinfer{\Gamma}{#1}{#2}}
+\NewDocumentCommand{\quicklookinfer}{O{\Gamma} m m}{#1 \vdash #2 \mathcolor{green}{\Rightarrow} #3}
 
 \begin{frame}{Quick Look at the argument}
 
@@ -96,8 +93,7 @@ Hard for both: $\app{\app{\app{\app{\funcase}{(\fun{a}{e_1})}}{(\fun{b}{e_2})}}{
 
 \end{frame}
 
-\newcommand{\fullquicklookhinting}[4]{#1 \vdash #2 \mathcolor{blue}{\Leftarrow} #3 \mathcolor{green}{\Rightarrow} #4}
-\newcommand{\quicklookhinting}[3]{\fullquicklookhinting{\Gamma}{#1}{#2}{#3}}
+\NewDocumentCommand{\quicklookhinting}{O{\Gamma} m m m}{#1 \vdash #2 \mathcolor{blue}{\Leftarrow} #3 \mathcolor{green}{\Rightarrow} #4}
 
 \begin{frame}{Quick Look}
 
@@ -123,12 +119,12 @@ Hard for both: $\app{\app{\app{\app{\funcase}{(\fun{a}{e_1})}}{(\fun{b}{e_2})}}{
 
 \end{frame}
 
-\newcommand{\qldeep}[6]{#1 \vdash #2 \mathcolor{blue}{\Leftarrow} #3 \mathcolor{green}{\Rightarrow} #4\ ;\ #5\ ;\ #6}
+\NewDocumentCommand{\qldeep}{O{\Gamma} m m m m m}{#1 \vdash #2 \mathcolor{blue}{\Leftarrow} #3 \mathcolor{green}{\Rightarrow} #4\ ;\ #5\ ;\ #6}
 
 \begin{frame}{Wut}
 
 \begin{center}
-  $\infrule[QLD-App]{\quicklookhinting{e_2}{\Hole}{H_2} \quad \qldeep{\Gamma}{e_1}{H}{f}{\overline{e}}{H'}}{\qldeep{\Gamma}{\app{e_1}{e_2}}{H}{f}{\overline{e}}{H'}}$
+  $\infrule[QLD-App]{\quicklookhinting{e_2}{\Hole}{H_2} \quad \qldeep{e_1}{H}{f}{\overline{e}}{H'}}{\qldeep{\app{e_1}{e_2}}{H}{f}{\overline{e}}{H'}}$
 
   \vspace{2em}
 
@@ -144,7 +140,7 @@ Hard for both: $\app{\app{\app{\app{\funcase}{(\fun{a}{e_1})}}{(\fun{b}{e_2})}}{
 
   \vspace{2em}
 
-  $\infrule{\qldeep{\Gamma}{\app{e_1}{e_2}}{H}{f}{\overline{e}}{H'}}{\hinting{\app{e_1}{e_2}}{H}{B}}$
+  $\infrule{\qldeep{\app{e_1}{e_2}}{H}{f}{\overline{e}}{H'}}{\hinting{\app{e_1}{e_2}}{H}{B}}$
 \end{center}
 
 \end{frame}

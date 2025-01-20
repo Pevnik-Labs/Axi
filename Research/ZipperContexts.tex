@@ -30,7 +30,7 @@ What we do here is explore an interesting idea. In some algorithms for bidirecti
 
 \vspace{2em}
 
-Since such a mark is just another way of extending the context, besides $\extend{\Gamma}{x}{A}$ (which corresponds to $\ifun{x}{A}{e}$) and $\extendtype{\Gamma}{\alpha}$ which corresponds to $\tfun{\alpha}{e}$, it might be worthwile to explore what would happen if we had more ways of extending the context that correspond to terms?
+Since such a mark is just another way of extending the context, besides $\extend{\Gamma}{x}{A}$ (which corresponds to $\fun{x}[A]{e}$) and $\extendtype{\Gamma}{\alpha}$ which corresponds to $\tfun{\alpha}{e}$, it might be worthwile to explore what would happen if we had more ways of extending the context that correspond to terms?
 
 \vspace{2em}
 
@@ -98,22 +98,22 @@ $e ::=$ \\
 \begin{frame}{Declarative typing -- type-directed rules}
 
 \begin{center}
-  $\infrule{\fulltyping{\extendfun{\Gamma}{x}{A}}{e}{B}}{\typing{\fun{x}{e}}{\Fun{A}{B}}}$ \quad
-  $\infrule{\fulltyping{\extendappl{\Gamma}{a}}{f}{\Fun{A}{B}} \quad \fulltyping{\extendappr{\Gamma}{f}}{a}{A}}{\typing{\app{f}{a}}{B}}$
+  $\infrule{\typing[\extendfun{\Gamma}{x}{A}]{e}{B}}{\typing{\fun{x}{e}}{\Fun{A}{B}}}$ \quad
+  $\infrule{\typing[\extendappl{\Gamma}{a}]{f}{\Fun{A}{B}} \quad \typing[\extendappr{\Gamma}{f}]{a}{A}}{\typing{\app{f}{a}}{B}}$
 
   \vspace{2em}
 
-  $\infrule{\fulltyping{\extendpairl{\Gamma}{b}}{a}{A} \quad \fulltyping{\extendpairr{\Gamma}{a}}{b}{B}}{\typing{\pair{a}{b}}{\Prod{A}{B}}}$
+  $\infrule{\typing[\extendpairl{\Gamma}{b}]{a}{A} \quad \typing[\extendpairr{\Gamma}{a}]{b}{B}}{\typing{\pair{a}{b}}{\Prod{A}{B}}}$
 
   \vspace{2em}
 
-  $\infrule{\fulltyping{\extendoutl{\Gamma}}{e}{\Prod{A}{B}}}{\typing{\outl{e}}{A}}$ \quad
-  $\infrule{\fulltyping{\extendoutr{\Gamma}}{e}{\Prod{A}{B}}}{\typing{\outr{e}}{B}}$
+  $\infrule{\typing[\extendoutl{\Gamma}]{e}{\Prod{A}{B}}}{\typing{\outl{e}}{A}}$ \quad
+  $\infrule{\typing[\extendoutr{\Gamma}]{e}{\Prod{A}{B}}}{\typing{\outr{e}}{B}}$
 
   \vspace{2em}
 
-  $\infrule{\fulltyping{\extendinl{\Gamma}}{e}{A}}{\typing{\inl{e}}{\Sum{A}{B}}}$ \quad
-  $\infrule{\fulltyping{\extendinr{\Gamma}}{e}{B}}{\typing{\inr{e}}{\Sum{A}{B}}}$
+  $\infrule{\typing[\extendinl{\Gamma}]{e}{A}}{\typing{\inl{e}}{\Sum{A}{B}}}$ \quad
+  $\infrule{\typing[\extendinr{\Gamma}]{e}{B}}{\typing{\inr{e}}{\Sum{A}{B}}}$
 \end{center}
 
 \end{frame}
@@ -121,12 +121,12 @@ $e ::=$ \\
 \begin{frame}{Declarative typing -- type-directed rules}
 
 \begin{center}
-  $\infrule{\begin{array}{c} \fulltyping{\extendcasearg{\Gamma}{x.\, e_1}{y.\, e_2}}{e}{\Sum{A}{B}} \\ \fulltyping{\extendcasel{\Gamma}{e}{x}{A}{y.\, e_2}}{e_1}{C} \\ \fulltyping{\extendcaser{\Gamma}{e}{x.\, e_1}{y}{B}}{e_2}{C} \end{array}}{\typing{\case{e}{x.\, e_1}{y.\, e_2}}{C}}$
+  $\infrule{\begin{array}{c} \typing[\extendcasearg{\Gamma}{x.\, e_1}{y.\, e_2}]{e}{\Sum{A}{B}} \\ \typing[\extendcasel{\Gamma}{e}{x}{A}{y.\, e_2}]{e_1}{C} \\ \typing[\extendcaser{\Gamma}{e}{x.\, e_1}{y}{B}]{e_2}{C} \end{array}}{\typing{\case{e}{x.\, e_1}{y.\, e_2}}{C}}$
 
   \vspace{2em}
 
   $\infrule{}{\typing{\unit}{\Unit}}$ \quad
-  $\infrule{\fulltyping{\extendemptyelim{\Gamma}}{e}{\Empty}}{\typing{\emptyelim{e}}{A}}$
+  $\infrule{\typing[\extendemptyelim{\Gamma}]{e}{\Empty}}{\typing{\emptyelim{e}}{A}}$
 \end{center}
 
 \end{frame}

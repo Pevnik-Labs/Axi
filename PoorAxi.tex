@@ -41,7 +41,7 @@ $A, B ::= \Fun{A}{B} \pipe \Prod{A}{B} \pipe \Sum{A}{B} \pipe \Unit \pipe \Empty
 Propositions: \\
 $P, Q ::=$ \\
 \qquad $\True \pipe \False \pipe \Not{P} \pipe \Or{P}{Q} \pipe \And{P}{Q} \pipe \Impl{P}{Q} \pipe \Iff{P}{Q} \pipe$ \\
-\qquad $\All{x}{A}{P} \pipe \Ex{x}{A}{P} \pipe$ \\
+\qquad $\All{x}[A]{P} \pipe \Ex{x}[A]{P} \pipe$ \\
 \qquad $\Eq[A]{e_1}{e_2}$
 
 \end{frame}
@@ -149,7 +149,7 @@ We omit names of these rules because it's easier to refer to them by the name of
 \begin{frame}{Typing -- the rules}
 
 \begin{center}
-  $\infrule{\fulltyping{\extend{\Gamma}{x}{A}}{e}{B}}{\typing{\fun{x}{e}}{\Fun{A}{B}}}$ \quad
+  $\infrule{\typing[\extend{\Gamma}{x}{A}]{e}{B}}{\typing{\fun{x}{e}}{\Fun{A}{B}}}$ \quad
   $\infrule{\typing{f}{\Fun{A}{B}} \quad \typing{a}{A}}{\typing{\app{f}{a}}{B}}$
 
   \vspace{2em}
@@ -194,7 +194,7 @@ To state the computation rules, we need a substitution operation. Our notation i
 Computation rules describe the most essential computation steps. For example, what happens when we project the first element out of a pair? Note that not all types have computation rules. For example, $\Unit$ and $\Empty$ have no computation rules because there's no computation going on in these types.
 
 \begin{center}
-  $\infrule[App-Lam]{\fulltyping{\extend{\Gamma}{x}{A}}{b}{B} \quad \typing{a}{A}}{\compeq{\app{(\fun{x}{b})}{a}}{\subst{b}{x}{a}}{B}}$
+  $\infrule[App-Lam]{\typing[\extend{\Gamma}{x}{A}]{b}{B} \quad \typing{a}{A}}{\compeq{\app{(\fun{x}{b})}{a}}{\subst{b}{x}{a}}{B}}$
 
   \vspace{1em}
 
@@ -262,7 +262,7 @@ The congruence rules state that computational equality is preserved by every lan
 \begin{frame}{Congruence rules 2}
 
 \begin{center}
-  $\infrule{\fullcompeq{\extend{\Gamma}{x}{A}}{e}{e'}{B}}{\compeq{\fun{x}{e}}{\fun{x}{e'}}{\Fun{A}{B}}}$ \quad
+  $\infrule{\compeq[\extend{\Gamma}{x}{A}]{e}{e'}{B}}{\compeq{\fun{x}{e}}{\fun{x}{e'}}{\Fun{A}{B}}}$ \quad
   $\infrule{\compeq{f}{f'}{\Fun{A}{B}} \quad \compeq{a}{a'}{A}}{\compeq{\app{f}{a}}{\app{f'}{a'}}{B}}$
 
   \vspace{1em}
@@ -330,7 +330,7 @@ $\assctx{\Gamma}{\Delta}$ -- in typing context $\Gamma$, the assumption context 
 \vspace{1em}
 
 Well-formed proposition judgement: \\
-$\prop{\Gamma}{P}$ -- in typing context $\Gamma$, proposition $P$ is well-formed.
+$\prop[\Gamma]{P}$ -- in typing context $\Gamma$, proposition $P$ is well-formed.
 
 \vspace{1em}
 
@@ -341,7 +341,7 @@ $\holds{P}$ -- in typing context $\Gamma$ and assumption context $\Delta$, propo
 
 \begin{frame}{Judgements for logic -- sanity checks}
 
-Similarly to the situation for typing and computation judgements, the logical judgements also entail sanity conditions. For $\assctx{\Gamma}{\Delta}$ and $\prop{\Gamma}{P}$ the sanity condition is that $\Gamma$ is a well-formed finite partial map. For $\holds{P}$ the sanity conditions are $\assctx{\Gamma}{\Delta}$ and $\prop{\Gamma}{P}$.
+Similarly to the situation for typing and computation judgements, the logical judgements also entail sanity conditions. For $\assctx{\Gamma}{\Delta}$ and $\prop[\Gamma]{P}$ the sanity condition is that $\Gamma$ is a well-formed finite partial map. For $\holds{P}$ the sanity conditions are $\assctx{\Gamma}{\Delta}$ and $\prop[\Gamma]{P}$.
 
 \end{frame}
 
@@ -354,7 +354,7 @@ The valid assumption context judgement tells us which assumption contexts are va
 
   \vspace{1em}
 
-  $\infrule[Valid-Extend]{\assctx{\Gamma}{\Delta} \quad \prop{\Gamma}{P}}{\assctx{\Gamma}{\assume{\Delta}{P}}}$
+  $\infrule[Valid-Extend]{\assctx{\Gamma}{\Delta} \quad \prop[\Gamma]{P}}{\assctx{\Gamma}{\assume{\Delta}{P}}}$
 \end{center}
 
 \end{frame}
@@ -368,26 +368,26 @@ The role of the well-formed proposition judgement is twofold: to ensure that pro
 \begin{frame}{Well-formed propositions}
 
 \begin{center}
-  $\infrule{}{\prop{\Gamma}{\True}}$ \quad
-  $\infrule{}{\prop{\Gamma}{\False}}$
+  $\infrule{}{\prop{\True}}$ \quad
+  $\infrule{}{\prop{\False}}$
 
   \vspace{1em}
 
-  $\infrule{\prop{\Gamma}{P} \quad \prop{\Gamma}{Q}}{\prop{\Gamma}{\Or{P}{Q}}}$ \quad
-  $\infrule{\prop{\Gamma}{P} \quad \prop{\Gamma}{Q}}{\prop{\Gamma}{\And{P}{Q}}}$
+  $\infrule{\prop{P} \quad \prop{Q}}{\prop{\Or{P}{Q}}}$ \quad
+  $\infrule{\prop{P} \quad \prop{Q}}{\prop{\And{P}{Q}}}$
 
   \vspace{1em}
 
-  $\infrule{\prop{\Gamma}{P} \quad \prop{\Gamma}{Q}}{\prop{\Gamma}{\Impl{P}{Q}}}$
+  $\infrule{\prop{P} \quad \prop{Q}}{\prop{\Impl{P}{Q}}}$
 
   \vspace{1em}
 
-  $\infrule{\prop{\extend{\Gamma}{x}{A}}{P}}{\prop{\Gamma}{\All{x}{A}{P}}}$ \quad
-  $\infrule{\prop{\extend{\Gamma}{x}{A}}{P}}{\prop{\Gamma}{\Ex{x}{A}{P}}}$
+  $\infrule{\prop[\extend{\Gamma}{x}{A}]{P}}{\prop{\All{x}[A]{P}}}$ \quad
+  $\infrule{\prop[\extend{\Gamma}{x}{A}]{P}}{\prop{\Ex{x}[A]{P}}}$
 
   \vspace{1em}
 
-  $\infrule{\typing{e_1}{A} \quad \typing{e_2}{A}}{\prop{\Gamma}{\Eq[A]{e_1}{e_2}}}$
+  $\infrule{\typing{e_1}{A} \quad \typing{e_2}{A}}{\prop{\Eq[A]{e_1}{e_2}}}$
 \end{center}
 
 \end{frame}
@@ -415,7 +415,7 @@ The rules for connectives are entirely standard.
 \vspace{1em}
 
 \begin{center}
-  $\infrule{\fullholds{\Gamma}{\assume{\Delta}{P}}{Q}}{\holds{\Impl{P}{Q}}}$ \quad
+  $\infrule{\holds[\Gamma][\assume{\Delta}{P}]{Q}}{\holds{\Impl{P}{Q}}}$ \quad
   $\infrule{\holds{\Impl{P}{Q}} \quad \holds{P}}{\holds{Q}}$
 
   \vspace{1em}
@@ -431,7 +431,7 @@ The rules for connectives are entirely standard.
 
   \vspace{1em}
 
-  $\infrule{\holds{\Or{P}{Q}} \quad \fullholds{\Gamma}{\assume{\Delta}{P}}{R} \quad \fullholds{\Gamma}{\assume{\Delta}{Q}}{R}}{\holds{R}}$
+  $\infrule{\holds{\Or{P}{Q}} \quad \holds[\Gamma][\assume{\Delta}{P}]{R} \quad \holds[\Gamma][\assume{\Delta}{Q}]{R}}{\holds{R}}$
 
   \vspace{1em}
 
@@ -450,19 +450,19 @@ To express rules for quantifiers, we need the operation of substituting a term f
 \begin{frame}{Rules for quantifiers}
 
 \begin{center}
-  $\infrule[Forall-Intro]{\fullholds{\extend{\Gamma}{x}{A}}{\Delta}{P}}{\holds{\All{x}{A}{P}}}$
+  $\infrule[Forall-Intro]{\holds[\extend{\Gamma}{x}{A}][\Delta]{P}}{\holds{\All{x}[A]{P}}}$
 
   \vspace{1em}
 
-  $\infrule[Forall-Elim]{\holds{\All{x}{A}{P}} \quad \typing{a}{A}}{\holds{\subst{P}{x}{a}}}$
+  $\infrule[Forall-Elim]{\holds{\All{x}[A]{P}} \quad \typing{a}{A}}{\holds{\subst{P}{x}{a}}}$
 
   \vspace{2em}
 
-  $\infrule[Exists-Intro]{\typing{a}{A} \quad \holds{\subst{P}{x}{a}}}{\holds{\Ex{x}{A}{P}}}$
+  $\infrule[Exists-Intro]{\typing{a}{A} \quad \holds{\subst{P}{x}{a}}}{\holds{\Ex{x}[A]{P}}}$
 
   \vspace{1em}
 
-  $\infrule[Exists-Elim]{\holds{\Ex{x}{A}{P}} \quad \fullholds{\extend{\Gamma}{x}{A}}{\assume{\Delta}{P}}{R}}{\holds{R}}$
+  $\infrule[Exists-Elim]{\holds{\Ex{x}[A]{P}} \quad \holds[\extend{\Gamma}{x}{A}][\assume{\Delta}{P}]{R}}{\holds{R}}$
 \end{center}
 
 \end{frame}
@@ -486,7 +486,7 @@ Propositional equality is an equivalence relation that can be substitued in proo
 
   \vspace{1em}
 
-  $\infrule[Eq-Subst]{\holds{\Eq[A]{e_1}{e_2}} \quad \prop{\extend{\Gamma}{x}{A}}{P} \quad \holds{\subst{P}{x}{e_2}}}{\holds{\subst{P}{x}{e_1}}}$
+  $\infrule[Eq-Subst]{\holds{\Eq[A]{e_1}{e_2}} \quad \prop[\extend{\Gamma}{x}{A}]{P} \quad \holds{\subst{P}{x}{e_2}}}{\holds{\subst{P}{x}{e_1}}}$
 \end{center}
 
 \end{frame}
@@ -498,7 +498,7 @@ The general rules from the previous slide are not sufficient to prove all equati
 \vspace{1em}
 
 \begin{center}
-  $\infrule[Funext]{\holds{\All{x}{A}{\Eq[B]{\app{f}{x}}{\app{g}{x}}}}}{\holds{\Eq[\Fun{A}{B}]{f}{g}}}$
+  $\infrule[Funext]{\holds{\All{x}[A]{\Eq[B]{\app{f}{x}}{\app{g}{x}}}}}{\holds{\Eq[\Fun{A}{B}]{f}{g}}}$
 \end{center}
 
 \end{frame}
@@ -514,7 +514,7 @@ Note that so far, we haven't got any rules that allow reasoning by cases on term
 
   \vspace{1em}
 
-  $\infrule[Sum-Ind]{\fullholds{\extend{\Gamma}{a}{A}}{\Delta}{\subst{P}{x}{\inl{a}}} \quad \fullholds{\extend{\Gamma}{b}{B}}{\Delta}{\subst{P}{x}{\inr{b}}}}{\holds{\All{x}{\Sum{A}{B}}{P}}}$
+  $\infrule[Sum-Ind]{\holds[\extend{\Gamma}{a}{A}][\Delta]{\subst{P}{x}{\inl{a}}} \quad \holds[\extend{\Gamma}{b}{B}][\Delta]{\subst{P}{x}{\inr{b}}}}{\holds{\All{x}[\Sum{A}{B}]{P}}}$
 \end{center}
 
 \end{frame}
@@ -526,7 +526,7 @@ There are many ways to add classical logic to the system, but we'll have a rule 
 \vspace{2em}
 
 \begin{center}
-  $\infrule[Classic]{\fullholds{\Gamma}{\assume{\Delta}{P}}{R} \quad \fullholds{\Gamma}{\assume{\Delta}{\Not{P}}}{R}}{\holds{R}}$
+  $\infrule[Classic]{\holds[\Gamma][\assume{\Delta}{P}]{R} \quad \holds[\Gamma][\assume{\Delta}{\Not{P}}]{R}}{\holds{R}}$
 \end{center}
 
 \end{frame}
@@ -536,7 +536,7 @@ There are many ways to add classical logic to the system, but we'll have a rule 
 \newcommand{\Bool}{\texttt{Bool}}
 \newcommand{\btrue}{\texttt{true}}
 \newcommand{\bfalse}{\texttt{false}}
-\newcommand{\boolElim}[3]{\texttt{if}\ #1\ \texttt{then}\ #2\ \texttt{else}\ #3}
+\newcommand{\boolelim}[3]{\texttt{if}\ #1\ \texttt{then}\ #2\ \texttt{else}\ #3}
 
 \begin{frame}{Adding more types to the language}
 
@@ -567,7 +567,7 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 
   \vspace{1em}
 
-  $\infrule[Unit-Ind]{\holds{\subst{P}{x}{\unit}}}{\holds{\All{x}{\Unit}{P}}}$
+  $\infrule[Unit-Ind]{\holds{\subst{P}{x}{\unit}}}{\holds{\All{x}[\Unit]{P}}}$
 \end{center}
 
 \end{frame}
@@ -580,7 +580,7 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 
   \vspace{1em}
 
-  $\infrule[If]{\typing{e}{\Bool} \quad \typing{e_1}{A} \quad \typing{e_2}{A}}{\typing{\boolElim{e}{e_1}{e_2}}{A}}$
+  $\infrule[If]{\typing{e}{\Bool} \quad \typing{e_1}{A} \quad \typing{e_2}{A}}{\typing{\boolelim{e}{e_1}{e_2}}{A}}$
 
   \vspace{1em}
 
@@ -589,19 +589,19 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 
   %\vspace{1em}
 
-  %$\infrule{\compeq{e}{e'}{\Bool} \quad \compeq{e_1}{e_1'}{A} \quad \compeq{e_2}{e_2'}{A}}{\compeq{\boolElim{e}{e_1}{e_2}}{\boolElim{e'}{e_1'}{e_2'}}{A}}$
+  %$\infrule{\compeq{e}{e'}{\Bool} \quad \compeq{e_1}{e_1'}{A} \quad \compeq{e_2}{e_2'}{A}}{\compeq{\boolelim{e}{e_1}{e_2}}{\boolelim{e'}{e_1'}{e_2'}}{A}}$
 
   %\vspace{1em}
 
-  $\infrule[Comp-If-True]{\typing{e_1}{A} \quad \typing{e_2}{A}}{\compeq{\boolElim{\btrue}{e_1}{e_2}}{e_1}{A}}$
+  $\infrule[Comp-If-True]{\typing{e_1}{A} \quad \typing{e_2}{A}}{\compeq{\boolelim{\btrue}{e_1}{e_2}}{e_1}{A}}$
 
   \vspace{1em}
 
-  $\infrule[Comp-If-False]{\typing{e_1}{A} \quad \typing{e_2}{A}}{\compeq{\boolElim{\bfalse}{e_1}{e_2}}{e_2}{A}}$
+  $\infrule[Comp-If-False]{\typing{e_1}{A} \quad \typing{e_2}{A}}{\compeq{\boolelim{\bfalse}{e_1}{e_2}}{e_2}{A}}$
 
   \vspace{1em}
 
-  $\infrule[Bool-Ind]{\holds{\subst{P}{b}{\btrue}} \quad \holds{\subst{P}{b}{\bfalse}}}{\holds{\All{b}{\Bool}{P}}}$
+  $\infrule[Bool-Ind]{\holds{\subst{P}{b}{\btrue}} \quad \holds{\subst{P}{b}{\bfalse}}}{\holds{\All{b}[\Bool]{P}}}$
 \end{center}
 
 \end{frame}
@@ -617,7 +617,7 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 
   \vspace{1em}
 
-  $\infrule[If-Congr]{\compeq{e}{e'}{\Bool} \quad \compeq{e_1}{e_1'}{A} \quad \compeq{e_2}{e_2'}{A}}{\compeq{\boolElim{e}{e_1}{e_2}}{\boolElim{e'}{e_1'}{e_2'}}{A}}$
+  $\infrule[If-Congr]{\compeq{e}{e'}{\Bool} \quad \compeq{e_1}{e_1'}{A} \quad \compeq{e_2}{e_2'}{A}}{\compeq{\boolelim{e}{e_1}{e_2}}{\boolelim{e'}{e_1'}{e_2'}}{A}}$
 \end{center}
 
 \end{frame}
@@ -625,7 +625,7 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 \newcommand{\Nat}{\mathbb{N}}
 \newcommand{\zero}{\texttt{zero}}
 \renewcommand{\succ}[1][]{\texttt{succ}\ #1}
-\newcommand{\elimNat}[3]{\texttt{rec}_\Nat\ #1\ #2\ #3}
+\newcommand{\natelim}[3]{\texttt{rec}_\Nat\ #1\ #2\ #3}
 
 \begin{frame}{Natural numbers}
 
@@ -635,19 +635,19 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 
   \vspace{1em}
 
-  $\infrule[Nat-Elim]{\typing{z}{A} \quad \typing{s}{\Fun{A}{A}} \quad \typing{n}{\Nat}}{\typing{\elimNat{z}{s}{n}}{A}}$
+  $\infrule[Nat-Elim]{\typing{z}{A} \quad \typing{s}{\Fun{A}{A}} \quad \typing{n}{\Nat}}{\typing{\natelim{z}{s}{n}}{A}}$
 
   \vspace{1em}
 
-  $\infrule[Rec-Zero]{\typing{z}{A} \quad \typing{s}{\Fun{A}{A}}}{\compeq{\elimNat{z}{s}{\zero}}{z}{A}}$
+  $\infrule[Rec-Zero]{\typing{z}{A} \quad \typing{s}{\Fun{A}{A}}}{\compeq{\natelim{z}{s}{\zero}}{z}{A}}$
 
   \vspace{1em}
 
-  $\infrule[Rec-Succ]{\typing{z}{A} \quad \typing{s}{\Fun{A}{A}} \quad \typing{n}{\Nat}}{\compeq{\elimNat{z}{s}{(\succ[n])}}{\app{s}{(\elimNat{z}{s}{n})}}{A}}$
+  $\infrule[Rec-Succ]{\typing{z}{A} \quad \typing{s}{\Fun{A}{A}} \quad \typing{n}{\Nat}}{\compeq{\natelim{z}{s}{(\succ[n])}}{\app{s}{(\natelim{z}{s}{n})}}{A}}$
 
   \vspace{1em}
 
-  $\infrule[Nat-Ind]{\holds{\subst{P}{n}{\zero}} \quad \fullholds{\extend{\Gamma}{n'}{\Nat}}{\assume{\Delta}{\subst{P}{n}{n'}}}{\subst{P}{n}{\succ[n']}}}{\holds{\All{n}{\Nat}{P}}}$
+  $\infrule[Nat-Ind]{\holds{\subst{P}{n}{\zero}} \quad \holds[\extend{\Gamma}{n'}{\Nat}][\assume{\Delta}{\subst{P}{n}{n'}}]{\subst{P}{n}{\succ[n']}}}{\holds{\All{n}[\Nat]{P}}}$
 \end{center}
 
 \end{frame}
@@ -663,7 +663,7 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 
   \vspace{1em}
 
-  $\infrule[Nat-Elim-Congr]{\compeq{z}{z'}{A} \quad \compeq{s}{s'}{\Fun{A}{A}} \quad \compeq{n}{n'}{\Nat}}{\compeq{\elimNat{z}{s}{n}}{\elimNat{z'}{s'}{n'}}{A}}$
+  $\infrule[Nat-Elim-Congr]{\compeq{z}{z'}{A} \quad \compeq{s}{s'}{\Fun{A}{A}} \quad \compeq{n}{n'}{\Nat}}{\compeq{\natelim{z}{s}{n}}{\natelim{z'}{s'}{n'}}{A}}$
 \end{center}
 
 \end{frame}
@@ -671,7 +671,7 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 \newcommand{\List}[1]{\text{List}\ #1}
 \newcommand{\nil}{\texttt{nil}}
 \newcommand{\cons}[2]{\texttt{cons}\ #1\ #2}
-\newcommand{\elimList}[3]{\texttt{fold}\ #1\ #2\ #3}
+\newcommand{\listelim}[3]{\texttt{fold}\ #1\ #2\ #3}
 
 \begin{frame}{Lists}
 
@@ -681,19 +681,19 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 
   \vspace{1em}
 
-  $\infrule[List-Elim]{\typing{n}{A} \quad \typing{c}{\Fun{A}{\Fun{B}{B}}} \quad \typing{l}{\List{A}}}{\typing{\elimList{n}{c}{l}}{B}}$
+  $\infrule[List-Elim]{\typing{n}{A} \quad \typing{c}{\Fun{A}{\Fun{B}{B}}} \quad \typing{l}{\List{A}}}{\typing{\listelim{n}{c}{l}}{B}}$
 
   \vspace{1em}
 
-  $\infrule[Fold-Nil]{\typing{n}{B} \quad \typing{c}{\Fun{A}{\Fun{B}{B}}}}{\compeq{\elimList{n}{c}{\nil}}{n}{B}}$
+  $\infrule[Fold-Nil]{\typing{n}{B} \quad \typing{c}{\Fun{A}{\Fun{B}{B}}}}{\compeq{\listelim{n}{c}{\nil}}{n}{B}}$
 
   \vspace{1em}
 
-  $\infrule[Fold-Cons]{\typing{n}{B} \quad \typing{c}{\Fun{A}{\Fun{B}{B}}} \quad \typing{h}{A} \quad \typing{t}{\List{A}}}{\compeq{\elimList{n}{c}{(\cons{h}{t})}}{\app{\app{c}{h}}{(\elimList{n}{c}{t})}}{B}}$
+  $\infrule[Fold-Cons]{\typing{n}{B} \quad \typing{c}{\Fun{A}{\Fun{B}{B}}} \quad \typing{h}{A} \quad \typing{t}{\List{A}}}{\compeq{\listelim{n}{c}{(\cons{h}{t})}}{\app{\app{c}{h}}{(\listelim{n}{c}{t})}}{B}}$
 
   \vspace{1em}
 
-  $\infrule[List-Ind]{\holds{\subst{P}{l}{\nil}} \quad \fullholds{\extend{\extend{\Gamma}{h}{A}}{t}{\List{A}}}{\assume{\Delta}{\subst{P}{l}{t}}}{\subst{P}{l}{\cons{h}{t}}}}{\holds{\All{l}{\List{A}}{P}}}$
+  $\infrule[List-Ind]{\holds{\subst{P}{l}{\nil}} \quad \holds[\extend{\extend{\Gamma}{h}{A}}{t}{\List{A}}][\assume{\Delta}{\subst{P}{l}{t}}]{\subst{P}{l}{\cons{h}{t}}}}{\holds{\All{l}[\List{A}]{P}}}$
 \end{center}
 
 \end{frame}
@@ -709,7 +709,7 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 
   \vspace{1em}
 
-  $\infrule[List-Elim-Congr]{\compeq{n}{n'}{A} \quad \compeq{c}{c'}{\Fun{A}{\Fun{B}{B}}} \quad \compeq{l}{l'}{\List{A}}}{\compeq{\elimList{n}{c}{l}}{\elimList{n'}{c'}{l'}}{B}}$
+  $\infrule[List-Elim-Congr]{\compeq{n}{n'}{A} \quad \compeq{c}{c'}{\Fun{A}{\Fun{B}{B}}} \quad \compeq{l}{l'}{\List{A}}}{\compeq{\listelim{n}{c}{l}}{\listelim{n'}{c'}{l'}}{B}}$
 \end{center}
 
 \end{frame}
@@ -717,7 +717,7 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 \newcommand{\AxiStream}[1]{\texttt{Stream}\ #1}
 \newcommand{\hd}[1][]{\texttt{hd}\ #1}
 \newcommand{\tl}[1][]{\texttt{tl}\ #1}
-\newcommand{\introStream}[2]{\texttt{scons}\ #1\ #2}
+\newcommand{\streamintro}[2]{\texttt{scons}\ #1\ #2}
 
 \begin{frame}{Streams}
 
@@ -728,15 +728,15 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 
   \vspace{1em}
 
-  $\infrule[Scons]{\typing{a}{A} \quad \typing{f}{\Fun{A}{A}}}{\typing{\introStream{a}{f}}{\AxiStream{A}}}$
+  $\infrule[Scons]{\typing{a}{A} \quad \typing{f}{\Fun{A}{A}}}{\typing{\streamintro{a}{f}}{\AxiStream{A}}}$
 
   \vspace{1em}
 
-  $\infrule[Hd-Scons]{\typing{a}{A} \quad \typing{f}{\Fun{A}{A}}}{\compeq{\hd[(\introStream{a}{f})]}{a}{A}}$
+  $\infrule[Hd-Scons]{\typing{a}{A} \quad \typing{f}{\Fun{A}{A}}}{\compeq{\hd[(\streamintro{a}{f})]}{a}{A}}$
 
   \vspace{1em}
 
-  $\infrule[Tl-Scons]{\typing{a}{A} \quad \typing{f}{\Fun{A}{A}}}{\compeq{\tl[(\introStream{a}{f})]}{\introStream{(\app{f}{a})}{f}}{\AxiStream{A}}}$
+  $\infrule[Tl-Scons]{\typing{a}{A} \quad \typing{f}{\Fun{A}{A}}}{\compeq{\tl[(\streamintro{a}{f})]}{\streamintro{(\app{f}{a})}{f}}{\AxiStream{A}}}$
 \end{center}
 
 \end{frame}
@@ -756,9 +756,7 @@ Streams do have all the congruence rules we would expect, but they don't have an
 
   \vspace{1em}
 
-  $\infrule[Scons-Congr]{\compeq{a}{a'}{A} \quad \compeq{f}{f'}{\Fun{A}{A}}}{\compeq{\introStream{a}{f}}{\introStream{a'}{f'}}{\AxiStream{A}}}$
-
-  %$\infrule{\fullholds{\Gamma}{\assume{\Delta}{R}}{\Eq[A]{\hd{s_1}}{\hd{s_2}}} \quad \fullholds{\Gamma}{\assume{\Delta}{R}}{\subst{\subst{R}{x}{\tl[s_1]}}{y}{\tl[s_2]}}}{\holds{\Eq[\AxiStream{A}]{s_1}{s_2}}}$
+  $\infrule[Scons-Congr]{\compeq{a}{a'}{A} \quad \compeq{f}{f'}{\Fun{A}{A}}}{\compeq{\streamintro{a}{f}}{\streamintro{a'}{f'}}{\AxiStream{A}}}$
 \end{center}
 
 However, for now I have no idea how to formulate the rule of proof by coinduction, so let's omit it.
@@ -911,11 +909,11 @@ Assume for a moment that $A, B, C$ are arbitrary types. Let's write some program
   \item $\comp := \fun{f}{\fun{g}{\fun{x}{\app{g}{(\app{f}{x})}}}}$
   \item $\swap := \fun{p}{\pair{\outr{p}}{\outl{p}}}$
   \item $\swop := \fun{x}{\case{x}{\fun{a}{\inr{a}}}{\fun{b}{\inl{b}}}}$
-  \item $\notb := \fun{b}{\boolElim{b}{\bfalse}{\btrue}}$
-  \item $\andb := \fun{x}{\fun{y}{\boolElim{x}{y}{\bfalse}}}$
-  \item $\add := \fun{n}{\fun{m}{\elimNat{m}{(\fun{r}{\succ[r]})}{n}}}$
-  \item $\length := \fun{l}{\elimList{\zero}{(\fun{h}{\fun{r}{\succ[r]}})}{l}}$
-  \item $\replicate := \fun{n}{\fun{x}{\elimNat{\nil}{(\fun{r}{\cons{x}{r}})}{n}}}$
+  \item $\notb := \fun{b}{\boolelim{b}{\bfalse}{\btrue}}$
+  \item $\andb := \fun{x}{\fun{y}{\boolelim{x}{y}{\bfalse}}}$
+  \item $\add := \fun{n}{\fun{m}{\natelim{m}{(\fun{r}{\succ[r]})}{n}}}$
+  \item $\length := \fun{l}{\listelim{\zero}{(\fun{h}{\fun{r}{\succ[r]}})}{l}}$
+  \item $\replicate := \fun{n}{\fun{x}{\natelim{\nil}{(\fun{r}{\cons{x}{r}})}{n}}}$
 \end{itemize}
 
 \end{frame}
@@ -958,10 +956,10 @@ What are the types of our programs?
 \begin{frame}{Example theorems}
 
 \begin{itemize}
-  \item $\holds{\All{x}{\Sum{A}{B}}{\Or{(\Ex{a}{A}{\Eq{x}{\inl{a}}})}{(\Ex{b}{B}{\Eq{x}{\inr{b}}})}}}$
-  \item $\holds{\All{b}{\Bool}{\Eq{\notb[(\notb[b])]}{b}}}$
-  \item $\holds{\All{a}{\Nat}{\All{b}{\Nat}{\All{c}{\Nat}{\Eq{\app{\app{\add}{(\app{\app{\add}{a}}{b})}}{c}}{\app{\app{\add}{a}}{(\app{\app{\add}{b}}{c})}}}}}}$
-  \item $\holds{\All{n}{\Nat}{\All{a}{A}{\Eq{\length[(\app{\app{\replicate}{n}}{a})]}{n}}}}$
+  \item $\holds{\All{x}[\Sum{A}{B}]{\Or{(\Ex{a}[A]{\Eq{x}{\inl{a}}})}{(\Ex{b}[B]{\Eq{x}{\inr{b}}})}}}$
+  \item $\holds{\All{b}[\Bool]{\Eq{\notb[(\notb[b])]}{b}}}$
+  \item $\holds{\All{a}[\Nat]{\All{b}[\Nat]{\All{c}[\Nat]{\Eq{\app{\app{\add}{(\app{\app{\add}{a}}{b})}}{c}}{\app{\app{\add}{a}}{(\app{\app{\add}{b}}{c})}}}}}}$
+  \item $\holds{\All{n}[\Nat]{\All{a}[A]{\Eq{\length[(\app{\app{\replicate}{n}}{a})]}{n}}}}$
 \end{itemize}
 
 \end{frame}
@@ -998,7 +996,7 @@ A practical programming language certainly needs a way for the programmer to put
 
 Let-bindings are a useful programming language feature, so we could add them. Note that we have some choice there: we could make it a primitive construct, governed by the below rules, or we could simply make $\letin{x}{e_1}{e_2}$ an abbreviation for $\app{(\fun{x}{e_2})}{e_1}$
 \begin{center}
-  $\infrule[Let]{\typing{e_1}{A} \quad \fulltyping{\extend{\Gamma}{x}{A}}{e_2}{B}}{\typing{\letin{x}{e_1}{e_2}}{B}}$
+  $\infrule[Let]{\typing{e_1}{A} \quad \typing[\extend{\Gamma}{x}{A}]{e_2}{B}}{\typing{\letin{x}{e_1}{e_2}}{B}}$
 
   \vspace{1em}
 
@@ -1051,11 +1049,11 @@ We now need two rules for typing variables: one for when the variable is defined
 The computation rule for function can (but need not!) look very different when we can put definitions into contexts. This time, instead of substituting $a$ for $x$ in $b$, we simply extend the context with the definition $x : A := a$ and then proceed with the computation. The rule for $\texttt{let}$ also gets simpler (and this time we should prefer this rule, because it makes so much more sense).
 
 \begin{center}
-  $\infrule[App-Lam-Def]{\fullcompeq{\extenddef{\Gamma}{x}{A}{a}}{b}{b'}{B}}{\compeq{\app{(\fun{x}{b})}{a}}{b'}{B}}$
+  $\infrule[App-Lam-Def]{\compeq[\extenddef{\Gamma}{x}{A}{a}]{b}{b'}{B}}{\compeq{\app{(\fun{x}{b})}{a}}{b'}{B}}$
 
   \vspace{1em}
 
-  $\infrule[Let-Comp-Def]{\fullcompeq{\extenddef{\Gamma}{x}{A}{e_1}}{e_2}{e_2'}{B}}{\compeq{\letin{x}{e_1}{e_2}}{e_2'}{B}}$
+  $\infrule[Let-Comp-Def]{\compeq[\extenddef{\Gamma}{x}{A}{e_1}]{e_2}{e_2'}{B}}{\compeq{\letin{x}{e_1}{e_2}}{e_2'}{B}}$
 \end{center}
 
 \end{frame}
@@ -1087,27 +1085,27 @@ A refinement type can be thought of a subset of the base type for which some pro
 \begin{frame}{Refinement types}
 
 \begin{center}
-  $\infrule[Refinement-Form]{\type{A} \quad \prop{\extend{\Gamma}{x}{A}}{P}}{\type{\refinement{x}{A}{P}}}$
+  $\infrule[Refinement-Form]{\type{A} \quad \prop[\extend{\Gamma}{x}{A}]{P}}{\type{\refinement{x}{A}{P}}}$
 
   \vspace{1em}
 
-  $\infrule[Refinement-Intro]{\fulltyping{\Gamma \pipe \Delta}{e}{A} \quad \holds{\subst{P}{x}{e}}}{\fulltyping{\Gamma \pipe \Delta}{\refine{e}}{\refinement{x}{A}{P}}}$
+  $\infrule[Refinement-Intro]{\typing[\Gamma \pipe \Delta]{e}{A} \quad \holds{\subst{P}{x}{e}}}{\typing[\Gamma \pipe \Delta]{\refine{e}}{\refinement{x}{A}{P}}}$
 
   \vspace{1em}
 
-  $\infrule[Refinement-Elim]{\fulltyping{\Gamma \pipe \Delta}{e}{\refinement{x}{A}{P}}}{\fulltyping{\Gamma \pipe \Delta}{\unrefine{e}}{A}}$
+  $\infrule[Refinement-Elim]{\typing[\Gamma \pipe \Delta]{e}{\refinement{x}{A}{P}}}{\typing[\Gamma \pipe \Delta]{\unrefine{e}}{A}}$
 
   \vspace{1em}
 
-  $\infrule[Refinement-Comp]{\fulltyping{\Gamma \pipe \Delta}{e}{A} \quad \holds{P}}{\compeq{\unrefine{(\refine{e})}}{e}{A}}$
+  $\infrule[Refinement-Comp]{\typing[\Gamma \pipe \Delta]{e}{A} \quad \holds{P}}{\compeq{\unrefine{(\refine{e})}}{e}{A}}$
 
   \vspace{1em}
 
-  $\infrule[Refinement-Uniq]{\fulltyping{\Gamma \pipe \Delta}{e}{\refinement{x}{A}{P}}}{\compeq{e}{\refine{(\unrefine{e})}}{\refinement{x}{A}{P}}}$
+  $\infrule[Refinement-Uniq]{\typing[\Gamma \pipe \Delta]{e}{\refinement{x}{A}{P}}}{\compeq{e}{\refine{(\unrefine{e})}}{\refinement{x}{A}{P}}}$
 
   \vspace{1em}
 
-  $\infrule[Refinement-Ind]{\fullholds{\extend{\Gamma}{e}{A}}{\Delta}{\subst{P}{x}{\refine{e}}}}{\holds{\All{x}{\refinement{y}{A}{P}}{P}}}$
+  $\infrule[Refinement-Ind]{\holds[\extend{\Gamma}{e}{A}][\Delta]{\subst{P}{x}{\refine{e}}}}{\holds{\All{x}[\refinement{y}{A}{P}]{P}}}$
 \end{center}
 
 \end{frame}
@@ -1126,30 +1124,30 @@ Let's try to read the above rules:
 \end{frame}
 
 \newcommand{\quotient}[2]{#1\ \texttt{\textbackslash\textbackslash}\ #2}
-\newcommand{\qin}[1]{\texttt{qin}\ #1}
-\newcommand{\qout}[2]{\texttt{qout}\ #1\ #2}
+\newcommand{\quotientintro}[1]{\texttt{qin}\ #1}
+\newcommand{\quotientelim}[2]{\texttt{qout}\ #1\ #2}
 
 \begin{frame}{Quotient types (TODO)}
 
 Athena enjoyers can think of quotient types as akin to Athena's structures, except that the underlying type needs not be an algebraic type (which we don't yet have anyway).
 
 \begin{center}
-  $\infrule[Quotient-Form]{\type{A} \quad \prop{\extend{\extend{\Gamma}{x}{A}}{y}{A}}{R} \quad \mathcolor{red}{\texttt{Equivalence}\ R}}{\type{\quotient{A}{R}}}$
+  $\infrule[Quotient-Form]{\type{A} \quad \prop[\extend{\extend{\Gamma}{x}{A}}{y}{A}]{R} \quad \mathcolor{red}{\texttt{Equivalence}\ R}}{\type{\quotient{A}{R}}}$
 
   \vspace{1em}
 
-  $\infrule[Quotient-Intro]{\fulltyping{\Gamma \pipe \Delta}{e}{A} \quad \prop{\extend{\extend{\Gamma}{x}{A}}{y}{A}}{R} \quad \mathcolor{red}{\texttt{Equivalence}\ R}}{\fulltyping{\Gamma \pipe \Delta}{\qin{e}}{\quotient{A}{R}}}$
+  $\infrule[Quotient-Intro]{\typing[\Gamma \pipe \Delta]{e}{A} \quad \prop[\extend{\extend{\Gamma}{x}{A}}{y}{A}]{R} \quad \mathcolor{red}{\texttt{Equivalence}\ R}}{\typing[\Gamma \pipe \Delta]{\quotientintro{e}}{\quotient{A}{R}}}$
 
   \vspace{1em}
 
-  $\infrule[Quotient-Elim]{\fulltyping{\Gamma \pipe \Delta}{e}{\quotient{A}{R}} \quad \fulltyping{\Gamma \pipe \Delta}{f}{\Fun{A}{B}} \quad \mathcolor{red}{f\ \texttt{preserves}\ R}}{\fulltyping{\Gamma \pipe \Delta}{\qout{f}{e}}{B}}$
+  $\infrule[Quotient-Elim]{\typing[\Gamma \pipe \Delta]{e}{\quotient{A}{R}} \quad \typing[\Gamma \pipe \Delta]{f}{\Fun{A}{B}} \quad \mathcolor{red}{f\ \texttt{preserves}\ R}}{\typing[\Gamma \pipe \Delta]{\quotientelim{f}{e}}{B}}$
 
   \vspace{1em}
 
-  $\infrule[Quotient-Comp]{\fulltyping{\Gamma \pipe \Delta}{e}{A} \quad \fulltyping{\Gamma \pipe \Delta}{f}{\Fun{A}{B}} \quad \mathcolor{red}{f\ \texttt{preserves}\ R}}{\compeq{\qout{f}{(\qin{e})}}{\app{f}{e}}{B}}$
+  $\infrule[Quotient-Comp]{\typing[\Gamma \pipe \Delta]{e}{A} \quad \typing[\Gamma \pipe \Delta]{f}{\Fun{A}{B}} \quad \mathcolor{red}{f\ \texttt{preserves}\ R}}{\compeq{\quotientelim{f}{(\quotientintro{e})}}{\app{f}{e}}{B}}$
 \end{center}
 
-Where ``preserves'' is $\holds{\All{x}{A}{\All{y}{A}{\Impl{\app{\app{R}{x}}{y}}{\Eq[B]{\app{f}{x}}{\app{f}{y}}}}}}$
+Where ``preserves'' is $\holds{\All{x}[A]{\All{y}[A]{\Impl{\app{\app{R}{x}}{y}}{\Eq[B]{\app{f}{x}}{\app{f}{y}}}}}}$
 \end{frame}
 
 \newcommand{\subtype}[2]{#1 <: #2}

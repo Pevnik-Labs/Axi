@@ -1,5 +1,7 @@
 \ProvidesPackage{AxiCommands}
 
+\usepackage{xparse}
+
 % Pipes - used when specifying grammars in BNF format.
 \newcommand{\pipe}{\ |\ }
 
@@ -21,10 +23,13 @@
 \newcommand{\newterm}[1]{\mathcolor{green}{#1}}
 \newcommand{\termdiff}[1]{\mathcolor{red}{#1}}
 
+% An optional type annotation.
+\newcommand{\optionalannot}[1]{\IfValueTF{#1}{: #1}{}}
+
 % Terms.
 \newcommand{\annot}[2]{(#1 : #2)}
-\newcommand{\fun}[2]{\lambda #1.\, #2}
-\newcommand{\app}[2]{#1\ #2}
+\NewDocumentCommand{\fun}{m o m}{\lambda #1 \optionalannot{#2} .\, #3}
+\NewDocumentCommand{\app}{o m m}{\IfValueTF{#1}{\texttt{app}_{#1}\ #2\ #3}{#2\ #3}}
 \newcommand{\pair}[2]{(#1, #2)}
 \newcommand{\outl}[2][]{\texttt{outl}_{#1}\ #2}
 \newcommand{\outr}[2][]{\texttt{outr}_{#1}\ #2}
@@ -34,12 +39,17 @@
 \newcommand{\unit}{\texttt{unit}}
 \newcommand{\emptyelim}[2][]{\Empty\texttt{-elim}_{#1}\ #2}
 
-% Intrinsic terms.
-\newcommand{\ifun}[3]{\lambda #1 : #2.\, #3}
+% Annotated terms.
+\newcommand{\caseannot}[5]{\texttt{case}_{#1, #2}\ #3\ \texttt{of}\ (#4, #5)}
 
-% Dual Intrinsic terms.
-\newcommand{\iapp}[3]{\texttt{app}_{#1}\ #2\ #3}
-\newcommand{\icase}[5]{\texttt{case}_{#1, #2}\ #3\ \texttt{of}\ (#4, #5)}
+% Unapplied terms.
+\newcommand{\pairfun}{\texttt{pair}}
+\newcommand{\outlfun}{\texttt{outl}}
+\newcommand{\outrfun}{\texttt{outr}}
+\newcommand{\inlfun}{\texttt{inl}}
+\newcommand{\inrfun}{\texttt{inr}}
+\newcommand{\casefun}{\texttt{case}}
+\newcommand{\emptyelimfun}{\Empty\texttt{-elim}}
 
 % Polymorphic terms.
 \newcommand{\tfun}[2]{\Lambda #1.\, #2}
@@ -97,8 +107,8 @@
 \newcommand{\Iff}[2]{#1 \Leftrightarrow #2}
 
 % Quantifiers.
-\newcommand{\All}[3]{\forall #1 : #2.\, #3}
-\newcommand{\Ex}[3]{\exists #1 : #2.\, #3}
+\NewDocumentCommand{\All}{m o m}{\forall #1 \optionalannot{#2} .\, #3}
+\NewDocumentCommand{\Ex}{m o m}{\exists #1 \optionalannot{#2} .\, #3}
 
 % Equality.
 \newcommand{\Eq}[3][]{#2 =_{#1} #3}
@@ -128,10 +138,13 @@
 \newcommand{\dn}[1]{\textbf{double-negation}\ #1}
 
 % Quantifiers.
-\newcommand{\allintro}[2]{\textbf{pick-any}\ #1\ \textbf{in}\ #2}
+\NewDocumentCommand{\allintro}{m o m}{\textbf{pick-any}\ #1 \optionalannot{#2}\ \textbf{in}\ #3}
 \newcommand{\allelim}[2]{\textbf{specialize}\ #1\ \textbf{with}\ #2}
-\newcommand{\exintro}[2]{\textbf{exists}\ #1\ \textbf{such that}\ #2}
+\NewDocumentCommand{\exintro}{m o m}{\textbf{exists}\ #1 \optionalannot{#2}\ \textbf{such that}\ #3}
 \newcommand{\exelim}[3]{\textbf{pick-witness}\ #1\ \textbf{for}\ #2\ \textbf{in}\ #3}
+
+% Annotated.
+%\newcommand{\allintroannot}[3]{\allintro{#1 : #2}{#3}}
 
 % Equality.
 \newcommand{\refl}[1]{\textbf{refl}\ #1}
@@ -149,61 +162,52 @@
 
 % Judgements.
 
+\newcommand{\optionalcontext}[1]{\IfValueTF{#1}{#1}{\Gamma}}
+
 % Declarative typing.
-\newcommand{\fulltyping}[3]{#1 \vdash #2 : #3}
-\newcommand{\typing}[2]{\fulltyping{\Gamma}{#1}{#2}}
+\NewDocumentCommand{\typing}{o m m}{\optionalcontext{#1} \vdash #2 : #3}
 
 % Type checking (blue arrow pointing left).
-\newcommand{\fullcheck}[3]{#1 \vdash #2 \mathcolor{blue}{\Leftarrow} #3}
-\renewcommand{\check}[2]{\fullcheck{\Gamma}{#1}{#2}}
+\RenewDocumentCommand{\check}{o m m}{\optionalcontext{#1} \vdash #2 \mathcolor{blue}{\Leftarrow} #3}
 
 % Type inference (red arrow pointing right).
-\newcommand{\fullinfer}[3]{#1 \vdash #2 \mathcolor{red}{\Rightarrow} #3}
-\newcommand{\infer}[2]{\fullinfer{\Gamma}{#1}{#2}}
+\NewDocumentCommand{\infer}{o m m}{\optionalcontext{#1} \vdash #2 \mathcolor{red}{\Rightarrow} #3}
 
 % Hinting.
-\newcommand{\fullhinting}[4]{#1 \vdash #2 \mathcolor{blue}{\Leftarrow} #3 \mathcolor{red}{\Rightarrow} #4}
-\newcommand{\hinting}[3]{\fullhinting{\Gamma}{#1}{#2}{#3}}
+\NewDocumentCommand{\hinting}{o m m m}{\optionalcontext{#1} \vdash #2 \mathcolor{blue}{\Leftarrow} #3 \mathcolor{red}{\Rightarrow} #4}
 
 % Hinting with output context.
-\newcommand{\fulloutctx}[5]{#1 \vdash #2 \mathcolor{blue}{\Leftarrow} #3 \mathcolor{red}{\Rightarrow} #4 \dashv #5}
-\newcommand{\outctx}[3]{\fulloutctx{\Gamma}{#1}{#2}{#3}{\Gamma'}}
+\NewDocumentCommand{\outctx}{o m m m o}{\optionalcontext{#1} \vdash #2 \mathcolor{blue}{\Leftarrow} #3 \mathcolor{red}{\Rightarrow} #4 \dashv \IfValueTF{#5}{#5}{\Gamma'}}
 \newcommand{\shortoutctx}[3]{#1 \mathcolor{blue}{\Leftarrow} #2 \mathcolor{red}{\Rightarrow} #3}
 
 % Computational equality.
-\newcommand{\fullcompeq}[4]{#1 \vdash #2 \equiv #3 : #4}
-\newcommand{\compeq}[3]{\fullcompeq{\Gamma}{#1}{#2}{#3}}
+\NewDocumentCommand{\compeq}{o m m m}{\optionalcontext{#1} \vdash #2 \equiv #3 : #4}
 
 % Valid context.
 \newcommand{\ctx}[1]{#1\ \texttt{ctx}}
 
 % Valid type.
-\newcommand{\fulltype}[2]{#1 \vdash #2\ \texttt{type}}
-\newcommand{\type}[1]{\fulltype{\Gamma}{#1}}
+\NewDocumentCommand{\type}{o m}{\optionalcontext{#1} \vdash #2\ \texttt{type}}
 
 % Valid assumption context.
 \newcommand{\assctx}[2]{#1\ \vdash #2\ \texttt{valid}}
 
 % Well-formed proposition.
-\newcommand{\prop}[2]{#1 \vdash #2\ \texttt{prop}}
+\NewDocumentCommand{\prop}{o m}{\optionalcontext{#1} \vdash #2\ \texttt{prop}}
 
 % Proposition holds.
-\newcommand{\fullholds}[3]{#1 \pipe #2 \vdash #3}
-\newcommand{\holds}[1]{\fullholds{\Gamma}{\Delta}{#1}}
+\NewDocumentCommand{\holds}{o o m}{\optionalcontext{#1} \pipe \IfValueTF{#2}{#2}{\Delta} \vdash #3}
 
 % Proof judgement.
-\newcommand{\fullproves}[3]{#1 \vdash #2 : #3}
-\newcommand{\proves}[2]{\fullproves{\Gamma}{#1}{#2}}
+\NewDocumentCommand{\proves}{o m m}{\optionalcontext{#1} \vdash #2 : #3}
 
 % Algorithmic proof judgements.
 
 % Proof checking.
-\newcommand{\fullproofcheck}[3]{#1 \vdash #2 \mathcolor{blue}{\Leftarrow} #3}
-\newcommand{\proofcheck}[2]{\fullproofcheck{\Gamma}{#1}{#2}}
+\NewDocumentCommand{\proofcheck}{o m m}{\optionalcontext{#1} \vdash #2 \mathcolor{blue}{\Leftarrow} #3}
 
 % Proof inference.
-\newcommand{\fullproofinfer}[3]{#1 \vdash #2 \mathcolor{red}{\Rightarrow} #3}
-\newcommand{\proofinfer}[2]{\fullproofinfer{\Gamma}{#1}{#2}}
+\NewDocumentCommand{\proofinfer}{o m m}{\optionalcontext{#1} \vdash #2 \mathcolor{red}{\Rightarrow} #3}
 
 % Inference rules.
 \newcommand{\rulename}[1]{\textsc{\footnotesize{#1}}}

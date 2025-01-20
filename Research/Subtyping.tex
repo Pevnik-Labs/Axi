@@ -29,7 +29,7 @@ $\Gamma ::= \emptytypingctx \pipe \extend{\Gamma}{x}{A}$
 \vspace{2em}
 
 Judgements: \\
-$\fulltyping{\Gamma}{e}{A}$
+$\typing[\Gamma]{e}{A}$
 
 \end{frame}
 
@@ -192,7 +192,7 @@ Note: terms are the same as in Bidirectional STLC, i.e. annotations are types, n
 \vspace{2em}
 
 Judgements: \\
-$\fullhinting{\Gamma}{e}{A}{B}$ -- in context $\Gamma$, term $e$ checks with type $A$ and infers type $B$
+$\hinting[\Gamma]{e}{A}{B}$ -- in context $\Gamma$, term $e$ checks with type $A$ and infers type $B$
 
 \end{frame}
 
@@ -235,7 +235,7 @@ Note that the rule $\rulename{Hole}$ can only be applied once, because $\hintfor
 \begin{frame}{Algorithmic typing -- type-directed rules}
 
 \begin{center}
-  $\infrule{\fullhinting{\extend{\Gamma}{x}{A}}{e}{B}{B'}}{\hinting{\fun{x}{e}}{\Fun{A}{B}}{\Fun{A}{B'}}}$
+  $\infrule{\hinting[\extend{\Gamma}{x}{A}]{e}{B}{B'}}{\hinting{\fun{x}{e}}{\Fun{A}{B}}{\Fun{A}{B'}}}$
 
   \vspace{2em}
 

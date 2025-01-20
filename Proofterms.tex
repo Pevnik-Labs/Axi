@@ -104,19 +104,19 @@ The proof looks the same as the $\NDL$ one (DPL thesis, chapter 4, page 71), exc
 
 \begin{frame}{Example -- first-order logic}
 
-Theorem: $\Impl{(\All{x}{A}{\And{\app{P}{x}}{\app{Q}{x}}})}{\And{(\All{x}{A}{\app{P}{x}})}{(\All{x}{A}{\app{Q}{x}})}}$
+Theorem: $\Impl{(\All{x}[A]{\And{\app{P}{x}}{\app{Q}{x}}})}{\And{(\All{x}[A]{\app{P}{x}})}{(\All{x}[A]{\app{Q}{x}})}}$
 
 \vspace{2em}
 
 Proof: \\
-$\implintro{\All{x}{A}{\And{\app{P}{x}}{\app{Q}{x}}}}{}$ \\
+$\implintro{\All{x}[A]{\And{\app{P}{x}}{\app{Q}{x}}}}{}$ \\
 \quad $\allintro{y}{}$ \\
-\qquad $\allelim{\All{x}{A}{\And{\app{P}{x}}{\app{Q}{x}}}}{y};$ \\
+\qquad $\allelim{\All{x}[A]{\And{\app{P}{x}}{\app{Q}{x}}}}{y};$ \\
 \qquad $\andeliml{\And{\app{P}{y}}{\app{Q}{y}}}$; \\
 \quad $\allintro{y}{}$ \\
-\qquad $\allelim{\All{x}{A}{\And{\app{P}{x}}{\app{Q}{x}}}}{y};$ \\
+\qquad $\allelim{\All{x}[A]{\And{\app{P}{x}}{\app{Q}{x}}}}{y};$ \\
 \qquad $\andelimr{\And{\app{P}{y}}{\app{Q}{y}}}$; \\
-\quad $\andintro{(\All{y}{A}{\app{P}{y}})}{(\All{y}{A}{\app{Q}{y}})}$ \\
+\quad $\andintro{(\All{y}[A]{\app{P}{y}})}{(\All{y}[A]{\app{Q}{y}})}$ \\
 
 \vspace{2em}
 
@@ -134,7 +134,7 @@ $\texttt{swap} : \Fun{\Sum{A}{B}}{\Sum{B}{A}} := \fun{x}{\case{x}{\fun{a}{\inr{a
 \vspace{2em}
 
 It's pretty clear that this function is involutive. \\
-Theorem: $\All{x}{\Sum{A}{B}}{\Eq[]{\swap{(\swap{x})}}{x}}$
+Theorem: $\All{x}[\Sum{A}{B}]{\Eq[]{\swap{(\swap{x})}}{x}}$
 
 \vspace{1em}
 
@@ -175,7 +175,7 @@ Because we no longer have separate assumption contexts, but still need to keep t
 
 \vspace{2em}
 
-The well-formed proposition judgement $\prop{\Gamma}{P}$ stays unchanged.
+The well-formed proposition judgement $\prop[\Gamma]{P}$ stays unchanged.
 
 \end{frame}
 
@@ -189,8 +189,8 @@ In case of our logic, we will set up the judgements so that the following sanity
 
 \begin{itemize}
   \item $\ctx{\Gamma}$ entails nothing (because it is the simplest judgement)
-  \item $\prop{\Gamma}{P}$ entails $\ctx{\Gamma}$
-  \item $\proves{e}{P}$ entails $\prop{\Gamma}{P}$
+  \item $\prop[\Gamma]{P}$ entails $\ctx{\Gamma}$
+  \item $\proves{e}{P}$ entails $\prop[\Gamma]{P}$
 \end{itemize}
 
 \vspace{1em}
@@ -225,7 +225,7 @@ The basic rule of our logic is that we can use assumptions from the context. Not
 
   \vspace{2em}
 
-  $\infrule[False-Elim]{\prop{\Gamma}{P} \quad \proves{e}{\False}}{\proves{\falseelim{e}}{P}}$
+  $\infrule[False-Elim]{\prop{P} \quad \proves{e}{\False}}{\proves{\falseelim{e}}{P}}$
 \end{center}
 
 \vspace{2em}
@@ -241,7 +241,7 @@ $\falseelim{e}$ proves any well-formed proposition $P$ whatsoever, provided that
 \begin{frame}{Implication}
 
 \begin{center}
-  $\infrule[Impl-Intro]{\fullproves{\assume{\Gamma}{P}}{e}{Q}}{\proves{\implintro{P}{e}}{\Impl{P}{Q}}}$
+  $\infrule[Impl-Intro]{\proves[\assume{\Gamma}{P}]{e}{Q}}{\proves{\implintro{P}{e}}{\Impl{P}{Q}}}$
 
   \vspace{2em}
 
@@ -261,7 +261,7 @@ $\implelim{e_1}{e_2}$ proves $Q$, provided that $e_1$ proves $\Impl{P}{Q}$ and $
 \begin{frame}{Negation}
 
 \begin{center}
-  $\infrule[Not-Intro]{\fullproves{\assume{\Gamma}{P}}{e}{\False}}{\proves{\notintro{P}{e}}{\Not{P}}}$
+  $\infrule[Not-Intro]{\proves[\assume{\Gamma}{P}]{e}{\False}}{\proves{\notintro{P}{e}}{\Not{P}}}$
 
   \vspace{2em}
 
@@ -337,11 +337,11 @@ Our presentation of the biconditional is exactly the same as in $\NDL$ (DPL thes
 \begin{frame}{Disjunction}
 
 \begin{center}
-  $\infrule[Or-Intro-L]{\prop{\Gamma}{Q} \quad \proves{e}{P}}{\proves{\orintrol{Q}{e}}{\Or{P}{Q}}}$
+  $\infrule[Or-Intro-L]{\prop{Q} \quad \proves{e}{P}}{\proves{\orintrol{Q}{e}}{\Or{P}{Q}}}$
 
   \vspace{2em}
 
-  $\infrule[Or-Intro-R]{\prop{\Gamma}{P} \quad \proves{e}{Q}}{\proves{\orintror{P}{e}}{\Or{P}{Q}}}$
+  $\infrule[Or-Intro-R]{\prop{P} \quad \proves{e}{Q}}{\proves{\orintror{P}{e}}{\Or{P}{Q}}}$
 
   \vspace{2em}
 
@@ -371,7 +371,7 @@ We also have a choice regarding the second and third arguments of $\orelim{e_1}{
 \vspace{2em}
 
 \begin{center}
-  $\infrule[Or-Elim-Alt]{\proves{e_1}{\Or{P}{Q}} \quad \fullproves{\assume{\Gamma}{P}}{e_2}{R} \quad \fullproves{\assume{\Gamma}{Q}}{e_3}{R}}{\proves{\orelim{e_1}{e_2}{e_3}}{R}}$
+  $\infrule[Or-Elim-Alt]{\proves{e_1}{\Or{P}{Q}} \quad \proves[\assume{\Gamma}{P}]{e_2}{R} \quad \proves[\assume{\Gamma}{Q}]{e_3}{R}}{\proves{\orelim{e_1}{e_2}{e_3}}{R}}$
 \end{center}
 
 \end{frame}
@@ -411,7 +411,7 @@ An alternative way of asserting classical logic would be to use another principl
 \vspace{2em}
 
 \begin{center}
-  $\infrule[By-Contradiction]{\fullproves{\assume{\Gamma}{\Not{P}}}{e}{\False}}{\proves{\bycontradiction{e}}{P}}$
+  $\infrule[By-Contradiction]{\proves[\assume{\Gamma}{\Not{P}}]{e}{\False}}{\proves{\bycontradiction{e}}{P}}$
 \end{center}
 
 \vspace{2em}
@@ -439,7 +439,7 @@ The $\rulename{Cut}$ rule increases the comfort of doing forward proofs in our s
 \begin{frame}{Cut rule}
 
 \begin{center}
-  $\infrule[Cut]{\proves{e_1}{P} \quad \fullproves{\assume{\Gamma}{P}}{e_2}{Q}}{\proves{\cut{e_1}{e_2}}{Q}}$
+  $\infrule[Cut]{\proves{e_1}{P} \quad \proves[\assume{\Gamma}{P}]{e_2}{Q}}{\proves{\cut{e_1}{e_2}}{Q}}$
 \end{center}
 
 \vspace{2em}
@@ -463,40 +463,40 @@ Our rules, however, are subtly different in that we allow arbitrary proofs as ar
 \begin{frame}{Universal quantifier}
 
 \begin{center}
-  $\infrule[Forall-Intro]{\fullproves{\extend{\Gamma}{y}{A}}{e}{\subst{P}{x}{y}}}{\proves{\allintro{y}{e}}{\All{x}{A}{P}}}$
+  $\infrule[Forall-Intro]{\proves[\extend{\Gamma}{y}{A}]{e}{\subst{P}{x}{y}}}{\proves{\allintro{y}{e}}{\All{x}[A]{P}}}$
 
   \vspace{2em}
 
-  $\infrule[Forall-Elim]{\proves{e}{\All{x}{A}{P}} \quad \typing{t}{A}}{\proves{\allelim{e}{t}}{\subst{P}{x}{t}}}$
+  $\infrule[Forall-Elim]{\proves{e}{\All{x}[A]{P}} \quad \typing{t}{A}}{\proves{\allelim{e}{t}}{\subst{P}{x}{t}}}$
 \end{center}
 
 \vspace{2em}
 
-$\allintro{y}{e}$ proves $\All{x}{A}{P}$ provided that $e$ proves $P$ in which $y$ was substituted for $x$ in the context extended with $y : A$.
+$\allintro{y}{e}$ proves $\All{x}[A]{P}$ provided that $e$ proves $P$ in which $y$ was substituted for $x$ in the context extended with $y : A$.
 
 \vspace{2em}
 
-$\allelim{e}{t}$ proves $P$ in which $t$ was substituted for $x$, provided that $e$ proves $\All{x}{A}{P}$ and $t$ is a term of type $A$.
+$\allelim{e}{t}$ proves $P$ in which $t$ was substituted for $x$, provided that $e$ proves $\All{x}[A]{P}$ and $t$ is a term of type $A$.
 
 \end{frame}
 
 \begin{frame}{Existential quantifier}
 
 \begin{center}
-  $\infrule[Exists-Intro]{\typing{t}{A} \quad \proves{e}{\subst{P}{x}{t}}}{\proves{\exintro{t}{e}}{\Ex{x}{A}{P}}}$
+  $\infrule[Exists-Intro]{\typing{t}{A} \quad \proves{e}{\subst{P}{x}{t}}}{\proves{\exintro{t}{e}}{\Ex{x}[A]{P}}}$
 
   \vspace{2em}
 
-  $\infrule[Exists-Elim]{\prop{\Gamma}{R} \quad \proves{e_1}{\Ex{x}{A}{P}} \quad \fullproves{\assume{\extend{\Gamma}{y}{A}}{\subst{P}{x}{y}}}{e_2}{R}}{\proves{\exelim{y}{e_1}{e_2}}{R}}$
+  $\infrule[Exists-Elim]{\prop{R} \quad \proves{e_1}{\Ex{x}[A]{P}} \quad \proves[\assume{\extend{\Gamma}{y}{A}}{\subst{P}{x}{y}}]{e_2}{R}}{\proves{\exelim{y}{e_1}{e_2}}{R}}$
 \end{center}
 
 \vspace{2em}
 
-$\exintro{t}{e}$ proves $\Ex{x}{A}{P}$ provided that $t$ is a term of type $A$ and $e$ proves $P$ in which $t$ was substituted for $x$.
+$\exintro{t}{e}$ proves $\Ex{x}[A]{P}$ provided that $t$ is a term of type $A$ and $e$ proves $P$ in which $t$ was substituted for $x$.
 
 \vspace{2em}
 
-$\exelim{y}{e_1}{e_2}$ proves $R$, provided that $e_1$ proves $\Ex{x}{A}{P}$ and $e_2$ proves $R$ in the context extended with $y : A$ and $P$ (in which $y$ was substituted for $x$). Note that $R$ needs to be well-formed in $\Gamma$, i.e. it can't depend on $x$ or $y$.
+$\exelim{y}{e_1}{e_2}$ proves $R$, provided that $e_1$ proves $\Ex{x}[A]{P}$ and $e_2$ proves $R$ in the context extended with $y : A$ and $P$ (in which $y$ was substituted for $x$). Note that $R$ needs to be well-formed in $\Gamma$, i.e. it can't depend on $x$ or $y$.
 
 \end{frame}
 
@@ -533,7 +533,7 @@ We also include a rule that asserts function extensionality, i.e. the principle 
 \begin{frame}{Conversion rule}
 
 \begin{center}
-  $\infrule[Conv]{\prop{\extend{\Gamma}{x}{A}}{P} \quad \compeq{t_1}{t_2}{A} \quad \proves{e}{\subst{P}{x}{t_1}}}{\proves{e}{\subst{P}{x}{t_2}}}$
+  $\infrule[Conv]{\prop[\extend{\Gamma}{x}{A}]{P} \quad \compeq{t_1}{t_2}{A} \quad \proves{e}{\subst{P}{x}{t_1}}}{\proves{e}{\subst{P}{x}{t_2}}}$
 \end{center}
 
 \vspace{2em}
@@ -555,7 +555,7 @@ The main point of the conversion rule is to facilitate proving equalities which 
 
   \vspace{2em}
 
-  $\infrule[Eq-Elim]{\prop{\extend{\Gamma}{x}{A}}{P} \quad \proves{e}{\Eq[A]{t_1}{t_2}} \quad \proves{e'}{\subst{P}{x}{t_1}}}{\proves{\rewrite{e}{e'}}{\subst{P}{x}{t_2}}}$
+  $\infrule[Eq-Elim]{\prop[\extend{\Gamma}{x}{A}]{P} \quad \proves{e}{\Eq[A]{t_1}{t_2}} \quad \proves{e'}{\subst{P}{x}{t_1}}}{\proves{\rewrite{e}{e'}}{\subst{P}{x}{t_2}}}$
 \end{center}
 
 \vspace{2em}
@@ -591,12 +591,12 @@ Compared to Coq, $\rewrite{e}{e'}$ looks most similar to Coq's tactic $\texttt{r
 \begin{frame}{Function extensionality}
 
 \begin{center}
-  $\infrule[Funext]{\proves{e}{\All{x}{A}{\Eq[B]{\app{f}{x}}{\app{g}{x}}}}}{\proves{\funext{e}}{\Eq[\Fun{A}{B}]{f}{g}}}$
+  $\infrule[Funext]{\proves{e}{\All{x}[A]{\Eq[B]{\app{f}{x}}{\app{g}{x}}}}}{\proves{\funext{e}}{\Eq[\Fun{A}{B}]{f}{g}}}$
 \end{center}
 
 \vspace{2em}
 
-$\funext{e}$ proves $\Eq{f}{g}$ provided that $e$ proves $\All{x}{A}{\Eq{\app{f}{x}}{\app{g}{x}}}$.
+$\funext{e}$ proves $\Eq{f}{g}$ provided that $e$ proves $\All{x}[A]{\Eq{\app{f}{x}}{\app{g}{x}}}$.
 
 \end{frame}
 
@@ -615,7 +615,7 @@ $\funext{e}$ is in some sense ``higher-order'', i.e. $e$ is expected to be a pro
 \vspace{2em}
 
 \begin{center}
-  $\infrule[Funext-Alt]{\fullproves{\extend{\Gamma}{x}{A}}{e}{\Eq[B]{\app{f}{x}}{\app{g}{x}}}}{\proves{\funextalt{x}{e}}{\Eq[\Fun{A}{B}]{f}{g}}}$
+  $\infrule[Funext-Alt]{\proves[\extend{\Gamma}{x}{A}]{e}{\Eq[B]{\app{f}{x}}{\app{g}{x}}}}{\proves{\funextalt{x}{e}}{\Eq[\Fun{A}{B}]{f}{g}}}$
 \end{center}
 
 \end{frame}
@@ -625,7 +625,7 @@ $\funext{e}$ is in some sense ``higher-order'', i.e. $e$ is expected to be a pro
 \begin{frame}{Reasoning by cases (for sums)}
 
 \begin{center}
-  $\infrule{\prop{\extend{\Gamma}{x}{\Sum{A}{B}}}{P} \quad \typing{t}{\Sum{A}{B}} \quad \begin{array}{c} \fullproves{\extend{\Gamma}{a}{A}}{e_1}{\subst{P}{x}{\inl{a}}} \\ \fullproves{\extend{\Gamma}{b}{B}}{e_2}{\subst{P}{x}{\inr{b}}} \end{array}}{\proves{\sumind{t}{a}{e_1}{b}{e_2}}{\subst{P}{x}{t}}}$
+  $\infrule{\prop[\extend{\Gamma}{x}{\Sum{A}{B}}]{P} \quad \typing{t}{\Sum{A}{B}} \quad \begin{array}{c} \proves[\extend{\Gamma}{a}{A}]{e_1}{\subst{P}{x}{\inl{a}}} \\ \proves[\extend{\Gamma}{b}{B}]{e_2}{\subst{P}{x}{\inr{b}}} \end{array}}{\proves{\sumind{t}{a}{e_1}{b}{e_2}}{\subst{P}{x}{t}}}$
 \end{center}
 
 \vspace{2em}
