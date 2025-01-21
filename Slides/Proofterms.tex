@@ -10,6 +10,8 @@
 \author{Wojciech Kołowski}
 \date{}
 
+\newcommand{\NDL}{\mathcal{NDL}}
+
 \begin{document}
 
 \frame{\titlepage}
@@ -41,20 +43,20 @@ To deal with this problem, we introduce proofterms (also known as proof certific
 
 \begin{frame}{Proofterms}
 
-Proofterms (here $P$ are propositions, $t$ are terms, $x$ are variables): \\
+Proofterms (here $P, Q$ are propositions, $t$ are terms, $x$ are variables): \\
 $e ::=$ \\
 \qquad $P \pipe \trueintro \pipe \falseelim{e}$ \\
 \qquad $\implintro{P}{e} \pipe \implelim{e_1}{e_2} \pipe$ \\
 \qquad $\notintro{P}{e} \pipe \notelim{e_1}{e_2} \pipe$ \\
 \qquad $\andintro{e_1}{e_2} \pipe \andeliml{e} \pipe \andelimr{e} \pipe$ \\
 \qquad $\iffintro{e_1}{e_2} \pipe \iffeliml{e} \pipe \iffelimr{e} \pipe$ \\
-\qquad $\orintrol{P}{e} \pipe \orintror{P}{e} \pipe$ \\
+\qquad $\orintrol[Q]{e} \pipe \orintror[P]{e} \pipe$ \\
 \qquad $\orelim{e_1}{e_2}{e_3} \pipe$ \\
 \qquad $\dn{e} \pipe$ \\
 \qquad $\cut{e_1}{e_2} \pipe$ \\
 \qquad $\allintro{x}{e} \pipe \allelim{e}{t} \pipe$ \\
 \qquad $\exintro{t}{e} \pipe \exelim{x}{e_1}{e_2} \pipe$ \\
-\qquad $\refl{t} \pipe \rewrite{e_1}{e_2} \pipe$ \\
+\qquad $\refl[t] \pipe \rewrite{e_1}{e_2} \pipe$ \\
 \qquad $\sumind{t}{a}{e_1}{b}{e_2} \pipe$
 
 \end{frame}
@@ -124,23 +126,21 @@ Again, the proof looks the same as the $\NDL$ one (DPL thesis, chapter 6, page 1
 
 \end{frame}
 
-\newcommand{\swap}[1][]{\texttt{swap}\ #1}
-
 \begin{frame}{Example -- proof about a program}
 
 Consider the following program: \\
-$\texttt{swap} : \Fun{\Sum{A}{B}}{\Sum{B}{A}} := \fun{x}{\case{x}{\fun{a}{\inr{a}}}{\fun{b}{\inl{b}}}}$ \\
+$\swap : \Fun{\Sum{A}{B}}{\Sum{B}{A}} := \fun{x}{\case{x}{\fun{a}{\inr{a}}}{\fun{b}{\inl{b}}}}$ \\
 
 \vspace{2em}
 
 It's pretty clear that this function is involutive. \\
-Theorem: $\All{x}[\Sum{A}{B}]{\Eq[]{\swap{(\swap{x})}}{x}}$
+Theorem: $\All{x}[\Sum{A}{B}]{\Eq{\swap[(\swap[x])]}{x}}$
 
 \vspace{1em}
 
 Proof: \\
 $\allintro{x}{}$ \\
-\quad $\sumind{x}{a}{\refl{(\inl{a})}}{b}{\refl{(\inr{b})}}$
+\quad $\sumind{x}{a}{\refl[(\inl{a})]}{b}{\refl[(\inr{b})]}$
 
 \vspace{2em}
 
@@ -171,7 +171,7 @@ We will modify the language in the following way: we throw away the true proposi
 
 \vspace{2em}
 
-Because we no longer have separate assumption contexts, but still need to keep track of well-formedness of assumptions, we drop the valid assumption context judgement $\assctx{\Gamma}{\Delta}$ and replace it with the valid context judgement $\ctx{\Gamma}$, which should be read: $\Gamma$ is a well-formed context.
+Because we no longer have separate assumption contexts, but still need to keep track of well-formedness of assumptions, we drop the valid assumption context judgement $\assctx[\Gamma]{\Delta}$ and replace it with the valid context judgement $\ctx{\Gamma}$, which should be read: $\Gamma$ is a well-formed context.
 
 \vspace{2em}
 
@@ -337,11 +337,11 @@ Our presentation of the biconditional is exactly the same as in $\NDL$ (DPL thes
 \begin{frame}{Disjunction}
 
 \begin{center}
-  $\infrule[Or-Intro-L]{\prop{Q} \quad \proves{e}{P}}{\proves{\orintrol{Q}{e}}{\Or{P}{Q}}}$
+  $\infrule[Or-Intro-L]{\prop{Q} \quad \proves{e}{P}}{\proves{\orintrol[Q]{e}}{\Or{P}{Q}}}$
 
   \vspace{2em}
 
-  $\infrule[Or-Intro-R]{\prop{P} \quad \proves{e}{Q}}{\proves{\orintror{P}{e}}{\Or{P}{Q}}}$
+  $\infrule[Or-Intro-R]{\prop{P} \quad \proves{e}{Q}}{\proves{\orintror[P]{e}}{\Or{P}{Q}}}$
 
   \vspace{2em}
 
@@ -350,13 +350,13 @@ Our presentation of the biconditional is exactly the same as in $\NDL$ (DPL thes
 
 \vspace{2em}
 
-$\orintrol{Q}{e}$ proves $\Or{P}{Q}$ provided that $e$ proves $P$. $\orintror{P}{e}$ proves $\Or{P}{Q}$ provided that $e$ proves $Q$. $\orelim{e_1}{e_2}{e_3}$ proves $R$ provided that $e_1$ proves $\Or{P}{Q}$, $e_2$ proves $\Impl{P}{R}$ and $e_3$ proves $\Impl{Q}{R}$.
+$\orintrol[Q]{e}$ proves $\Or{P}{Q}$ provided that $e$ proves $P$. $\orintror[P]{e}$ proves $\Or{P}{Q}$ provided that $e$ proves $Q$. $\orelim{e_1}{e_2}{e_3}$ proves $R$ provided that $e_1$ proves $\Or{P}{Q}$, $e_2$ proves $\Impl{P}{R}$ and $e_3$ proves $\Impl{Q}{R}$.
 
 \end{frame}
 
 \begin{frame}{Disjunction -- annotations}
 
-The first argument of $\orintrol{Q}{e}$, i.e. $Q$, is a proposition, not a proofterm, and serves as an annotation that clarifies what its conclusion is. Note that it needs to be well-formed. $\orintror{P}{e}$ is analogous.
+The first argument of $\orintrol[Q]{e}$, i.e. $Q$, is a proposition, not a proofterm, and serves as an annotation that clarifies what its conclusion is. Note that it needs to be well-formed. $\orintror[P]{e}$ is analogous.
 
 \vspace{2em}
 
@@ -551,7 +551,7 @@ The main point of the conversion rule is to facilitate proving equalities which 
 \begin{frame}{Equality introduction and elimination}
 
 \begin{center}
-  $\infrule[Eq-Intro]{\typing{t}{A}}{\proves{\refl{t}}{\Eq[A]{t}{t}}}$
+  $\infrule[Eq-Intro]{\typing{t}{A}}{\proves{\refl[t]}{\Eq[A]{t}{t}}}$
 
   \vspace{2em}
 
@@ -560,7 +560,7 @@ The main point of the conversion rule is to facilitate proving equalities which 
 
 \vspace{2em}
 
-$\refl{t}$ proves that $t$ is equal to itself, provided that it is well-typed at some type $A$.
+$\refl[t]$ proves that $t$ is equal to itself, provided that it is well-typed at some type $A$.
 
 \vspace{2em}
 
@@ -570,7 +570,7 @@ $\rewrite{e}{e'}$ proves $P$ with $t_2$ substituted for $x$, provided that $e$ p
 
 \begin{frame}{$\refl$ -- discussion}
 
-$\refl{t}$ might look like a weakling, a puny little proofterm only able to prove $\Eq{t}{t}$, but in reality it is an incantation that summons the invincible juggernaut -- the conversion rule. If $t$ is computationally equal to $t'$, then, by the conversion rule, to prove $\Eq{t}{t'}$ it suffices to prove $\Eq{t}{t}$, which is precisely what $\refl{t}$ accomplishes.
+$\refl[t]$ might look like a weakling, a puny little proofterm only able to prove $\Eq{t}{t}$, but in reality it is an incantation that summons the invincible juggernaut -- the conversion rule. If $t$ is computationally equal to $t'$, then, by the conversion rule, to prove $\Eq{t}{t'}$ it suffices to prove $\Eq{t}{t}$, which is precisely what $\refl[t]$ accomplishes.
 
 \end{frame}
 
@@ -605,8 +605,6 @@ $\funext{e}$ proves $\Eq{f}{g}$ provided that $e$ proves $\All{x}[A]{\Eq{\app{f}
 A separate rule for function extensionality is needed, because extensionality, despite being a very basic, useful and desirable principle, does not follow from anything else in the system: neither from the intuitionistic core, nor the classical \textbf{double-negation}, nor the rules for quantifiers, nor even the conversion rule, even though function extensionality is present at the level of computational equality. This is a well known phenomenon in type theory, with which $\NDL$ and other DPLs don't have to deal because they don't have function types.
 
 \end{frame}
-
-\newcommand{\funextalt}[2]{\textbf{funext}\ #1\ \textbf{in}\ #2}
 
 \begin{frame}{Function extensionality -- alternative rule}
 

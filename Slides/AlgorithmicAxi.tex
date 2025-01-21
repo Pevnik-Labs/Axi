@@ -135,8 +135,6 @@ Values are the final results of computation. Note that a function is a value whe
 
 \section{Computational equality}
 
-\newcommand{\whnf}[1]{#1\ \texttt{whnf}}
-
 \begin{frame}{Weak head normal forms}
 
 \begin{center}
@@ -181,8 +179,6 @@ $n ::=$ \\
 \qquad $\case{n}{e_1}{e_2} \pipe$ \\
 
 \end{frame}
-
-\newcommand{\smallstepwhnf}[2]{#1 \longrightarrow_{\texttt{whnf}} #2}
 
 \begin{frame}{Whnf reduction -- basic rules}
 
@@ -340,8 +336,6 @@ $n ::=$ \\
 
 \end{frame}
 
-\newcommand{\proofannot}[2]{\textbf{have}\ #1\ \textbf{from}\ #2}
-
 \begin{frame}{Annotations}
 
 \begin{center}
@@ -449,11 +443,11 @@ $n ::=$ \\
 \begin{frame}{Disjunction -- checking}
 
 \begin{center}
-  $\infrule[Or-Intro-L]{\proofcheck{e}{P}}{\proofcheck{\orintrol{Q}{e}}{\Or{P}{Q}}}$
+  $\infrule[Or-Intro-L]{\proofcheck{e}{P}}{\proofcheck{\orintrol[Q]{e}}{\Or{P}{Q}}}$
 
   \vspace{2em}
 
-  $\infrule[Or-Intro-R]{\proofcheck{e}{Q}}{\proofcheck{\orintror{P}{e}}{\Or{P}{Q}}}$
+  $\infrule[Or-Intro-R]{\proofcheck{e}{Q}}{\proofcheck{\orintror[P]{e}}{\Or{P}{Q}}}$
 
   \vspace{2em}
 
@@ -465,11 +459,11 @@ $n ::=$ \\
 \begin{frame}{Disjunction -- inference}
 
 \begin{center}
-  $\infrule[Or-Intro-L-Infer]{\prop[\Gamma]{Q} \quad \proofinfer{e}{P}}{\proofinfer{\orintrol{Q}{e}}{\Or{P}{Q}}}$
+  $\infrule[Or-Intro-L-Infer]{\prop[\Gamma]{Q} \quad \proofinfer{e}{P}}{\proofinfer{\orintrol[Q]{e}}{\Or{P}{Q}}}$
 
   \vspace{2em}
 
-  $\infrule[Or-Intro-R-Infer]{\prop[\Gamma]{P} \quad \proofinfer{e}{Q}}{\proofinfer{\orintror{P}{e}}{\Or{P}{Q}}}$
+  $\infrule[Or-Intro-R-Infer]{\prop[\Gamma]{P} \quad \proofinfer{e}{Q}}{\proofinfer{\orintror[P]{e}}{\Or{P}{Q}}}$
 
   \vspace{2em}
 
@@ -545,11 +539,11 @@ $n ::=$ \\
 \begin{frame}{Equality introduction and elimination}
 
 \begin{center}
-  $\infrule[Eq-Intro]{\check{t}{A}}{\proofcheck{\refl{t}}{\Eq[A]{t}{t}}}$
+  $\infrule[Eq-Intro]{\check{t}{A}}{\proofcheck{\refl[t]}{\Eq[A]{t}{t}}}$
 
   \vspace{2em}
 
-  $\infrule[Eq-Intro-Infer]{\infer{t}{A}}{\proofinfer{\refl{t}}{\Eq[A]{t}{t}}}$
+  $\infrule[Eq-Intro-Infer]{\infer{t}{A}}{\proofinfer{\refl[t]}{\Eq[A]{t}{t}}}$
 
   \vspace{2em}
 
@@ -558,12 +552,10 @@ $n ::=$ \\
 
 \end{frame}
 
-\newcommand{\reflnaked}{\mathbf{refl}}
-
-\begin{frame}{Experimenting with $\reflnaked$}
+\begin{frame}{Experimenting with $\refl$}
 
 \begin{center}
-  $\infrule[Eq-Intro-Alt]{\checkcompeq{t_1}{t_2}{A}}{\proofcheck{\reflnaked}{\Eq[A]{t_1}{t_2}}}$
+  $\infrule[Eq-Intro-Alt]{\checkcompeq{t_1}{t_2}{A}}{\proofcheck{\refl}{\Eq[A]{t_1}{t_2}}}$
 \end{center}
 
 \end{frame}

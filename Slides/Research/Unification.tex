@@ -215,11 +215,9 @@ If $\outctx[\Gamma]{e}{A}{B}[\Gamma']$, then:
 
 \section{Unification}
 
-\newcommand{\extendunif}[2]{#1, #2}
-\newcommand{\extendunifdef}[3]{#1, #2 := #3}
+\NewDocumentCommand{\extendunif}{m m o}{#1, #2 \IfValueTF{#3}{:= #3}{}}
 
 \NewDocumentCommand{\uniftyping}{O{\Gamma} m m m O{\Gamma'}}{#1 \vdash #2 \mathcolor{blue}{\Leftarrow} #3 \mathcolor{red}{\Rightarrow} #4 \dashv #5}
-\newcommand{\shortuniftyping}[3]{#1 \mathcolor{blue}{\Leftarrow} #2 \mathcolor{red}{\Rightarrow} #3}
 
 \begin{frame}{Types, holes, terms and contexts}
 
@@ -245,7 +243,7 @@ Note: the terms are the same as in STLC with Hints.
 \begin{frame}{Contexts and judgements}
 
 Contexts: \\
-$\Gamma ::= \emptytypingctx \pipe \extend{\Gamma}{x}{A} \pipe \extendunif{\Gamma}{\alpha} \pipe \extendunifdef{\Gamma}{\alpha}{H}$
+$\Gamma ::= \emptytypingctx \pipe \extend{\Gamma}{x}{A} \pipe \extendunif{\Gamma}{\alpha} \pipe \extendunif{\Gamma}{\alpha}[H]$
 
 \vspace{2em}
 

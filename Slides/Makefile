@@ -19,7 +19,7 @@ PDFLATEX="pdflatex -interaction=nonstopmode -synctex=1"
 # -interaction=nonstopmode keeps the pdflatex backend from stopping at a
 # missing file reference and interactively asking you for an alternative.
 
-# -synctex=1 enables syncronization between the LaTeX sources and the generated
+# -synctex=1 enables synchronization between the LaTeX sources and the generated
 # PDF so that it is possible to jump to the source file when clicking on the
 # PDF, and vice-versa. Note that this option requires that the viewer and the
 # editor are properly configured.

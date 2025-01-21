@@ -25,6 +25,7 @@
 
 % An optional type annotation.
 \newcommand{\optionalannot}[1]{\IfValueTF{#1}{: #1}{}}
+\newcommand{\optionalspace}[1]{\IfValueTF{#1}{\ #1}{}}
 
 % Terms.
 \newcommand{\annot}[2]{(#1 : #2)}
@@ -55,12 +56,17 @@
 \newcommand{\tfun}[2]{\Lambda #1.\, #2}
 \newcommand{\tapp}[2]{#1\ \texttt{@}#2}
 
+% Some defined functions.
+\NewDocumentCommand{\swap}{o}{\texttt{swap} \optionalspace{#1}}
+
 % Computation.
 \newcommand{\subst}[3]{#1\left[#2 := #3\right]}
 \newcommand{\val}[1]{#1\ \texttt{value}}
 \newcommand{\smallstep}[2]{#1 \longrightarrow #2}
 \newcommand{\smallsteps}[2]{#1 \longrightarrow^* #2}
 \newcommand{\bigstep}[2]{#1 \Downarrow #2}
+\newcommand{\whnf}[1]{#1\ \texttt{whnf}}
+\newcommand{\smallstepwhnf}[2]{#1 \longrightarrow_{\texttt{whnf}} #2}
 
 % Hints.
 \newcommand{\Hole}{\textbf{?}}
@@ -89,8 +95,7 @@
 
 % Typing contexts.
 \newcommand{\emptytypingctx}{\cdot}
-\newcommand{\extend}[3]{#1, #2 : #3}
-\newcommand{\extenddef}[4]{#1, #2 : #3 := #4}
+\NewDocumentCommand{\extend}{m m m o}{#1, #2 : #3 \IfValueTF{#4}{:= #4}{}}
 \newcommand{\extendtype}[2]{#1, #2}
 
 % Logic.
@@ -125,13 +130,14 @@
 \newcommand{\andintro}[2]{\textbf{both}\ #1\ #2}
 \newcommand{\andeliml}[1]{\textbf{left-and}\ #1}
 \newcommand{\andelimr}[1]{\textbf{right-and}\ #1}
-\newcommand{\orintrol}[2]{\textbf{left-either}\ #1\ #2}
-\newcommand{\orintror}[2]{\textbf{right-either}\ #1\ #2}
+\NewDocumentCommand{\orintrol}{o m}{\textbf{left-either} \optionalspace{#1}\ #2}
+\NewDocumentCommand{\orintror}{o m}{\textbf{right-either} \optionalspace{#1}\ #2}
 \newcommand{\orelim}[3]{\textbf{constructive-dilemma}\ #1\ #2\ #3}
 \newcommand{\iffintro}[2]{\textbf{equivalence}\ #1\ #2}
 \newcommand{\iffeliml}[1]{\textbf{left-iff}\ #1}
 \newcommand{\iffelimr}[1]{\textbf{right-iff}\ #1}
 \newcommand{\cut}[2]{#1; #2}
+\newcommand{\proofannot}[2]{\textbf{have}\ #1\ \textbf{from}\ #2}
 
 % Classical logic.
 \newcommand{\bycontradiction}[1]{\textbf{by-contradiction}\ #1}
@@ -143,13 +149,11 @@
 \NewDocumentCommand{\exintro}{m o m}{\textbf{exists}\ #1 \optionalannot{#2}\ \textbf{such that}\ #3}
 \newcommand{\exelim}[3]{\textbf{pick-witness}\ #1\ \textbf{for}\ #2\ \textbf{in}\ #3}
 
-% Annotated.
-%\newcommand{\allintroannot}[3]{\allintro{#1 : #2}{#3}}
-
 % Equality.
-\newcommand{\refl}[1]{\textbf{refl}\ #1}
+\NewDocumentCommand{\refl}{o}{\textbf{refl} \optionalspace{#1}}
 \newcommand{\rewrite}[2]{\textbf{rewrite}\ #1\ \textbf{in}\ #2}
 \newcommand{\funext}[1]{\textbf{funext}\ #1}
+\newcommand{\funextalt}[2]{\textbf{funext}\ #1\ \textbf{in}\ #2}
 
 % Induction.
 \newcommand{\sumind}[5]{\textbf{case}\ #1\ \textbf{of}\ (\inl{#2} \rightarrow #3, \inr{#4} \rightarrow #5)}
@@ -188,7 +192,7 @@
 \NewDocumentCommand{\type}{O{\Gamma} m}{#1 \vdash #2\ \texttt{type}}
 
 % Valid assumption context.
-\newcommand{\assctx}[2]{#1\ \vdash #2\ \texttt{valid}}
+\NewDocumentCommand{\assctx}{O{\Gamma} m}{#1\ \vdash #2\ \texttt{valid}}
 
 % Well-formed proposition.
 \NewDocumentCommand{\prop}{O{\Gamma} m}{#1 \vdash #2\ \texttt{prop}}
@@ -213,6 +217,3 @@
 
 % Side conditions - this command semantically marks side conditions in inference rules, but otherwise does nothing.
 \newcommand{\sidecond}[1]{#1}
-
-% Proofterms.tex
-\newcommand{\NDL}{\mathcal{NDL}}

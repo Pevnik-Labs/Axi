@@ -325,7 +325,7 @@ Athena enjoyers can think of the assumption context as an assumption base.
 \begin{frame}{Judgements for logic}
 
 Valid assumption context judgement: \\
-$\assctx{\Gamma}{\Delta}$ -- in typing context $\Gamma$, the assumption context $\Delta$ is valid.
+$\assctx[\Gamma]{\Delta}$ -- in typing context $\Gamma$, the assumption context $\Delta$ is valid.
 
 \vspace{1em}
 
@@ -341,7 +341,7 @@ $\holds{P}$ -- in typing context $\Gamma$ and assumption context $\Delta$, propo
 
 \begin{frame}{Judgements for logic -- sanity checks}
 
-Similarly to the situation for typing and computation judgements, the logical judgements also entail sanity conditions. For $\assctx{\Gamma}{\Delta}$ and $\prop[\Gamma]{P}$ the sanity condition is that $\Gamma$ is a well-formed finite partial map. For $\holds{P}$ the sanity conditions are $\assctx{\Gamma}{\Delta}$ and $\prop[\Gamma]{P}$.
+Similarly to the situation for typing and computation judgements, the logical judgements also entail sanity conditions. For $\assctx[\Gamma]{\Delta}$ and $\prop[\Gamma]{P}$ the sanity condition is that $\Gamma$ is a well-formed finite partial map. For $\holds{P}$ the sanity conditions are $\assctx[\Gamma]{\Delta}$ and $\prop[\Gamma]{P}$.
 
 \end{frame}
 
@@ -350,11 +350,11 @@ Similarly to the situation for typing and computation judgements, the logical ju
 The valid assumption context judgement tells us which assumption contexts are valid. The crux of the matter is that we can extend an assumption context only with a well-formed proposition. This judgement depends on a typing context because propositions that we add to the assumption context can contain variables.
 
 \begin{center}
-  $\infrule[Valid-Empty]{}{\assctx{\Gamma}{\emptyassctx}}$
+  $\infrule[Valid-Empty]{}{\assctx{\emptyassctx}}$
 
   \vspace{1em}
 
-  $\infrule[Valid-Extend]{\assctx{\Gamma}{\Delta} \quad \prop[\Gamma]{P}}{\assctx{\Gamma}{\assume{\Delta}{P}}}$
+  $\infrule[Valid-Extend]{\assctx{\Delta} \quad \prop[\Gamma]{P}}{\assctx{\assume{\Delta}{P}}}$
 \end{center}
 
 \end{frame}
@@ -403,7 +403,7 @@ The basic rule of our logic is that we can use assumptions from the assumption c
 \vspace{2em}
 
 \begin{center}
-  $\infrule[Ass]{\assctx{\Gamma}{\Delta} \quad \sidecond{P \in \Delta}}{\holds{P}}$
+  $\infrule[Ass]{\assctx{\Delta} \quad \sidecond{P \in \Delta}}{\holds{P}}$
 \end{center}
 
 \end{frame}
@@ -435,7 +435,7 @@ The rules for connectives are entirely standard.
 
   \vspace{1em}
 
-  $\infrule{\assctx{\Gamma}{\Delta}}{\holds{\True}}$ \quad
+  $\infrule{\assctx{\Delta}}{\holds{\True}}$ \quad
   $\infrule{\holds{\False}}{\holds{P}}$
 \end{center}
 
@@ -474,7 +474,7 @@ Propositional equality is an equivalence relation that can be substitued in proo
 \vspace{2em}
 
 \begin{center}
-  $\infrule[Eq-Refl]{\assctx{\Gamma}{\Delta} \quad \compeq{e_1}{e_2}{A}}{\holds{\Eq[A]{e_1}{e_2}}}$
+  $\infrule[Eq-Refl]{\assctx{\Delta} \quad \compeq{e_1}{e_2}{A}}{\holds{\Eq[A]{e_1}{e_2}}}$
 
   \vspace{1em}
 
@@ -510,7 +510,7 @@ Note that so far, we haven't got any rules that allow reasoning by cases on term
 \vspace{1em}
 
 \begin{center}
-  $\infrule[Empty-Ind]{\assctx{\Gamma}{\Delta} \quad \typing{e}{\Empty}}{\holds{P}}$
+  $\infrule[Empty-Ind]{\assctx{\Delta} \quad \typing{e}{\Empty}}{\holds{P}}$
 
   \vspace{1em}
 
@@ -886,21 +886,20 @@ Just seeing a system like this won't be enough to convince anybody that it makes
 
 \end{frame}
 
-\newcommand{\delete}[1][]{\texttt{delete}\ #1}
-\newcommand{\create}[1][]{\texttt{create}\ #1}
-\newcommand{\id}[1][]{\texttt{id}\ #1}
-\newcommand{\comp}{\texttt{comp}}
-\newcommand{\swap}[1][]{\texttt{swap}\ #1}
-\newcommand{\swop}[1][]{\texttt{swop}\ #1}
-\newcommand{\notb}[1][]{\texttt{notb}\ #1}
-\newcommand{\andb}{\texttt{andb}}
-\newcommand{\add}{\texttt{add}}
-\newcommand{\length}[1][]{\texttt{length}\ #1}
-\newcommand{\replicate}{\texttt{replicate}}
+\NewDocumentCommand{\delete}{o}{\texttt{delete} \optionalspace{#1}}
+\NewDocumentCommand{\create}{o}{\texttt{create} \optionalspace{#1}}
+\NewDocumentCommand{\id}{o}{\texttt{id} \optionalspace{#1}}
+\NewDocumentCommand{\comp}{o o}{\texttt{comp} \optionalspace{#1} \optionalspace{#2}}
+\NewDocumentCommand{\swop}{o}{\texttt{swop} \optionalspace{#1}}
+\NewDocumentCommand{\notb}{o}{\texttt{notb} \optionalspace{#1}}
+\NewDocumentCommand{\andb}{o o}{\texttt{andb} \optionalspace{#1} \optionalspace{#2}}
+\NewDocumentCommand{\add}{o o}{\texttt{add} \optionalspace{#1} \optionalspace{#2}}
+\NewDocumentCommand{\length}{o}{\texttt{length} \optionalspace{#1}}
+\NewDocumentCommand{\replicate}{o o}{\texttt{replicate} \optionalspace{#1} \optionalspace{#2}}
 
 \begin{frame}{Example programs}
 
-Assume for a moment that $A, B, C$ are arbitrary types. Let's write some programs:
+Let's write some programs:
 
 \begin{itemize}
   \item $\delete := \fun{x}{\unit}$
@@ -920,7 +919,7 @@ Assume for a moment that $A, B, C$ are arbitrary types. Let's write some program
 
 \begin{frame}{Example typings}
 
-What are the types of our programs?
+What are the types of our programs? Assume for a moment that $A, B, C$ are arbitrary types.
 
 \begin{itemize}
   \item $\typing{\delete}{\Fun{A}{\Unit}}$
@@ -943,12 +942,12 @@ What are the types of our programs?
 \begin{itemize}
   \item $\compeq{\delete[a]}{\unit}{\Unit}$
   \item $\compeq{\id[a]}{a}{A}$
-  \item $\compeq{\app{\app{\comp}{f}}{\id}}{f}{\Fun{A}{B}}$
-  \item $\compeq{\app{\app{\comp}{\id}}{g}}{g}{\Fun{B}{C}}$
+  \item $\compeq{\comp[f][\id]}{f}{\Fun{A}{B}}$
+  \item $\compeq{\comp[\id][g]}{g}{\Fun{B}{C}}$
   \item $\compeq{\swap[(\swap[p])]}{p}{\Prod{A}{B}}$
   \item $\compeq{\swop[(\swop[(\inl{a})])]}{\inl{a}}{A}$
   \item $\compeq{\swop[(\swop[(\inr{b})])]}{\inr{b}}{B}$
-  \item $\compeq{\notb[(\app{\app{\andb}{\btrue}}{\btrue})]}{\bfalse}{\Bool}$
+  \item $\compeq{\notb[(\andb[\btrue][\btrue])]}{\bfalse}{\Bool}$
 \end{itemize}
 
 \end{frame}
@@ -958,8 +957,8 @@ What are the types of our programs?
 \begin{itemize}
   \item $\holds{\All{x}[\Sum{A}{B}]{\Or{(\Ex{a}[A]{\Eq{x}{\inl{a}}})}{(\Ex{b}[B]{\Eq{x}{\inr{b}}})}}}$
   \item $\holds{\All{b}[\Bool]{\Eq{\notb[(\notb[b])]}{b}}}$
-  \item $\holds{\All{a}[\Nat]{\All{b}[\Nat]{\All{c}[\Nat]{\Eq{\app{\app{\add}{(\app{\app{\add}{a}}{b})}}{c}}{\app{\app{\add}{a}}{(\app{\app{\add}{b}}{c})}}}}}}$
-  \item $\holds{\All{n}[\Nat]{\All{a}[A]{\Eq{\length[(\app{\app{\replicate}{n}}{a})]}{n}}}}$
+  \item $\holds{\All{a}[\Nat]{\All{b}[\Nat]{\All{c}[\Nat]{\Eq{\add[(\add[a][b])][c]}{\add[a][(\add[b][c])]}}}}}$
+  \item $\holds{\All{n}[\Nat]{\All{a}[A]{\Eq{\length[(\replicate[n][a])]}{n}}}}$
 \end{itemize}
 
 \end{frame}
@@ -1013,7 +1012,7 @@ Let-bindings are a useful programming language feature, so we could add them. No
 
 We can change the definition of typing contexts to allow putting definitions in them. This can be handy for expressing let bindings and also makes fully formal derivations much shorter. However, it also requires adding a new judgement, the well-formed context judgement, because we want to allow adding only well-typed definitions to the context. We must also remember to include these definitions in computational equality.
 
-$\Gamma ::= \emptytypingctx \pipe \extend{\Gamma}{x}{A} \pipe \extenddef{\Gamma}{x}{A}{e}$
+$\Gamma ::= \emptytypingctx \pipe \extend{\Gamma}{x}{A} \pipe \extend{\Gamma}{x}{A}[e]$
 
 \vspace{0.5em}
 
@@ -1023,7 +1022,7 @@ $\Gamma ::= \emptytypingctx \pipe \extend{\Gamma}{x}{A} \pipe \extenddef{\Gamma}
 
   \vspace{1em}
 
-  $\infrule[Ctx-Def]{\ctx{\Gamma} \quad \typing{e}{A} \quad \sidecond{x \notin \Gamma}}{\ctx{\extenddef{\Gamma}{x}{A}{e}}}$
+  $\infrule[Ctx-Def]{\ctx{\Gamma} \quad \typing{e}{A} \quad \sidecond{x \notin \Gamma}}{\ctx{\extend{\Gamma}{x}{A}[e]}}$
 \end{center}
 
 \end{frame}
@@ -1049,11 +1048,11 @@ We now need two rules for typing variables: one for when the variable is defined
 The computation rule for function can (but need not!) look very different when we can put definitions into contexts. This time, instead of substituting $a$ for $x$ in $b$, we simply extend the context with the definition $x : A := a$ and then proceed with the computation. The rule for $\texttt{let}$ also gets simpler (and this time we should prefer this rule, because it makes so much more sense).
 
 \begin{center}
-  $\infrule[App-Lam-Def]{\compeq[\extenddef{\Gamma}{x}{A}{a}]{b}{b'}{B}}{\compeq{\app{(\fun{x}{b})}{a}}{b'}{B}}$
+  $\infrule[App-Lam-Def]{\compeq[\extend{\Gamma}{x}{A}[a]]{b}{b'}{B}}{\compeq{\app{(\fun{x}{b})}{a}}{b'}{B}}$
 
   \vspace{1em}
 
-  $\infrule[Let-Comp-Def]{\compeq[\extenddef{\Gamma}{x}{A}{e_1}]{e_2}{e_2'}{B}}{\compeq{\letin{x}{e_1}{e_2}}{e_2'}{B}}$
+  $\infrule[Let-Comp-Def]{\compeq[\extend{\Gamma}{x}{A}[e_1]]{e_2}{e_2'}{B}}{\compeq{\letin{x}{e_1}{e_2}}{e_2'}{B}}$
 \end{center}
 
 \end{frame}
@@ -1150,12 +1149,10 @@ Athena enjoyers can think of quotient types as akin to Athena's structures, exce
 Where ``preserves'' is $\holds{\All{x}[A]{\All{y}[A]{\Impl{\app{\app{R}{x}}{y}}{\Eq[B]{\app{f}{x}}{\app{f}{y}}}}}}$
 \end{frame}
 
-\newcommand{\subtype}[2]{#1 <: #2}
-
 \begin{frame}{Additional feature proposals}
 
 \begin{itemize}
-  \item Subtyping -- some types are now in a subtyping relation $\subtype{A}{B}$ and an $a : A$ can be used in every place where a term of type $B$ is expected.
+  \item Subtyping -- some types are now in a subtyping relation $\subtyping{A}{B}$ and an $a : A$ can be used in every place where a term of type $B$ is expected.
   \item Parametric polymorphism -- a new type former $\forall \alpha. A$. It can be either explicit (need to manage the type arguments manually) or implicit (type arguments are inferred). The implicit approach is the most common, but it's also harder to implement.
   \item Algebraic data types -- adding them in a clean manner is a bit complicated, because we either need to deal with general recursion or manage a plethora of checks, like coverage and termination.
   \item Module system -- this will be a bit harder to model, but we could borrow it from ML and OCaml.

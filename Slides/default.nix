@@ -9,7 +9,7 @@ stdenv.mkDerivation {
                       scheme-small
 
                       # Add other LaTeX libraries (packages) here as needed, e.g:
-                      # stmaryrd amsmath pgf
+                      # xparse
 
                       # build tools
                       latexmk
@@ -20,7 +20,7 @@ stdenv.mkDerivation {
   src = ./.;
 
   meta = with lib; {
-    description = "Prototype of typed Axi - docs and implementation";
+    description = "Prototype of type theoretical Axi - docs and implementation";
     license = licenses.isc;
     platforms = platforms.linux;
   };

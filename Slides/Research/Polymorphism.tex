@@ -246,8 +246,7 @@ $H ::= \Hole \pipe \Fun{H_1}{H_2} \pipe \ForallT{\alpha}{H} \pipe \alpha$
 
 \end{frame}
 
-\newcommand{\fullhintorderinctx}[3]{#1 \vdash \hintorder{#2}{#3}}
-\newcommand{\hintorderinctx}[2]{\fullhintorderinctx{\Gamma}{#1}{#2}}
+\NewDocumentCommand{\hintorderinctx}{O{\Gamma} m m}{#1 \vdash \hintorder{#2}{#3}}
 
 \begin{frame}{Order on hints}
 
@@ -260,7 +259,7 @@ $H ::= \Hole \pipe \Fun{H_1}{H_2} \pipe \ForallT{\alpha}{H} \pipe \alpha$
 
   \vspace{2em}
 
-  $\infrule{\fullhintorderinctx{\extendtype{\Gamma}{\alpha}}{H_1}{H_2}}{\hintorderinctx{\ForallT{\alpha}{H_1}}{\ForallT{\alpha}{H_2}}}$
+  $\infrule{\hintorderinctx[\extendtype{\Gamma}{\alpha}]{H_1}{H_2}}{\hintorderinctx{\ForallT{\alpha}{H_1}}{\ForallT{\alpha}{H_2}}}$
 
   \vspace{2em}
 

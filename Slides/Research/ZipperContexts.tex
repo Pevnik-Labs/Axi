@@ -39,8 +39,7 @@ The answer is interesting: contexts would turn into zippers!
 \end{frame}
 
 \newcommand{\ctxmark}{\circ}
-\newcommand{\extendfun}[3]{#1, \fun{#2}{\ctxmark}, #2 : #3}
-\newcommand{\extendfundef}[4]{#1, \fun{#2}{\ctxmark}, #2 : #3 := #4}
+\NewDocumentCommand{\extendfun}{m m m o}{#1, \fun{#2}{\ctxmark}, #2 : #3 \IfValueTF{#4}{:= #4}{}}
 \newcommand{\extendappl}[2]{#1, \app{\ctxmark}{#2}}
 \newcommand{\extendappr}[2]{#1, \app{#2}{\ctxmark}}
 \newcommand{\extendpairl}[2]{#1, \pair{\ctxmark}{#2}}
@@ -50,10 +49,8 @@ The answer is interesting: contexts would turn into zippers!
 \newcommand{\extendinl}[1]{#1, \inl{\ctxmark}}
 \newcommand{\extendinr}[1]{#1, \inr{\ctxmark}}
 \newcommand{\extendcasearg}[3]{#1, \case{\ctxmark}{#2}{#3}}
-\newcommand{\extendcasel}[5]{#1, \case{#2}{#3.\, \ctxmark}{#5}, #3 : #4}
-\newcommand{\extendcaseldef}[6]{#1, \case{#2}{#4.\, \ctxmark}{#3}, #4 : #5 := #6}
-\newcommand{\extendcaser}[5]{#1, \case{#2}{#3}{#4.\, \ctxmark}, #4 : #5}
-\newcommand{\extendcaserdef}[6]{#1, \case{#2}{#3}{#4.\, \ctxmark}, #4 : #5 := #6}
+\NewDocumentCommand{\extendcasel}{m m m m m o}{#1, \case{#2}{#3.\, \ctxmark}{#5}, #3 : #4 \IfValueTF{#6}{ := #6}{}}
+\NewDocumentCommand{\extendcaser}{m m m m m o}{#1, \case{#2}{#3}{#4.\, \ctxmark}, #4 : #5 \IfValueTF{#6}{ := #6}{}}
 \newcommand{\extendemptyelim}[1]{#1, \emptyelim{\ctxmark}}
 
 \begin{frame}{Contexts as zippers}
@@ -71,7 +68,7 @@ $\Gamma ::=$ \\
 
 \begin{frame}{Contexts}
 
-To be clear, $(x : A) \in \Gamma$ if and only if either $\Gamma = \extendfun{\Gamma_L}{x}{A}, \Gamma_R$, or $\Gamma = \extendfundef{\Gamma_L}{x}{A}{e}, \Gamma_R$, or $\Gamma = \extendcasel{\Gamma}{e}{x}{A}{y.\, e_2}$
+To be clear, $(x : A) \in \Gamma$ if and only if either $\Gamma = \extendfun{\Gamma_L}{x}{A}, \Gamma_R$, or $\Gamma = \extendfun{\Gamma_L}{x}{A}[e], \Gamma_R$, or $\Gamma = \extendcasel{\Gamma}{e}{x}{A}{y.\, e_2}$
 
 \end{frame}
 
@@ -133,19 +130,19 @@ $e ::=$ \\
 
 \begin{frame}{What's the point?}
 
-What is the point of it? By now I don't really remember, but I think it was that we add definitions to the context, i.e. $\extenddef{\Gamma}{x}{A}{e}$, and then we turn the term-related context extensions into smart constructors, which can turn ordinary variable bindings into definitions.
+What is the point of it? By now I don't really remember, but I think it was that we add definitions to the context, i.e. $\extend{\Gamma}{x}{A}[e]$, and then we turn the term-related context extensions into smart constructors, which can turn ordinary variable bindings into definitions.
 
 \vspace{1em}
 
-$\extendfun{\extendappl{\Gamma}{e}}{x}{A} \leadsto \extendfundef{\extendappl{\Gamma}{e}}{x}{A}{e}$ \\
+$\extendfun{\extendappl{\Gamma}{e}}{x}{A} \leadsto \extendfun{\extendappl{\Gamma}{e}}{x}{A}[e]$
 
 \vspace{1em}
 
-$\extendcasel{\Gamma}{(\inl{e})}{x}{A}{y.\, e_2} \leadsto \extendcaseldef{\Gamma}{(\inl{e})}{y.\, e_2}{x}{A}{e}$ \\
+$\extendcasel{\Gamma}{(\inl{e})}{x}{A}{y.\, e_2} \leadsto \extendcasel{\Gamma}{(\inl{e})}{x}{A}{y.\, e_2}[e]$
 
 \vspace{1em}
 
-$\extendcaser{\Gamma}{(\inr{e})}{x.\, e_1}{y}{B} \leadsto \extendcaserdef{\Gamma}{(\inr{e})}{x.\, e_1}{y}{B}{e}$ \\
+$\extendcaser{\Gamma}{(\inr{e})}{x.\, e_1}{y}{B} \leadsto \extendcaser{\Gamma}{(\inr{e})}{x.\, e_1}{y}{B}[e]$
 
 \end{frame}
 
