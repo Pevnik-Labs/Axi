@@ -162,52 +162,50 @@
 
 % Judgements.
 
-\newcommand{\optionalcontext}[1]{\IfValueTF{#1}{#1}{\Gamma}}
-
 % Declarative typing.
-\NewDocumentCommand{\typing}{o m m}{\optionalcontext{#1} \vdash #2 : #3}
+\NewDocumentCommand{\typing}{O{\Gamma} m m}{#1 \vdash #2 : #3}
 
 % Type checking (blue arrow pointing left).
-\RenewDocumentCommand{\check}{o m m}{\optionalcontext{#1} \vdash #2 \mathcolor{blue}{\Leftarrow} #3}
+\RenewDocumentCommand{\check}{O{\Gamma} m m}{#1 \vdash #2 \mathcolor{blue}{\Leftarrow} #3}
 
 % Type inference (red arrow pointing right).
-\NewDocumentCommand{\infer}{o m m}{\optionalcontext{#1} \vdash #2 \mathcolor{red}{\Rightarrow} #3}
+\NewDocumentCommand{\infer}{O{\Gamma} m m}{#1 \vdash #2 \mathcolor{red}{\Rightarrow} #3}
 
 % Hinting.
-\NewDocumentCommand{\hinting}{o m m m}{\optionalcontext{#1} \vdash #2 \mathcolor{blue}{\Leftarrow} #3 \mathcolor{red}{\Rightarrow} #4}
+\NewDocumentCommand{\hinting}{O{\Gamma} m m m}{#1 \vdash #2 \mathcolor{blue}{\Leftarrow} #3 \mathcolor{red}{\Rightarrow} #4}
 
 % Hinting with output context.
-\NewDocumentCommand{\outctx}{o m m m o}{\optionalcontext{#1} \vdash #2 \mathcolor{blue}{\Leftarrow} #3 \mathcolor{red}{\Rightarrow} #4 \dashv \IfValueTF{#5}{#5}{\Gamma'}}
+\NewDocumentCommand{\outctx}{O{\Gamma} m m m O{\Gamma'}}{#1 \vdash #2 \mathcolor{blue}{\Leftarrow} #3 \mathcolor{red}{\Rightarrow} #4 \dashv #5}
 \newcommand{\shortoutctx}[3]{#1 \mathcolor{blue}{\Leftarrow} #2 \mathcolor{red}{\Rightarrow} #3}
 
 % Computational equality.
-\NewDocumentCommand{\compeq}{o m m m}{\optionalcontext{#1} \vdash #2 \equiv #3 : #4}
+\NewDocumentCommand{\compeq}{O{\Gamma} m m m}{#1 \vdash #2 \equiv #3 : #4}
 
 % Valid context.
 \newcommand{\ctx}[1]{#1\ \texttt{ctx}}
 
 % Valid type.
-\NewDocumentCommand{\type}{o m}{\optionalcontext{#1} \vdash #2\ \texttt{type}}
+\NewDocumentCommand{\type}{O{\Gamma} m}{#1 \vdash #2\ \texttt{type}}
 
 % Valid assumption context.
 \newcommand{\assctx}[2]{#1\ \vdash #2\ \texttt{valid}}
 
 % Well-formed proposition.
-\NewDocumentCommand{\prop}{o m}{\optionalcontext{#1} \vdash #2\ \texttt{prop}}
+\NewDocumentCommand{\prop}{O{\Gamma} m}{#1 \vdash #2\ \texttt{prop}}
 
 % Proposition holds.
-\NewDocumentCommand{\holds}{o o m}{\optionalcontext{#1} \pipe \IfValueTF{#2}{#2}{\Delta} \vdash #3}
+\NewDocumentCommand{\holds}{O{\Gamma} O{\Delta} m}{#1 \pipe #2 \vdash #3}
 
 % Proof judgement.
-\NewDocumentCommand{\proves}{o m m}{\optionalcontext{#1} \vdash #2 : #3}
+\NewDocumentCommand{\proves}{O{\Gamma} m m}{#1 \vdash #2 : #3}
 
 % Algorithmic proof judgements.
 
 % Proof checking.
-\NewDocumentCommand{\proofcheck}{o m m}{\optionalcontext{#1} \vdash #2 \mathcolor{blue}{\Leftarrow} #3}
+\NewDocumentCommand{\proofcheck}{O{\Gamma} m m}{#1 \vdash #2 \mathcolor{blue}{\Leftarrow} #3}
 
 % Proof inference.
-\NewDocumentCommand{\proofinfer}{o m m}{\optionalcontext{#1} \vdash #2 \mathcolor{red}{\Rightarrow} #3}
+\NewDocumentCommand{\proofinfer}{O{\Gamma} m m}{#1 \vdash #2 \mathcolor{red}{\Rightarrow} #3}
 
 % Inference rules.
 \newcommand{\rulename}[1]{\textsc{\footnotesize{#1}}}
