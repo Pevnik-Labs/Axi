@@ -18,7 +18,6 @@ stdenv.mkDerivation {
                   glibcLocales
                 ];
   src = ./.;
-  buildPhase = "make";
 
   meta = with lib; {
     description = "Prototype of typed Axi - docs and implementation";
