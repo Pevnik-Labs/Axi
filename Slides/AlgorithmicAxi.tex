@@ -164,7 +164,7 @@ Values are the final results of computation. Note that a function is a value whe
 \begin{frame}{Weak head normal forms grammar}
 
 Weak head normal forms: \\
-$e ::=$ \\
+$w ::=$ \\
 \qquad $n \pipe \fun{x}{e} \pipe$ \\
 \qquad $\pair{e_1}{e_2} \pipe$ \\
 \qquad $\inl{e} \pipe \inr{e} \pipe$ \\
@@ -571,8 +571,12 @@ $n ::=$ \\
 \begin{frame}{Reasoning by cases (for sums)}
 
 \begin{center}
-  $\infrule{\prop[\extend{\Gamma}{x}{\Sum{A}{B}}]{P} \quad \infer{t}{\Sum{A}{B}} \quad \begin{array}{c} \proofcheck[\extend{\Gamma}{a}{A}]{e_1}{\subst{P}{x}{\inl{a}}} \\ \proofcheck[\extend{\Gamma}{b}{B}]{e_2}{\subst{P}{x}{\inr{b}}} \end{array}}{\proofinfer{\sumind{t}{a}{e_1}{b}{e_2}}{\subst{P}{x}{t}}}$
+  $\infrule{\begin{array}{c} \prop[\extend{\Gamma}{x}{\Sum{A}{B}}]{P} \\ \infer{t}{\Sum{A}{B}} \end{array} \quad \begin{array}{c} \proofcheck[\extend{\Gamma}{a}{A}]{e_1}{\subst{P}{x}{\inl{a}}} \\ \proofcheck[\extend{\Gamma}{b}{B}]{e_2}{\subst{P}{x}{\inr{b}}} \end{array}}{\proofinfer{\sumind{t}{a}{e_1}{b}{e_2}}{\subst{P}{x}{t}}}$
 \end{center}
+
+\vspace{2em}
+
+TODO: the modes are completely wrong.
 
 \end{frame}
 

@@ -281,14 +281,6 @@ $H ::= \Hole \pipe \Fun{H_1}{H_2} \pipe \ForallT{\alpha}{H} \pipe \alpha$
 
 \end{frame}
 
-\begin{frame}{Hints for term constructors}
-
-\begin{center}
-  $\hintfor{\fun{x}{e}} = \Fun{\Hole}{\Hole}$ \\
-\end{center}
-
-\end{frame}
-
 \begin{frame}{Terms}
 
 Terms: \\
@@ -326,15 +318,11 @@ $e ::=$ \\
 \begin{frame}{Algorithmic typing -- basic rules}
 
 \begin{center}
-  $\infrule[Var]{\ctx{\Gamma} \quad \sidecond{(x : A) \in \Gamma} \quad \sidecond{\hintorderinctx{H}{A}}}{\hinting{x}{H}{A}}$
+  $\infrule[Var]{\sidecond{(x : A) \in \Gamma} \quad \sidecond{\hintorderinctx{H}{A}}}{\hinting{x}{H}{A}}$
 
   \vspace{2em}
 
   $\infrule[Annot]{\hinting{e}{\hintlub{H_1}{H_2}}{A}}{\hinting{\annot{e}{H_1}}{H_2}{A}}$
-
-  \vspace{2em}
-
-  $\infrule[Hole]{\hinting{e}{\hintfor{e}}{A} \quad \sidecond{e\ \texttt{constructor}}}{\hinting{e}{\Hole}{A}}$
 \end{center}
 
 \end{frame}
@@ -361,8 +349,12 @@ $e ::=$ \\
   \item $\fun{x}[A]{e} :\equiv \annot{\fun{x}{e}}{\Fun{A}{\Hole}}$ \\
   \item $\app[A]{f}{a} :\equiv \app{\annot{f}{\Fun{A}{\Hole}}}{a}$
   \item $\tfun{\alpha}{e} :\equiv \annot{e}{\ForallT{\alpha}{\Hole}}$
-  \item $\tapp{e}{A} :\equiv \qquad ???$
+  \item $\tapp{e}{A} :\equiv\ ???$
 \end{itemize}
+
+\vspace{2em}
+
+As we can see, we can think of type abstraction as just another kind of annotation, but type application doesn't admit such thinking.
 
 \end{frame}
 

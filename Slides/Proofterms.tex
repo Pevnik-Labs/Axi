@@ -43,7 +43,7 @@ To deal with this problem, we introduce proofterms (also known as proof certific
 
 \begin{frame}{Proofterms}
 
-Proofterms (here $P, Q$ are propositions, $t$ are terms, $x$ are variables): \\
+Proofterms ($P, Q$ are propositions, $t$ are terms, $x$ are variables): \\
 $e ::=$ \\
 \qquad $P \pipe \trueintro \pipe \falseelim{e}$ \\
 \qquad $\implintro{P}{e} \pipe \implelim{e_1}{e_2} \pipe$ \\
@@ -52,12 +52,12 @@ $e ::=$ \\
 \qquad $\iffintro{e_1}{e_2} \pipe \iffeliml{e} \pipe \iffelimr{e} \pipe$ \\
 \qquad $\orintrol[Q]{e} \pipe \orintror[P]{e} \pipe$ \\
 \qquad $\orelim{e_1}{e_2}{e_3} \pipe$ \\
-\qquad $\dn{e} \pipe$ \\
+\qquad $\dn[e] \pipe$ \\
 \qquad $\cut{e_1}{e_2} \pipe$ \\
 \qquad $\allintro{x}{e} \pipe \allelim{e}{t} \pipe$ \\
 \qquad $\exintro{t}{e} \pipe \exelim{x}{e_1}{e_2} \pipe$ \\
 \qquad $\refl[t] \pipe \rewrite{e_1}{e_2} \pipe$ \\
-\qquad $\sumind{t}{a}{e_1}{b}{e_2} \pipe$
+\qquad $\sumind{t}{a}{e_1}{b}{e_2}$
 
 \end{frame}
 
@@ -68,11 +68,11 @@ A quick glance at the above grammar:
 \begin{itemize}
   \item First, propositions are included in the syntactic category of proofterms, because we will refer to an assumption $P$ with $P$ itself.
   \item Then we have some proofterms for dealing with propositional logic, divided as usual into introduction and elimination forms.
-  \item \textbf{double-negation} is our way of making the logic classical.
+  \item $\dn$ is our way of making the logic classical.
   \item $\cut{e_1}{e_2}$ is a cut (which, in DPLs, corresponds to proof composition).
   \item Then we have some proofterms to deal with quantifiers.
-  \item \textbf{refl} and \textbf{rewrite} are primitives for dealing with equality.
-  \item Finally, \textbf{case} will be used for reasoning by cases on terms of type $\Sum{A}{B}$.
+  \item $\refl$ and $\rewrite{e}{e'}$ are primitives for dealing with equality.
+  \item Finally, $\sumind{t}{a}{e_1}{b}{e_2}$ will be used for reasoning by cases on terms of type $\Sum{A}{B}$.
 \end{itemize}
 
 \end{frame}
@@ -190,7 +190,7 @@ In case of our logic, we will set up the judgements so that the following sanity
 \begin{itemize}
   \item $\ctx{\Gamma}$ entails nothing (because it is the simplest judgement)
   \item $\prop[\Gamma]{P}$ entails $\ctx{\Gamma}$
-  \item $\proves{e}{P}$ entails $\prop[\Gamma]{P}$
+  \item $\proves{e}{P}$ entails $\prop[\Gamma]{P}$ (which then entails $\ctx{\Gamma}$)
 \end{itemize}
 
 \vspace{1em}
@@ -280,11 +280,11 @@ $\notelim{e_1}{e_2}$ proves $\False$ provided that $e_1$ proves $\Not{P}$ and $e
 
 \begin{frame}{Negation -- discussion}
 
-Note that there are some differences from $\NDL$ (DPL thesis, chapter 4, page 65). First, \textbf{suppose-absurd} is a primitive, instead of being syntax sugar. Second, the order of arguments of \textbf{absurd} is flipped. The reason for this is that we follow a presentation of logic derived from the Curry-Howard correspondence.
+Note that there are some differences from $\NDL$ (DPL thesis, chapter 4, page 65). First, $\notintro{P}{e}$ is a primitive, instead of being syntax sugar. Second, the order of arguments is flipped in $\notelim{e_1}{e_2}$, the proof of negation being the first. The reason for this is that we follow a presentation of logic derived from the Curry-Howard correspondence.
 
 \vspace{2em}
 
-However, what we do is not \textit{the} usual Curry-Howard presentation, because in our system negation is primitive. The usual way to deal with negation would be to \textit{define} $\Not{P}$ as an abbreviation for $\Impl{P}{\False}$, so that we would deal with negation by using \textbf{assume} instead of \textbf{suppose-absurd} and \textbf{modus-ponens} instead of \textbf{absurd}.
+However, what we do is not \textit{the} usual Curry-Howard presentation, because in our system negation is primitive. The usual way to deal with negation would be to \textit{define} $\Not{P}$ as an abbreviation for $\Impl{P}{\False}$, so that we would deal with negation by using $\implintro{P}{e}$ instead of $\notintro{P}{e}$ and $\implelim{e_1}{e_2}$ instead of $\notelim{e_1}{e_2}$.
 
 \end{frame}
 
@@ -330,7 +330,7 @@ $\iffintro{e_1}{e_2}$ proves $\Iff{P}{Q}$ provided that $e_1$ proves $\Impl{P}{Q
 
 \begin{frame}{Biconditional -- discussion}
 
-Our presentation of the biconditional is exactly the same as in $\NDL$ (DPL thesis, chapter 4, page 65), although it differs from the usual Curry-Howard presentation: in our system $\Iff{P}{Q}$ is a primitive, whereas in the usual Curry-Howard presentation it would be defined as $\And{(\Impl{P}{Q})}{(\Impl{Q}{P})}$, so that we would use \textbf{both} instead of \textbf{equivalence}, \textbf{left-and} instead of \textbf{left-iff} and \textbf{right-and} instead of \textbf{right-iff}.
+Our presentation of the biconditional is exactly the same as in $\NDL$ (DPL thesis, chapter 4, page 65), although it differs from the usual Curry-Howard presentation: in our system $\Iff{P}{Q}$ is a primitive, whereas in the usual Curry-Howard presentation it would be defined as $\And{(\Impl{P}{Q})}{(\Impl{Q}{P})}$, so that we would use $\andintro{e_1}{e_2}$ instead of $\iffintro{e_1}{e_2}$, $\andeliml{e}$ instead of $\iffeliml{e}$ and $\andelimr{e}$ instead of $\iffelimr{e}$.
 
 \end{frame}
 
@@ -366,7 +366,7 @@ The choice to have annotations there makes our system very close to $\NDL$ (DPL 
 
 \begin{frame}{Disjunction -- choices}
 
-We also have a choice regarding the second and third arguments of $\orelim{e_1}{e_2}{e_3}$. To keep close to $\NDL$, they both must prove implications ($\Impl{P}{R}$ for $e_2$ and $\Impl{Q}{R}$ for $e_3$), but perhaps it would be more comfortable for the user if they only needed to prove the conclusion $R$ in a context extended with the appropriate assumption, so that he would be spared from having to write \textbf{assume} twice (once in $e_2$ and once in $e_3$). The alternative rule is as follows:
+We also have a choice regarding the second and third arguments of $\orelim{e_1}{e_2}{e_3}$. To keep close to $\NDL$, they both must prove implications ($\Impl{P}{R}$ for $e_2$ and $\Impl{Q}{R}$ for $e_3$), but perhaps it would be more comfortable for the user if he only needed to prove the conclusion $R$ in a context extended with the appropriate assumption, so that he would be spared from having to manually introduce the assumption twice (once in $e_2$ and once in $e_3$). The alternative rule is as follows:
 
 \vspace{2em}
 
@@ -395,12 +395,12 @@ In a richer language and logic, the way to go would probably be to assert some v
 \begin{frame}{Double Negation Elimination}
 
 \begin{center}
-  $\infrule[Classic]{\proves{e}{\Not{\Not{P}}}}{\proves{\dn{e}}{P}}$
+  $\infrule[Classic]{\proves{e}{\Not{\Not{P}}}}{\proves{\dn[e]}{P}}$
 \end{center}
 
 \vspace{2em}
 
-$\dn{e}$ proves $P$ provided that $e$ proves $\Not{\Not{P}}$.
+$\dn[e]$ proves $P$ provided that $e$ proves $\Not{\Not{P}}$.
 
 \end{frame}
 
@@ -456,7 +456,7 @@ Our syntax for quantifiers closely follows $\NDL$ (DPL thesis, chapter 6, page 1
 
 \vspace{2em}
 
-Our rules, however, are subtly different in that we allow arbitrary proofs as arguments to \textbf{specialize}, \textbf{exists} and \textbf{pick-witness}, whereas $\NDL$ only allows formulas to appear as arguments in these places. Therefore, our approach is a slight generalization, which also closely aligns in spirit with the Curry-Howard correspondence.
+Our rules, however, are subtly different in that in $\allelim{e}{t}$, $\exintro{t}{e}$ and $\exelim{x}{e_1}{e_2}$, the arguments $e, e_1, e_2$ are arbitrary proofs, whereas $\NDL$ only allows them to be formulas. Therefore, our approach is a slight generalization, which also closely aligns in spirit with the Curry-Howard correspondence.
 
 \end{frame}
 
@@ -574,9 +574,9 @@ $\refl[t]$ might look like a weakling, a puny little proofterm only able to prov
 
 \end{frame}
 
-\begin{frame}{$\mathbf{rewrite}$ -- discussion}
+\begin{frame}{Rewriting -- discussion}
 
-\textbf{rewrite} is the workhorse for equational proofs, corresponding to $\NDL$'s \textbf{leibniz} (DPL thesis, chapter 6, page 151), except that, as for quantifiers, we allow its arguments to be proofs, whereas $\NDL$ requires them to be formulas and terms whose equality is already in the assumption base.
+$\rewrite{e}{e'}$ is the workhorse for equational proofs, corresponding to $\NDL$'s \textbf{leibniz} (DPL thesis, chapter 6, page 151), except that, as for quantifiers, we allow its arguments to be proofs, whereas $\NDL$ requires them to be formulas and terms whose equality is already in the assumption base.
 
 \vspace{1em}
 
@@ -602,7 +602,7 @@ $\funext{e}$ proves $\Eq{f}{g}$ provided that $e$ proves $\All{x}[A]{\Eq{\app{f}
 
 \begin{frame}{Function extensionality -- discussion}
 
-A separate rule for function extensionality is needed, because extensionality, despite being a very basic, useful and desirable principle, does not follow from anything else in the system: neither from the intuitionistic core, nor the classical \textbf{double-negation}, nor the rules for quantifiers, nor even the conversion rule, even though function extensionality is present at the level of computational equality. This is a well known phenomenon in type theory, with which $\NDL$ and other DPLs don't have to deal because they don't have function types.
+A separate rule for function extensionality is needed, because extensionality, despite being a very basic, useful and desirable principle, does not follow from anything else in the system: neither from the intuitionistic core, nor the classical $\dn$, nor the rules for quantifiers, nor even the conversion rule, even though function extensionality is present at the level of computational equality. This is a well known phenomenon in type theory, with which $\NDL$ and other DPLs don't have to deal because they don't have function types.
 
 \end{frame}
 
@@ -634,11 +634,11 @@ $\sumind{t}{a}{e_1}{b}{e_2}$ proves $P$ with $t$ substituted for $x$, provided t
 
 \begin{frame}{Reasoning by cases (for sums) -- discussion}
 
-From the grammar and typing rules given in Poor Man's Axi slides, we know that terms of type $\Sum{A}{B}$ can be of only two forms: either $\inl{a}$ for some $a : A$, or $\inr{b}$ for some $b : B$.
+From the grammar and typing rules given in the previous slides, we know that terms of type $\Sum{A}{B}$ can be of only two forms: either $\inl{a}$ for some $a : A$, or $\inr{b}$ for some $b : B$.
 
 \vspace{2em}
 
-We know this, but our logic doesn't automagically know this, so we need to tell it by adding an appropriate proofterm and a rule to handle it. This is what \textbf{case} accomplishes. 
+We know this, but our logic doesn't automagically know this, so we need to tell it by adding an appropriate proofterm and a rule to handle it. This is what $\sumind{t}{a}{e_1}{b}{e_2}$ accomplishes. 
 
 \end{frame}
 

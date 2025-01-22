@@ -269,7 +269,7 @@ Values are the final results of computation. Note that a function is a value whe
   $\infrule{\smallstep{e}{e'}}{\smallstep{\inl{e}}{\inl{e'}}}$ \quad
   $\infrule{\smallstep{e}{e'}}{\smallstep{\inr{e}}{\inr{e'}}}$
 
-  \vspace{2em}
+  \vspace{1em}
 
   $\infrule{\smallstep{e}{e'}}{\smallstep{\case{e}{f}{g}}{\case{e'}{f}{g}}}$
 
@@ -811,15 +811,15 @@ Note that the rule $\rulename{Hole}$ can only be applied once, because $\hintfor
 \begin{center}
   $\infrule{\hinting[\extend{\Gamma}{x}{A}]{e}{H}{B}}{\hinting{\fun{x}{e}}{\Fun{A}{H}}{\Fun{A}{B}}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule{\hinting{f}{\Fun{\Hole}{H}}{\Fun{A}{B}} \quad \hinting{a}{A}{A}}{\hinting{\app{f}{a}}{H}{B}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule{\hinting{a}{H_1}{A} \quad \hinting{b}{H_2}{B}}{\hinting{\pair{a}{b}}{\Prod{H_1}{H_2}}{\Prod{A}{B}}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule{\hinting{e}{\Prod{H}{\Hole}}{\Prod{A}{B}}}{\hinting{\outl{e}}{H}{A}}$ \quad
   $\infrule{\hinting{e}{\Prod{\Hole}{H}}{\Prod{A}{B}}}{\hinting{\outr{e}}{H}{B}}$
@@ -869,8 +869,8 @@ We could have made some different choices. For application, we could try to infe
 We can introduce some handy notations:
 
 \begin{itemize}
-  \item $\check{e}{A} :\equiv \hinting{e}{A}{A}$
-  \item $\infer{e}{A} :\equiv \hinting{e}{\Hole}{A}$
+  \item $\check{e}{A}$ is defined as $\hinting{e}{A}{A}$
+  \item $\infer{e}{A}$ is defined as $\hinting{e}{\Hole}{A}$
 \end{itemize}
 
 We can embed Intrinsic STLC terms:

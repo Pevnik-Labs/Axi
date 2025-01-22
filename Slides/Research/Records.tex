@@ -86,7 +86,7 @@ Note: the terms are, in order of appearance, variables, annotated terms, functio
 
 \end{frame}
 
-\begin{frame}{Wut}
+\begin{frame}{Well-formed signatures}
 
 \begin{center}
   $\infrule[OK-Empty]{}{\sigok{\emptysig}}$
@@ -96,6 +96,8 @@ Note: the terms are, in order of appearance, variables, annotated terms, functio
   $\infrule[OK-Extend]{\sigok{\Sigma} \quad \sidecond{\ell \notin \Sigma}}{\sigok{\extendsig{\Sigma}{\ell}{A}}}$
 \end{center}
 
+\vspace{2em}
+
 For now we will assume that signatures are finite partial maps from labels to types. A label may appear at most once.
 
 \end{frame}
@@ -103,6 +105,8 @@ For now we will assume that signatures are finite partial maps from labels to ty
 \begin{frame}{Signatures for pattern-matching}
 
 We define an operation on signatures which will be useful later.
+
+\vspace{2em}
 
 $\funsig{\emptysig}{B} = \emptysig$ \\
 $\funsig{(\extendsig{\Sigma}{\ell}{A})}{B} = (\extendsig{\funsig{\Sigma}{B}}{\ell}{\Fun{A}{B}})$

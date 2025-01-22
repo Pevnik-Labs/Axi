@@ -227,17 +227,17 @@ Intuitively, $\termorder{e_1}{e_2}$ holds when $e_2$ has more informative hints 
 
 \end{frame}
 
-\begin{frame}{Hints for term constructors}
+%\begin{frame}{Hints for term constructors}
 
-\begin{center}
+%\begin{center}
   %$\hintfor{\fun{x}{e}} = \Fun{\Hole}{\Hole}$ \\
-  $\hintfor{\pair{e_1}{e_2}} = \Prod{\Hole}{\Hole}$ \\
+  %$\hintfor{\pair{e_1}{e_2}} = \Prod{\Hole}{\Hole}$ \\
   %$\hintfor{\inl{e}} = \Sum{\Hole}{\Hole}$ \\
   %$\hintfor{\inr{e}} = \Sum{\Hole}{\Hole}$ \\
-  $\hintfor{\unit} = \Unit$
-\end{center}
+  %$\hintfor{\unit} = \Unit$
+%\end{center}
 
-\end{frame}
+%\end{frame}
 
 \section{Declarative typing}
 
@@ -539,7 +539,7 @@ To prove rules which make use of inference mode, we need to use the squeeze theo
 
 \vspace{1em}
 
-The inferred rule for case also requires using the squeeze theorem, but this time we need to do it three times, once for each premise. As for the inferred rules for unit and pairs, they follow from the corresponding hint-based rules, but first we need to use the rule $\rulename{Hole}$ to adjust the hint.
+The inferred rule for case also requires using the squeeze theorem, but this time we need to do it three times, once for each premise. As for the inferred rules for unit and pairs, they follow from the corresponding hint-based rules.
 
 \end{frame}
 

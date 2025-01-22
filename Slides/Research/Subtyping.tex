@@ -72,6 +72,8 @@ Subtyping is a partial order with top and bottom, congruent with type constructo
 
 \section{Extrinsic STLC with Subtyping}
 
+\NewDocumentCommand{\botelim}{o}{\Bot\texttt{-elim} \optionalspace{#1}}
+
 \begin{frame}{Terms}
 
 Terms: \\
@@ -80,11 +82,11 @@ $e ::=$ \\
 \qquad $\fun{x}{e} \pipe \app{e_1}{e_2} \pipe$ \\
 \qquad $\pair{e_1}{e_2} \pipe \outl{e} \pipe \outr{e} \pipe$ \\
 \qquad $\inl{e} \pipe \inr{e} \pipe \case{e}{e_1}{e_2} \pipe$ \\
-\qquad $\unit \pipe \emptyelim{e}$
+\qquad $\unit \pipe \botelim[e]$
 
 \vspace{2em}
 
-Note: $\unit$ is the term of the $\Top$ type, whereas $\emptyelim$ is the eliminator of the $\Bot$ type.
+Note: $\unit$ is the term of the $\Top$ type, whereas $\botelim$ is the eliminator of the $\Bot$ type.
 
 \end{frame}
 
@@ -183,7 +185,7 @@ $e ::=$ \\
 \qquad $\fun{x}{e} \pipe \app{e_1}{e_2} \pipe$ \\
 \qquad $\pair{e_1}{e_2} \pipe \outl{e} \pipe \outr{e} \pipe$ \\
 \qquad $\inl{e} \pipe \inr{e} \pipe \case{e}{e_1}{e_2} \pipe$ \\
-\qquad $\unit \pipe \emptyelim{e}$
+\qquad $\unit \pipe \botelim[e]$
 
 \vspace{2em}
 
@@ -269,7 +271,7 @@ Note that the rule $\rulename{Hole}$ can only be applied once, because $\hintfor
   \vspace{2em}
 
   $\infrule{}{\hinting{\unit}{\Top}{\Top}}$ \quad
-  $\infrule{\hinting{e}{\Bot}{\Bot}}{\hinting{\emptyelim{e}}{A}{A}}$
+  $\infrule{\hinting{e}{\Bot}{\Bot}}{\hinting{\botelim{e}}{A}{A}}$
 \end{center}
 
 \end{frame}

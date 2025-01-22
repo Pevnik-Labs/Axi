@@ -41,11 +41,9 @@ Since this is a presentation about Axi, and Axi only makes sense when execution 
 
 Since execution happens on-chain, programs must also live on-chain. But in what form? As source code or as compiled code?
 
-\end{frame}
+\vspace{1em}
 
-\begin{frame}{Let logic guide us}
-
-I think that the principle guiding this choice should be logic, because we want to prove theorems about our programs. Proving theorems about machine code or a low-level imperative assembly language is not TODO
+I think that the principle guiding this choice should be logic, because we want to prove theorems about our programs. Proving theorems about machine code or a low-level imperative assembly language is just not what I do for a living, so I will assume that what goes on chain is the source code.
 
 \end{frame}
 
@@ -245,7 +243,7 @@ So in theory, HM is really bad. But in practice, it works well and fast. What gi
 
 \end{frame}
 
-\begin{frame}{Paying for on-chain storage -- another demon}
+\begin{frame}{Paying for on-chain storage -- another demon?}
 
 Just as I had a bad feeling about paying for the type checking, I have a bad feeling about paying for storage of code.
 
@@ -401,15 +399,15 @@ However, decidability doesn't come for free. To secure it, we need to meet two r
 Let's start with an oversimplification. We can think of proof checking as consisting of two components:
 
 \begin{itemize}
-  \item A type-checking-like component. For example, to check that $\textbf{both}\ e_1\ e_2$ proves $P \land Q$, we need to check that $e_1$ proves $P$ and that $e_2$ proves $Q$. This is basically the same story as type checking pairs: to check that $(t_1, t_2)$ has type $A \times B$, we need to check that $t_1$ has type $A$ and that $t_2$ has type $B$. This is the Curry-Howard correspondence at work.
-  \item A program-execution-like component. For example, to check that $\textbf{refl}\ 4$ proves $2 + 2 = 4$, we need to reduce $2 + 2$ and see that the result is indeed $4$.
+  \item A type-checking-like component. For example, to check that $\andintro{e_1}{e_2}$ proves $\And{P}{Q}$, we need to check that $e_1$ proves $P$ and that $e_2$ proves $Q$. This is basically the same story as type checking pairs: to check that $\pair{t_1}{t_2}$ has type $\Prod{A}{B}$, we need to check that $t_1$ has type $A$ and that $t_2$ has type $B$. This is the Curry-Howard correspondence at work.
+  \item A program-execution-like component. For example, to check that $\refl[4]$ proves $2 + 2 = 4$, we need to reduce $2 + 2$ and see that the result is indeed $4$.
 \end{itemize}
 
 \end{frame}
 
 \begin{frame}{Requirement 1 -- annotations}
 
-First, we need enough annotations, just like in the case of type checking. This time, however, there are two kinds of annotations: type annotations (like $A$ in $\forall x : A, P(x)$) and proposition annotations (like $P$ in $\textbf{left-either}\ P\ e$).
+First, we need enough annotations, just like in the case of type checking. This time, however, there are two kinds of annotations: type annotations (like $A$ in $\All{x}[A]{P(x)}$) and proposition annotations (like $Q$ in $\orintrol[Q]{e}$).
 
 \vspace{1em}
 
@@ -452,7 +450,7 @@ Consider the following function, called the Ackermann function:
 \begin{itemize}
   \item $f(0, n) = n + 1$
   \item $f(m + 1, 0) = f(m, 1)$
-  \item $f(m + 1, n + 1) = f(n, f(m + 1, n))$
+  \item $f(m + 1, n + 1) = f(m, f(m + 1, n))$
 \end{itemize}
 
 \vspace{2em}
@@ -524,7 +522,7 @@ I see four possible approaches. The main distinction is between those that esche
 
 \begin{frame}{No conclusion}
 
-I don't have a definite answer to the question of whether proof checking should be paid, but the names I gave to the solutions suggest that TODO
+I don't have a definite answer to the question of whether proof checking should be paid.
 
 \end{frame}
 

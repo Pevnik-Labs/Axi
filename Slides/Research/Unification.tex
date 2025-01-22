@@ -59,15 +59,15 @@ $\outctx[\Gamma]{e}{H}{H'}[\Gamma']$ -- in context $\Gamma$, term $e$ checks wit
 \begin{center}
   $\infrule{\outctx[\extend{\Gamma}{x}{A}]{e}{B}{B'}[\extend{\Gamma'}{x}{A'}]}{\outctx{\fun{x}{e}}{\Fun{A}{B}}{\Fun{A'}{B'}}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule{\outctx[\Gamma]{f}{\Fun{\Hole}{B}}{\Fun{A}{B'}}[\Gamma'] \quad \outctx[\Gamma']{a}{A}{A'}[\Gamma'']}{\outctx[\Gamma]{\app{f}{a}}{B}{B'}[\Gamma'']}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule{\outctx[\Gamma]{a}{A}{A'}[\Gamma'] \quad \outctx[\Gamma']{b}{B}{B'}[\Gamma'']}{\outctx[\Gamma]{\pair{a}{b}}{\Prod{A}{B}}{\Prod{A'}{B'}}[\Gamma'']}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule{\outctx{e}{\Prod{A}{\Hole}}{\Prod{A'}{B}}}{\outctx{\outl{e}}{A}{A'}}$
   \quad
@@ -153,6 +153,12 @@ If $\outctx[\Gamma]{e}{A}{B}[\Gamma']$, then:
 \end{frame}
 
 \section{Abridged rules for output contexts}
+
+\begin{frame}{Abridged rules for output contexts}
+
+The rules for STLC with output contexts can get quite lengthy. We try to remedy this by introducing an abridged form of the rules, in which contexts are written explicitly only if some operation (like context extension) is performed on them. If contexts are only passed around, we keep them implicit.
+
+\end{frame}
 
 \begin{frame}{Output contexts -- abridged basic rules}
 
@@ -277,15 +283,15 @@ $\uniftyping[\Gamma]{e}{H}{H'}[\Gamma']$ -- in context $\Gamma$, term $e$ checks
 \begin{center}
   $\infrule{\uniftyping[\extend{\Gamma}{x}{A}]{e}{B}{B'}[\extend{\Gamma'}{x}{A'}]}{\uniftyping{\fun{x}{e}}{\Fun{A}{B}}{\Fun{A'}{B'}}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule{\uniftyping[\Gamma]{f}{\Fun{\Hole}{B}}{\Fun{A}{B'}}[\Gamma'] \quad \uniftyping[\Gamma']{a}{A}{A'}[\Gamma'']}{\uniftyping[\Gamma]{\app{f}{a}}{B}{B'}[\Gamma'']}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule{\uniftyping[\Gamma]{a}{A}{A'}[\Gamma'] \quad \uniftyping[\Gamma']{b}{B}{B'}[\Gamma'']}{\uniftyping[\Gamma]{\pair{a}{b}}{\Prod{A}{B}}{\Prod{A'}{B'}}[\Gamma'']}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule{\uniftyping{e}{\Prod{A}{\Hole}}{\Prod{A'}{B}}}{\uniftyping{\outl{e}}{A}{A'}}$
   \quad

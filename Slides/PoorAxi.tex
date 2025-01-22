@@ -18,7 +18,7 @@
 
 \begin{frame}{Intro}
 
-These slides propose a basic calculus that could serve as a Poor Man's Axi. The system is Simply Typed Lambda Calculus with a first-order logic on top of it that lets us reason about program equality. At the end, we extend the system with booleans and natural numbers and consider adding some other additional features.
+These slides propose a basic calculus that could serve as a Poor Man's Axi. The system is Simply Typed Lambda Calculus with a first-order logic on top of it that lets us reason about program equality. At the end, we extend the system with booleans and natural numbers and consider adding some other features.
 
 \end{frame}
 
@@ -31,7 +31,7 @@ $e ::=$ \\
 \qquad $\inl{e} \pipe \inr{e} \pipe \case{e}{e_1}{e_2} \pipe$ \\
 \qquad $\unit \pipe \emptyelim{e}$
 
-\vspace{2em}
+\vspace{1em}
 
 Types: \\
 $A, B ::= \Fun{A}{B} \pipe \Prod{A}{B} \pipe \Sum{A}{B} \pipe \Unit \pipe \Empty$
@@ -48,11 +48,11 @@ $P, Q ::=$ \\
 
 \begin{frame}{Terms and types}
 
-In the base language we have only function types, product types, sum types, $Unit$ (the type with one element) and $Empty$ (the type with no elements). Later we will add booleans, natural numbers, lists and streams.
+In the base language we have only function types $\Fun{A}{B}$, product types $\Prod{A}{B}$, sum types $\Sum{A}{B}$, the unit type $\Unit$ (the type with one element) and the empty type $\Empty$ (the type with no elements). Later we will add booleans, natural numbers, lists and streams.
 
 \vspace{1em}
 
-Some of the less obvious terms: $\outl{e}$ and $\outr{e}$ are projections, $unit$ is the only value of the $Unit$ type and $\emptyelim{e}$ is the eliminator of the empty type applied to $e$. $\case{e}{e_1}{e_2}$ is the eliminator of the sum type and its arguments $e_1, e_2$ are supposed to be functions. Note that we don't have a type annotation on the lambda, and no type annotations in the language in general. This is not an oversight -- we postpone deciding this detail for later.
+Some of the less obvious terms: $\outl{e}$ and $\outr{e}$ are product projections, $\unit$ is the only value of the unit type and $\emptyelim{e}$ is the eliminator of the empty type. $\case{e}{e_1}{e_2}$ is the eliminator of the sum type and its arguments $e_1, e_2$ are supposed to be functions. Note that we don't have a type annotation on the lambda, and no type annotations in the language in general. This is not an oversight -- we postpone deciding this detail for later.
 
 \end{frame}
 
@@ -68,7 +68,7 @@ Note that variables in quantifiers need to be annotated with their types. Simila
 
 \begin{frame}{Judgements}
 
-We will present our language using the machinery of judgements and inference rules. Each kind of \textbf{judgement} represents a meta-level proposition about objects of our language: what is the type of a term, how do terms compute and so on. To make it easier for beginners to distinguish the various kinds of judgement, we will highlight each kind of judgement with a different color.
+We will present our language using the machinery of judgements and inference rules. Each kind of \textbf{judgement} represents a meta-level proposition about objects of our language: what is the type of a term, how do terms compute and so on.
 
 \end{frame}
 
@@ -85,7 +85,7 @@ An \textbf{inference rule} tells us how to derive a given judgement (its conclus
 
 \vspace{1em}
 
-where the premises (the judgements $\mathcal{J}_i$) are written above the bar and the conclusion (the judgement $\mathcal{J}$) is written below the bar. A rule can have many premises, but only a single conclusion. Most of the time it is best to read an inference rule upside down, i.e. to first read the conclusion and only then the premises. Each rule has a name (written in small caps) so that it can be easily referred to, but we will sometimes omit the names.
+where the premises (the judgements $\mathcal{J}_i$) are written above the bar and the conclusion (the judgement $\mathcal{J}$) is written below the bar. A rule can have many premises, but only a single conclusion. Most of the time it is best to read an inference rule clockwise -- start from the conclusion, read the premises from left to right and then look at the conclusion again. Each rule has a name (written in small caps) so that it can be easily referred to, but we will sometimes omit these names to save space.
 
 \end{frame}
 
@@ -107,7 +107,7 @@ Our judgements depend on hypotheses of the form $x : A$, which should be read as
 Typing judgement: \\
 $\typing{e}{A}$ -- in typing context $\Gamma$, term $e$ is of type $A$.
 
-\vspace{1em}
+\vspace{2em}
 
 Computational equality judgement: \\
 $\compeq{e_1}{e_2}{A}$ -- in typing context $\Gamma$, terms $e_1$ and $e_2$ are computationally equal.
@@ -239,6 +239,8 @@ Uniqueness rules establish that every term of a given type is computationally eq
 
 Computational equality is an equivalence relation, i.e. it is reflexive, symmetric and transitive.
 
+\vspace{2em}
+
 \begin{center}
   $\infrule[Comp-Refl]{\typing{e}{A}}{\compeq{e}{e}{A}}$
 
@@ -327,12 +329,12 @@ Athena enjoyers can think of the assumption context as an assumption base.
 Valid assumption context judgement: \\
 $\assctx[\Gamma]{\Delta}$ -- in typing context $\Gamma$, the assumption context $\Delta$ is valid.
 
-\vspace{1em}
+\vspace{2em}
 
 Well-formed proposition judgement: \\
 $\prop[\Gamma]{P}$ -- in typing context $\Gamma$, proposition $P$ is well-formed.
 
-\vspace{1em}
+\vspace{2em}
 
 True proposition judgement: \\
 $\holds{P}$ -- in typing context $\Gamma$ and assumption context $\Delta$, proposition $P$ holds.
@@ -349,10 +351,12 @@ Similarly to the situation for typing and computation judgements, the logical ju
 
 The valid assumption context judgement tells us which assumption contexts are valid. The crux of the matter is that we can extend an assumption context only with a well-formed proposition. This judgement depends on a typing context because propositions that we add to the assumption context can contain variables.
 
+\vspace{2em}
+
 \begin{center}
   $\infrule[Valid-Empty]{}{\assctx{\emptyassctx}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Valid-Extend]{\assctx{\Delta} \quad \prop[\Gamma]{P}}{\assctx{\assume{\Delta}{P}}}$
 \end{center}
@@ -371,21 +375,21 @@ The role of the well-formed proposition judgement is twofold: to ensure that pro
   $\infrule{}{\prop{\True}}$ \quad
   $\infrule{}{\prop{\False}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule{\prop{P} \quad \prop{Q}}{\prop{\Or{P}{Q}}}$ \quad
   $\infrule{\prop{P} \quad \prop{Q}}{\prop{\And{P}{Q}}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule{\prop{P} \quad \prop{Q}}{\prop{\Impl{P}{Q}}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule{\prop[\extend{\Gamma}{x}{A}]{P}}{\prop{\All{x}[A]{P}}}$ \quad
   $\infrule{\prop[\extend{\Gamma}{x}{A}]{P}}{\prop{\Ex{x}[A]{P}}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule{\typing{e_1}{A} \quad \typing{e_2}{A}}{\prop{\Eq[A]{e_1}{e_2}}}$
 \end{center}
@@ -452,7 +456,7 @@ To express rules for quantifiers, we need the operation of substituting a term f
 \begin{center}
   $\infrule[Forall-Intro]{\holds[\extend{\Gamma}{x}{A}][\Delta]{P}}{\holds{\All{x}[A]{P}}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Forall-Elim]{\holds{\All{x}[A]{P}} \quad \typing{a}{A}}{\holds{\subst{P}{x}{a}}}$
 
@@ -460,7 +464,7 @@ To express rules for quantifiers, we need the operation of substituting a term f
 
   $\infrule[Exists-Intro]{\typing{a}{A} \quad \holds{\subst{P}{x}{a}}}{\holds{\Ex{x}[A]{P}}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Exists-Elim]{\holds{\Ex{x}[A]{P}} \quad \holds[\extend{\Gamma}{x}{A}][\assume{\Delta}{P}]{R}}{\holds{R}}$
 \end{center}
@@ -495,7 +499,7 @@ Propositional equality is an equivalence relation that can be substitued in proo
 
 The general rules from the previous slide are not sufficient to prove all equations that we would like. For example, there's nothing we can use to prove function extensionality. We can fix this issue by adding rules that handle equality on a type-by-type basis. For now, the only additional rule we need concerns equality of functions, but with more types we might need more.
 
-\vspace{1em}
+\vspace{2em}
 
 \begin{center}
   $\infrule[Funext]{\holds{\All{x}[A]{\Eq[B]{\app{f}{x}}{\app{g}{x}}}}}{\holds{\Eq[\Fun{A}{B}]{f}{g}}}$
@@ -512,7 +516,7 @@ Note that so far, we haven't got any rules that allow reasoning by cases on term
 \begin{center}
   $\infrule[Empty-Ind]{\assctx{\Delta} \quad \typing{e}{\Empty}}{\holds{P}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Sum-Ind]{\holds[\extend{\Gamma}{a}{A}][\Delta]{\subst{P}{x}{\inl{a}}} \quad \holds[\extend{\Gamma}{b}{B}][\Delta]{\subst{P}{x}{\inr{b}}}}{\holds{\All{x}[\Sum{A}{B}]{P}}}$
 \end{center}
@@ -554,18 +558,20 @@ In the following slides, we will introduce new types and their terms one by one.
 
 One little silly thing that we don't have is an eliminator for the $\Unit$ type. It's useless, but why not?
 
+\vspace{1em}
+
 \begin{center}
   $\infrule[Unit-Elim]{\typing{e}{A} \quad \typing{u}{\Unit}}{\typing{\unitelim{e}{u}}{A}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Comp-Unit]{\typing{e}{A}}{\compeq{\unitelim{e}{\unit}}{e}{A}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Congr-Unit-Elim]{\compeq{e}{e'}{A} \quad \compeq{u}{u'}{\Unit}}{\compeq{\unitelim{e}{u}}{\unitelim{e'}{u'}}{A}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Unit-Ind]{\holds{\subst{P}{x}{\unit}}}{\holds{\All{x}[\Unit]{P}}}$
 \end{center}
@@ -578,28 +584,19 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
   $\infrule{}{\typing{\btrue}{\Bool}}$ \quad
   $\infrule{}{\typing{\bfalse}{\Bool}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[If]{\typing{e}{\Bool} \quad \typing{e_1}{A} \quad \typing{e_2}{A}}{\typing{\boolelim{e}{e_1}{e_2}}{A}}$
 
-  \vspace{1em}
-
-  %$\infrule{}{\compeq{\btrue}{\btrue}{\Bool}}$ \quad
-  %$\infrule{}{\compeq{\bfalse}{\bfalse}{\Bool}}$ \quad
-
-  %\vspace{1em}
-
-  %$\infrule{\compeq{e}{e'}{\Bool} \quad \compeq{e_1}{e_1'}{A} \quad \compeq{e_2}{e_2'}{A}}{\compeq{\boolelim{e}{e_1}{e_2}}{\boolelim{e'}{e_1'}{e_2'}}{A}}$
-
-  %\vspace{1em}
+  \vspace{2em}
 
   $\infrule[Comp-If-True]{\typing{e_1}{A} \quad \typing{e_2}{A}}{\compeq{\boolelim{\btrue}{e_1}{e_2}}{e_1}{A}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Comp-If-False]{\typing{e_1}{A} \quad \typing{e_2}{A}}{\compeq{\boolelim{\bfalse}{e_1}{e_2}}{e_2}{A}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Bool-Ind]{\holds{\subst{P}{b}{\btrue}} \quad \holds{\subst{P}{b}{\bfalse}}}{\holds{\All{b}[\Bool]{P}}}$
 \end{center}
@@ -611,11 +608,11 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 \begin{center}
   $\infrule[True-Congr]{}{\compeq{\btrue}{\btrue}{\Bool}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[False-Congr]{}{\compeq{\bfalse}{\bfalse}{\Bool}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[If-Congr]{\compeq{e}{e'}{\Bool} \quad \compeq{e_1}{e_1'}{A} \quad \compeq{e_2}{e_2'}{A}}{\compeq{\boolelim{e}{e_1}{e_2}}{\boolelim{e'}{e_1'}{e_2'}}{A}}$
 \end{center}
@@ -633,19 +630,19 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
   $\infrule{}{\typing{\zero}{\Nat}}$ \quad
   $\infrule{\typing{n}{\Nat}}{\typing{\succ[n]}{\Nat}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Nat-Elim]{\typing{z}{A} \quad \typing{s}{\Fun{A}{A}} \quad \typing{n}{\Nat}}{\typing{\natelim{z}{s}{n}}{A}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Rec-Zero]{\typing{z}{A} \quad \typing{s}{\Fun{A}{A}}}{\compeq{\natelim{z}{s}{\zero}}{z}{A}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Rec-Succ]{\typing{z}{A} \quad \typing{s}{\Fun{A}{A}} \quad \typing{n}{\Nat}}{\compeq{\natelim{z}{s}{(\succ[n])}}{\app{s}{(\natelim{z}{s}{n})}}{A}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Nat-Ind]{\holds{\subst{P}{n}{\zero}} \quad \holds[\extend{\Gamma}{n'}{\Nat}][\assume{\Delta}{\subst{P}{n}{n'}}]{\subst{P}{n}{\succ[n']}}}{\holds{\All{n}[\Nat]{P}}}$
 \end{center}
@@ -657,11 +654,11 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 \begin{center}
   $\infrule[Zero-Congr]{}{\compeq{\zero}{\zero}{\Nat}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Succ-Congr]{\compeq{n}{n'}{\Nat}}{\compeq{\succ[n]}{\succ[n']}{\Nat}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Nat-Elim-Congr]{\compeq{z}{z'}{A} \quad \compeq{s}{s'}{\Fun{A}{A}} \quad \compeq{n}{n'}{\Nat}}{\compeq{\natelim{z}{s}{n}}{\natelim{z'}{s'}{n'}}{A}}$
 \end{center}
@@ -679,19 +676,19 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
   $\infrule{}{\typing{\nil}{\List{A}}}$ \quad
   $\infrule{\typing{h}{A} \quad \typing{t}{\List{A}}}{\typing{\cons{h}{t}}{\List{A}}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[List-Elim]{\typing{n}{A} \quad \typing{c}{\Fun{A}{\Fun{B}{B}}} \quad \typing{l}{\List{A}}}{\typing{\listelim{n}{c}{l}}{B}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Fold-Nil]{\typing{n}{B} \quad \typing{c}{\Fun{A}{\Fun{B}{B}}}}{\compeq{\listelim{n}{c}{\nil}}{n}{B}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Fold-Cons]{\typing{n}{B} \quad \typing{c}{\Fun{A}{\Fun{B}{B}}} \quad \typing{h}{A} \quad \typing{t}{\List{A}}}{\compeq{\listelim{n}{c}{(\cons{h}{t})}}{\app{\app{c}{h}}{(\listelim{n}{c}{t})}}{B}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[List-Ind]{\holds{\subst{P}{l}{\nil}} \quad \holds[\extend{\extend{\Gamma}{h}{A}}{t}{\List{A}}][\assume{\Delta}{\subst{P}{l}{t}}]{\subst{P}{l}{\cons{h}{t}}}}{\holds{\All{l}[\List{A}]{P}}}$
 \end{center}
@@ -703,11 +700,11 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
 \begin{center}
   $\infrule[Nil-Congr]{}{\compeq{\nil}{\nil}{\List{A}}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Cons-Congr]{\compeq{h}{h'}{A} \quad \compeq{t}{t'}{\List{A}}}{\compeq{\cons{h}{t}}{\cons{h'}{t'}}{\List{A}}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[List-Elim-Congr]{\compeq{n}{n'}{A} \quad \compeq{c}{c'}{\Fun{A}{\Fun{B}{B}}} \quad \compeq{l}{l'}{\List{A}}}{\compeq{\listelim{n}{c}{l}}{\listelim{n'}{c'}{l'}}{B}}$
 \end{center}
@@ -726,15 +723,15 @@ One little silly thing that we don't have is an eliminator for the $\Unit$ type.
   $\infrule{\typing{s}{\AxiStream{A}}}{\typing{\hd[s]}{A}}$ \quad
   $\infrule{\typing{s}{\AxiStream{A}}}{\typing{\tl[s]}{\AxiStream{A}}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Scons]{\typing{a}{A} \quad \typing{f}{\Fun{A}{A}}}{\typing{\streamintro{a}{f}}{\AxiStream{A}}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Hd-Scons]{\typing{a}{A} \quad \typing{f}{\Fun{A}{A}}}{\compeq{\hd[(\streamintro{a}{f})]}{a}{A}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Tl-Scons]{\typing{a}{A} \quad \typing{f}{\Fun{A}{A}}}{\compeq{\tl[(\streamintro{a}{f})]}{\streamintro{(\app{f}{a})}{f}}{\AxiStream{A}}}$
 \end{center}
@@ -750,14 +747,16 @@ Streams do have all the congruence rules we would expect, but they don't have an
 \begin{center}
   $\infrule[Hd-Congr]{\compeq{s}{s'}{A}}{\compeq{\hd[s]}{\hd[s']}{A}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Tl-Congr]{\compeq{s}{s'}{A}}{\compeq{\tl[s]}{\tl[s']}{\AxiStream{A}}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Scons-Congr]{\compeq{a}{a'}{A} \quad \compeq{f}{f'}{\Fun{A}{A}}}{\compeq{\streamintro{a}{f}}{\streamintro{a'}{f'}}{\AxiStream{A}}}$
 \end{center}
+
+\vspace{1em}
 
 However, for now I have no idea how to formulate the rule of proof by coinduction, so let's omit it.
 
@@ -789,15 +788,15 @@ The original product types could be represented using record types as $\recordty
 \begin{center}
   $\infrule[Record-Intro]{\forall i \in I. \quad \typing{e_i}{A_i}}{\typing{\records{\ell}{e}{i}{I}}{\recordtypes{\ell}{A}{i}{I}}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Record-Elim]{\typing{e}{\recordtypes{\ell}{A}{i}{I}} \quad \sidecond{j \in I}}{\typing{\proj{\ell_j}{e}}{A_j}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Record-Comp]{\typing{\records{\ell}{e}{i}{I}}{\recordtypes{\ell}{A}{i}{I}} \quad \sidecond{j \in I}}{\compeq{\proj{\ell_j}{\records{\ell}{e}{i}{I}}}{e_j}{A_j}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Record-Uniq]{\typing{r}{\recordtypes{\ell}{A}{i}{I}}}{\compeq{r}{\records{\ell}{\proj{\ell}{r}}{i}{I}}{\recordtypes{\ell}{A}{i}{I}}}$
 \end{center}
@@ -809,7 +808,7 @@ The original product types could be represented using record types as $\recordty
 \begin{center}
   $\infrule[Record-Intro-Congr]{\forall i \in I. \quad \compeq{e_i}{e_i'}{A_i}}{\compeq{\records{\ell}{e}{i}{I}}{\records{\ell}{e'}{i}{I}}{\recordtypes{\ell}{A}{i}{I}}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Record-Elim-Congr]{\compeq{e}{e'}{\recordtypes{\ell}{A}{i}{I}} \quad \sidecond{j \in I}}{\compeq{\proj{\ell_j}{e}}{\proj{\ell_j}{e'}}{A_j}}$
 \end{center}
@@ -834,11 +833,11 @@ The original sum type can be recovered as $\varianttype{\texttt{inl} : A; \textt
 \begin{center}
   $\infrule[Variant-Intro]{\typing{e}{A_j} \quad \sidecond{j \in I}}{\typing{\app{c_j}{e}}{\varianttypes{c}{A}{i}{I}}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Variant-Elim]{\typing{e}{\varianttypes{c}{A}{i}{I}} \quad \typing{r}{\recordtype{c_i : \Fun{A_i}{B}}_{i \in I}}}{\typing{\vcase{e}{r}}{B}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Variant-Comp]{\typing{e}{A_j} \quad \typing{r}{\recordtype{c_i : \Fun{A_i}{B}}_{i \in I}} \quad \sidecond{j \in I}}{\compeq{\vcase{(\app{c_j}{e})}{r}}{\app{\proj{c_j}{r}}{e}}{B}}$
 \end{center}
@@ -850,7 +849,7 @@ The original sum type can be recovered as $\varianttype{\texttt{inl} : A; \textt
 \begin{center}
   $\infrule[Variant-Intro-Congr]{\compeq{e}{e'}{A_j} \quad \sidecond{j \in I}}{\compeq{\app{c_j}{e}}{\app{c_j}{e'}}{\varianttypes{c}{A}{i}{I}}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Variant-Elim-Congr]{\compeq{e}{e'}{\varianttypes{c}{A}{i}{I}} \quad \compeq{r}{r'}{\recordtype{c_i : \Fun{A_i}{B}}_{i \in I}}}{\compeq{\vcase{e}{r}}{\vcase{e'}{r'}}{B}}$
 \end{center}
@@ -975,6 +974,8 @@ What other features might we add to our language? Let's find out.
 
 A practical programming language certainly needs a way for the programmer to put some helpful type annotations here and there. The rules are simple -- an annotated term has the stated type, provided that we can check it does. As for computation, the type annotation simply gets erased. There's also a congruence rule.
 
+\vspace{1em}
+
 \begin{center}
   $\infrule[Annot]{\typing{e}{A}}{\typing{\annot{e}{A}}{A}}$
 
@@ -994,14 +995,17 @@ A practical programming language certainly needs a way for the programmer to put
 \begin{frame}{Let bindings}
 
 Let-bindings are a useful programming language feature, so we could add them. Note that we have some choice there: we could make it a primitive construct, governed by the below rules, or we could simply make $\letin{x}{e_1}{e_2}$ an abbreviation for $\app{(\fun{x}{e_2})}{e_1}$
+
+\vspace{1em}
+
 \begin{center}
   $\infrule[Let]{\typing{e_1}{A} \quad \typing[\extend{\Gamma}{x}{A}]{e_2}{B}}{\typing{\letin{x}{e_1}{e_2}}{B}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Let-Comp]{\typing{\letin{x}{e_1}{e_2}}{A}}{\compeq{\letin{x}{e_1}{e_2}}{\subst{e_2}{x}{e_1}}{A}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Let-Congr]{\compeq{e_1}{e_1'}{A} \quad \compeq{e_2}{e_2'}{B}}{\compeq{\letin{x}{e_1}{e_2}}{\letin{x}{e_1'}{e_2'}}{B}}$
 \end{center}
@@ -1012,15 +1016,17 @@ Let-bindings are a useful programming language feature, so we could add them. No
 
 We can change the definition of typing contexts to allow putting definitions in them. This can be handy for expressing let bindings and also makes fully formal derivations much shorter. However, it also requires adding a new judgement, the well-formed context judgement, because we want to allow adding only well-typed definitions to the context. We must also remember to include these definitions in computational equality.
 
+\vspace{1em}
+
 $\Gamma ::= \emptytypingctx \pipe \extend{\Gamma}{x}{A} \pipe \extend{\Gamma}{x}{A}[e]$
 
-\vspace{0.5em}
+\vspace{1em}
 
 \begin{center}
   $\infrule[Ctx-Empty]{}{\ctx{\emptytypingctx}}$ \quad
   $\infrule[Ctx-Extend]{\ctx{\Gamma} \quad \sidecond{x \notin \Gamma}}{\ctx{\extend{\Gamma}{x}{A}}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Ctx-Def]{\ctx{\Gamma} \quad \typing{e}{A} \quad \sidecond{x \notin \Gamma}}{\ctx{\extend{\Gamma}{x}{A}[e]}}$
 \end{center}
@@ -1031,12 +1037,14 @@ $\Gamma ::= \emptytypingctx \pipe \extend{\Gamma}{x}{A} \pipe \extend{\Gamma}{x}
 
 We now need two rules for typing variables: one for when the variable is defined and one for when it is not. Moreover, we also need a computation rule which says that variables are computationally equal to the body of their definition.
 
+\vspace{2em}
+
 \begin{center}
 
   $\infrule[Var-Ext]{\ctx{\Gamma} \quad \sidecond{(x : A) \in \Gamma}}{\typing{x}{A}}$ \quad
   $\infrule[Var-Def]{\ctx{\Gamma} \quad \sidecond{(x : A := e) \in \Gamma}}{\typing{x}{A}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Comp-Var]{\ctx{\Gamma} \quad \sidecond{(x : A := e) \in \Gamma}}{\compeq{x}{e}{A}}$
 \end{center}
@@ -1047,10 +1055,12 @@ We now need two rules for typing variables: one for when the variable is defined
 
 The computation rule for function can (but need not!) look very different when we can put definitions into contexts. This time, instead of substituting $a$ for $x$ in $b$, we simply extend the context with the definition $x : A := a$ and then proceed with the computation. The rule for $\texttt{let}$ also gets simpler (and this time we should prefer this rule, because it makes so much more sense).
 
+\vspace{2em}
+
 \begin{center}
   $\infrule[App-Lam-Def]{\compeq[\extend{\Gamma}{x}{A}[a]]{b}{b'}{B}}{\compeq{\app{(\fun{x}{b})}{a}}{b'}{B}}$
 
-  \vspace{1em}
+  \vspace{2em}
 
   $\infrule[Let-Comp-Def]{\compeq[\extend{\Gamma}{x}{A}[e_1]]{e_2}{e_2'}{B}}{\compeq{\letin{x}{e_1}{e_2}}{e_2'}{B}}$
 \end{center}
@@ -1061,11 +1071,13 @@ The computation rule for function can (but need not!) look very different when w
 
 For a moment, let's say that types can depend on propositions. This means that we have a well-formed type judgement which depends on the typing context. We need to modify the valid context judgement to take this into account.
 
-\vspace{1em}
+\vspace{2em}
 
 \begin{center}
-  $\infrule[Ctx-Extend]{\ctx{\Gamma} \quad \type{A} \quad \sidecond{x \notin \Gamma}}{\ctx{\extend{\Gamma}{x}{A}}}$
+  $\infrule[Ctx-Extend]{\ctx{\Gamma} \quad \sidecond{x \notin \Gamma} \quad \type{A}}{\ctx{\extend{\Gamma}{x}{A}}}$
 \end{center}
+
+\vspace{2em}
 
 With such a setup, $\ctx{\Gamma}$ is a sanity condition for $\type{A}$, whereas $\type{A}$ is a sanity condition for $\typing{x}{A}$.
 

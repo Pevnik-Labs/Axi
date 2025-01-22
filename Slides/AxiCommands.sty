@@ -141,7 +141,7 @@
 
 % Classical logic.
 \newcommand{\bycontradiction}[1]{\textbf{by-contradiction}\ #1}
-\newcommand{\dn}[1]{\textbf{double-negation}\ #1}
+\NewDocumentCommand{\dn}{o}{\textbf{double-negation} \optionalspace{#1}}
 
 % Quantifiers.
 \NewDocumentCommand{\allintro}{m o m}{\textbf{pick-any}\ #1 \optionalannot{#2}\ \textbf{in}\ #3}
