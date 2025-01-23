@@ -411,12 +411,12 @@ An alternative way of asserting classical logic would be to use another principl
 \vspace{2em}
 
 \begin{center}
-  $\infrule[By-Contradiction]{\proves[\assume{\Gamma}{\Not{P}}]{e}{\False}}{\proves{\bycontradiction{e}}{P}}$
+  $\infrule[By-Contradiction]{\proves[\assume{\Gamma}{\Not{P}}]{e}{\False}}{\proves{\bycontradiction{\Not{P}}{e}}{P}}$
 \end{center}
 
 \vspace{2em}
 
-$\bycontradiction{e}$ proves $P$ provided that $e$ proves $\False$ in the context extended with the assumption $\Not{P}$.
+$\bycontradiction{\Not{P}}{e}$ proves $P$ provided that $e$ proves $\False$ in the context extended with the assumption $\Not{P}$.
 
 \end{frame}
 

@@ -285,7 +285,7 @@ theorem lemma-term : P \/ P --> P :=
 // We can also name the lemma.
 theorem named-lemma-example : P \/ P --> P :=
   assume (P \/ P)
-  lemma (pp := P --> P) from
+  lemma pp : P --> P :=
     assume P
     P
   or-elim (P \/ P) pp pp
@@ -295,7 +295,7 @@ theorem named-lemma-example : P \/ P --> P :=
 theorem reverse-lemma : P \/ P --> P :=
   assume (P \/ P)
   or-elim (P \/ P) ?pp ?pp
-  lemma (pp := P --> P) from
+  lemma pp : P --> P :=
     assume P
     P
 
@@ -306,32 +306,42 @@ theorem reverse-lemma : P \/ P --> P :=
 // lemma _ : P := p
 // theorem _ : P := p
 
-// The built-in way of classical reasoning is `by-contradiction e`, which
-// proves `P` provided that `e` proves `False` in context extended with
-// the assumption `~ P`.
-// We can use `by-contradiction` to prove double negation elimination and
-// other classical laws.
-theorem double-negation : ~ ~ P --> P :=
-  assume (~ ~ P)
-  by-contradiction
-  modus-ponens (~ ~ P) (~ P)
+// If at any point in the proof it's not clear what the goal is, we can
+// provide a conclusion annotation to make this obvious. The syntax is
+// `proving P by e`, where `P` is a proposition and `e` proves `P`.
+theorem conclusion-annotation-example : Q -> P \/ (Q \/ R) :=
+  assume Q
+  proving (P \/ (Q \/ R))
+  or-right
+  proving (Q \/ R)
+  or-left
+  proving Q
+  assumption
 
 // In proofterm style, the above proof looks as follows.
-theorem double-negation-term : ~ ~ P --> P :=
-  assume (~ ~ P) in
-    by-contradiction (modus-ponens (~ ~ P) (~ P))
+theorem conclusion-annotation-example-term : Q -> P \/ (Q \/ R) :=
+  assume Q in
+    proving (P \/ (Q \/ R)) by or-right
+      (proving (Q \/ R) by or-left
+        (proving Q by assumption))
 
-// Some exercises.
+theorem conclusion-annotation-example : (P \/ Q) /\ (~ P \/ R) --> Q \/ R :=
+  assume (both (P \/ Q) (~ P \/ R))
+  conclude (Q \/ R) by
+  or-elim (P \/ Q) ?p ?q
+  ?q :=
+    assume Q
+    or-left Q
+  ?p :=
+    or-elim (~ P \/ R)
+    - assume (~ P)
+      contradiction (~ P) P
+    - assume R
+      or-right R
 
-theorem lem : P \/ ~ P :=
-  double-negation
-  assume (not-lem := ~ (P \/ ~ P))
-  modus-ponens not-lem
-  or-right
-  assume P
-  modus-ponens not-lem
-  or-left
-  P
+
+
+// Example theorems and proofs (only constructive logic).
 
 theorem curry : (P /\ Q --> R) --> P --> Q --> R :=
   assume (P /\ Q --> R) P Q
@@ -354,16 +364,6 @@ theorem or-comm' : P \/ Q --> Q \/ P :=
   assume (P \/ Q)
   or-elim (P \/ Q) or-right or-left
 
-/* Coq version:
-Lemma or_comm_impl : P \/ Q -> Q \/ P.
-Proof.
-  intro.
-  destruct H as [p | q].
-    right. assumption.
-    left. assumption.
-Qed.
-*/
-
 theorem and-comm : P /\ Q --> Q /\ P :=
   assume (both P Q)
   both Q P
@@ -383,6 +383,10 @@ theorem contraposition : (P --> Q) --> (~ Q --> ~ P) :=
   modus-ponens (~ Q), (P --> Q)
   assumption
 
+theorem funny-contraposition : (P --> ~ Q) --> (Q --> ~ P) :=
+  assume (P --> ~ Q) Q P
+  modus-ponens (P --> ~ Q) P Q
+
 theorem iff-elim : ((P --> Q) --> (Q --> P) --> R) --> ((P <--> Q) --> R) :=
   assume (f := _) (both (P --> Q) (Q --> P))
   modus-ponens f (P --> Q) (Q --> P)
@@ -396,10 +400,10 @@ theorem iff-not : (P <--> Q) --> (~ P <--> ~ Q) :=
 theorem resolution : (P \/ Q) /\ (~ P \/ R) --> Q \/ R :=
   assume (both (P \/ Q) (~ P \/ R))
   or-elim (P \/ Q) ?p ?q
-  ?q:
+  ?q :=
     assume Q
     or-left Q
-  ?p:
+  ?p :=
     or-elim (~ P \/ R)
     - assume (~ P)
       contradiction (~ P) P
@@ -417,23 +421,6 @@ theorem resolution' : (P \/ Q) /\ (~ P \/ R) --> Q \/ R :=
       contradiction (~ P) P
     - assume R
       or-right R
-
-/* Coq version:
-Proof.
-  intros [pq npr].
-  destruct pq as [p | q]; cycle 1.
-  - left.
-    assumption.
-  - destruct npr as [np | r].
-    + contradiction.
-    + right.
-      assumption.
-Qed.
-/*
-
-theorem funny-contraposition : (P --> ~ Q) --> (Q --> ~ P) :=
-  assume (P --> ~ Q) Q P
-  modus-ponens (P --> ~ Q) P Q
 
 theorem not-or-intro : ~ P /\ ~ Q --> ~ (P \/ Q) :=
   assume (both (~ P) (~ Q)) (npq := _)

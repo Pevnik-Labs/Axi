@@ -290,11 +290,11 @@ theorem not-exists :
 theorem not-forall : ~ (forall x : A, P x) <--> exists x : A, ~ P x :=
   both
   - assume (nall := _)
-    by-contradiction
+    by-contradiction (nex := ~ exists x : A, ~ P x)
     modus-ponens nall
     pick-any x
-    by-contradiction
-    modus-ponens (~ exists x : A, ~ P x)
+    by-contradiction (~ P x)
+    modus-ponens nex
     exists x
     assumption
   - assume (exists x such-that (~ P x)) (all := _)

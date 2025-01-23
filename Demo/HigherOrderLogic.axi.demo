@@ -1,8 +1,7 @@
 // The syntax of quantifiers over types is as follows.
-// P, Q ::= ... | forall type A, P | exists type A, P
+// P, Q ::= ... | forall-type A, P | exists-type A, P
 
-
-theorem forall-type-intro-example : forall-type a, forall x : A, x = x :=
+theorem forall-type-intro-example : forall-type A, forall x : A, x = x :=
   pick-any-type a
   pick-any x
   refl
