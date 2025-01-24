@@ -1,9 +1,0 @@
-// The demo should be read in the following order:
-// 1. PropositionalLogic.axi.demo
-// 2. ClassicalPropositionalLogic.axi.demo
-// 3. FirstOrderLogic.axi.demo
-// 4. HigherOrderLogic.axi.demo
-// 5. Programming.axi.demo
-// 6. ProgramVerification.axi.demo (TODO)
-// 7. ClassicalHigherOrderLogic.axi.demo (TODO)
-// 8. TerminationChecker.axi.demo (TODO)

@@ -173,48 +173,7 @@ theorem eq-elim-pattern-matching : forall x y z : A, x = y --> y = z --> x = z :
   assume =-> =->
   refl
 
-// Besides `rewrite` and pattern matching in `assume`, there's yet another way
-// of proving equations - chaining, inspired by Agda and Athena.
-theorem equational-chaining : forall x y z : A, x = y --> y = z --> x = z :=
-  pick-any x y z
-  assume (x = y) (y = z)
-  chaining x
-    = y       by (x = y)
-    = z       by (y = z)
-
-// In proofterm style, the above proof looks as follows.
-theorem equational-chaining-term-style :
-  forall x y z : A, x = y --> y = z --> x = z :=
-  pick-any x y z in
-    assume (x = y) (y = z) in
-      chaining x
-        = y       by (x = y)
-        = z       by (y = z)
-
-// In general, a chain of the form
-// ```
-// chaining t
-//   = t1      by e1
-//   ...
-//   = tn      by en
-// ```
-// proves `t = tn` and is a notation for `rewrite e1, ..., en`.
-
-// Sometimes chaining can be clearer than `rewrite`.
-theorem chaining-assumption : forall x y z : A, x = y --> y = z --> x = z :=
-  pick-any x y z
-  assume (x = y) (y = z)
-  chaining x
-    = y       by assumption
-    = z       by assumption
-
-
-// rewrite t1 -> t2 by p
-// rewrite (y = z) at (x = y)
-// hypothesis : (x = z)
-// assumption
-
-
+// Some examples.
 
 theorem forall-impl :
   (forall x : A, P x --> Q x) --> (forall x : A, P x) --> (forall x : A, Q x) :=

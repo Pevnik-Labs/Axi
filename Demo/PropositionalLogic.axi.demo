@@ -325,22 +325,6 @@ theorem conclusion-annotation-example-term : Q -> P \/ (Q \/ R) :=
       (proving (Q \/ R) by or-left
         (proving Q by assumption))
 
-theorem conclusion-annotation-example : (P \/ Q) /\ (~ P \/ R) --> Q \/ R :=
-  assume (both (P \/ Q) (~ P \/ R))
-  conclude (Q \/ R) by
-  or-elim (P \/ Q) ?p ?q
-  ?q :=
-    assume Q
-    or-left Q
-  ?p :=
-    or-elim (~ P \/ R)
-    - assume (~ P)
-      contradiction (~ P) P
-    - assume R
-      or-right R
-
-
-
 // Example theorems and proofs (only constructive logic).
 
 theorem curry : (P /\ Q --> R) --> P --> Q --> R :=

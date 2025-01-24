@@ -1,0 +1,137 @@
+//
+declaration S T : Prop
+
+//
+theorem implication-chaining-backward :
+  (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T :=
+  assume (pq qr rs st := _)
+  chaining<-- T
+    <-- S         by (S --> T)
+    <-- R         by (R --> S)
+    <-- Q         by (Q --> R)
+    <-- P         by (P --> Q)
+
+theorem implication-chaining-backward-assumption :
+  (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T :=
+  assume (pq qr rs st := _)
+  chaining<-- T
+    <-- S         by assumption
+    <-- R         by assumption
+    <-- Q         by assumption
+    <-- P         by assumption
+
+theorem implication-chaining-backward-default :
+  (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T :=
+  assume (pq qr rs st := _)
+  chaining<-- T
+    <-- S
+    <-- R
+    <-- Q
+    <-- P
+
+theorem implication-chaining-backward-unfolded :
+  (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T :=
+  assume (pq qr rs st := _)
+  assume P
+  modus-ponens (S --> T)
+  modus-ponens (R --> S)
+  modus-ponens (Q --> R)
+  modus-ponens (P --> Q)
+  P
+
+theorem implication-chaining-forward-example :
+  (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T :=
+  assume (pq qr rs st := _)
+  chaining--> P
+    --> Q         by (P --> Q)
+    --> R         by (Q --> R)
+    --> S         by (R --> S)
+    --> T         by (S --> T)
+
+theorem implication-chaining-forward-unfolded-alternative :
+  (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T :=
+  assume (pq qr rs st := _)
+  chaining--> P
+  modus-ponens (specialize impl-trans with P Q T) (P --> Q)
+  modus-ponens (specialize impl-trans with Q R T) (Q --> R)
+  modus-ponens (specialize impl-trans with R S T) (R --> S) (S --> T)
+
+theorem biconditional-chaining-example :
+  (P <--> Q) --> (Q <--> R) --> (R <--> S) --> (S <--> T) --> P <--> T :=
+  assume (pq qr rs st := _)
+  chaining<--> P
+    <--> Q        by (P <--> Q)
+    <--> R        by (Q <--> R)
+    <--> S        by (R <--> S)
+    <--> T        by (S <--> T)
+
+theorem biconditional-chaining-unfolded-example :
+  (P <--> Q) --> (Q <--> R) --> (R <--> S) --> (S <--> T) --> P <--> T :=
+  assume (pq qr rs st := _)
+  chaining--> P
+  modus-ponens (specialize iff-trans with P Q T) (P <--> Q)
+  modus-ponens (specialize iff-trans with Q R T) (Q <--> R)
+  modus-ponens (specialize iff-trans with R S T) (R <--> S) (S <--> T)
+
+// Besides `rewrite` and pattern matching in `assume`, there's yet another way
+// of proving equations - chaining, inspired by Agda and Athena.
+theorem equational-chaining : forall x y z : A, x = y --> y = z --> x = z :=
+  pick-any x y z
+  assume (x = y) (y = z)
+  chaining x
+    = y       by (x = y)
+    = z       by (y = z)
+
+// In proofterm style, the above proof looks as follows.
+theorem equational-chaining-term-style :
+  forall x y z : A, x = y --> y = z --> x = z :=
+  pick-any x y z in
+    assume (x = y) (y = z) in
+      chaining x
+        = y       by (x = y)
+        = z       by (y = z)
+
+// In general, a chain of the form
+// ```
+// chaining t
+//   = t1      by e1
+//   ...
+//   = tn      by en
+// ```
+// proves `t = tn` and is a notation for `rewrite e1, ..., en`.
+
+// Sometimes chaining can be clearer than `rewrite`.
+theorem chaining-assumption : forall x y z : A, x = y --> y = z --> x = z :=
+  pick-any x y z
+  assume (x = y) (y = z)
+  chaining x
+    = y       by assumption
+    = z       by assumption
+
+// Chaining can be generalized to any transitive relation.
+theorem relational-chaining-example :
+  forall-type A, forall (R : A -> A -> Prop), forall a b c d e : A,
+    (forall x y z : A, R x y --> R y z --> R x z) -->
+    R a b --> R b c --> R c d --> R d e --> R a e :=
+  pick-any-type A
+  pick-any R
+  pick-any a b c d e
+  assume (trans ab bc cd de := _)
+  chaining R a
+    R b           by (R a b)
+    R c           by (R b c)
+    R d           by (R c d)
+    R e           by (R d e)
+
+// The above proof gets expanded to:
+theorem relational-chaining-example :
+  forall-type A, forall (R : A -> A -> Prop), forall a b c d e : A,
+    (forall x y z : A, R x y --> R y z --> R x z) -->
+    R a b --> R b c --> R c d --> R d e --> R a e :=
+  pick-any-type A
+  pick-any R
+  pick-any a b c d e
+  assume (trans ab bc cd de := _)
+  modus-ponens (specialize trans with a b e) (R a b)
+  modus-ponens (specialize trans with b c e) (R b c)
+  modus-ponens (specialize trans with c d e) (R c d) (R d e)
