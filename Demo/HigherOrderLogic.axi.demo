@@ -9,7 +9,7 @@ theorem forall-type-intro-example : forall-type A, forall x : A, x = x :=
 theorem forall-type-elim-example :
   (forall-type A, forall x : A, x = x) --> forall n : Nat, n = n :=
   assume (f := _)
-  specialize-type f Nat
+  instantiate-type f Nat
 
 theorem exists-type-intro-example : exists-type A, forall x : A, x = x :=
   exists-type Nat
@@ -43,7 +43,7 @@ theorem forall-prop-intro-example' : forall P Q : Prop, P --> P \/ Q :=
 
 theorem forall-prop-elim-example : (forall P : Prop, P) --> False :=
   assume (all := _)
-  specialize all with False
+  instantiate all with False
 
 // Defining logical connectives using higher-order quantification.
 
@@ -55,7 +55,7 @@ myfalse : Prop := forall R : Prop, R
 theorem myfalse-spec : myfalse <--> False :=
   both
   - assume (mf := _)
-    specialize mf with False
+    instantiate mf with False
   - assume False
     absurd False
 
@@ -79,10 +79,10 @@ theorem myand-spec : forall P Q : Prop, myand P Q <--> P /\ Q :=
   both
   - assume (pq := _)
     both
-    - modus-ponens (specialize pq with P)
+    - modus-ponens (instantiate pq with P)
       assume P _
       assumption
-    - modus-ponens (specialize pq with Q)
+    - modus-ponens (instantiate pq with Q)
       assume _ Q
       assumption
   - assume (both P Q)
@@ -99,14 +99,14 @@ theorem myor-spec : forall P Q : Prop, myor P Q <--> P \/ Q :=
   pick-any P Q
   both
   - assume (pq := _)
-    modus-ponens (specialize pq with (P \/ Q))
+    modus-ponens (instantiate pq with (P \/ Q))
     - or-left
     - or-right
   - assume (P \/ Q)
     pick-any R
     assume (P --> R)
     assume (Q --> R)
-    or-elim (P \/ Q) (P --> R) (Q --> R)
+    by-cases (P \/ Q) (P --> R) (Q --> R)
 
 // Impredicative encoding of the existential quantifier.
 myex (A : Type) (P : A -> Prop) : Prop :=
@@ -118,7 +118,7 @@ theorem myex-spec :
   pick-any P
   both
   - assume (mx := _)
-    modus-ponens (specialize myex with (exists x : A, P x))
+    modus-ponens (instantiate myex with (exists x : A, P x))
     pick-any (x : A)
     assume (P x)
     exists x
@@ -126,7 +126,7 @@ theorem myex-spec :
   - assume (exists x such-that (P x))
     pick-any R
     assume (all := _)
-    specialize all with x
+    instantiate all with x
     assumption
 
 // Impredicative encoding of equality.
@@ -139,7 +139,7 @@ theorem myeq-spec :
   pick-any (x y : A)
   both
   - assume (all := _)                                             // x = y
-    modus-ponens (specialize all with (fun (a : A) => x = a))     // x = x
+    modus-ponens (instantiate all with (fun (a : A) => x = a))     // x = x
     refl
   - assume =->                                                    // myeq x x
     unfold myeq                                                   // forall P : A -> Prop, P x --> P x

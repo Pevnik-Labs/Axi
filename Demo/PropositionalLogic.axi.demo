@@ -193,10 +193,10 @@ theorem named-blocks-not-in-order-example : P --> Q --> P /\ Q :=
   ?q := Q
   ?p := P
 
-// Conjunction elimination is `and-elim-l` and `and-elim-r`.
+// Conjunction elimination is `and-left` and `and-right`.
 theorem conjunction-elimination-example : P /\ Q --> P :=
   assume (P /\ Q)
-  and-elim-l (P /\ Q)
+  and-left (P /\ Q)
 
 // We can also eliminate conjunction by pattern matching directly in `assume`.
 theorem assume-pattern-matching : P /\ Q --> P :=
@@ -222,11 +222,11 @@ theorem iff-intro : (P --> Q) --> (Q --> P) --> P <--> Q :=
   assume (P --> Q) (Q --> P)
   both (P --> Q) (Q --> P)
 
-// Biconditional elimination is `and-elim-l` and `and-elim-r`, just as for
+// Biconditional elimination is `and-left` and `and-right`, just as for
 // conjunction.
 theorem iff-elim-l : (P <--> Q) --> (P --> Q) :=
   assume (P <--> Q)
-  and-elim-l (P <--> Q)
+  and-left (P <--> Q)
 
 // Similarly to conjunction, biconditionals can be eliminated by pattern
 // matching directly in `assume`.
@@ -240,23 +240,23 @@ theorem or-intro-l : P --> P \/ Q :=
   assume P
   or-left P
 
-// Disjunction elimination is written `or-elim`.
+// Disjunction elimination is written `by-cases`.
 theorem or-idempotent : P \/ P --> P :=
   assume (P \/ P)
-  or-elim (P \/ P) (assume P in P) (assume P in P)
+  by-cases (P \/ P) (assume P in P) (assume P in P)
 
 // Note: we don't have to prove `P --> P` inline with `assume P in P`,
 // because we can use `impl-refl`, a theorem we already proved.
 // Also note that theorem names can contain an apostrophe.
 theorem or-idempotent' : P \/ P --> P :=
   assume (P \/ P)
-  or-elim (P \/ P) impl-refl impl-refl
+  by-cases (P \/ P) impl-refl impl-refl
 
-// Note that similarly to `both`, we can use `or-elim` partially
+// Note that similarly to `both`, we can use `by-cases` partially
 // applied in tactic style.
 theorem or-elim-tactic-style : P \/ Q --> Q \/ P :=
   assume (P \/ Q)
-  or-elim (P \/ Q)
+  by-cases (P \/ Q)
   {
     assume P
     or-right P
@@ -274,13 +274,13 @@ theorem lemma-example : P \/ P --> P :=
   lemma P --> P :=
     assume P
     P
-  or-elim (P \/ P) (P --> P) (P --> P)
+  by-cases (P \/ P) (P --> P) (P --> P)
 
 // In proofterm style, the above proof looks as follows.
 theorem lemma-term : P \/ P --> P :=
   assume (P \/ P) in
     lemma (P --> P) := (assume P in P) in
-      or-elim (P \/ P) (P --> P) (P --> P)
+      by-cases (P \/ P) (P --> P) (P --> P)
 
 // We can also name the lemma.
 theorem named-lemma-example : P \/ P --> P :=
@@ -288,13 +288,13 @@ theorem named-lemma-example : P \/ P --> P :=
   lemma pp : P --> P :=
     assume P
     P
-  or-elim (P \/ P) pp pp
+  by-cases (P \/ P) pp pp
 
 // An interesting idea: maybe the best syntax for named blocks is a kind of
 // reverse lemma?
 theorem reverse-lemma : P \/ P --> P :=
   assume (P \/ P)
-  or-elim (P \/ P) ?pp ?pp
+  by-cases (P \/ P) ?pp ?pp
   lemma pp : P --> P :=
     assume P
     P
@@ -338,7 +338,7 @@ theorem uncurry : (P --> Q --> R) --> (P /\ Q --> R) :=
 
 theorem or-comm : P \/ Q --> Q \/ P :=
   assume (P \/ Q)
-  or-elim (P \/ Q)
+  by-cases (P \/ Q)
   - assume P
     or-right P
   - assume Q
@@ -346,7 +346,7 @@ theorem or-comm : P \/ Q --> Q \/ P :=
 
 theorem or-comm' : P \/ Q --> Q \/ P :=
   assume (P \/ Q)
-  or-elim (P \/ Q) or-right or-left
+  by-cases (P \/ Q) or-right or-left
 
 theorem and-comm : P /\ Q --> Q /\ P :=
   assume (both P Q)
@@ -354,7 +354,7 @@ theorem and-comm : P /\ Q --> Q /\ P :=
 
 theorem impl-or-neg : ~ P \/ Q --> (P --> Q) :=
   assume (~ P \/ Q) P
-  or-elim (~ P \/ Q)
+  by-cases (~ P \/ Q)
   - modus-ponens (~ P) P
   - assumption
 
@@ -383,12 +383,12 @@ theorem iff-not : (P <--> Q) --> (~ P <--> ~ Q) :=
 
 theorem resolution : (P \/ Q) /\ (~ P \/ R) --> Q \/ R :=
   assume (both (P \/ Q) (~ P \/ R))
-  or-elim (P \/ Q) ?p ?q
+  by-cases (P \/ Q) ?p ?q
   ?q :=
     assume Q
     or-left Q
   ?p :=
-    or-elim (~ P \/ R)
+    by-cases (~ P \/ R)
     - assume (~ P)
       contradiction (~ P) P
     - assume R
@@ -396,11 +396,11 @@ theorem resolution : (P \/ Q) /\ (~ P \/ R) --> Q \/ R :=
 
 theorem resolution' : (P \/ Q) /\ (~ P \/ R) --> Q \/ R :=
   assume (both (P \/ Q) (~ P \/ R))
-  or-elim (P \/ Q) (assume P in ?p) (assume Q in ?q)
+  by-cases (P \/ Q) (assume P in ?p) (assume Q in ?q)
   case ?q
     or-left Q
   case ?p
-    or-elim (~ P \/ R)
+    by-cases (~ P \/ R)
     - assume (~ P)
       contradiction (~ P) P
     - assume R
@@ -408,7 +408,7 @@ theorem resolution' : (P \/ Q) /\ (~ P \/ R) --> Q \/ R :=
 
 theorem not-or-intro : ~ P /\ ~ Q --> ~ (P \/ Q) :=
   assume (both (~ P) (~ Q)) (npq := _)
-  or-elim npq
+  by-cases npq
   - assume p
     modus-ponens (~ P) P
   - assume q

@@ -98,7 +98,7 @@ theorem and-from-weak-and : ~ (~ P \/ ~ Q) --> P /\ Q :=
 // logically equivalent.
 theorem xor-not-iff : ~ (P <--> Q) --> (P /\ ~ Q) \/ (~ P /\ Q) :=
   assume (npq := _)
-  or-elim (lem P) // illegal, lem not yet universally quantified
+  by-cases (lem P) // illegal, lem not yet universally quantified
   - assume P
     or-left
     both P
@@ -141,7 +141,7 @@ theorem premise-independence : (P --> Q \/ R) --> ((P --> Q) \/ (P --> R)) :=
   assume P
   by-contradiction (nq := ~ Q)
   modus-ponens ng
-  or-elim (modus-ponens pqr P)
+  by-cases (modus-ponens pqr P)
   - assume Q
     or-left
     assume _

@@ -52,9 +52,9 @@ theorem implication-chaining-forward-unfolded-alternative :
   (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T :=
   assume (pq qr rs st := _)
   chaining--> P
-  modus-ponens (specialize impl-trans with P Q T) (P --> Q)
-  modus-ponens (specialize impl-trans with Q R T) (Q --> R)
-  modus-ponens (specialize impl-trans with R S T) (R --> S) (S --> T)
+  modus-ponens (instantiate impl-trans with P Q T) (P --> Q)
+  modus-ponens (instantiate impl-trans with Q R T) (Q --> R)
+  modus-ponens (instantiate impl-trans with R S T) (R --> S) (S --> T)
 
 theorem biconditional-chaining-example :
   (P <--> Q) --> (Q <--> R) --> (R <--> S) --> (S <--> T) --> P <--> T :=
@@ -69,9 +69,9 @@ theorem biconditional-chaining-unfolded-example :
   (P <--> Q) --> (Q <--> R) --> (R <--> S) --> (S <--> T) --> P <--> T :=
   assume (pq qr rs st := _)
   chaining--> P
-  modus-ponens (specialize iff-trans with P Q T) (P <--> Q)
-  modus-ponens (specialize iff-trans with Q R T) (Q <--> R)
-  modus-ponens (specialize iff-trans with R S T) (R <--> S) (S <--> T)
+  modus-ponens (instantiate iff-trans with P Q T) (P <--> Q)
+  modus-ponens (instantiate iff-trans with Q R T) (Q <--> R)
+  modus-ponens (instantiate iff-trans with R S T) (R <--> S) (S <--> T)
 
 // Besides `rewrite` and pattern matching in `assume`, there's yet another way
 // of proving equations - chaining, inspired by Agda and Athena.
@@ -132,6 +132,6 @@ theorem relational-chaining-example :
   pick-any R
   pick-any a b c d e
   assume (trans ab bc cd de := _)
-  modus-ponens (specialize trans with a b e) (R a b)
-  modus-ponens (specialize trans with b c e) (R b c)
-  modus-ponens (specialize trans with c d e) (R c d) (R d e)
+  modus-ponens (instantiate trans with a b e) (R a b)
+  modus-ponens (instantiate trans with b c e) (R b c)
+  modus-ponens (instantiate trans with c d e) (R c d) (R d e)

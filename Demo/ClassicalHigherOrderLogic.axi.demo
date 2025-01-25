@@ -22,14 +22,14 @@ theorem bijective-from-has-inverse :
   - unfold surjective             // `unfold` replaces a definition with its body in the goal
     pick-any (b : B)
     exists (g b)
-    specialize fg with b
+    instantiate fg with b
   - unfold injective
     pick-any (x y : A)
     assume (eq := f x = f y)
     chaining= x
-      = g (f x)   by (rewrite <-(specialize gf with x) in refl) // Note that we need `x = g (f x)` whereas `gf` gives `g (f x) = x`, so we need to turn
+      = g (f x)   by (rewrite <-(instantiate gf with x) in refl) // Note that we need `x = g (f x)` whereas `gf` gives `g (f x) = x`, so we need to turn
       = g (f y)   by eq
-      = y         by rewrite (specialize gf with y)
+      = y         by rewrite (instantiate gf with y)
 
 // Let's allow eliminating propositions into types... as our way of supporting classical reasoning.
 theorem has-inverse-from-bijective :
@@ -41,19 +41,19 @@ theorem has-inverse-from-bijective :
   exists
   - // g : B -> A
     fun b : B =>
-    pick-witness a for (specialize sur with b)
+    pick-witness a for (instantiate sur with b)
     a
   - both
     - pick-any (a' : A)                               // g (f a') = a'
-      unfold g                                        // (fun b => pick-witness a for (specialize sur with b) in a) (f a') = a'
-      simpl                                           // pick-witness a for (specialize sur with (f a')) in a = a'
-      pick-witness a for (specialize sur with (f a')) // a = a', but we now have a hypothesis f a = f a'
-      modus-ponens (specialize inj with a a')         // f a = f a'
+      unfold g                                        // (fun b => pick-witness a for (instantiate sur with b) in a) (f a') = a'
+      simpl                                           // pick-witness a for (instantiate sur with (f a')) in a = a'
+      pick-witness a for (instantiate sur with (f a')) // a = a', but we now have a hypothesis f a = f a'
+      modus-ponens (instantiate inj with a a')         // f a = f a'
       assumption
     - pick-any (b : B)                                // f (g b) = b
-      unfold g                                        // f ((fun (b : B) => pick-witness a for (specialize sur with b) in a) b) = b
-      simpl                                           // f (pick-witness a for (specialize sur with b) in a) = b
-      pick-witness a for (specialize sur with b)      // f a = b, but we now have a hypothesis f a = b
+      unfold g                                        // f ((fun (b : B) => pick-witness a for (instantiate sur with b) in a) b) = b
+      simpl                                           // f (pick-witness a for (instantiate sur with b) in a) = b
+      pick-witness a for (instantiate sur with b)      // f a = b, but we now have a hypothesis f a = b
       assumption
 
 // We can now prove the Axiom of Choice.
@@ -66,10 +66,10 @@ theorem choice :
   assume (allex := _)                                 // Γ |- exists f : A -> B, forall a : A, R a (f a)
   exists                                              // Γ |- ?f : A -> B, Γ |- forall a : A, R a (?f a)
   - fun (a : A) =>                                    // Γ, a : A |- B
-    pick-witness b for (specialize allex with a)      // Γ, a : A, b : B, R a b |- B
+    pick-witness b for (instantiate allex with a)      // Γ, a : A, b : B, R a b |- B
     b
   - pick-any (a : A)                                  // Γ, a : A |- R a (f a)
-    unfold f                                          // Γ, a : A |- R a ((fun (a : A) => pick-witness b for (specialize allex with a) in b) a)
-    simpl                                             // Γ, a : A |- R a (pick-witness b for (specialize allex with a) in b)
-    pick-witness b for (specialize allex with a)      // Γ, a : A, b : B, R a b |- R a b
+    unfold f                                          // Γ, a : A |- R a ((fun (a : A) => pick-witness b for (instantiate allex with a) in b) a)
+    simpl                                             // Γ, a : A |- R a (pick-witness b for (instantiate allex with a) in b)
+    pick-witness b for (instantiate allex with a)      // Γ, a : A, b : B, R a b |- R a b
     assumption
