@@ -1,22 +1,21 @@
 // The syntax of quantifiers over types is as follows.
-// P, Q ::= ... | forall-type A, P | exists-type A, P
+// P, Q ::= ... | forall (A : Type), P | exists (A : Type), P
 
-theorem forall-type-intro-example : forall-type A, forall x : A, x = x :=
-  pick-any-type A
-  pick-any x
+theorem forall-type-intro-example : forall (A : Type) (x : A), x = x :=
+  pick-any A x
   refl
 
 theorem forall-type-elim-example :
-  (forall-type A, forall x : A, x = x) --> forall n : Nat, n = n :=
+  (forall (A : Type) (x : A), x = x) --> forall n : Nat, n = n :=
   assume (f := _)
-  instantiate-type f Nat
+  instantiate f Nat
 
-theorem exists-type-intro-example : exists-type A, forall x : A, x = x :=
-  exists-type Nat
+theorem exists-type-intro-example : exists (A : Type), forall x : A, x = x :=
+  exists Nat
   pick-any x
   refl
 
-theorem exists-type-elim-example : exists-type A, ...
+theorem exists-type-elim-example : exists (A : Type), ...
 
 
 
@@ -113,9 +112,8 @@ myex (A : Type) (P : A -> Prop) : Prop :=
   forall R : Prop, (forall x : A, P x --> R) --> R
 
 theorem myex-spec :
-  forall-type A, forall P : A -> Prop, myex A P <--> exists x : A, P x :=
-  pick-any-type A
-  pick-any P
+  forall (A : Type) (P : A -> Prop), myex A P <--> exists x : A, P x :=
+  pick-any A P
   both
   - assume (mx := _)
     modus-ponens (instantiate myex with (exists x : A, P x))
@@ -134,12 +132,11 @@ myeq (A : Type) (x y : A) : Prop :=
   forall P : A -> Prop, P x --> P y
 
 theorem myeq-spec :
-  forall-type A, forall x y : A, myeq x y <--> x = y :=
-  pick-any-type A
-  pick-any (x y : A)
+  forall (A : Type) (x y : A), myeq x y <--> x = y :=
+  pick-any (A : Type) (x y : A)
   both
   - assume (all := _)                                             // x = y
-    modus-ponens (instantiate all with (fun (a : A) => x = a))     // x = x
+    modus-ponens (instantiate all with (fun (a : A) => x = a))    // x = x
     refl
   - assume =->                                                    // myeq x x
     unfold myeq                                                   // forall P : A -> Prop, P x --> P x
