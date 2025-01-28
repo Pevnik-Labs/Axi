@@ -45,7 +45,7 @@ theorem forall-elim-example-term-style : (forall x : A, P x) --> P a :=
 
 // With some naming, the proof can be shortened by a lot.
 theorem forall-elim-example' : (forall x : A, P x) --> P a :=
-  assume (f = _)
+  assume (f := _)
   instantiate f with a
 
 // The existential quantifier is written `exists x : A, P x`.
@@ -77,14 +77,14 @@ theorem exists-annotation : exists x, P x \/ True :=
 // The existential quantifier is eliminated with `pick-witness x for e1 in e2`,
 // where x is bound in `e2`.
 theorem exists-elim-example : (exists x : A, P x /\ Q x) --> exists x : A, P x :=
-  assume (ex = _)
+  assume (ex := _)
   pick-witness x for ex
   exists x such-that
   and-left (P x /\ Q x)
 
 // In proofterm style, the above proof looks as follows.
 theorem exists-elim-example-term-style : (exists x : A, P x /\ Q x) --> exists x : A, P x :=
-  assume (ex = _) in
+  assume (ex := _) in
     pick-witness x for ex in
       exists x such-that
         and-left (P x /\ Q x)

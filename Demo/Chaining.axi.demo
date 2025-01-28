@@ -4,18 +4,18 @@ declaration P Q R S T : Prop
 // When we want to prove some goal using a long chain of implications,
 // we can use chaining. In the example below we showcase backward
 // chaining, i.e. we start with the conclusion and then list
-// a bunch of intermediate goals together with justifications that
+// a bunch of intermediate goals together with proofs (after `by`) that
 // the current goal follows from them.
 theorem implication-chaining-backwards :
   (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T :=
   // Let Γ := P --> Q, Q --> R, R --> S, S --> T, P
-  assume (P --> Q) (Q --> R) (R --> S) (S --> T) P  // Γ |- T
-  chaining<-- T                                     // Γ |- T   // We start the chain. `<--` means it's backwards chaining for implication. `T` is effectively an annotation.
-    <-- S         by (S --> T)                      // Γ |- S   // `S` implies `T` by the assumption, so the goal changes to `S`.
+  assume (P --> Q) (Q --> R) (R --> S) (S --> T) P  // Γ |- T  // After making all the assumptions, the goal is `T`.
+  chaining<-- T                                     // Γ |- T  // We start the chain. `<--` means it's backward chaining for implication. The goal is still `T`.
+    <-- S         by (S --> T)                      // Γ |- S  // The goal changes to `S` because `S` implies `T` as shown in the `by` clause.
     <-- R         by (R --> S)                      // Γ |- R
     <-- Q         by (Q --> R)                      // Γ |- Q
-    <-- P         by (P --> Q)                      // Γ |- P   // After the final step, the goal that we are left with is now `P`.
-  assumption                                        // We now solve the goal produced by chaining.
+    <-- P         by (P --> Q)                      // Γ |- P  // After the final step, the goal that we are left with is `P`.
+  assumption                                        // We now solve `P`, the goal produced by chaining.
 
 // In proofterm style, the above proof looks as follows.
 theorem implication-chaining-backwards-term-style :
@@ -29,7 +29,7 @@ theorem implication-chaining-backwards-term-style :
     in
       assumption
 
-// The proof gets desugared to a bunch of uses of `modus-ponens`.
+// The chaining gets desugared to a bunch of uses of `modus-ponens`.
 theorem implication-chaining-backwards-desugared :
   (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T :=
   assume (P --> Q) (Q --> R) (R --> S) (S --> T) P
@@ -61,7 +61,7 @@ theorem implication-chaining-backwards-assumption :
 // I imagine that when we have a mildly powerful automation tactic
 // akin to Coq's `auto`, let's call it `hammer`, it would be the
 // default thing passed to `by`, so that the `by` could be omitted.
-theorem implication-chaining-backward-default :
+theorem implication-chaining-backwards-default :
   (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T :=
   assume (P --> Q) (Q --> R) (R --> S) (S --> T) P
   chaining<-- T
@@ -71,65 +71,81 @@ theorem implication-chaining-backward-default :
     <-- P
   assumption
 
-//
-theorem implication-chaining-backwards-different :
+// There's also a different style of backwards chaining. The last time
+// we introduced all assumptions into the context, used chainig to
+// change the goal from `T` to `P` and then proved `P` with `assumption`.
+// This time we'll use chaining to prove `P --> T` directly.
+theorem implication-chaining-backwards-direct :
   (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T :=
   // Let Γ := P --> Q, Q --> R, R --> S, S --> T
-  assume (P --> Q) (Q --> R) (R --> S) (S --> T)    // Γ |- P --> T  // Let's assume everything EXCEPT the last `P`.
-  chaining<-- T                                     // Γ |- T
-    <-- S         by (S --> T)                      // Γ |- S
-    <-- R         by (R --> S)                      // Γ |- R
-    <-- Q         by (Q --> R)                      // Γ |- Q
-    <-- P         by (P --> Q)                      // Γ |- P
-                                                    // The chain started with `T` and ended with `P`, so its ultimate conclusion is `P --> T`, which was our goal, so the proof is done.
+  assume (P --> Q) (Q --> R) (R --> S) (S --> T)    // Γ |- P --> T  // Let's assume everything EXCEPT the last `P`, so that the goal is `P --> T`.
+  chaining<-- T                                     // Γ |- P --> T  // We start the chain. The goal is still `P --> T`.
+    <-- S         by (S --> T)                      // Γ |- P --> S  // The goal changes to `P --> S` because `S` implies `T` as shown in the `by` clause.
+    <-- R         by (R --> S)                      // Γ |- P --> R
+    <-- Q         by (Q --> R)                      // Γ |- P --> Q
+    <-- P         by (P --> Q)                      // In the last step we prove `P --> Q`, which is precisely our goal, so we're done.
+
+// The above proof is desugared as follows, where `impl-trans'` is
+// this theorem: `forall Q R P : Prop, (Q --> R) --> (P --> Q) --> (P --> R)`
+theorem implication-chaining-backwards-direct-desugared :
+  (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T :=
+  assume (P --> Q) (Q --> R) (R --> S) (S --> T)
+  modus-ponens (instantiate impl-trans' with S T P) (S --> T)
+  modus-ponens (instantiate impl-trans' with R S P) (R --> S)
+  modus-ponens (instantiate impl-trans' with Q R P) (Q --> R) (P --> Q)
 
 // Besides backward chaining, there's also forward chaining. This time
 // we start with a premise and draw intermediate conclusions from it,
-// justifying each step, until we reach the goal
-theorem implication-chaining-forward-example :
+// justifying each step, until we reach the goal.
+theorem implication-chaining-forwards-example :
   (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T :=
   // Let Γ := P --> Q, Q --> R, R --> S, S --> T
-  assume (P --> Q) (Q --> R) (R --> S) (S --> T)    // Γ |- P --> T
-  chaining--> P                                     // Γ |- P --> T
-    --> Q         by (P --> Q)                      // Γ |- Q --> T
+  assume (P --> Q) (Q --> R) (R --> S) (S --> T)    // Γ |- P --> T  // After making all the assumptions, the goal is `P --> T`.
+  chaining--> P                                     // Γ |- P --> T  // We start the chain. `-->` means it's forward chaining for implication. The goal is still `P --> T`.
+    --> Q         by (P --> Q)                      // Γ |- Q --> T  // The goal changes to `Q --> T` because `P` implies `Q` as shown in the `by` clause.
     --> R         by (Q --> R)                      // Γ |- R --> T
     --> S         by (R --> S)                      // Γ |- S --> T
-    --> T         by (S --> T)                      // Γ |- T --> T
-  // The chain started with `T` and ended with `P`, so its ultimate conclusion is `P --> T`, which was our goal, so the proof is done.
+    --> T         by (S --> T)                      // In the last step we prove `S --> T`, which is precisely our goal, so we're done.
 
-theorem implication-chaining-forward-desugared :
+// The above proof is desugared as follows, where `impl-trans` is
+// this theorem: `forall P Q R : Prop, (P --> Q) --> (Q --> R) --> (P --> R)`.
+theorem implication-chaining-forwards-desugared :
   (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T :=
   assume (P --> Q) (Q --> R) (R --> S) (S --> T)
   modus-ponens (instantiate impl-trans with P Q T) (P --> Q)
   modus-ponens (instantiate impl-trans with Q R T) (Q --> R)
   modus-ponens (instantiate impl-trans with R S T) (R --> S) (S --> T)
 
+// We can also use chaining for biconditionals. The only 'mode' of chaining
+// here is forward (although I think backwards would also be possible).
 theorem biconditional-chaining-example :
   (P <--> Q) --> (Q <--> R) --> (R <--> S) --> (S <--> T) --> P <--> T :=
-  assume (P <--> Q) (Q <--> R) (R <--> S) (S <--> T)
-  chaining<--> P
-    <--> Q        by (P <--> Q)
-    <--> R        by (Q <--> R)
-    <--> S        by (R <--> S)
-    <--> T        by (S <--> T)
+  // Let Γ := P --> Q, Q --> R, R --> S, S --> T
+  assume (P <--> Q) (Q <--> R) (R <--> S) (S <--> T)  // Γ |- P <--> T  // After making all the assumptions, the goal is `P <--> T`.
+  chaining<--> P                                      // Γ |- P <--> T  // We start the chain. `<-->` means it's chaining for biconditional. The goal is still `P <--> T`.
+    <--> Q        by (P <--> Q)                       // Γ |- Q <--> T  // The goal changes to `Q <--> T` because `P <--> Q` as shown in the `by` clause.
+    <--> R        by (Q <--> R)                       // Γ |- R <--> T
+    <--> S        by (R <--> S)                       // Γ |- S <--> T
+    <--> T        by (S <--> T)                       // In the last step we prove `S <--> T`, which is precisely our goal, so we're done.
 
+// The above proof is desugared as follows, where `iff-trans` is
+// this theorem: `forall P Q R : Prop, (P <--> Q) --> (Q <--> R) --> (P <--> R)`.
 theorem biconditional-chaining-desugared-example :
   (P <--> Q) --> (Q <--> R) --> (R <--> S) --> (S <--> T) --> P <--> T :=
   assume (P <--> Q) (Q <--> R) (R <--> S) (S <--> T)
-  // iff-trans : forall P Q R : Prop, (P <--> Q) --> (Q <--> R) --> (P <--> R)
-  // instantiate iff-trans with P Q T: (P <--> Q) --> (Q <--> T) --> (P <--> T)
   modus-ponens (instantiate iff-trans with P Q T) (P <--> Q)
   modus-ponens (instantiate iff-trans with Q R T) (Q <--> R)
   modus-ponens (instantiate iff-trans with R S T) (R <--> S) (S <--> T)
 
-// Besides `rewrite` and pattern matching in `assume`, there's yet another way
-// of proving equations - chaining, inspired by Agda and Athena.
-theorem equational-chaining : forall x y z : A, x = y --> y = z --> x = z :=
-  pick-any x y z
-  assume (x = y) (y = z)    // x y z : A, x = y, y = z |- x = z
-  chaining= x               // x y z : A, x = y, y = z |- x = z
-    = y       by (x = y)    // x y z : A, x = y, y = z |- y = z
-    = z       by (y = z)    // x y z : A, x = y, y = z |- z = z
+// There's also chaining for equality.
+theorem equational-chaining :
+  forall x y z w : A, x = y --> y = z --> z = w --> x = w :=
+  pick-any x y z w
+  // Let Γ := x y z w : A, x = y, y = z, z = w
+  assume (x = y) (y = z) (z = w)                // Γ |- x = z
+  chaining= x                                   // Γ |- x = z
+    = y       by (x = y)                        // Γ |- y = z
+    = z       by (y = z)
 
 // In proofterm style, the above proof looks as follows.
 theorem equational-chaining-term-style :

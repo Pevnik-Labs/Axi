@@ -327,15 +327,19 @@ theorem conclusion-annotation-example-term : Q -> P \/ (Q \/ R) :=
 
 // Example theorems and proofs (only constructive logic).
 
+// Currying is when we change one big conjunctive premise into a bunch
+// of premises connected with implications.
 theorem curry : (P /\ Q --> R) --> P --> Q --> R :=
   assume (P /\ Q --> R) P Q
   modus-ponens (P /\ Q --> R)
   both P Q
 
+// Uncurrying is the reverse of currying.
 theorem uncurry : (P --> Q --> R) --> (P /\ Q --> R) :=
   assume (P --> Q --> R) (both P Q)
   modus-ponens (P --> Q --> R) P Q
 
+// Disjunction is commutative.
 theorem or-comm : P \/ Q --> Q \/ P :=
   assume (P \/ Q)
   by-cases (P \/ Q)
@@ -344,23 +348,37 @@ theorem or-comm : P \/ Q --> Q \/ P :=
   - assume Q
     or-left Q
 
+// Note that `assume P in or-right P` is equivalent to just `or-right`,
+// and analogously for `or-left`, so in the above proof we could have
+// used those directly.
 theorem or-comm' : P \/ Q --> Q \/ P :=
   assume (P \/ Q)
   by-cases (P \/ Q) or-right or-left
 
+// Conjunction is commutative.
 theorem and-comm : P /\ Q --> Q /\ P :=
+  assume (P /\ Q)
+  both
+  - and-right (P /\ Q)
+  - and-left (P /\ Q)
+
+// The above proof gets much shorter when pattern matching
+// directly in `assume`.
+theorem and-comm' : P /\ Q --> Q /\ P :=
   assume (both P Q)
   both Q P
 
+// `~ P \/ Q` is classically equivalent to `P --> Q`, but only one
+// direction is constructive, the other being classical.
 theorem impl-or-neg : ~ P \/ Q --> (P --> Q) :=
   assume (~ P \/ Q) P
   by-cases (~ P \/ Q)
-  - modus-ponens (~ P) P
+  - contradiction (~ P) P
   - assumption
 
 theorem noncontradiction : ~ (P /\ ~ P) :=
   assume (both P (~ P))
-  modus-ponens (~ P) P
+  contradiction (~ P) P
 
 theorem contraposition : (P --> Q) --> (~ Q --> ~ P) :=
   assume (P --> Q) (~ Q) P
@@ -397,9 +415,9 @@ theorem resolution : (P \/ Q) /\ (~ P \/ R) --> Q \/ R :=
 theorem resolution' : (P \/ Q) /\ (~ P \/ R) --> Q \/ R :=
   assume (both (P \/ Q) (~ P \/ R))
   by-cases (P \/ Q) (assume P in ?p) (assume Q in ?q)
-  case ?q
+  ?q :=
     or-left Q
-  case ?p
+  ?p :=
     by-cases (~ P \/ R)
     - assume (~ P)
       contradiction (~ P) P
@@ -410,9 +428,9 @@ theorem not-or-intro : ~ P /\ ~ Q --> ~ (P \/ Q) :=
   assume (both (~ P) (~ Q)) (npq := _)
   by-cases npq
   - assume p
-    modus-ponens (~ P) P
+    contradiction (~ P) P
   - assume q
-    modus-ponens (~ Q) Q
+    contradiction (~ Q) Q
 
 theorem not-or-elim : ~ (P \/ Q) --> ~ P /\ ~ Q :=
   assume (npq := ~ (P \/ Q))
