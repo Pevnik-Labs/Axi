@@ -112,14 +112,6 @@ theorem eq-refl-term-style : forall x : A, x = x :=
 // The effect is that all occurrences of `l` are replaced with `r`
 // in the type of `e'`.
 theorem eq-sym : forall x y : A, x = y --> y = x :=
-  pick-any x y
-  assume (x = y)
-  rewrite (x = y)
-  refl
-
-// In case you are confused by the above proof, here is the entire context
-// after each step.
-theorem eq-sym : forall x y : A, x = y --> y = x :=
   pick-any x y       // x y : A |- x = y --> y = x
   assume (x = y)     // x y : A, x = y |- y = x
   rewrite (x = y)    // x y : A, x = y |- y = y
