@@ -3,7 +3,7 @@
 | True intro          | true-intro          | true                    | trivial                     |
 | False elim          | false-elim e        | exfalso e               | absurd e                    |
 | Implication intro   | impl-intro P e      | assume P in e           | assume P in e               |
-| Implication elim    | impl-elim e1 e2     | modus-ponens e1 e2      |                             |
+| Implication elim    | impl-elim e1 e2     | modus-ponens e1 e2      | imply (?)                   |
 | Negation intro      | not-intro P e       | suppose-absurd P in e   |                             |
 | Negation elim       | not-elim e1 e2      | absurd e1 e2            | contradiction e1 e2         |
 | Conjunction intro   | and-intro e1 e2     | both e1 e2              | both e1 e2                  |
