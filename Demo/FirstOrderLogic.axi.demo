@@ -44,14 +44,22 @@ theorem forall-elim-example-term-style : (forall x : A, P x) --> P a :=
     instantiate (forall x : A, P x) with a
 
 // With some naming, the proof can be shortened by a lot.
-theorem forall-elim-example' : (forall x : A, P x) --> P a :=
+theorem forall-elim-example-named : (forall x : A, P x) --> P a :=
   assume (f := _)
   instantiate f with a
 
+// Note that it can often be inferred from context what term
+// the quantifier should be instantiated with. In such a case
+// we can omit the `with` clause.
+theorem forall-elim-example' : (forall x : A, P x) --> P a :=
+  assume (f := _)
+  instantiate f
+
 // The existential quantifier is written `exists x : A, P x`.
-// Its introduction rule is `exists x such-that e`.
+// Its introduction rule is `exists x such-that e` (which
+// in tactic style is written simply `exists`).
 theorem exists-intro-example : exists x : A, P x \/ True :=
-  exists a such-that
+  exists a
   or-right
   trivial
 
@@ -63,14 +71,14 @@ theorem exists-intro-example-term-style : exists x : A, P x \/ True :=
 // Similarly to the universal quantifier, the annotation on the variable
 // can be omitted if it can be inferred from context, like from `P` below.
 theorem exists-no-annotation-example : exists x, P x \/ True :=
-  exists a such-that
+  exists a
   or-right
   trivial
 
 // We can also put a type annotation on the variable in `exists`,
 // irrespective of whether it appears on the quantifier or not.
 theorem exists-annotation : exists x, P x \/ True :=
-  exists (a : A) such-that
+  exists (a : A)
   or-right
   trivial
 
@@ -79,7 +87,7 @@ theorem exists-annotation : exists x, P x \/ True :=
 theorem exists-elim-example : (exists x : A, P x /\ Q x) --> exists x : A, P x :=
   assume (ex := _)
   pick-witness x for ex
-  exists x such-that
+  exists x
   and-left (P x /\ Q x)
 
 // In proofterm style, the above proof looks as follows.
@@ -149,7 +157,7 @@ theorem eq-trans : forall x y z : A, x = y --> y = z --> x = z :=
   rewrite (x = y), (y = z)
   refl
 
-// The `<-` and `->` modifiers are still valid for these bunched rewrites.
+// The `<-` and `->` modifiers are still valid in these bunched rewrites.
 theorem rewrite-chaining-modifiers : forall x y z : A, x = y --> y = z --> x = z :=
   pick-any x y z
   assume (x = y) (y = z)
@@ -158,12 +166,85 @@ theorem rewrite-chaining-modifiers : forall x y z : A, x = y --> y = z --> x = z
 
 // Similarly to conjunction, biconditional and existential quantifier,
 // we can eliminate equality by pattern matching fused with `assume`.
-// The pattern to do this are `=->` (for left-to-right rewriting)
+// The patterns to do this are `=->` (for left-to-right rewriting)
 // and `<-=` (for right-to-left rewriting).
 theorem eq-elim-pattern-matching : forall x y z : A, x = y --> y = z --> x = z :=
   pick-any x y z
   assume =-> =->
   refl
+
+// We will finish by describing some convenience tactics for working with
+// various kinds of relations (reflexive, symmetric, transitive, etc.).
+// First we declare `R` to be a relation and `b`, `c` to be of type `A`.
+declaration R : A -> A -> Prop
+declaration b c : A
+
+// We can use `reflexivity` to prove `R x x` when `R` is a reflexive relation.
+theorem reflexivity-example : (forall x : A, R x x) --> R a a :=
+  assume (rfl := _)
+  reflexivity
+
+// The above proof is desugared as follows.
+theorem reflexivity-example-desugared : (forall x : A, R x x) --> R a a :=
+  assume (rfl := _)
+  instantiate rfl
+
+// Optionally, `reflexivity` can take an argument.
+theorem reflexivity-arg-example : (forall x : A, R x x) --> R a a :=
+  assume (rfl := _)
+  reflexivity a
+
+// The above proof is desugared as follows.
+theorem reflexivity-arg-example-desugared : (forall x : A, R x x) --> R a a :=
+  assume (rfl := _)
+  instantiate rfl with a
+
+// There's also `symmetry`.
+theorem symmetry-example :
+  (forall x y : A, R x y --> R y x) --> R a b --> R b a :=
+  assume (symm := _) (R a b)
+  symmetry
+  assumption
+
+// The above proof is desugared as follows.
+theorem symmetry-example-desugared :
+  (forall x y : A, R x y --> R y x) --> R a b --> R b a :=
+  assume (symm := _) (R a b)
+  modus-ponens (instantiate symm with _ _)
+  assumption
+
+// Optionally, `symmetry` takes arguments which help the instantiation.
+theorem symmetry-example :
+  (forall x y : A, R x y --> R y x) --> R a b --> R b a :=
+  assume (symm := _) (R a b)
+  symmetry b a
+  assumption
+
+// The above proof is desugared as follows.
+theorem symmetry-example-desugared :
+  (forall x y : A, R x y --> R y x) --> R a b --> R b a :=
+  assume (symm := _) (R a b)
+  modus-ponens (instantiate symm with a b)
+  assumption
+
+// There's also `transitivity`. This time, the first argument is mandatory,
+// because the middle element cannot be easily guessed.
+theorem transitivity-example :
+  (forall x y z : R x y --> R y z --> R x z) -->
+    R a b --> R b c --> R a c :=
+  assume (trans := _) (R a b) (R b c)
+  transitivity b
+  - assumption
+  - assumption
+
+// The above proof is desugared as follows.
+theorem transitivity-example-desugared :
+  (forall x y z : R x y --> R y z --> R x z) -->
+    R a b --> R b c --> R a c :=
+  assume (trans := _) (R a b) (R b c)
+  modus-ponens (instantiate trans with a b c)
+  - assumption
+  - assumption
 
 // Some examples.
 
@@ -172,7 +253,7 @@ theorem forall-impl :
   assume (pq := _) (p := _)
   pick-any x
   modus-ponens (instantiate pq with x)
-  instantiate p with x
+  instantiate p
 
 theorem forall-or :
   (forall x : A, P x) \/ (forall x : A, Q x) --> forall x : A, P x \/ Q x :=
@@ -181,10 +262,10 @@ theorem forall-or :
   by-cases orall
   - assume (p := _)
     or-left
-    instantiate p with x
+    instantiate p
   - assume (q := _)
     or-left
-    instantiate q with x
+    instantiate q
 
 theorem forall-and :
   (forall x : A, P x /\ Q x) <--> (forall x : A, P x) /\ (forall x : A, Q x) :=
@@ -195,11 +276,11 @@ theorem forall-and :
       and-left (instantiate all with x)
     - pick-any x
       and-right (instantiate all with x)
-  - assume (both (forall x : A, P x) (forall x : A, Q x))
+  - assume (both (p := forall x : A, P x) (q := forall x : A, Q x))
     pick-any x
     both
-    - instantiate (forall x : A, P x) with x
-    - instantiate (forall x : A, Q x) with x
+    - instantiate p
+    - instantiate q
 
 theorem ex-or :
   (exists x : A, P x \/ Q x) <--> (exists x : A, P x) \/ (exists x : A, Q x) :=
@@ -250,4 +331,4 @@ theorem not-forall : ~ (forall x : A, P x) <--> exists x : A, ~ P x :=
     assumption
   - assume (exists x such-that (~ P x)) (all := _)
     modus-ponens (~ P x)
-    instantiate all with x
+    instantiate all

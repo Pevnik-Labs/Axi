@@ -32,7 +32,7 @@ theorem weakening : P --> Q --> P :=
   P
 
 // In proofterm style, the above proof looks as follows.
-theorem weakening-term : P --> Q --> P :=
+theorem weakening-term-style : P --> Q --> P :=
   assume P in
     assume Q in
       P
@@ -211,7 +211,7 @@ theorem and-assoc : (P /\ Q) /\ R --> P /\ (Q /\ R) :=
   both Q R
 
 // In proofterm style, the above proof looks as follows.
-theorem and-assoc-term : (P /\ Q) /\ R --> P /\ (Q /\ R) :=
+theorem and-assoc-term-style : (P /\ Q) /\ R --> P /\ (Q /\ R) :=
   assume (both (both P Q) R) in
     both P (both Q R)
 
@@ -266,26 +266,28 @@ theorem or-elim-tactic-style : P \/ Q --> Q \/ P :=
     or-left Q
   }
 
-// We can prove a lemma inline with the construct `lemma x : P := p in q`,
+// We can prove a lemma inline with the construct `lemma x := P by p in q`,
 // where `x` is an (optional) name, `P` is a proposition, `p` is its proof
 // and `q` is the proof of the main theorem.
 theorem lemma-example : P \/ P --> P :=
   assume (P \/ P)
-  lemma P --> P :=
+  lemma P --> P by
     assume P
     P
   by-cases (P \/ P) (P --> P) (P --> P)
 
 // In proofterm style, the above proof looks as follows.
-theorem lemma-term : P \/ P --> P :=
+theorem lemma-term-style : P \/ P --> P :=
   assume (P \/ P) in
-    lemma (P --> P) := (assume P in P) in
+    lemma (P --> P) by
+      assume P in P
+    in
       by-cases (P \/ P) (P --> P) (P --> P)
 
 // We can also name the lemma.
 theorem named-lemma-example : P \/ P --> P :=
   assume (P \/ P)
-  lemma pp : P --> P :=
+  lemma pp := P --> P by
     assume P
     P
   by-cases (P \/ P) pp pp
@@ -295,7 +297,7 @@ theorem named-lemma-example : P \/ P --> P :=
 theorem reverse-lemma : P \/ P --> P :=
   assume (P \/ P)
   by-cases (P \/ P) ?pp ?pp
-  lemma pp : P --> P :=
+  lemma pp := P --> P by
     assume P
     P
 
@@ -305,6 +307,33 @@ theorem reverse-lemma : P \/ P --> P :=
 // lemma P by p
 // lemma _ : P := p
 // theorem _ : P := p
+
+// When using `lemma`, we first prove the lemma and then the main goal.
+// But we can also do this in the opposite order: we first prove the
+// main goal and then the lemma.
+// `suffices P by e in e'` proves `Q` provided that `e` proves
+// `Q` in the context extended with `P` and `e'` proves `P`.
+theorem suffices-example : (P --> Q) --> (Q --> R) --> P --> R :=
+  assume (P --> Q) (Q --> R) P
+  suffices Q by modus-ponens (Q --> R)
+  suffices P by modus-ponens (P --> Q)
+  assumption
+
+// In proofterm style, the above proof looks as follows.
+theorem suffices-example-term-style : (P --> Q) --> (Q --> R) --> P --> R :=
+  assume (P --> Q) (Q --> R) P in
+    suffices Q by modus-ponens (Q --> R) in
+    suffices P by modus-ponens (P --> Q) in
+      assumption
+
+// We don't need to prove the goal inline.
+theorem suffices-example : (P --> Q) --> (Q --> R) --> P --> R :=
+  assume (P --> Q) (Q --> R) P
+  suffices Q by
+    modus-ponens (Q --> R)
+  suffices P by
+    modus-ponens (P --> Q)
+  assumption
 
 // If at any point in the proof it's not clear what the goal is, we can
 // provide a conclusion annotation to make this obvious. The syntax is
@@ -319,7 +348,7 @@ theorem conclusion-annotation-example : Q -> P \/ (Q \/ R) :=
   assumption
 
 // In proofterm style, the above proof looks as follows.
-theorem conclusion-annotation-example-term : Q -> P \/ (Q \/ R) :=
+theorem conclusion-annotation-example-term-style : Q -> P \/ (Q \/ R) :=
   assume Q in
     proving (P \/ (Q \/ R)) by or-right
       (proving (Q \/ R) by or-left

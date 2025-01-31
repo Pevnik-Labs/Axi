@@ -1,0 +1,73 @@
+
+
+// We can also use chaining for equality.
+theorem equational-chaining :
+  forall x y z w : A,
+    x = y --> y = z --> z = w --> P w --> P x :=
+  pick-any x y z w
+  // Let Γ := x y z w : A, x = y, y = z, z = w, P w
+  assume (x = y) (y = z) (z = w) (P w)  // Γ |- P x  // After making all the assumptions, the goal is `P x`.
+  chaining= (P x)                       // Γ |- P x  // We start the chain. `=` means it's chaining for equality. The goal is still `P x`.
+    = (P y)        by (x = y)           // Γ |- P y  // The goal changes to `P y` because `x = y`, as proven in the `by` clause.
+    = (P z)        by (y = z)           // Γ |- P z
+    = (P w)        by (z = w)           // Γ |- P w  // After the final step, the goal that we are left with is `P w`.
+    assumption                          // We now solve `P w`, the goal produced by chaining.
+
+// In proofterm style, the above proof looks as follows.
+theorem equational-chaining-term-style :
+  forall x y z w : A,
+    x = y --> y = z --> z = w --> P w --> P x :=
+  pick-any x y z w in
+    assume (x = y) (y = z) (z = w) (P w) in
+      chaining= (P x)
+        = (P y)        by (x = y)
+        = (P z)        by (y = z)
+        = (P w)        by (z = w)
+      in
+        assumption
+
+// In general, an equational chain of the form
+// ```
+// chaining= P
+//   = P_1      by e_1
+//   ...
+//   = P_n      by e_n
+// ```
+// is desugared to `rewrite e1, ..., en` and changes the goal from `P` to `P_n`.
+// The above proof gets desugared as follows.
+theorem equational-chaining-desugared :
+  forall x y z w : A,
+    x = y --> y = z --> z = w --> P w --> P x :=
+  pick-any x y z w
+  assume (x = y) (y = z) (z = w) (P w)
+  rewrite (x = y)
+  rewrite (y = z)
+  rewrite (z = w)
+  assumption
+
+// Last time our conclusion was `P w --> P x`, i.e. "contrary" to the
+// direction of the hypotheses, but what about the other direction?
+// One solution is to leave the last hypothesis in the goal.
+theorem equational-chaining-reverse-direction :
+  forall x y z w : A,
+    x = y --> y = z --> z = w --> P x --> P w :=
+  pick-any x y z w
+  // Let Γ := x y z w : A, x = y, y = z, z = w
+  assume (x = y) (y = z) (z = w)       // Γ |- P x --> P w  // After making all the assumptions, the goal is `P x --> P w`.
+  chaining= (P x --> P w)              // Γ |- P x --> P w  // We start the chain. The goal is still `P x --> P w`.
+    = (P y --> P w)        by (x = y)  // Γ |- P y --> P w  // The goal changes to `P y --> Pw` because `x = y`, as proven in the `by` clause.
+    = (P z --> P w)        by (y = z)  // Γ |- P z --> P w
+    = (P w --> P w)        by (z = w)  // Γ |- P w --> P w  // After the final step, the goal that we are left with is `P w --> P w`.
+  assume (P w)                         // Γ, P w |- P w     // We now solve `P w --> Pw`, the goal produced by chaining.
+  assumption
+
+theorem equational-chaining-reverse-direction' :
+  forall x y z w : A,
+    x = y --> y = z --> z = w --> P x --> P w :=
+  pick-any P x y z w
+  // Let Γ := x y z w : A, x = y, y = z, z = w, P x
+  assume (x = y) (y = z) (z = w) (P x)  // Γ |- P w  // After making all the assumptions, the goal is `P w`.
+  chaining= (P w)
+    = (P z)        by symmetry (z = w) // modus-ponens (instantiate eq-sym with _ _) (z = w) //proving (w = z) by rewrite (z = w) in refl
+    = (P y)        by proving (z = y) by rewrite (y = z) in refl
+    = (P x)        by proving (y = x) by rewrite (x = y) in refl

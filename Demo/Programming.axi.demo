@@ -1,14 +1,9 @@
-// This is a comment.
-
-// The basic kinds of objects are terms, types, propositions and proofs.
-// Top-level commands can be used to either define or declare these.
-// Declarations introduce new constants whereas definitions assign names to
-// expressions. Whether declarations should be present in the final language is
-// unclear (as they correspond to axioms and may result in contradiction), but
-// they are present in comparable languages, so I've included them for now.
-
 // Term definition
 answer : Nat := 42
+
+// Type annotations at the top-level are mandatory, so the code below
+// results in an error, even though it's easy to infer the type.
+missing-annotation-error := 42
 
 // Function definition (lambda).
 id : Nat -> Nat :=
@@ -26,7 +21,7 @@ id : forall a, a -> a :=
   fun x : a => x
 
 // Polymorphic function (short).
-id (x : a) : a := x
+id a (x : a) : a := x
 
 // Polymorphic function (very implicit arguments - no need to bind a).
 id (x : a) : a := x
@@ -35,7 +30,7 @@ id (x : a) : a := x
 comp (f : a -> b) (g : b -> c) : a -> c :=
   fun x => g (f x)
 
-// Term declaration - n is now a natural number (which is otherwise undefined).
+// Term declaration - `n` is now a natural number (which is otherwise undefined).
 declaration n : Nat
 
 // Theorem (tactic style).
@@ -48,7 +43,7 @@ proof
 qed
 
 // Theorem (term style, nameless)
-theorem forall a b (f : a -> b). comp f id = f :=
+theorem forall a b (f : a -> b), comp f id = f :=
   pick-any a b f in funext x in refl
 
 // Nameless axiom
@@ -95,7 +90,7 @@ app a (l1 l2 : List a) : List a :=
 | cons h t , _ => cons h (app t l2)
 
 // Proof by induction
-theorem map_id :=
+theorem map-id :=
   forall a (l : List a). map id l = l
 proof
   pick-any a l
@@ -104,24 +99,21 @@ proof
   | cons => rewrite (map id t = t) in refl
 qed
 
-theorem map_id : forall a l. map id l = l :=
-  pick-any a l =>
+theorem map-id-term-style : forall a l. map id l = l :=
+  pick-any a l in
   induction l
   | nil => refl
   | cons => rewrite (map id t = t) in refl
 
 // Relation declaration
-relation R : Nat -> Nat -> Prop
+declaration R : Nat -> Nat -> Prop
 
-// Alternative version
-proposition R (n m : Nat)
-
-// Polymorphic
-proposition R a (x y : a)
+// Polymorphic relation declaration
+declaration R : forall A : Type, A -> A -> Prop
 
 // Proposition definition
-proposition and P Q := P /\ Q
-proposition or P Q := P \/ Q
-proposition impl P Q := P --> Q
-proposition iff P Q := P <--> Q
-proposition not P := ~ P
+and (P Q : Prop) : Prop := P /\ Q
+or (P Q : Prop) : Prop := P \/ Q
+impl (P Q : Prop) : Prop := P --> Q
+iff (P Q : Prop) : Prop := P <--> Q
+not (P : Prop) : Prop := ~ P

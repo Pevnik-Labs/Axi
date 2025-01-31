@@ -1,0 +1,46 @@
+// This is a comment.
+
+/*
+  This is a multiline comment.
+*/
+
+// The basic kinds of objects are types, terms, propositions and proofs.
+// Top-level commands can be used to either define or declare these.
+// Definitions assign names to expressions.
+
+// Declarations introduce new constants that don't have computational content.
+// Type and propositions declarations are safe, whereas term declarations and
+// axioms (i.e. proof declarations) are unsafe (may lead to inconsistency).
+// Whether declarations should be present in the final language is unclear,
+// but they are present in comparable languages, so they are included for now.
+// In any case, we will only use declarations before introducing the various
+// forms of bindings and quantifiers that render them unnecessary.
+
+// The syntax is as follows:
+
+// Type definition. `type` is a keyword. `:=` means "is defined as".
+type Name := Def
+
+// Type declaration.
+type Name
+
+// Term definition. `:` means "is of type".
+name : type := def
+
+// Term declaration. `declaration` is a keyword.
+declaration name : type
+
+// Proposition definition. `Prop` is a keyword which denotes the universe of propositions.
+name : Prop := def
+
+// Proposition declaration.
+name : Prop
+
+// Axiom, i.e. a "proof declaration". `axiom` is a keyword.
+axiom name := proposition
+
+// Theorem, i.e. a "proof definition". `theorem`, `proof` and `qed` are keywords.
+theorem name := proposition
+proof
+  the actual proof goes here
+qed
