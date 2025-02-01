@@ -78,16 +78,16 @@ theorem myand-spec : forall P Q : Prop, myand P Q <--> P /\ Q :=
   both
   - assume (pq := _)
     both
-    - modus-ponens (instantiate pq with P)
+    - apply (instantiate pq with P)
       assume P _
       assumption
-    - modus-ponens (instantiate pq with Q)
+    - apply (instantiate pq with Q)
       assume _ Q
       assumption
   - assume (both P Q)
     pick-any R
     assume (pqr := _)
-    modus-ponens pqr
+    apply pqr
     - assumption
     - assumption
 
@@ -98,14 +98,14 @@ theorem myor-spec : forall P Q : Prop, myor P Q <--> P \/ Q :=
   pick-any P Q
   both
   - assume (pq := _)
-    modus-ponens (instantiate pq with (P \/ Q))
+    apply (instantiate pq with (P \/ Q))
     - or-left
     - or-right
   - assume (P \/ Q)
     pick-any R
     assume (P --> R)
     assume (Q --> R)
-    by-cases (P \/ Q) (P --> R) (Q --> R)
+    cases (P \/ Q) (P --> R) (Q --> R)
 
 // Impredicative encoding of the existential quantifier.
 myex (A : Type) (P : A -> Prop) : Prop :=
@@ -116,7 +116,7 @@ theorem myex-spec :
   pick-any A P
   both
   - assume (mx := _)
-    modus-ponens (instantiate myex with (exists x : A, P x))
+    apply (instantiate myex with (exists x : A, P x))
     pick-any (x : A)
     assume (P x)
     exists x
@@ -136,7 +136,7 @@ theorem myeq-spec :
   pick-any (A : Type) (x y : A)
   both
   - assume (all := _)                                             // x = y
-    modus-ponens (instantiate all with (fun (a : A) => x = a))    // x = x
+    apply (instantiate all with (fun (a : A) => x = a))    // x = x
     refl
   - assume =->                                                    // myeq x x
     unfold myeq                                                   // forall P : A -> Prop, P x --> P x

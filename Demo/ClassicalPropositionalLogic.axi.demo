@@ -9,41 +9,41 @@ declaration P Q R : Prop
 theorem double-negation : ~ ~ P --> P :=
   assume (~ ~ P)
   by-contradiction (~ P)
-  modus-ponens (~ ~ P) (~ P)
+  apply (~ ~ P) (~ P)
 
 // In proofterm style, the above proof looks as follows.
 theorem double-negation-term : ~ ~ P --> P :=
   assume (~ ~ P) in
     by-contradiction (~ P) in
-      (modus-ponens (~ ~ P) (~ P))
+      (apply (~ ~ P) (~ P))
 
 // Law of Excluded Middle.
 // Note that just like with `assume`, we can name assumptions introduced
 // using `by-contradiction`.
 theorem lem : P \/ ~ P :=
   by-contradiction (not-lem := ~ (P \/ ~ P))
-  modus-ponens not-lem
+  apply not-lem
   or-right
   assume P
-  modus-ponens not-lem
+  apply not-lem
   or-left
   P
 
 // You might have already noticed that it's a frequent idiom to first
-// use `by-contradiction (~ P)` and then `modus-ponens (~ P)` right
+// use `by-contradiction (~ P)` and then `apply (~ P)` right
 // away. This pattern of reasoning is called 'Consequentia Mirabilis'
 // and can be encapsulated in a theorem.
 theorem cm : (~ P --> P) --> P :=
   assume (~ P --> P)
   by-contradiction (~ P)
-  modus-ponens (~ P), (~ P --> P)
+  apply (~ P), (~ P --> P)
   assumption
 
 // Peirce's law.
 theorem peirce : ((P --> Q) --> P) --> P :=
   assume (pqp := _)
   by-contradiction (~ P)
-  modus-ponens (~ P), pqp
+  apply (~ P), pqp
   assume P
   contradiction (~ P) P
 
@@ -51,25 +51,25 @@ theorem peirce : ((P --> Q) --> P) --> P :=
 theorem contraposition-classic : (~ Q --> ~ P) --> (P --> Q) :=
   assume (nqnp := _) p
   by-contradiction (~ Q)
-  modus-ponens nqnp (~ Q) P
+  apply nqnp (~ Q) P
 
 // There's also a funny classic version of contraposition.
 theorem funny-contraposition-classic : (~ P --> Q) --> (~ Q --> P) :=
   assume (~ P --> Q) (~ Q)
   by-contradiction (~ P)
-  modus-ponens (~ Q), (~ P --> Q)
+  apply (~ Q), (~ P --> Q)
   assumption
 
 // In classical logic, if `P` implies `Q`, either `P` is false or `Q` is true.
 theorem material-implication-intro : (P --> Q) --> ~ P \/ Q :=
   assume (P --> Q)
   by-contradiction (no := ~ (~ P \/ Q))
-  modus-ponens no
+  apply no
   or-left
   assume P
-  modus-ponens no
+  apply no
   or-right
-  modus-ponens (P --> Q)
+  apply (P --> Q)
   P
 
 // In classical logic, to prove a disjunction, when choosing which disjunct to
@@ -77,11 +77,11 @@ theorem material-implication-intro : (P --> Q) --> ~ P \/ Q :=
 theorem weak-or-elim : (~ P --> Q) --> P \/ Q :=
   assume (~ P --> Q)
   by-contradiction (npq := ~ (P \/ Q))
-  modus-ponens npq
+  apply npq
   or-right
-  modus-ponens (~ P --> Q)
+  apply (~ P --> Q)
   assume P
-  modus-ponens npq
+  apply npq
   or-left
   P
 
@@ -90,7 +90,7 @@ theorem weak-or-elim : (~ P --> Q) --> P \/ Q :=
 theorem and-from-weak-and : ~ (~ P \/ ~ Q) --> P /\ Q :=
   assume (pq := _)
   by-contradiction (both (~ P) (~ Q))
-  modus-ponens pq
+  apply pq
   or-left
   assumption
 
@@ -98,12 +98,12 @@ theorem and-from-weak-and : ~ (~ P \/ ~ Q) --> P /\ Q :=
 // logically equivalent.
 theorem xor-not-iff : ~ (P <--> Q) --> (P /\ ~ Q) \/ (~ P /\ Q) :=
   assume (npq := _)
-  by-cases (lem P) // illegal, lem not yet universally quantified
+  cases (lem P) // illegal, lem not yet universally quantified
   - assume P
     or-left
     both P
     assume Q
-    modus-ponens npq
+    apply npq
     both
     - assume P
       assumption
@@ -113,7 +113,7 @@ theorem xor-not-iff : ~ (P <--> Q) --> (P /\ ~ Q) \/ (~ P /\ Q) :=
     or-right
     both (~ P)
     by-contradiction (~ Q)
-    modus-ponens npq
+    apply npq
     both
     - assume P
       contradiction (~ P) P
@@ -123,11 +123,11 @@ theorem xor-not-iff : ~ (P <--> Q) --> (P /\ ~ Q) \/ (~ P /\ Q) :=
 // In classical logic, propositions are linearly ordered by implication.
 theorem godel-dummet : (P --> Q) \/ (Q --> P) :=
   by-contradiction (h := _)
-  modus-ponens h
+  apply h
   or-left
   assume P
   by-contradiction (~ Q)
-  modus-ponens h
+  apply h
   or-right
   assume Q
   contradiction (~ Q) Q
@@ -136,12 +136,12 @@ theorem godel-dummet : (P --> Q) \/ (Q --> P) :=
 theorem premise-independence : (P --> Q \/ R) --> ((P --> Q) \/ (P --> R)) :=
   assume (pqr := _)
   by-contradiction (ng := _)
-  modus-ponens ng
+  apply ng
   or-left
   assume P
   by-contradiction (nq := ~ Q)
-  modus-ponens ng
-  by-cases (modus-ponens pqr P)
+  apply ng
+  cases (apply pqr P)
   - assume Q
     or-left
     assume _

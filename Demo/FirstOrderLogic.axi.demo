@@ -210,7 +210,7 @@ theorem symmetry-example :
 theorem symmetry-example-desugared :
   (forall x y : A, R x y --> R y x) --> R a b --> R b a :=
   assume (symm := _) (R a b)
-  modus-ponens (instantiate symm with _ _)
+  apply (instantiate symm with _ _)
   assumption
 
 // Optionally, `symmetry` takes arguments which help the instantiation.
@@ -224,7 +224,7 @@ theorem symmetry-example :
 theorem symmetry-example-desugared :
   (forall x y : A, R x y --> R y x) --> R a b --> R b a :=
   assume (symm := _) (R a b)
-  modus-ponens (instantiate symm with a b)
+  apply (instantiate symm with a b)
   assumption
 
 // There's also `transitivity`. This time, the first argument is mandatory,
@@ -242,7 +242,7 @@ theorem transitivity-example-desugared :
   (forall x y z : R x y --> R y z --> R x z) -->
     R a b --> R b c --> R a c :=
   assume (trans := _) (R a b) (R b c)
-  modus-ponens (instantiate trans with a b c)
+  apply (instantiate trans with a b c)
   - assumption
   - assumption
 
@@ -252,14 +252,14 @@ theorem forall-impl :
   (forall x : A, P x --> Q x) --> (forall x : A, P x) --> (forall x : A, Q x) :=
   assume (pq := _) (p := _)
   pick-any x
-  modus-ponens (instantiate pq with x)
+  apply (instantiate pq with x)
   instantiate p
 
 theorem forall-or :
   (forall x : A, P x) \/ (forall x : A, Q x) --> forall x : A, P x \/ Q x :=
   assume (orall := _)
   pick-any x
-  by-cases orall
+  cases orall
   - assume (p := _)
     or-left
     instantiate p
@@ -286,7 +286,7 @@ theorem ex-or :
   (exists x : A, P x \/ Q x) <--> (exists x : A, P x) \/ (exists x : A, Q x) :=
   both
   - assume (exists x such-that (P x \/ Q x))
-    by-cases (P x \/ Q x)
+    cases (P x \/ Q x)
     - assume (P x)
       left
       exists x
@@ -296,7 +296,7 @@ theorem ex-or :
       exists x
       assumption
   - assume (orex := _)
-    by-cases orex
+    cases orex
     - assume (exists x such-that (P x))
       exists x
       left
@@ -312,23 +312,23 @@ theorem not-exists :
   - assume (nex := _)
     pick-any x
     assume (P x)
-    modus-ponens nex
+    apply nex
     exists x
     assumption
   - assume (all := _) (exists x such-that (P x))
-    modus-ponens (instantiate all with x)
+    apply (instantiate all with x)
     assumption
 
 theorem not-forall : ~ (forall x : A, P x) <--> exists x : A, ~ P x :=
   both
   - assume (nall := _)
     by-contradiction (nex := ~ exists x : A, ~ P x)
-    modus-ponens nall
+    apply nall
     pick-any x
     by-contradiction (~ P x)
-    modus-ponens nex
+    apply nex
     exists x
     assumption
   - assume (exists x such-that (~ P x)) (all := _)
-    modus-ponens (~ P x)
+    apply (~ P x)
     instantiate all

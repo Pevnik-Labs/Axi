@@ -86,40 +86,40 @@ theorem assumption-example : P --> Q --> P :=
   assume P Q
   assumption
 
-// Implication elimination is `modus-ponens`.
+// Implication elimination is `apply`.
 theorem impl-elim : (P --> Q) --> P --> Q :=
   assume (P --> Q) P
-  modus-ponens (P --> Q) P
+  apply (P --> Q) P
 
-// We can also use `modus-ponens` with more arguments
+// We can also use `apply` with more arguments
 // when the implication is longer.
-theorem modus-ponens-many-args : (P --> Q --> R) --> (Q --> P --> R) :=
+theorem apply-many-args : (P --> Q --> R) --> (Q --> P --> R) :=
   assume (P --> Q --> R) Q P
-  modus-ponens (P --> Q --> R) P Q
+  apply (P --> Q --> R) P Q
 
 // The above proof is equivalent to the more primitive one below.
-theorem modus-ponens-many-args : (P --> Q --> R) --> (Q --> P --> R) :=
+theorem apply-many-args' : (P --> Q --> R) --> (Q --> P --> R) :=
   assume (P --> Q --> R) Q P
-  modus-ponens (modus-ponens (P --> Q --> R) P) Q
+  apply (apply (P --> Q --> R) P) Q
 
-// Just like for `assume`, `modus-ponens` can also be written in tactic style.
+// Just like for `assume`, `apply` can also be written in tactic style.
 theorem impl-trans : (P --> Q) --> (Q --> R) --> (P --> R) :=
   assume (P --> Q) (Q --> R) P
-  modus-ponens (Q --> R)
-  modus-ponens (P --> Q)
+  apply (Q --> R)
+  apply (P --> Q)
   P
 
-// When we need to use `modus-ponens` a few times in a row, we can condense it
+// When we need to use `apply` a few times in a row, we can condense it
 // into a single line, with arguments separated by commas.
-theorem modus-ponens-chaining : (P --> Q) --> (Q --> R) --> (P --> R) :=
+theorem apply-chaining : (P --> Q) --> (Q --> R) --> (P --> R) :=
   assume (P --> Q) (Q --> R) P
-  modus-ponens (Q --> R), (P --> Q)
+  apply (Q --> R), (P --> Q)
   P
 
-// We can chain many-argument `modus-ponens` just like the ordinary one.
+// We can chain many-argument `apply` just like the ordinary one.
 theorem impl-dist : (P --> Q --> R) --> ((P --> Q) --> (P --> R)) :=
   assume (pqr := P --> Q --> R) (pq := P --> Q) P
-  modus-ponens pqr P, pq
+  apply pqr P, pq
   P
 
 // The true proposition is written `True`.
@@ -142,12 +142,12 @@ theorem not-false : ~ False :=
   assume False
   False
 
-// Negation elimination is `modus-ponens`.
+// Negation elimination is `apply`.
 // The below theorem, called `contradiction`, may also be used as an
 // eliminator for negation for the purpose of readability.
 theorem contradiction : ~ P --> P --> False :=
   assume (~ P) P
-  modus-ponens (~ P) P
+  apply (~ P) P
 
 // The conjunction of `P` and `Q` is written `P /\ Q`.
 // Conjunction introduction is written `both`.
@@ -240,23 +240,23 @@ theorem or-intro-l : P --> P \/ Q :=
   assume P
   or-left P
 
-// Disjunction elimination is written `by-cases`.
+// Disjunction elimination is written `cases`.
 theorem or-idempotent : P \/ P --> P :=
   assume (P \/ P)
-  by-cases (P \/ P) (assume P in P) (assume P in P)
+  cases (P \/ P) (assume P in P) (assume P in P)
 
 // Note: we don't have to prove `P --> P` inline with `assume P in P`,
 // because we can use `impl-refl`, a theorem we already proved.
 // Also note that theorem names can contain an apostrophe.
 theorem or-idempotent' : P \/ P --> P :=
   assume (P \/ P)
-  by-cases (P \/ P) impl-refl impl-refl
+  cases (P \/ P) impl-refl impl-refl
 
-// Note that similarly to `both`, we can use `by-cases` partially
+// Note that similarly to `both`, we can use `cases` partially
 // applied in tactic style.
 theorem or-elim-tactic-style : P \/ Q --> Q \/ P :=
   assume (P \/ Q)
-  by-cases (P \/ Q)
+  cases (P \/ Q)
   {
     assume P
     or-right P
@@ -274,7 +274,7 @@ theorem lemma-example : P \/ P --> P :=
   lemma P --> P by
     assume P
     P
-  by-cases (P \/ P) (P --> P) (P --> P)
+  cases (P \/ P) (P --> P) (P --> P)
 
 // In proofterm style, the above proof looks as follows.
 theorem lemma-term-style : P \/ P --> P :=
@@ -282,7 +282,7 @@ theorem lemma-term-style : P \/ P --> P :=
     lemma (P --> P) by
       assume P in P
     in
-      by-cases (P \/ P) (P --> P) (P --> P)
+      cases (P \/ P) (P --> P) (P --> P)
 
 // We can also name the lemma.
 theorem named-lemma-example : P \/ P --> P :=
@@ -290,13 +290,13 @@ theorem named-lemma-example : P \/ P --> P :=
   lemma pp := P --> P by
     assume P
     P
-  by-cases (P \/ P) pp pp
+  cases (P \/ P) pp pp
 
 // An interesting idea: maybe the best syntax for named blocks is a kind of
 // reverse lemma?
 theorem reverse-lemma : P \/ P --> P :=
   assume (P \/ P)
-  by-cases (P \/ P) ?pp ?pp
+  cases (P \/ P) ?pp ?pp
   lemma pp := P --> P by
     assume P
     P
@@ -315,24 +315,24 @@ theorem reverse-lemma : P \/ P --> P :=
 // `Q` in the context extended with `P` and `e'` proves `P`.
 theorem suffices-example : (P --> Q) --> (Q --> R) --> P --> R :=
   assume (P --> Q) (Q --> R) P
-  suffices Q by modus-ponens (Q --> R)
-  suffices P by modus-ponens (P --> Q)
+  suffices Q by apply (Q --> R)
+  suffices P by apply (P --> Q)
   assumption
 
 // In proofterm style, the above proof looks as follows.
 theorem suffices-example-term-style : (P --> Q) --> (Q --> R) --> P --> R :=
   assume (P --> Q) (Q --> R) P in
-    suffices Q by modus-ponens (Q --> R) in
-    suffices P by modus-ponens (P --> Q) in
+    suffices Q by apply (Q --> R) in
+    suffices P by apply (P --> Q) in
       assumption
 
 // We don't need to prove the goal inline.
 theorem suffices-example : (P --> Q) --> (Q --> R) --> P --> R :=
   assume (P --> Q) (Q --> R) P
   suffices Q by
-    modus-ponens (Q --> R)
+    apply (Q --> R)
   suffices P by
-    modus-ponens (P --> Q)
+    apply (P --> Q)
   assumption
 
 // If at any point in the proof it's not clear what the goal is, we can
@@ -360,18 +360,18 @@ theorem conclusion-annotation-example-term-style : Q -> P \/ (Q \/ R) :=
 // of premises connected with implications.
 theorem curry : (P /\ Q --> R) --> P --> Q --> R :=
   assume (P /\ Q --> R) P Q
-  modus-ponens (P /\ Q --> R)
+  apply (P /\ Q --> R)
   both P Q
 
 // Uncurrying is the reverse of currying.
 theorem uncurry : (P --> Q --> R) --> (P /\ Q --> R) :=
   assume (P --> Q --> R) (both P Q)
-  modus-ponens (P --> Q --> R) P Q
+  apply (P --> Q --> R) P Q
 
 // Disjunction is commutative.
 theorem or-comm : P \/ Q --> Q \/ P :=
   assume (P \/ Q)
-  by-cases (P \/ Q)
+  cases (P \/ Q)
   - assume P
     or-right P
   - assume Q
@@ -382,7 +382,7 @@ theorem or-comm : P \/ Q --> Q \/ P :=
 // used those directly.
 theorem or-comm' : P \/ Q --> Q \/ P :=
   assume (P \/ Q)
-  by-cases (P \/ Q) or-right or-left
+  cases (P \/ Q) or-right or-left
 
 // Conjunction is commutative.
 theorem and-comm : P /\ Q --> Q /\ P :=
@@ -401,7 +401,7 @@ theorem and-comm' : P /\ Q --> Q /\ P :=
 // direction is constructive, the other being classical.
 theorem impl-or-neg : ~ P \/ Q --> (P --> Q) :=
   assume (~ P \/ Q) P
-  by-cases (~ P \/ Q)
+  cases (~ P \/ Q)
   - contradiction (~ P) P
   - assumption
 
@@ -411,31 +411,31 @@ theorem noncontradiction : ~ (P /\ ~ P) :=
 
 theorem contraposition : (P --> Q) --> (~ Q --> ~ P) :=
   assume (P --> Q) (~ Q) P
-  modus-ponens (~ Q), (P --> Q)
+  apply (~ Q), (P --> Q)
   assumption
 
 theorem funny-contraposition : (P --> ~ Q) --> (Q --> ~ P) :=
   assume (P --> ~ Q) Q P
-  modus-ponens (P --> ~ Q) P Q
+  apply (P --> ~ Q) P Q
 
 theorem iff-elim : ((P --> Q) --> (Q --> P) --> R) --> ((P <--> Q) --> R) :=
   assume (f := _) (both (P --> Q) (Q --> P))
-  modus-ponens f (P --> Q) (Q --> P)
+  apply f (P --> Q) (Q --> P)
 
 theorem iff-not : (P <--> Q) --> (~ P <--> ~ Q) :=
   assume (both (P --> Q) (Q --> P))
   both
-  - modus-ponens contraposition (Q --> P)
-  - modus-ponens contraposition (P --> Q)
+  - apply contraposition (Q --> P)
+  - apply contraposition (P --> Q)
 
 theorem resolution : (P \/ Q) /\ (~ P \/ R) --> Q \/ R :=
   assume (both (P \/ Q) (~ P \/ R))
-  by-cases (P \/ Q) ?p ?q
+  cases (P \/ Q) ?p ?q
   ?q :=
     assume Q
     or-left Q
   ?p :=
-    by-cases (~ P \/ R)
+    cases (~ P \/ R)
     - assume (~ P)
       contradiction (~ P) P
     - assume R
@@ -443,11 +443,11 @@ theorem resolution : (P \/ Q) /\ (~ P \/ R) --> Q \/ R :=
 
 theorem resolution' : (P \/ Q) /\ (~ P \/ R) --> Q \/ R :=
   assume (both (P \/ Q) (~ P \/ R))
-  by-cases (P \/ Q) (assume P in ?p) (assume Q in ?q)
+  cases (P \/ Q) (assume P in ?p) (assume Q in ?q)
   ?q :=
     or-left Q
   ?p :=
-    by-cases (~ P \/ R)
+    cases (~ P \/ R)
     - assume (~ P)
       contradiction (~ P) P
     - assume R
@@ -455,7 +455,7 @@ theorem resolution' : (P \/ Q) /\ (~ P \/ R) --> Q \/ R :=
 
 theorem not-or-intro : ~ P /\ ~ Q --> ~ (P \/ Q) :=
   assume (both (~ P) (~ Q)) (npq := _)
-  by-cases npq
+  cases npq
   - assume p
     contradiction (~ P) P
   - assume q
@@ -465,10 +465,10 @@ theorem not-or-elim : ~ (P \/ Q) --> ~ P /\ ~ Q :=
   assume (npq := ~ (P \/ Q))
   both
   - assume P
-    modus-ponens npq
+    apply npq
     or-left
     P
   - assume Q
-    modus-ponens npq
+    apply npq
     or-right
     Q

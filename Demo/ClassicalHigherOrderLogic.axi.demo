@@ -46,7 +46,7 @@ theorem has-inverse-from-bijective :
       unfold g                                          // (fun b => pick-witness a for (instantiate sur with b) in a) (f a') = a'
       simpl                                             // pick-witness a for (instantiate sur with (f a')) in a = a'
       pick-witness a for (instantiate sur with (f a'))  // a = a', but we now have a hypothesis f a = f a'
-      modus-ponens (instantiate inj with a a')          // f a = f a'
+      apply (instantiate inj with a a')          // f a = f a'
       assumption
     - pick-any (b : B)                                  // f (g b) = b
       unfold g                                          // f ((fun (b : B) => pick-witness a for (instantiate sur with b) in a) b) = b

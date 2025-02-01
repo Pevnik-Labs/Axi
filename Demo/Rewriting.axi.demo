@@ -68,6 +68,6 @@ theorem equational-chaining-reverse-direction' :
   // Let Γ := x y z w : A, x = y, y = z, z = w, P x
   assume (x = y) (y = z) (z = w) (P x)  // Γ |- P w  // After making all the assumptions, the goal is `P w`.
   chaining= (P w)
-    = (P z)        by symmetry (z = w) // modus-ponens (instantiate eq-sym with _ _) (z = w) //proving (w = z) by rewrite (z = w) in refl
+    = (P z)        by symmetry (z = w) // apply (instantiate eq-sym with _ _) (z = w) //proving (w = z) by rewrite (z = w) in refl
     = (P y)        by proving (z = y) by rewrite (y = z) in refl
     = (P x)        by proving (y = x) by rewrite (x = y) in refl

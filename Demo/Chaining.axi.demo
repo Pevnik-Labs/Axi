@@ -29,14 +29,14 @@ theorem implication-chaining-backwards-term-style :
     in
       assumption
 
-// The chaining gets desugared to a bunch of uses of `modus-ponens`.
+// The chaining gets desugared to a bunch of uses of `apply`.
 theorem implication-chaining-backwards-desugared :
   (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T :=
   assume (P --> Q) (Q --> R) (R --> S) (S --> T) P
-  modus-ponens (S --> T)
-  modus-ponens (R --> S)
-  modus-ponens (Q --> R)
-  modus-ponens (P --> Q)
+  apply (S --> T)
+  apply (R --> S)
+  apply (Q --> R)
+  apply (P --> Q)
   assumption
 
 // The expression after `by` can be any proofterm, for example it can be `assumption`.
@@ -82,9 +82,9 @@ theorem implication-chaining-backwards-direct :
 theorem implication-chaining-backwards-direct-desugared :
   (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T :=
   assume (P --> Q) (Q --> R) (R --> S) (S --> T)
-  modus-ponens (instantiate impl-trans' with S T P) (S --> T)
-  modus-ponens (instantiate impl-trans' with R S P) (R --> S)
-  modus-ponens (instantiate impl-trans' with Q R P) (Q --> R) (P --> Q)
+  apply (instantiate impl-trans' with S T P) (S --> T)
+  apply (instantiate impl-trans' with R S P) (R --> S)
+  apply (instantiate impl-trans' with Q R P) (Q --> R) (P --> Q)
 
 // Besides backward chaining, there's also forward chaining. This time
 // we start with a premise and draw intermediate conclusions from it,
@@ -104,9 +104,9 @@ theorem implication-chaining-forwards :
 theorem implication-chaining-forwards-desugared :
   (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T :=
   assume (P --> Q) (Q --> R) (R --> S) (S --> T)
-  modus-ponens (instantiate impl-trans with P Q T) (P --> Q)
-  modus-ponens (instantiate impl-trans with Q R T) (Q --> R)
-  modus-ponens (instantiate impl-trans with R S T) (R --> S) (S --> T)
+  apply (instantiate impl-trans with P Q T) (P --> Q)
+  apply (instantiate impl-trans with Q R T) (Q --> R)
+  apply (instantiate impl-trans with R S T) (R --> S) (S --> T)
 
 // We can also use chaining for biconditionals. The only "mode" of chaining
 // here is forward (although I think backwards would also be possible).
@@ -125,9 +125,9 @@ theorem biconditional-chaining :
 theorem biconditional-chaining-desugared :
   (P <--> Q) --> (Q <--> R) --> (R <--> S) --> (S <--> T) --> P <--> T :=
   assume (P <--> Q) (Q <--> R) (R <--> S) (S <--> T)
-  modus-ponens (instantiate iff-trans with P Q T) (P <--> Q)
-  modus-ponens (instantiate iff-trans with Q R T) (Q <--> R)
-  modus-ponens (instantiate iff-trans with R S T) (R <--> S) (S <--> T)
+  apply (instantiate iff-trans with P Q T) (P <--> Q)
+  apply (instantiate iff-trans with Q R T) (Q <--> R)
+  apply (instantiate iff-trans with R S T) (R <--> S) (S <--> T)
 
 // Let's declare a type `A` and a predicate `P`. Note that up to this point `P`
 // referred to a proposition, but from now on it will refer to a predicate.
@@ -153,8 +153,8 @@ theorem equational-chaining-desugared :
     x = y --> y = z --> z = w --> x = w :=
   pick-any x y z w
   assume (x = y) (y = z) (z = w)
-  modus-ponens (instantiate eq-trans with A x y w) (x = y)
-  modus-ponens (instantiate eq-trans with A y z w) (y = z) (z = w)
+  apply (instantiate eq-trans with A x y w) (x = y)
+  apply (instantiate eq-trans with A y z w) (y = z) (z = w)
 
 // Let's declare a transitive relation on `A`. Note that up to this point `R`
 // referred to a proposition, but from now on it will refer to a relation.
@@ -182,8 +182,8 @@ theorem relational-chaining-desugared :
     R a b --> R b c --> R c d --> R d e --> R a e :=
   pick-any a b c d e
   assume (R a b) (R b c) (R c d) (R d e)
-  modus-ponens (instantiate trans with a b e) (R a b)
-  modus-ponens (instantiate trans with b c e) (R b c)
-  modus-ponens (instantiate trans with c d e) (R c d) (R d e)
+  apply (instantiate trans with a b e) (R a b)
+  apply (instantiate trans with b c e) (R b c)
+  apply (instantiate trans with c d e) (R c d) (R d e)
 
 // TODO: mixed chaining, like x <= y < z or x < y = z

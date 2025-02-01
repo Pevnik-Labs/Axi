@@ -3,7 +3,7 @@
 | True intro          | true-intro          | true                    | trivial                     |
 | False elim          | false-elim e        | exfalso e               | absurd e                    |
 | Implication intro   | impl-intro P e      | assume P in e           | assume P in e               |
-| Implication elim    | impl-elim e1 e2     | modus-ponens e1 e2      | imply (?)                   |
+| Implication elim    | impl-elim e1 e2     | modus-ponens e1 e2      | apply, imply (?)            |
 | Negation intro      | not-intro P e       | suppose-absurd P in e   |                             |
 | Negation elim       | not-elim e1 e2      | absurd e1 e2            | contradiction e1 e2         |
 | Conjunction intro   | and-intro e1 e2     | both e1 e2              | both e1 e2                  |
@@ -14,7 +14,7 @@
 | Biconditiona elim r | iff-elim-r e        | right-iff               |                             |
 | Disjunction intro l | or-intro-l e        | left-either Q e         | or-left e                   |
 | Disjunction intro r | or-intro-r e        | right-either P e        | or-right e                  |
-| Disjunction elim    | or-elim e1 e2 e3    | constructive-dilemma    | by-cases e1 e2 e3           |
+| Disjunction elim    | or-elim e1 e2 e3    | constructive-dilemma    | cases e1 e2 e3              |
 | Forall intro        | forall-intro x e    | pick-any x in e         | pick-any x in e             |
 | Forall elim         | forall-elim e t     | specialize e with t     | instantiate e with t        |
 | Exists intro        | exists-intro t e    | exists t such-that e    | exists t such-that e        |
