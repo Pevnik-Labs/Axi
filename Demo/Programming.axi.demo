@@ -34,7 +34,7 @@ comp (f : a -> b) (g : b -> c) : a -> c :=
 declaration n : Nat
 
 // Theorem (tactic style).
-theorem comp_id_l :=
+theorem comp_id_l :
   forall a b (f : a -> b), comp f id = f
 proof
   pick-any a b f
@@ -90,8 +90,8 @@ app a (l1 l2 : List a) : List a :=
 | cons h t , _ => cons h (app t l2)
 
 // Proof by induction
-theorem map-id :=
-  forall a (l : List a). map id l = l
+theorem map-id :
+  forall a (l : List a), map id l = l
 proof
   pick-any a l
   induction l
@@ -99,7 +99,7 @@ proof
   | cons => rewrite (map id t = t) in refl
 qed
 
-theorem map-id-term-style : forall a l. map id l = l :=
+theorem map-id-term-style : forall a l, map id l = l :=
   pick-any a l in
   induction l
   | nil => refl

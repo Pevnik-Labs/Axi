@@ -7,7 +7,8 @@ declaration P Q R S T : Prop
 // intermediate goals together with proofs (after `by`) that the current
 // goal follows from them.
 theorem implication-chaining-backwards :
-  (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T :=
+  (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T
+proof
   // Let Γ := P --> Q, Q --> R, R --> S, S --> T, P
   assume (P --> Q) (Q --> R) (R --> S) (S --> T) P  // Γ |- T  // After making all the assumptions, the goal is `T`.
   chaining<-- T                                     // Γ |- T  // We start the chain. `<--` means it's backward chaining for implication. The goal is still `T`.
@@ -16,6 +17,7 @@ theorem implication-chaining-backwards :
     <-- Q         by (Q --> R)                      // Γ |- Q
     <-- P         by (P --> Q)                      // Γ |- P  // After the final step, the goal that we are left with is `P`.
   assumption                                        // We now solve `P`, the goal produced by chaining.
+qed
 
 // In proofterm style, the above proof looks as follows.
 theorem implication-chaining-backwards-term-style :
@@ -31,17 +33,20 @@ theorem implication-chaining-backwards-term-style :
 
 // The chaining gets desugared to a bunch of uses of `apply`.
 theorem implication-chaining-backwards-desugared :
-  (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T :=
+  (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T
+proof
   assume (P --> Q) (Q --> R) (R --> S) (S --> T) P
   apply (S --> T)
   apply (R --> S)
   apply (Q --> R)
   apply (P --> Q)
   assumption
+qed
 
 // The expression after `by` can be any proofterm, for example it can be `assumption`.
 theorem implication-chaining-backwards-assumption :
-  (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T :=
+  (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T
+proof
   assume (P --> Q) (Q --> R) (R --> S) (S --> T) P
   chaining<-- T
     <-- S         by assumption
@@ -49,12 +54,14 @@ theorem implication-chaining-backwards-assumption :
     <-- Q         by assumption
     <-- P         by assumption
   assumption
+qed
 
 // I imagine that when we have a mildly powerful automation tactic
 // akin to Coq's `auto`, it would be the default thing passed to `by`,
 // so that the `by` could be omitted.
 theorem implication-chaining-backwards-default :
-  (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T :=
+  (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T
+proof
   assume (P --> Q) (Q --> R) (R --> S) (S --> T) P
   chaining<-- T
     <-- S
@@ -62,13 +69,15 @@ theorem implication-chaining-backwards-default :
     <-- Q
     <-- P
   assumption
+qed
 
 // There's also a different style of backwards chaining. The last time
 // we introduced all assumptions into the context, used chaining to
 // change the goal from `T` to `P` and then proved `P` with `assumption`.
 // This time we'll use chaining to prove `P --> T` directly.
 theorem implication-chaining-backwards-direct :
-  (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T :=
+  (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T
+proof
   // Let Γ := P --> Q, Q --> R, R --> S, S --> T
   assume (P --> Q) (Q --> R) (R --> S) (S --> T)  // Γ |- P --> T  // Let's assume everything EXCEPT the last `P`, so that the goal is `P --> T`.
   chaining<-- T                                   // Γ |- P --> T  // We start the chain. The goal is still `P --> T`.
@@ -76,21 +85,25 @@ theorem implication-chaining-backwards-direct :
     <-- R         by (R --> S)                    // Γ |- P --> R
     <-- Q         by (Q --> R)                    // Γ |- P --> Q
     <-- P         by (P --> Q)                    // In the last step we prove `P --> Q`, which is precisely our goal, so we're done.
+qed
 
 // The above proof is desugared as follows, where `impl-trans'` is
 // this theorem: `forall Q R P : Prop, (Q --> R) --> (P --> Q) --> (P --> R)`
 theorem implication-chaining-backwards-direct-desugared :
-  (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T :=
+  (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T
+proof
   assume (P --> Q) (Q --> R) (R --> S) (S --> T)
   apply (instantiate impl-trans' with S T P) (S --> T)
   apply (instantiate impl-trans' with R S P) (R --> S)
   apply (instantiate impl-trans' with Q R P) (Q --> R) (P --> Q)
+qed
 
 // Besides backward chaining, there's also forward chaining. This time
 // we start with a premise and draw intermediate conclusions from it,
 // justifying each step, until we reach the goal.
 theorem implication-chaining-forwards :
-  (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T :=
+  (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T
+proof
   // Let Γ := P --> Q, Q --> R, R --> S, S --> T
   assume (P --> Q) (Q --> R) (R --> S) (S --> T)  // Γ |- P --> T  // After making all the assumptions, the goal is `P --> T`.
   chaining--> P                                   // Γ |- P --> T  // We start the chain. `-->` means it's forward chaining for implication. The goal is still `P --> T`.
@@ -98,20 +111,24 @@ theorem implication-chaining-forwards :
     --> R         by (Q --> R)                    // Γ |- R --> T
     --> S         by (R --> S)                    // Γ |- S --> T
     --> T         by (S --> T)                    // In the last step we prove `S --> T`, which is precisely our goal, so we're done.
+qed
 
 // The above proof is desugared as follows, where `impl-trans` is
 // this theorem: `forall P Q R : Prop, (P --> Q) --> (Q --> R) --> (P --> R)`.
 theorem implication-chaining-forwards-desugared :
-  (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T :=
+  (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T
+proof
   assume (P --> Q) (Q --> R) (R --> S) (S --> T)
   apply (instantiate impl-trans with P Q T) (P --> Q)
   apply (instantiate impl-trans with Q R T) (Q --> R)
   apply (instantiate impl-trans with R S T) (R --> S) (S --> T)
+qed
 
 // We can also use chaining for biconditionals. The only "mode" of chaining
 // here is forward (although I think backwards would also be possible).
 theorem biconditional-chaining :
-  (P <--> Q) --> (Q <--> R) --> (R <--> S) --> (S <--> T) --> P <--> T :=
+  (P <--> Q) --> (Q <--> R) --> (R <--> S) --> (S <--> T) --> P <--> T
+proof
   // Let Γ := P <--> Q, Q <--> R, R <--> S, S <--> T
   assume (P <--> Q) (Q <--> R) (R <--> S) (S <--> T)  // Γ |- P <--> T  // After making all the assumptions, the goal is `P <--> T`.
   chaining<--> P                                      // Γ |- P <--> T  // We start the chain. `<-->` means it's chaining for biconditional. The goal is still `P <--> T`.
@@ -119,15 +136,18 @@ theorem biconditional-chaining :
     <--> R        by (Q <--> R)                       // Γ |- R <--> T
     <--> S        by (R <--> S)                       // Γ |- S <--> T
     <--> T        by (S <--> T)                       // In the last step we prove `S <--> T`, which is precisely our goal, so we're done.
+qed
 
 // The above proof is desugared as follows, where `iff-trans` is
 // this theorem: `forall P Q R : Prop, (P <--> Q) --> (Q <--> R) --> (P <--> R)`.
 theorem biconditional-chaining-desugared :
-  (P <--> Q) --> (Q <--> R) --> (R <--> S) --> (S <--> T) --> P <--> T :=
+  (P <--> Q) --> (Q <--> R) --> (R <--> S) --> (S <--> T) --> P <--> T
+proof
   assume (P <--> Q) (Q <--> R) (R <--> S) (S <--> T)
   apply (instantiate iff-trans with P Q T) (P <--> Q)
   apply (instantiate iff-trans with Q R T) (Q <--> R)
   apply (instantiate iff-trans with R S T) (R <--> S) (S <--> T)
+qed
 
 // Let's declare a type `A` and a predicate `P`. Note that up to this point `P`
 // referred to a proposition, but from now on it will refer to a predicate.
@@ -137,7 +157,8 @@ declaration P : A -> Prop
 // Equational chaining also supports directly proving equalities.
 theorem equational-chaining-direct :
   forall x y z w : A,
-    x = y --> y = z --> z = w --> x = w :=
+    x = y --> y = z --> z = w --> x = w
+proof
   pick-any x y z w
   // Let Γ := x y z w : A, x = y, y = z, z = w
   assume (x = y) (y = z) (z = w)  // Γ |- x = w  // After making all the assumptions, the goal is `x = w`.
@@ -145,16 +166,19 @@ theorem equational-chaining-direct :
     = y        by (x = y)         // Γ |- y = w  // The goal changes to `y = w` because `x = y`, as proven in the `by` clause.
     = z        by (y = z)         // Γ |- z = w
     = w        by (z = w)         // In the last step we prove `z = w`, which is precisely our goal, so we're done.
+qed
 
 // The above proof is desugared as follows, where `eq-trans` is
 // this theorem: `forall (A : Type) (x y z : A), x = y --> y = z --> x = z`.
 theorem equational-chaining-desugared :
   forall x y z w : A,
-    x = y --> y = z --> z = w --> x = w :=
+    x = y --> y = z --> z = w --> x = w
+proof
   pick-any x y z w
   assume (x = y) (y = z) (z = w)
   apply (instantiate eq-trans with A x y w) (x = y)
   apply (instantiate eq-trans with A y z w) (y = z) (z = w)
+qed
 
 // Let's declare a transitive relation on `A`. Note that up to this point `R`
 // referred to a proposition, but from now on it will refer to a relation.
@@ -165,7 +189,8 @@ axiom trans : forall x y z : A, R x y --> R y z --> R x z
 // Chaining can be used for proofs about any transitive relation.
 theorem relational-chaining :
   forall a b c d e : A,
-    R a b --> R b c --> R c d --> R d e --> R a e :=
+    R a b --> R b c --> R c d --> R d e --> R a e
+proof
   pick-any a b c d e
   // Let Γ := R a b, R b c, R c d, R d e
   assume (R a b) (R b c) (R c d) (R d e)  // Γ |- R a e // After making all the assumptions, the goal is `R a e`.
@@ -174,16 +199,19 @@ theorem relational-chaining :
     R c           by (R b c)              // Γ |- R c e
     R d           by (R c d)              // Γ |- R d e
     R e           by (R d e)              // In the last step we prove `R d e`, which is precisely our goal, so we're done.
+qed
 
 // The above proof is desugared as follows, where `trans` is
 // the assumption that establishes the transitivity of `R`.
 theorem relational-chaining-desugared :
   forall a b c d e : A,
-    R a b --> R b c --> R c d --> R d e --> R a e :=
+    R a b --> R b c --> R c d --> R d e --> R a e
+proof
   pick-any a b c d e
   assume (R a b) (R b c) (R c d) (R d e)
   apply (instantiate trans with a b e) (R a b)
   apply (instantiate trans with b c e) (R b c)
   apply (instantiate trans with c d e) (R c d) (R d e)
+qed
 
 // TODO: mixed chaining, like x <= y < z or x < y = z

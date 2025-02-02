@@ -3,7 +3,8 @@
 // We can also use chaining for equality.
 theorem equational-chaining :
   forall x y z w : A,
-    x = y --> y = z --> z = w --> P w --> P x :=
+    x = y --> y = z --> z = w --> P w --> P x
+proof
   pick-any x y z w
   // Let Γ := x y z w : A, x = y, y = z, z = w, P w
   assume (x = y) (y = z) (z = w) (P w)  // Γ |- P x  // After making all the assumptions, the goal is `P x`.
@@ -12,6 +13,7 @@ theorem equational-chaining :
     = (P z)        by (y = z)           // Γ |- P z
     = (P w)        by (z = w)           // Γ |- P w  // After the final step, the goal that we are left with is `P w`.
     assumption                          // We now solve `P w`, the goal produced by chaining.
+qed
 
 // In proofterm style, the above proof looks as follows.
 theorem equational-chaining-term-style :
@@ -37,20 +39,23 @@ theorem equational-chaining-term-style :
 // The above proof gets desugared as follows.
 theorem equational-chaining-desugared :
   forall x y z w : A,
-    x = y --> y = z --> z = w --> P w --> P x :=
+    x = y --> y = z --> z = w --> P w --> P x
+proof
   pick-any x y z w
   assume (x = y) (y = z) (z = w) (P w)
   rewrite (x = y)
   rewrite (y = z)
   rewrite (z = w)
   assumption
+qed
 
 // Last time our conclusion was `P w --> P x`, i.e. "contrary" to the
 // direction of the hypotheses, but what about the other direction?
 // One solution is to leave the last hypothesis in the goal.
 theorem equational-chaining-reverse-direction :
   forall x y z w : A,
-    x = y --> y = z --> z = w --> P x --> P w :=
+    x = y --> y = z --> z = w --> P x --> P w
+proof
   pick-any x y z w
   // Let Γ := x y z w : A, x = y, y = z, z = w
   assume (x = y) (y = z) (z = w)       // Γ |- P x --> P w  // After making all the assumptions, the goal is `P x --> P w`.
@@ -60,10 +65,12 @@ theorem equational-chaining-reverse-direction :
     = (P w --> P w)        by (z = w)  // Γ |- P w --> P w  // After the final step, the goal that we are left with is `P w --> P w`.
   assume (P w)                         // Γ, P w |- P w     // We now solve `P w --> Pw`, the goal produced by chaining.
   assumption
+qed
 
 theorem equational-chaining-reverse-direction' :
   forall x y z w : A,
-    x = y --> y = z --> z = w --> P x --> P w :=
+    x = y --> y = z --> z = w --> P x --> P w
+proof
   pick-any P x y z w
   // Let Γ := x y z w : A, x = y, y = z, z = w, P x
   assume (x = y) (y = z) (z = w) (P x)  // Γ |- P w  // After making all the assumptions, the goal is `P w`.
@@ -71,3 +78,4 @@ theorem equational-chaining-reverse-direction' :
     = (P z)        by symmetry (z = w) // apply (instantiate eq-sym with _ _) (z = w) //proving (w = z) by rewrite (z = w) in refl
     = (P y)        by proving (z = y) by rewrite (y = z) in refl
     = (P x)        by proving (y = x) by rewrite (x = y) in refl
+qed

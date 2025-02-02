@@ -14,7 +14,8 @@ has-inverse (A B : Type) (f : A -> B) : Prop :=
 
 theorem bijective-from-has-inverse :
   forall (A B : Type) (f : A -> B),
-    has-inverse A B f --> bijective A B f :=
+    has-inverse A B f --> bijective A B f
+proof
   pick-any A B f
   assume (exists (g : B -> A) such-that (both (gf := _) (fg := _)))
   both
@@ -29,11 +30,13 @@ theorem bijective-from-has-inverse :
       = g (f x)   by (rewrite <-(instantiate gf with x) in refl) // Note that we need `x = g (f x)` whereas `gf` gives `g (f x) = x`, so we need to turn
       = g (f y)   by eq
       = y         by rewrite (instantiate gf with y)
+qed
 
 // Let's allow eliminating propositions into types... as our way of supporting classical reasoning.
 theorem has-inverse-from-bijective :
   forall (A B : Type) (f : A -> B),
-    bijective A B f --> has-inverse A B f :=
+    bijective A B f --> has-inverse A B f
+proof
   pick-any A B f
   assume (both (sur := _) (inj := _))
   exists
@@ -53,13 +56,15 @@ theorem has-inverse-from-bijective :
       simpl                                             // f (pick-witness a for (instantiate sur with b) in a) = b
       pick-witness a for (instantiate sur with b)       // f a = b, but we now have a hypothesis f a = b
       assumption
+qed
 
 // We can now prove the Axiom of Choice.
 // Let Γ := A B : Type, R : A -> B -> Prop, allex := (forall a : A, exists b : B, R a b)
 theorem choice :
   forall (A B : Type) (R : A -> B -> Prop),
     (forall a : A, exists b : B, R a b) -->
-      exists f : A -> B, forall a : A, R a (f a) :=
+      exists f : A -> B, forall a : A, R a (f a)
+proof
   pick-any A B R                                        // A B : Type, R : A -> B -> Prop |- (forall a : A, exists b : B, R a b) --> exists f : A -> B, forall a : A, R a (f a)
   assume (allex := _)                                   // A B : Type, R : A -> B -> Prop, allex := (forall a : A, exists b : B, R a b) |- exists f : A -> B, forall a : A, R a (f a)
   exists                                                // 1. Γ |- ?f : A -> B        2. Γ |- forall a : A, R a (?f a)
@@ -71,3 +76,4 @@ theorem choice :
     simpl                                               // Γ, a : A |- R a (pick-witness b for (instantiate allex with a) in b)
     pick-witness b for (instantiate allex with a)       // Γ, a : A, b : B, R a b |- R a b
     assumption
+qed

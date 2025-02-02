@@ -11,25 +11,29 @@ declaration P Q R : Prop
 // and contrary to type theoretical systems, where we would refer to
 // something like `p : P`, a proof of P, instead.
 // Note that theorem names can contain '-'.
-theorem impl-refl : P --> P :=
+theorem impl-refl : P --> P
+proof
   assume P in P
+qed
 
 // The above proof was written in proofterm style, like in DPLs/Athena,
 // but we can also write proofs in tactic style, like in Coq or Lean.
 // Moreover, the tactic style directly corresponds to the proofterm style,
 // unlike in Coq or Lean. The mechanism is as follows: if we have a proofterm
-// that takes one argument, like `proof arg`, we can instead write it as a block
+// that takes one argument, like `tactic arg`, we can instead write it as a block
 // ```
-// proof
+// tactic
 // arg
 // ```
 // For proofterms that bind variables, we can omit the `in`, as in the
 // example below. Note that the proofterm doesn't need to be unary - it
 // just needs to be applied enough so that only the last argument is missing.
-theorem weakening : P --> Q --> P :=
+theorem weakening : P --> Q --> P
+proof
   assume P
   assume Q
   P
+qed
 
 // In proofterm style, the above proof looks as follows.
 theorem weakening-term-style : P --> Q --> P :=
@@ -38,42 +42,54 @@ theorem weakening-term-style : P --> Q --> P :=
       P
 
 // When two or more `assume`s follow each other, we can condense them into one.
-theorem assume-chaining : P --> Q --> P :=
+theorem assume-chaining : P --> Q --> P
+proof
   assume P Q
   P
+qed
 
 // When we need to introduce an assumption that won't be used, we can discard
 // it by writing an underscore.
-theorem assume-discard : P --> P --> P :=
+theorem assume-discard : P --> P --> P
+proof
   assume P _
   P
+qed
 
 // We can name assumptions inline with the syntax `assume (name := prop)`.
-theorem assume-naming : P --> Q --> P :=
+theorem assume-naming : P --> Q --> P
+proof
   assume (x := P) (y := Q)
   x
+qed
 
 // If the propositions are really long to write down, we can omit them and
 // mention just their new names.
-theorem assume-only-naming : P --> Q --> P :=
+theorem assume-only-naming : P --> Q --> P
+proof
   assume (x := _) (y := _)
   P
+qed
 
 // If we name all assumptions without writing them out in full, the syntax
 // can get a bit shorter.
-theorem assume-only-naming-short : P --> Q --> P :=
+theorem assume-only-naming-short : P --> Q --> P
+proof
   assume (x y := _)
   x
+qed
 
 // It would be optimal if we could completely avoid the `= _` part, but I'm not
 // sure if that will be possible.
-theorem assume-only-naming-shortest : P --> Q --> P :=
+theorem assume-only-naming-shortest : P --> Q --> P
+proof
   assume x y
   x
+qed
 
 // If we want to avoid writing `assume` alltogether, we can put the premises
 // before the final colon.
-theorem no-assume P Q : P :=
+theorem no-assume (P Q : Prop) : P :=
   P
 
 // When premises are to the left, we can still name them.
@@ -82,83 +98,108 @@ theorem no-assume-naming (x := P) (y := Q) : P :=
 
 // If we don't want to bother with recalling assumption names, we can say
 // `assumption` instead.
-theorem assumption-example : P --> Q --> P :=
+theorem assumption-example : P --> Q --> P
+proof
   assume P Q
   assumption
+qed
 
 // Implication elimination is `apply`.
-theorem impl-elim : (P --> Q) --> P --> Q :=
+theorem impl-elim : (P --> Q) --> P --> Q
+proof
   assume (P --> Q) P
   apply (P --> Q) P
+qed
 
 // We can also use `apply` with more arguments
 // when the implication is longer.
-theorem apply-many-args : (P --> Q --> R) --> (Q --> P --> R) :=
+theorem apply-many-args : (P --> Q --> R) --> (Q --> P --> R)
+proof
   assume (P --> Q --> R) Q P
   apply (P --> Q --> R) P Q
+qed
 
 // The above proof is equivalent to the more primitive one below.
-theorem apply-many-args' : (P --> Q --> R) --> (Q --> P --> R) :=
+theorem apply-many-args' : (P --> Q --> R) --> (Q --> P --> R)
+proof
   assume (P --> Q --> R) Q P
   apply (apply (P --> Q --> R) P) Q
+qed
 
 // Just like for `assume`, `apply` can also be written in tactic style.
-theorem impl-trans : (P --> Q) --> (Q --> R) --> (P --> R) :=
+theorem impl-trans : (P --> Q) --> (Q --> R) --> (P --> R)
+proof
   assume (P --> Q) (Q --> R) P
   apply (Q --> R)
   apply (P --> Q)
   P
+qed
 
 // When we need to use `apply` a few times in a row, we can condense it
 // into a single line, with arguments separated by commas.
-theorem apply-chaining : (P --> Q) --> (Q --> R) --> (P --> R) :=
+theorem apply-chaining : (P --> Q) --> (Q --> R) --> (P --> R)
+proof
   assume (P --> Q) (Q --> R) P
   apply (Q --> R), (P --> Q)
   P
+qed
 
 // We can chain many-argument `apply` just like the ordinary one.
-theorem impl-dist : (P --> Q --> R) --> ((P --> Q) --> (P --> R)) :=
+theorem impl-dist : (P --> Q --> R) --> ((P --> Q) --> (P --> R))
+proof
   assume (pqr := P --> Q --> R) (pq := P --> Q) P
   apply pqr P, pq
   P
+qed
 
 // The true proposition is written `True`.
 // We can prove `True` with `trivial`.
 // There's no `True` elimination, because it's useless.
-theorem true-intro-example : True :=
+theorem true-intro-example : True
+proof
   trivial
+qed
 
 // The false proposition is written `False`.
 // `False` elimination is `absurd`.
 // There's no `False` introduction.
-theorem false-elim-example : False --> P :=
+theorem false-elim-example : False --> P
+proof
   assume False
   absurd False
+qed
 
 // The negation of `P` is written `~ P`.
 // `~ P` is not a primitive, but rather an abbreviation of `P --> False`.
 // Negation introduction is therefore `assume`, just as for implication.
-theorem not-false : ~ False :=
+theorem not-false : ~ False
+proof
   assume False
   False
+qed
 
 // Negation elimination is `apply`.
 // The below theorem, called `contradiction`, may also be used as an
 // eliminator for negation for the purpose of readability.
-theorem contradiction : ~ P --> P --> False :=
+theorem contradiction : ~ P --> P --> False
+proof
   assume (~ P) P
   apply (~ P) P
+qed
 
 // The conjunction of `P` and `Q` is written `P /\ Q`.
 // Conjunction introduction is written `both`.
-theorem and-intro : P --> Q --> P /\ Q :=
+theorem and-intro : P --> Q --> P /\ Q
+proof
   assume P Q
   both P Q
+qed
 
 // Proofterms that are missing more than one argument can also be turned into
 // tactics, but the syntax is a bit different: we need to enclose the tactic
 // block for each subgoal in curly braces.
-theorem tactic-style-two-args-example : P --> Q --> P /\ Q :=
+theorem tactic-style-two-args-example : P --> Q --> P /\ Q
+proof
   assume P Q
   both
   {
@@ -167,48 +208,61 @@ theorem tactic-style-two-args-example : P --> Q --> P /\ Q :=
   {
     Q
   }
+qed
 
 // Alternatively, we can use "-" as separators. These are called "bullets",
 // following Coq naming.
-theorem bullets-example : P --> Q --> P /\ Q :=
+theorem bullets-example : P --> Q --> P /\ Q
+proof
   assume P Q
   both
   - P
   - Q
+qed
 
 // Missing arguments can also be named and then they are provided as blocks
 // labeled with the corresponding names.
-theorem named-blocks-example : P --> Q --> P /\ Q :=
+theorem named-blocks-example : P --> Q --> P /\ Q
+proof
   assume P Q
   both ?p ?q
   ?p := P
   ?q := Q
+qed
 
 // Note that these named blocks don't need to be proved in the order they
 // were introduced in the proof. Below, we prove ?q first, even though we
 // first introduced ?p.
-theorem named-blocks-not-in-order-example : P --> Q --> P /\ Q :=
+theorem named-blocks-not-in-order-example : P --> Q --> P /\ Q
+proof
   assume P Q
   both ?p ?q
   ?q := Q
   ?p := P
+qed
 
 // Conjunction elimination is `and-left` and `and-right`.
-theorem conjunction-elimination-example : P /\ Q --> P :=
+theorem conjunction-elimination-example : P /\ Q --> P
+proof
   assume (P /\ Q)
   and-left (P /\ Q)
+qed
 
 // We can also eliminate conjunction by pattern matching directly in `assume`.
-theorem assume-pattern-matching : P /\ Q --> P :=
+theorem assume-pattern-matching : P /\ Q --> P
+proof
   assume (both P Q)
   P
+qed
 
 // This pattern-matching elimination can be nested, of course.
 // Also note that we can use partially applied `both` in tactic style.
-theorem and-assoc : (P /\ Q) /\ R --> P /\ (Q /\ R) :=
+theorem and-assoc : (P /\ Q) /\ R --> P /\ (Q /\ R)
+proof
   assume (both (both P Q) R)
   both P
   both Q R
+qed
 
 // In proofterm style, the above proof looks as follows.
 theorem and-assoc-term-style : (P /\ Q) /\ R --> P /\ (Q /\ R) :=
@@ -218,43 +272,56 @@ theorem and-assoc-term-style : (P /\ Q) /\ R --> P /\ (Q /\ R) :=
 // The biconditional is written `P <--> Q`.
 // `P <--> Q` is not a primitive, but an abbreviation of `(P --> Q) /\ (Q --> P)`.
 // Therefore, biconditional introduction is `both`, just as for conjunction.
-theorem iff-intro : (P --> Q) --> (Q --> P) --> P <--> Q :=
+theorem iff-intro : (P --> Q) --> (Q --> P) --> P <--> Q
+proof
   assume (P --> Q) (Q --> P)
   both (P --> Q) (Q --> P)
+qed
 
 // Biconditional elimination is `and-left` and `and-right`, just as for
 // conjunction.
-theorem iff-elim-l : (P <--> Q) --> (P --> Q) :=
+theorem iff-elim-l : (P <--> Q) --> (P --> Q)
+proof
   assume (P <--> Q)
   and-left (P <--> Q)
+qed
 
 // Similarly to conjunction, biconditionals can be eliminated by pattern
 // matching directly in `assume`.
-theorem iff-elim-r-pattern-matching : (P <--> Q) --> (Q --> P) :=
+theorem iff-elim-r-pattern-matching : (P <--> Q) --> (Q --> P)
+proof
   assume (both (P --> Q) (Q --> P))
   Q --> P
+qed
 
 // The disjunction of `P` and `Q` is written `P \/ Q`.
 // Disjunction introduction is written `or-left`.
-theorem or-intro-l : P --> P \/ Q :=
+theorem or-intro-l : P --> P \/ Q
+proof
   assume P
   or-left P
+qed
 
 // Disjunction elimination is written `cases`.
-theorem or-idempotent : P \/ P --> P :=
+theorem or-idempotent : P \/ P --> P
+proof
   assume (P \/ P)
   cases (P \/ P) (assume P in P) (assume P in P)
+qed
 
 // Note: we don't have to prove `P --> P` inline with `assume P in P`,
 // because we can use `impl-refl`, a theorem we already proved.
 // Also note that theorem names can contain an apostrophe.
-theorem or-idempotent' : P \/ P --> P :=
+theorem or-idempotent' : P \/ P --> P
+proof
   assume (P \/ P)
   cases (P \/ P) impl-refl impl-refl
+qed
 
 // Note that similarly to `both`, we can use `cases` partially
 // applied in tactic style.
-theorem or-elim-tactic-style : P \/ Q --> Q \/ P :=
+theorem or-elim-tactic-style : P \/ Q --> Q \/ P
+proof
   assume (P \/ Q)
   cases (P \/ Q)
   {
@@ -265,16 +332,19 @@ theorem or-elim-tactic-style : P \/ Q --> Q \/ P :=
     assume Q
     or-left Q
   }
+qed
 
 // We can prove a lemma inline with the construct `lemma x := P by p in q`,
 // where `x` is an (optional) name, `P` is a proposition, `p` is its proof
 // and `q` is the proof of the main theorem.
-theorem lemma-example : P \/ P --> P :=
+theorem lemma-example : P \/ P --> P
+proof
   assume (P \/ P)
   lemma P --> P by
     assume P
     P
   cases (P \/ P) (P --> P) (P --> P)
+qed
 
 // In proofterm style, the above proof looks as follows.
 theorem lemma-term-style : P \/ P --> P :=
@@ -285,21 +355,25 @@ theorem lemma-term-style : P \/ P --> P :=
       cases (P \/ P) (P --> P) (P --> P)
 
 // We can also name the lemma.
-theorem named-lemma-example : P \/ P --> P :=
+theorem named-lemma-example : P \/ P --> P
+proof
   assume (P \/ P)
   lemma pp := P --> P by
     assume P
     P
   cases (P \/ P) pp pp
+qed
 
 // An interesting idea: maybe the best syntax for named blocks is a kind of
 // reverse lemma?
-theorem reverse-lemma : P \/ P --> P :=
+theorem reverse-lemma : P \/ P --> P
+proof
   assume (P \/ P)
   cases (P \/ P) ?pp ?pp
   lemma pp := P --> P by
     assume P
     P
+qed
 
 // The syntax for lemmas isn't yet stable, so far these were proposed:
 // follows P from p
@@ -313,11 +387,13 @@ theorem reverse-lemma : P \/ P --> P :=
 // main goal and then the lemma.
 // `suffices P by e in e'` proves `Q` provided that `e` proves
 // `Q` in the context extended with `P` and `e'` proves `P`.
-theorem suffices-example : (P --> Q) --> (Q --> R) --> P --> R :=
+theorem suffices-example : (P --> Q) --> (Q --> R) --> P --> R
+proof
   assume (P --> Q) (Q --> R) P
   suffices Q by apply (Q --> R)
   suffices P by apply (P --> Q)
   assumption
+qed
 
 // In proofterm style, the above proof looks as follows.
 theorem suffices-example-term-style : (P --> Q) --> (Q --> R) --> P --> R :=
@@ -327,18 +403,21 @@ theorem suffices-example-term-style : (P --> Q) --> (Q --> R) --> P --> R :=
       assumption
 
 // We don't need to prove the goal inline.
-theorem suffices-example : (P --> Q) --> (Q --> R) --> P --> R :=
+theorem suffices-example-no-inline : (P --> Q) --> (Q --> R) --> P --> R
+proof
   assume (P --> Q) (Q --> R) P
   suffices Q by
     apply (Q --> R)
   suffices P by
     apply (P --> Q)
   assumption
+qed
 
 // If at any point in the proof it's not clear what the goal is, we can
 // provide a conclusion annotation to make this obvious. The syntax is
 // `proving P by e`, where `P` is a proposition and `e` proves `P`.
-theorem conclusion-annotation-example : Q -> P \/ (Q \/ R) :=
+theorem conclusion-annotation-example : Q -> P \/ (Q \/ R)
+proof
   assume Q
   proving (P \/ (Q \/ R))
   or-right
@@ -346,6 +425,7 @@ theorem conclusion-annotation-example : Q -> P \/ (Q \/ R) :=
   or-left
   proving Q
   assumption
+qed
 
 // In proofterm style, the above proof looks as follows.
 theorem conclusion-annotation-example-term-style : Q -> P \/ (Q \/ R) :=
@@ -358,77 +438,102 @@ theorem conclusion-annotation-example-term-style : Q -> P \/ (Q \/ R) :=
 
 // Currying is when we change one big conjunctive premise into a bunch
 // of premises connected with implications.
-theorem curry : (P /\ Q --> R) --> P --> Q --> R :=
+theorem curry : (P /\ Q --> R) --> P --> Q --> R
+proof
   assume (P /\ Q --> R) P Q
   apply (P /\ Q --> R)
   both P Q
+qed
 
 // Uncurrying is the reverse of currying.
-theorem uncurry : (P --> Q --> R) --> (P /\ Q --> R) :=
+theorem uncurry : (P --> Q --> R) --> (P /\ Q --> R)
+proof
   assume (P --> Q --> R) (both P Q)
   apply (P --> Q --> R) P Q
+qed
 
 // Disjunction is commutative.
-theorem or-comm : P \/ Q --> Q \/ P :=
+theorem or-comm : P \/ Q --> Q \/ P
+proof
   assume (P \/ Q)
   cases (P \/ Q)
   - assume P
     or-right P
   - assume Q
     or-left Q
+qed
 
 // Note that `assume P in or-right P` is equivalent to just `or-right`,
 // and analogously for `or-left`, so in the above proof we could have
 // used those directly.
-theorem or-comm' : P \/ Q --> Q \/ P :=
+theorem or-comm' : P \/ Q --> Q \/ P
+proof
   assume (P \/ Q)
   cases (P \/ Q) or-right or-left
+qed
 
 // Conjunction is commutative.
-theorem and-comm : P /\ Q --> Q /\ P :=
+theorem and-comm : P /\ Q --> Q /\ P
+proof
   assume (P /\ Q)
   both
   - and-right (P /\ Q)
   - and-left (P /\ Q)
+qed
 
 // The above proof gets much shorter when pattern matching
 // directly in `assume`.
-theorem and-comm' : P /\ Q --> Q /\ P :=
+theorem and-comm' : P /\ Q --> Q /\ P
+proof
   assume (both P Q)
   both Q P
+qed
 
 // `~ P \/ Q` is classically equivalent to `P --> Q`, but only one
 // direction is constructive, the other being classical.
-theorem impl-or-neg : ~ P \/ Q --> (P --> Q) :=
+theorem impl-or-neg : ~ P \/ Q --> (P --> Q)
+proof
   assume (~ P \/ Q) P
   cases (~ P \/ Q)
   - contradiction (~ P) P
   - assumption
+qed
 
-theorem noncontradiction : ~ (P /\ ~ P) :=
+theorem noncontradiction : ~ (P /\ ~ P)
+proof
   assume (both P (~ P))
   contradiction (~ P) P
+qed
 
-theorem contraposition : (P --> Q) --> (~ Q --> ~ P) :=
+theorem contraposition : (P --> Q) --> (~ Q --> ~ P)
+proof
   assume (P --> Q) (~ Q) P
   apply (~ Q), (P --> Q)
   assumption
+qed
 
-theorem funny-contraposition : (P --> ~ Q) --> (Q --> ~ P) :=
+theorem funny-contraposition : (P --> ~ Q) --> (Q --> ~ P)
+proof
   assume (P --> ~ Q) Q P
   apply (P --> ~ Q) P Q
+qed
 
-theorem iff-elim : ((P --> Q) --> (Q --> P) --> R) --> ((P <--> Q) --> R) :=
+theorem iff-elim : ((P --> Q) --> (Q --> P) --> R) --> ((P <--> Q) --> R)
+proof
   assume (f := _) (both (P --> Q) (Q --> P))
   apply f (P --> Q) (Q --> P)
+qed
 
-theorem iff-not : (P <--> Q) --> (~ P <--> ~ Q) :=
+theorem iff-not : (P <--> Q) --> (~ P <--> ~ Q)
+proof
   assume (both (P --> Q) (Q --> P))
   both
   - apply contraposition (Q --> P)
   - apply contraposition (P --> Q)
+qed
 
-theorem resolution : (P \/ Q) /\ (~ P \/ R) --> Q \/ R :=
+theorem resolution : (P \/ Q) /\ (~ P \/ R) --> Q \/ R
+proof
   assume (both (P \/ Q) (~ P \/ R))
   cases (P \/ Q) ?p ?q
   ?q :=
@@ -440,8 +545,10 @@ theorem resolution : (P \/ Q) /\ (~ P \/ R) --> Q \/ R :=
       contradiction (~ P) P
     - assume R
       or-right R
+qed
 
-theorem resolution' : (P \/ Q) /\ (~ P \/ R) --> Q \/ R :=
+theorem resolution' : (P \/ Q) /\ (~ P \/ R) --> Q \/ R
+proof
   assume (both (P \/ Q) (~ P \/ R))
   cases (P \/ Q) (assume P in ?p) (assume Q in ?q)
   ?q :=
@@ -452,16 +559,20 @@ theorem resolution' : (P \/ Q) /\ (~ P \/ R) --> Q \/ R :=
       contradiction (~ P) P
     - assume R
       or-right R
+qed
 
-theorem not-or-intro : ~ P /\ ~ Q --> ~ (P \/ Q) :=
+theorem not-or-intro : ~ P /\ ~ Q --> ~ (P \/ Q)
+proof
   assume (both (~ P) (~ Q)) (npq := _)
   cases npq
   - assume p
     contradiction (~ P) P
   - assume q
     contradiction (~ Q) Q
+qed
 
-theorem not-or-elim : ~ (P \/ Q) --> ~ P /\ ~ Q :=
+theorem not-or-elim : ~ (P \/ Q) --> ~ P /\ ~ Q
+proof
   assume (npq := ~ (P \/ Q))
   both
   - assume P
@@ -472,3 +583,4 @@ theorem not-or-elim : ~ (P \/ Q) --> ~ P /\ ~ Q :=
     apply npq
     or-right
     Q
+qed

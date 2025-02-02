@@ -1,19 +1,25 @@
 // The syntax of quantifiers over types is as follows.
 // P, Q ::= ... | forall A : Type, P | exists A : Type, P
 
-theorem forall-type-intro-example : forall (A : Type) (x : A), x = x :=
+theorem forall-type-intro-example : forall (A : Type) (x : A), x = x
+proof
   pick-any A x
   refl
+qed
 
 theorem forall-type-elim-example :
-  (forall (A : Type) (x : A), x = x) --> forall n : Nat, n = n :=
+  (forall (A : Type) (x : A), x = x) --> forall n : Nat, n = n
+proof
   assume (f := _)
   instantiate f Nat
+qed
 
-theorem exists-type-intro-example : exists (A : Type), forall x : A, x = x :=
+theorem exists-type-intro-example : exists (A : Type), forall x : A, x = x
+proof
   exists Nat
   pick-any x
   refl
+qed
 
 theorem exists-type-elim-example : exists (A : Type), ...
 
@@ -29,20 +35,26 @@ theorem exists-type-elim-example : exists (A : Type), ...
 // example it is not possible to implement a program that takes a propositions as
 // an argument.
 
-theorem forall-prop-intro-example : forall P : Prop, P --> P :=
+theorem forall-prop-intro-example : forall P : Prop, P --> P
+proof
   pick-any P
   assume P
   assumption
+qed
 
-theorem forall-prop-intro-example' : forall P Q : Prop, P --> P \/ Q :=
+theorem forall-prop-intro-example' : forall P Q : Prop, P --> P \/ Q
+proof
   pick-any P Q
   assume P
   or-left
   assumption
+qed
 
-theorem forall-prop-elim-example : (forall P : Prop, P) --> False :=
+theorem forall-prop-elim-example : (forall P : Prop, P) --> False
+proof
   assume (all := _)
   instantiate all with False
+qed
 
 // Defining logical connectives using higher-order quantification.
 
@@ -51,17 +63,20 @@ theorem forall-prop-elim-example : (forall P : Prop, P) --> False :=
 myfalse : Prop := forall R : Prop, R
 
 // `myfalse` is equivalent to `False`.
-theorem myfalse-spec : myfalse <--> False :=
+theorem myfalse-spec : myfalse <--> False
+proof
   both
   - assume (mf := _)
     instantiate mf with False
   - assume False
     absurd False
+qed
 
 // The impredicative encoding of `True`.
 mytrue : Prop := foral R : Prop, R --> R
 
-theorem mytrue-spec : mytrue <--> True :=
+theorem mytrue-spec : mytrue <--> True
+proof
   both
   - assume _
     trivial
@@ -69,11 +84,13 @@ theorem mytrue-spec : mytrue <--> True :=
     pick-any R
     assume R
     assumption
+qed
 
 // Impredicative encoding of conjunction.
 myand (P Q : Prop) : Prop := forall R : Prop, (P --> Q --> R) --> R
 
-theorem myand-spec : forall P Q : Prop, myand P Q <--> P /\ Q :=
+theorem myand-spec : forall P Q : Prop, myand P Q <--> P /\ Q
+proof
   pick-any P Q
   both
   - assume (pq := _)
@@ -90,11 +107,13 @@ theorem myand-spec : forall P Q : Prop, myand P Q <--> P /\ Q :=
     apply pqr
     - assumption
     - assumption
+qed
 
 // Impredicative encoding of disjunction.
 myor (P Q : Prop) : Prop := forall R : Prop, (P --> R) --> (Q --> R) --> R
 
-theorem myor-spec : forall P Q : Prop, myor P Q <--> P \/ Q :=
+theorem myor-spec : forall P Q : Prop, myor P Q <--> P \/ Q
+proof
   pick-any P Q
   both
   - assume (pq := _)
@@ -106,13 +125,15 @@ theorem myor-spec : forall P Q : Prop, myor P Q <--> P \/ Q :=
     assume (P --> R)
     assume (Q --> R)
     cases (P \/ Q) (P --> R) (Q --> R)
+qed
 
 // Impredicative encoding of the existential quantifier.
 myex (A : Type) (P : A -> Prop) : Prop :=
   forall R : Prop, (forall x : A, P x --> R) --> R
 
 theorem myex-spec :
-  forall (A : Type) (P : A -> Prop), myex A P <--> exists x : A, P x :=
+  forall (A : Type) (P : A -> Prop), myex A P <--> exists x : A, P x
+proof
   pick-any A P
   both
   - assume (mx := _)
@@ -126,13 +147,15 @@ theorem myex-spec :
     assume (all := _)
     instantiate all with x
     assumption
+qed
 
 // Impredicative encoding of equality.
 myeq (A : Type) (x y : A) : Prop :=
   forall P : A -> Prop, P x --> P y
 
 theorem myeq-spec :
-  forall (A : Type) (x y : A), myeq x y <--> x = y :=
+  forall (A : Type) (x y : A), myeq x y <--> x = y
+proof
   pick-any (A : Type) (x y : A)
   both
   - assume (all := _)                                             // x = y
@@ -143,3 +166,4 @@ theorem myeq-spec :
     pick-any (P : A -> Prop)                                      // P : A -> Prop |- P x --> P x
     assume (P x)                                                  // P : A -> Prop, P x |- P x
     assumption
+qed

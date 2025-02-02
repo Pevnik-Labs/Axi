@@ -40,7 +40,7 @@ name : Prop
 axiom name := proposition
 
 // Theorem, i.e. a "proof definition". `theorem`, `proof` and `qed` are keywords.
-theorem name := proposition
+theorem name : proposition
 proof
   the actual proof goes here
 qed
