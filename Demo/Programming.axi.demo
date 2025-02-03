@@ -1,59 +1,145 @@
-// Term definition
+// The syntax for a definition is `name : type := body`.
 answer : Nat := 42
+
+// To replace a definition with its body, we can use `unfold`.
+theorem unfold-example : answer = 42
+proof            // |- answer = 42
+  unfold answer  // |- 42 = 42
+  refl
+qed
+
+// In proofterm style, it doesn't make much sense to use `unfold`,
+// because its results are only visible in the goal, which is only
+// visible in tactic mode.
+theorem unfold-example-term-style : answer = 42 :=
+  unfold answer in
+    refl
 
 // Type annotations at the top-level are mandatory, so the code below
 // results in an error, even though it's easy to infer the type.
 missing-annotation-error := 42
 
-// Function definition (lambda).
-id : Nat -> Nat :=
+// The syntax for anonymous functions is `fun x : A => e`.
+id-nat : Nat -> Nat :=
   fun n : Nat => n
 
-// Function definition (no annotation on the binder).
-id : Nat -> Nat :=
-  fun n => n
-
-// Function definition (short, arguments on the left).
-id (n : Nat) : Nat := n
-
-// Polymorphic function (lambda).
-id : forall a, a -> a :=
-  fun x : a => x
-
-// Polymorphic function (short).
-id a (x : a) : a := x
-
-// Polymorphic function (very implicit arguments - no need to bind a).
-id (x : a) : a := x
-
-// Function composition.
-comp (f : a -> b) (g : b -> c) : a -> c :=
-  fun x => g (f x)
-
-// Term declaration - `n` is now a natural number (which is otherwise undefined).
-declaration n : Nat
-
-// Theorem (tactic style).
-theorem comp_id_l :
-  forall a b (f : a -> b), comp f id = f
-proof
-  pick-any a b f
-  funext x
+// To simplify an expression to its result, use the `simpl` tactic.
+theorem simpl-example : id-nat 42 = 42
+proof             // |- id-nat 42 = 42
+  unfold id-nat   // |- (fun n : Nat => n) 42 = 42
+  simpl           // |- 42 = 42
   refl
 qed
 
-// Theorem (term style, nameless)
-theorem forall a b (f : a -> b), comp f id = f :=
-  pick-any a b f in funext x in refl
+// Again, `simpl` doesn't make much sense in proofterm style,
+// because it only affects the goal.
+theorem simpl-exampl-term-style : id-nat 42 = 42 :=
+  unfold id-nat in
+    simpl in
+      refl
 
-// Nameless axiom
-axiom 2 + 2 = 42
+// When a definition needs to be unfolded to perform simplification
+// `simpl` can do it.
+theorem simpl-without-unfold : id-nat 42 = 42
+proof             // |- id-nat 42 = 42
+  simpl           // |- 42 = 42
+  refl
+qed
 
-// Named axiom
-axiom why-not-lol := False
+// Of course since both `unfold` and `simpl` work only to change how the goal
+// is displayed, we need neither of them and `refl` is enough.
+theorem refl-is-enough : id-nat 42 = 42
+proof
+  refl
+qed
 
-// Type definition (synonym)
+// We don't need to put a type annotation on the binder if it can be inferred.
+id-nat' : Nat -> Nat :=
+  fun n => n
+
+theorem no-annotation-desugared : id-nat' = (fun n : Nat => n)
+proof             // |- id-nat' = (fun n : Nat => n)
+  unfold id-nat'  // |- (fun n : Nat => n) = (fun n : Nat => n)
+  refl
+qed
+
+// We can make the definition shorter by putting all arguments on
+// the left-hand side. The resulting term is the same as in the two
+// previous cases.
+id-nat'' (n : Nat) : Nat := n
+
+// The short definition produces the same term as the other two definitions.
+theorem short-definition-desugared : id-nat'' = (fun n : Nat => n)
+proof
+  unfold id-nat'
+  refl
+qed
+
+// Functions enjoy definitional extensionality, i.e. a function `f`
+// is equal to `fun x => f x` and this can be proved with `refl`.
+theorem definitional-funext-example :
+  forall (A B : Type) (f : A -> B),
+    f = fun x : A => f x
+proof
+  pick-any A B f
+  refl
+qed
+
+// To define a polymorphic function, we use the quantifier `forall A : Type`
+// in the function's type. Note that in the term, we don't need to bind the
+// type with `fun` - type abstractions are implicit by default.
+id : forall A : Type, A -> A :=
+  fun x : A => x
+
+// To state a theorem about a polymorphic function, we can use `forall` as
+// a quantifier in the logic. Note that we write `id x`, without mentioning
+// the type `A` - type applications are implicit by default.
+theorem id-spec :
+  forall (A : Type) (x : A),
+    id x = x
+proof
+  pick-any A x
+  refl
+qed
+
+// Just as for monomorphic functions, we can put all the arguments on the
+// left-hand side to make the definition much shorter.
+id' (A : Type) (x : A) : A := x
+
+// An interesting feature borrowed from Idris 2 are very implicit arguments -
+// we can recognize that `A` is a universally quantified type, even though
+// this was not explicitly written. However, this will only be possible when
+// the type variable starts with an uppercase letter.
+id'' (x : A) : A := x
+
+// If two functions return the same result for all arguments, they are equal.
+// This principle is called (propositional) function extensionality. Formally,
+// `funext x in e` proves `f = g` when `e` proves `f x = g x` in the context
+// extended with `x : A`.
+theorem funext-example :
+  forall (A B : Type) (f g : A -> B),
+    (forall x : A, f x = g x) --> f = g
+proof
+  pick-any A B f g
+  // Let Γ := A B : Type, f g : A -> B, eq := forall x : A, f x = g x
+  assume (eq := _)  // Γ |- f = g
+  funext x          // Γ, x : A |- f x = g x
+  instantiate eq
+qed
+
+// To define a type synonym, we can use the syntax `type name := body`.
 type NatToNat := Nat -> Nat
+
+// We can use such a type just as any other.
+another-id-nat : NatToNat :=
+  fun n => n
+
+// `t : A` is a type annotation. We can use it to give a hint to make
+// the type checker think that `t` has type `A`, but only if it can
+// check that this is indeed the case.
+// We can use a type annotation to see that the types `NatToNat` and
+// `Nat -> Nat` are considered equal by the type checker.
+
 
 // Type definition (record)
 type Point := {x of Nat; y of Nat}
@@ -81,17 +167,17 @@ type List a :=
 type T
 
 // Recursive functions
-map a b (f : a -> b) (l : List a) : List b :=
+map (f : A -> B) (l : List A) : List B :=
 | nil => nil
 | cons h t => cons (f h) (map f t)
 
-app a (l1 l2 : List a) : List a :=
+app (l1 l2 : List A) : List A :=
 | nil, _ => l2
 | cons h t , _ => cons h (app t l2)
 
 // Proof by induction
 theorem map-id :
-  forall a (l : List a), map id l = l
+  forall A (l : List A), map id l = l
 proof
   pick-any a l
   induction l
