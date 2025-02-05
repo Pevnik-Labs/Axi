@@ -1,4 +1,4 @@
-// All code in this file is written by Cursor (either GPT 40 or Claude 3.5 Sonnet), except for some comments.
+// All code in this file is written by Cursor (either GPT 4o or Claude 3.5 Sonnet), except for some comments.
 
 theorem iff-not-nand : ~ (P <--> Q) --> ~ P \/ ~ Q
 proof

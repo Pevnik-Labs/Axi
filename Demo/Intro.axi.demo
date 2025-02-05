@@ -18,29 +18,55 @@
 
 // The syntax is as follows:
 
-// Type definition. `type` is a keyword. `:=` means "is defined as".
-type Name := Def
+// Type definition.
+// `type` is a keyword. `:=` means "is defined as".
+// By convention, names of types must start with an upper case letter
+// and are written in PascalCase (i.e. UpperCamelCase).
+type NameOfType := Def
 
 // Type declaration.
-type Name
+type NameOfType
 
-// Term definition. `:` means "is of type".
-name : type := def
+// Term definition.
+// `:` means "is of type".
+// By convention, names of terms must start with a lower case letter
+// and are written in camelCase.
+nameOfFunction : type := def
 
-// Term declaration. `declaration` is a keyword.
-declaration name : type
+// Term declaration.
+// `declaration` is a keyword.
+declaration nameOfFunction : type
 
-// Proposition definition. `Prop` is a keyword which denotes the universe of propositions.
-name : Prop := def
+// Proposition definition.
+// `Prop` is a keyword which denotes the universe of propositions.
+// Names of propositions, predicates and types follow the same
+// conventions as names of types, i.e. PascalCase/UpperCamelCase.
+NameOfProposition : Prop := def
 
 // Proposition declaration.
-name : Prop
+NameOfProposition : Prop
 
-// Axiom, i.e. a "proof declaration". `axiom` is a keyword.
-axiom name := proposition
-
-// Theorem, i.e. a "proof definition". `theorem`, `proof` and `qed` are keywords.
-theorem name : proposition
+// Theorem, i.e. a "proof definition".
+// `theorem`, `proof` and `qed` are keywords.
+// By convention, names of theorems consist of parts separated with `-`,
+// where the parts are either names of functions, names of types,
+// namesof propositions/predicates/relations, or ordinary words.
+// Preferably, the name should reflect the theorem statement, with
+// the name of the head symbol being the first part of the theorem
+// name, for example the theorem `map id = id` should be named `map-id`.
+theorem someFunction-satisfies-SomePredicate : proposition
 proof
   the actual proof goes here
 qed
+
+// Axiom, i.e. a "proof declaration".
+// `axiom` is a keyword.
+// Axiom names follow the same conventions as theorem names.
+axiom name := proposition
+
+// Some additional naming conventions:
+// - Type variable start with an upper case letter and follow PascalCase
+// - Local variables start with a lower case letter and follow camelCase.
+// - Variant constructor start with an upper case letter and follow PascalCase.
+//   For structural variants, an apostrophe `'` might be used to disambiguate
+//   between a constructor and something else which overshadows its name.

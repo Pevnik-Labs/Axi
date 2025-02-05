@@ -1,4 +1,5 @@
 // The syntax of quantifiers and equality is as follows.
+// By convention, type variables start are denoted with upper case letters.
 // P, Q ::= ... | forall x : A, P | exists x : A, P | t1 = t2
 
 // In the rest of the file, we will need a type `A`, a term `a` of type `A`,
@@ -351,22 +352,22 @@ proof
   - assume (exists x such-that (P x \/ Q x))
     cases (P x \/ Q x)
     - assume (P x)
-      left
+      or-left
       exists x
       assumption
     - assume (Q x)
-      right
+      or-right
       exists x
       assumption
   - assume (orex := _)
     cases orex
     - assume (exists x such-that (P x))
       exists x
-      left
+      or-left
       assumption
     - assume (exists x such-that (Q x))
       exists x
-      right
+      or-right
       assumption
 qed
 
