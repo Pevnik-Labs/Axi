@@ -1,10 +1,46 @@
-// The syntax for a definition is `name : type := body`.
-answer : Nat := 42
+// In this file, we will describe the basics of programming.
+// Since the programming layer is much more amorphous and
+// underspecified in comparison to the logic layer, this part
+// of the demo will be much further from the final product
+// than the logical part. But we must show something, so we
+// will stick to a core language in this file and describe
+// its possible extensions with various language features
+// in separate files.
 
-// To replace a definition with its body, we can use `unfold`.
+// This core language consists of:
+// - A mechanism for defining new programs and types.
+// - Base types.
+// - Functions.
+// - Polymorphism.
+// - Records.
+// - Typeclasses.
+// - Inductive data types and recursive functions.
+// - Proof principles needed to reason about the above.
+
+// We will NOT describe the following:
+// - Modules.
+// - Monads, effects or other means of interacting with the blockchain.
+// - Blockchain specific features, like constraints or pub-sub.
+// - Cryptography.
+
+// In later files, we will describe features such as:
+// - Termination checker.
+// - Linear typing.
+// - Structural records and variants (in the core language, they are nominal).
+// - Subtyping.
+// - And possibly more...
+
+// The syntax for a definition is `name : type := body`.
+answer : Int32 := 42
+
+// Type annotations at the top-level are mandatory, so the code below
+// results in an error, even though it's easy to infer the type.
+missingAnnotationError := 42
+
+// To replace a definition with its body in a proof, we can use `unfold`.
 theorem unfold-example : answer = 42
-proof            // |- answer = 42
-  unfold answer  // |- 42 = 42
+proof              // |- answer = 42
+  unfold answer    // |- 42 = 42
   refl
 qed
 
@@ -15,68 +51,121 @@ theorem unfold-example-term-style : answer = 42 :=
   unfold answer in
     refl
 
-// Type annotations at the top-level are mandatory, so the code below
-// results in an error, even though it's easy to infer the type.
-missing-annotation-error := 42
+// To define a type synonym, we can use the syntax `type name := body`.
+type MediumSizedInt := Int32
+
+// We can use such a type just as any other.
+anotherAnswer : MediumSizedInt := 42
+
+// To see that `MediumSizedInt` is considered equal to `Int32`, it
+// suffices to state the following theorem. If these types were
+// different, we would get a type error, but the theorem is accepted
+// and we can proceed to prove it.
+// Also note that to `unfold` multiple definitions, we separate them
+// with commas.
+theorem type-synonym-example : anotherAnswer = answer
+proof
+  unfold anotherAnswer, answer
+  refl
+qed
+
+// The exact set of base types is left more or less unspecified.
+// I imagine there will be `Int`s, `Uint`s and `Float`s of multiple sizes,
+// as well as `String`s and `Char`acters, together with support for their
+// literals. On the blockchain side, there might be types for `Address`es,
+// `Hash`es, etc.
+
+// `Int`s of various sizes.
+int8Example  : Int8  := -100
+int16Example : Int16 := 0
+int32Example : Int32 := 42
+int64Example : Int64 := 2^32
+
+// `Uint`s of various sizes.
+uint8Example :  Uint8  := 42
+uint16Example : Uint16 := 42
+uint32Example : Uint32 := 42
+uint64Example : Uint64 := 42
+
+// `Float`s of various sizes.
+float8Example  : Float8  := 1.0
+float16Example : Float16 := 2.8e13
+float32Example : Float32 := 0.4e-6
+float64Example : Float64 := NaN
+
+// Characters.
+charExample : Char := '\n'
+
+// Strings.
+stringExample : String := "where lambo?"
+
+// `t : A` is a type annotation. We can use it to give a hint to make
+// the type checker think that `t` has type `A`, but only if it can
+// check that this is indeed the case.
+// As an example, we can use an annotation to make the type checker
+// think that `1` is a float, even though it is ordinarily an int.
+annotationExample : Float32 :=
+  1 : Float32
 
 // The syntax for anonymous functions is `fun x : A => e`.
-id-nat : Nat -> Nat :=
+idNat : Nat -> Nat :=
   fun n : Nat => n
 
 // To simplify an expression to its result, use the `simpl` tactic.
-theorem simpl-example : id-nat 42 = 42
-proof             // |- id-nat 42 = 42
-  unfold id-nat   // |- (fun n : Nat => n) 42 = 42
+theorem simpl-example : idNat 42 = 42
+proof             // |- idNat 42 = 42
+  unfold idNat    // |- (fun n : Nat => n) 42 = 42
   simpl           // |- 42 = 42
   refl
 qed
 
-// Again, `simpl` doesn't make much sense in proofterm style,
+// `simpl` doesn't make much sense in proofterm style,
 // because it only affects the goal.
-theorem simpl-exampl-term-style : id-nat 42 = 42 :=
-  unfold id-nat in
+theorem simpl-exampl-term-style : idNat 42 = 42 :=
+  unfold idNat in
     simpl in
       refl
 
-// When a definition needs to be unfolded to perform simplification
+// When a definition needs to be unfolded to perform simplification,
 // `simpl` can do it.
-theorem simpl-without-unfold : id-nat 42 = 42
-proof             // |- id-nat 42 = 42
-  simpl           // |- 42 = 42
+theorem simpl-without-unfold : idNat 42 = 42
+proof                    // |- idNat 42 = 42
+  simpl                  // |- 42 = 42
   refl
 qed
 
 // Of course since both `unfold` and `simpl` work only to change how the goal
-// is displayed, we need neither of them and `refl` is enough.
-theorem refl-is-enough : id-nat 42 = 42
+// is displayed, to prove the above theorems it suffice to use `refl`.
+theorem refl-is-enough : idNat 42 = 42
 proof
   refl
 qed
 
 // We don't need to put a type annotation on the binder if it can be inferred.
-id-nat' : Nat -> Nat :=
+idNat' : Nat -> Nat :=
   fun n => n
 
-theorem no-annotation-desugared : id-nat' = (fun n : Nat => n)
-proof             // |- id-nat' = (fun n : Nat => n)
-  unfold id-nat'  // |- (fun n : Nat => n) = (fun n : Nat => n)
+// Even though we did not write the annotation on the binder,
+// it will be present whne the definition is unfolded.
+theorem no-annotation-desugared : idNat' = (fun n : Nat => n)
+proof                       // |- idNat' = (fun n : Nat => n)
+  unfold idNat'             // |- (fun n : Nat => n) = (fun n : Nat => n)
   refl
 qed
 
 // We can make the definition shorter by putting all arguments on
-// the left-hand side. The resulting term is the same as in the two
-// previous cases.
-id-nat'' (n : Nat) : Nat := n
+// the left-hand side.
+idNat'' (n : Nat) : Nat := n
 
 // The short definition produces the same term as the other two definitions.
-theorem short-definition-desugared : id-nat'' = (fun n : Nat => n)
-proof
-  unfold id-nat'
+theorem short-definition-desugared : idNat'' = (fun n : Nat => n)
+proof                          // |- idNat'' = (fun n : Nat => n)
+  unfold idNat'                // |- (fun n : Nat => n) = (fun n : Nat => n)
   refl
 qed
 
-// Functions enjoy definitional extensionality, i.e. a function `f`
-// is equal to `fun x => f x` and this can be proved with `refl`.
+// Functions enjoy definitional extensionality, i.e. a function
+// `f` is equal to `fun x => f x` and this can be proved with `refl`.
 theorem definitional-funext-example :
   forall (A B : Type) (f : A -> B),
     f = fun x : A => f x
@@ -109,13 +198,13 @@ id' (A : Type) (x : A) : A := x
 // An interesting feature borrowed from Idris 2 are very implicit arguments -
 // we can recognize that `A` is a universally quantified type, even though
 // this was not explicitly written. However, this will only be possible when
-// the type variable starts with an uppercase letter.
+// the type variable is a single uppercase letter.
 id'' (x : A) : A := x
 
 // If two functions return the same result for all arguments, they are equal.
-// This principle is called (propositional) function extensionality. Formally,
-// `funext x in e` proves `f = g` when `e` proves `f x = g x` in the context
-// extended with `x : A`.
+// This principle is called (propositional) function extensionality.
+// Formally, `funext x in e` proves `f = g` when `e` proves `f x = g x`
+// in the context extended with `x : A`.
 theorem funext-example :
   forall (A B : Type) (f g : A -> B),
     (forall x : A, f x = g x) --> f = g
@@ -127,22 +216,64 @@ proof
   instantiate eq
 qed
 
-// To define a type synonym, we can use the syntax `type name := body`.
-type NatToNat := Nat -> Nat
+// We can define record types using a pretty familiar syntax.
+// We use the keyword `of` to declare the fields' types.
+type Point :=
+{
+  x of Float32
+  y of Float32
+}
 
-// We can use such a type just as any other.
-another-id-nat : NatToNat :=
-  fun n => n
+// In a record type `T` with field `f of A`,
+// `f` is a function of type `T -> A`.
+fieldTypeExample : Point -> Float32 := x
 
-// `t : A` is a type annotation. We can use it to give a hint to make
-// the type checker think that `t` has type `A`, but only if it can
-// check that this is indeed the case.
-// We can use a type annotation to see that the types `NatToNat` and
-// `Nat -> Nat` are considered equal by the type checker.
+// We can access record fields using the familiar dot syntax.
+dotSyntaxExample (p : Point) : Float32 := p.x
 
+// However, presumably we can also access fields using
+// ordinary function application syntax.
+fieldAccessExample (p : Point) : Float32 := x p
 
-// Type definition (record)
-type Point := {x of Nat; y of Nat}
+// We can build records with record literal syntax.
+recordLiteralSyntaxExample : Point :=
+{
+  x := 1.0
+  y := 1e10
+}
+
+// We can also write records inline.
+inlineRecordLiteralExample : Point := {x := 1.0; y := 1e10}
+
+// Records enjoy definitional extensionality.
+theorem definitional-record-extensionality-example :
+  forall p : Point,
+    p = {x := p.x; y := p.y}
+proof
+  pick-any p
+  refl
+qed
+
+// Because of the above, we can prove record equality component-wise.
+theorem record-equality-example :
+  forall p1 p2 : Point,
+    p1.x = p2.x --> p1.y = p2.y --> p1 = p2
+proof
+  pick-any p1 p2
+  assume (eqx eqy := _)
+  chaining= p1
+    = {x := p1.x; y := p1.y}  by refl
+    = {x := p2.x; y := p1.y}  by eqx
+    = {x := p2.x; y := p2.y}  by eqy
+    = p2                      by refl
+qed
+
+type Point3D :=
+{
+  x of Float32
+  y of Float32
+  z of Float32
+}
 
 // Type definition (variant)
 type Bool :=
@@ -150,21 +281,18 @@ type Bool :=
 | yes
 
 // Type definition (polymorphic variant)
-type Option a :=
+type Option A :=
 | no
-| yes of a
+| yes of A
 
-type Sum a b :=
-| no of a
-| yes of b
+type Sum A B :=
+| no of A
+| yes of B
 
 // Type definition (inductive)
-type List a :=
+type List A :=
 | nil
-| cons of {hd : a; tl : List a}
-
-// Type declaration
-type T
+| cons of {hd of A; tl of List A}
 
 // Recursive functions
 map (f : A -> B) (l : List A) : List B :=
@@ -179,14 +307,14 @@ app (l1 l2 : List A) : List A :=
 theorem map-id :
   forall A (l : List A), map id l = l
 proof
-  pick-any a l
+  pick-any A l
   induction l
   | nil => refl
   | cons => rewrite (map id t = t) in refl
 qed
 
-theorem map-id-term-style : forall a l, map id l = l :=
-  pick-any a l in
+theorem map-id-term-style : forall A l, map id l = l :=
+  pick-any A l in
   induction l
   | nil => refl
   | cons => rewrite (map id t = t) in refl
