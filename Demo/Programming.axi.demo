@@ -13,8 +13,8 @@
 // - Functions.
 // - Polymorphism.
 // - Records.
-// - Typeclasses.
 // - Inductive data types and recursive functions.
+// - Typeclasses.
 // - Proof principles needed to reason about the above.
 
 // We will NOT describe the following:
@@ -216,6 +216,39 @@ proof
   instantiate eq
 qed
 
+// We can use `let` bindings.
+letExample (a b : Float32) : Float32 :=
+  let x := a + b in
+    let y := a - b in
+      x * y
+
+// In case we have more than one `let` binding, we can group them in a block.
+letBlockExample (a b : Float32) : Float32 :=
+  let
+    x := a + b
+    y := a - b
+  in
+    x * y
+
+// We may put type annotations on variables in `let`s.
+annotatedLetExample (a b : Float32) : Float32 :=
+  let
+    x : Float32 := a + b
+    y : Float32 := a - b
+  in
+    x * y
+
+// When we encounter a `let` binding in a proof, we can get rid of it
+// with `simpl`.
+theorem let-computation-example :
+  forall (A : Type) (e1 e2 : A),
+    (let x := e1 in e2) = (fun x => e2) e1
+proof
+  pick-any A e1 e2  // A : Type, e1 e2 : A |- (let x := e1 in e2) = (fun x => e2) e1
+  simpl             // A : Type, e1 e2 : A |- (fun x => e2) e1 = (fun x => e2) e1
+  refl
+qed
+
 // We can define record types using a pretty familiar syntax.
 // We use the keyword `of` to declare the fields' types.
 type Point :=
@@ -233,7 +266,12 @@ dotSyntaxExample (p : Point) : Float32 := p.x
 
 // However, presumably we can also access fields using
 // ordinary function application syntax.
-fieldAccessExample (p : Point) : Float32 := x p
+alternativeFieldAccessExample (p : Point) : Float32 := x p
+
+// As a third possibility, we can `open` a record and refer to the fields
+// directly, without dot syntax or having to apply them.
+recordOpeningExample (p : Point) : Float32 :=
+  open p in x
 
 // We can build records with record literal syntax.
 recordLiteralSyntaxExample : Point :=
@@ -242,10 +280,10 @@ recordLiteralSyntaxExample : Point :=
   y := 1e10
 }
 
-// We can also write records inline.
+// We can also write record literals inline.
 inlineRecordLiteralExample : Point := {x := 1.0; y := 1e10}
 
-// Records enjoy definitional extensionality.
+// Records, similarly to functions, enjoy definitional extensionality.
 theorem definitional-record-extensionality-example :
   forall p : Point,
     p = {x := p.x; y := p.y}
@@ -268,6 +306,9 @@ proof
     = p2                      by refl
 qed
 
+// We can define another record type, `Point3D`, whose field names overlap
+// with fields names of `Point`. At the top level this causes some ambiguity,
+// but we will allow to disambiguate based on types or explicitly.
 type Point3D :=
 {
   x of Float32
@@ -275,19 +316,122 @@ type Point3D :=
   z of Float32
 }
 
-// Type definition (variant)
+// We can explicitly disambiguate between the `x` from `Point` and the
+// one from `Point3D` using dot syntax.
+explicitDisambiguationExample : Point3D -> Float32 :=
+  Point3D.x
+
+// We can also disambiguate implicitly, based on types.
+implicitDisambiguationExample : Point3D -> Float32 := x
+
+// Any kind of conversion between these two records must be performed
+// manually.
+projectToXY (p : Point3D) : Point :=
+  {x := p.x; y := p.y}
+
+embedInXYZ (p : Point) : Point3D :=
+  {x := p.x; y := p.y; z := 0.0}
+
+// Records can be polymorphic, just like functions.
+// We can implement pairs as polymorphic records.
+type Prod A B :=
+{
+  fst of A;
+  snd of B;
+}
+
+// We can also use tuple syntax for records, but only if
+// the type of the record can be inferred. In particular,
+// this can always be done at the top level.
+tupleSyntaxExample : Prod Int32 Float32 := (42, 3.14)
+
+// As an alternative way of eliminating records, we can
+// pattern match on them, using both record literal syntax
+// and tuple syntax.
+swapRecord (A B : Type) (p : Prod A B) : Prod B A :=
+| {x := x; y := y} => {x := y; y := x}
+
+swapTuple (A B : Type) (p : Prod A B) : Prod B A :=
+| (x, y) => (y, x)
+
+// We can also pattern match on a record in a `let` binding.
+swapLet (A B : Type) (p : Prod A B) : Prod B A :=
+  let (x, y) := p in (y, x)
+
+// We can define inductive types with a convenient syntax.
+// Note that the first pipe `|` is mandatory.
+// Also note that we use `yes` and `no` as names of the booleans,
+// to make it easier for newcomers not to confuse them with the
+// propositions `True` and `False`.
 type Bool :=
 | no
 | yes
 
-// Type definition (polymorphic variant)
+// We can define functions out of inductive types by pattern matching.
+notb (b : Bool) : Bool :=
+| no  => yes
+| yes => no
+
+// We can reason by cases on elements of inductive types using `cases`.
+theorem notb-notb :
+  forall b : Bool,
+    notb (notb b) = b
+proof                  // forall b : Bool, notb (notb b) = b
+  pick-any b           // b : Bool |- notb (notb b) = b
+  cases b
+  | no =>              // |- notb (notb no) = no
+    simpl              // |- no = no
+    refl
+  | yes =>             // |- notb (notb yes) = yes
+    simpl              // |- yes = yes
+    refl
+qed
+
+// In proofterm style, the above proof looks as follows.
+theorem notb-notb-term-style :
+  forall b : Bool,
+    notb (notb b) = b :=
+  pick-any b in
+    cases b of
+    | no  => simpl in refl
+    | yes => simpl in refl
+
+// We can match one more than one argument at a time.
+andb (b1 b2 : Bool) : Bool :=
+| no , _   => no
+| _  , no  => no
+| yes, yes => yes
+
+// Similarly, we can reason by cases on more than one term.
+theorem andb-comm :
+  forall b1 b2 : Bool,
+    andb b1 b2 = andb b2 b1
+proof
+  pick-any b1 b2
+  cases b1, b2
+  | no , no  => refl
+  | no , yes => refl
+  | yes, no  => refl
+  | yes, yes => refl
+qed
+
+// Inductive types can be polymorphic.
+// We use the keyword `of` to declare the constructors' argument types.
 type Option A :=
-| no
-| yes of A
+| none
+| some of A
+
+// For an inductive type `T` with a constructor `c of A`,
+// `c` is a function of type `A -> T`.
+constructorTypeExample : forall A : Type, A -> Option A := some
 
 type Sum A B :=
-| no of A
-| yes of B
+| inl of A
+| inr of B
+
+swapSum (A B : Type) (x : Sum A B) : Sum B A :=
+| inl a => inr a
+| inr b => inl b
 
 // Type definition (inductive)
 type List A :=
@@ -318,6 +462,17 @@ theorem map-id-term-style : forall A l, map id l = l :=
   induction l
   | nil => refl
   | cons => rewrite (map id t = t) in refl
+
+
+
+// Our core language also has a simple type class mechanism.
+// Type classes are more or less equivalent to records with
+// type parameters, with some special syntax to make use of
+// them in type signatures.
+class Eq (A : Type) :=
+{
+  eqb : A -> A -> 
+}
 
 // Relation declaration
 declaration R : Nat -> Nat -> Prop
