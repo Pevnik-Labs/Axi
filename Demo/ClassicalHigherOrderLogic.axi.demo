@@ -1,19 +1,19 @@
 // Higher-order classical logic.
 
-injective (A B : Type) (f : A -> B) : Prop :=
+injective {A B} (f : A -> B) : Prop :=
   forall x y : A, f x = f y --> x = y
 
-surjective (A B : Type) (f : A -> B) : Prop :=
+surjective {A B} (f : A -> B) : Prop :=
   forall y : B, exists x : A, f x = y
 
-bijective (A B : Type) (f : A -> B) : Prop :=
+bijective {A B} (f : A -> B) : Prop :=
   surjective A B f /\ injective A B f
 
-has-inverse (A B : Type) (f : A -> B) : Prop :=
+has-inverse {A B} (f : A -> B) : Prop :=
   exists g : B -> A, (forall a : A, g (f a) = a) /\ (forall b : B, f (g b) = b)
 
 theorem bijective-from-has-inverse :
-  forall (A B : Type) (f : A -> B),
+  forall {A B} (f : A -> B),
     has-inverse A B f --> bijective A B f
 proof
   pick-any A B f
@@ -34,7 +34,7 @@ qed
 
 // Let's allow eliminating propositions into types... as our way of supporting classical reasoning.
 theorem has-inverse-from-bijective :
-  forall (A B : Type) (f : A -> B),
+  forall {A B} (f : A -> B),
     bijective A B f --> has-inverse A B f
 proof
   pick-any A B f
@@ -61,7 +61,7 @@ qed
 // We can now prove the Axiom of Choice.
 // Let Γ := A B : Type, R : A -> B -> Prop, allex := (forall a : A, exists b : B, R a b)
 theorem choice :
-  forall (A B : Type) (R : A -> B -> Prop),
+  forall {A B} (R : A -> B -> Prop),
     (forall a : A, exists b : B, R a b) -->
       exists f : A -> B, forall a : A, R a (f a)
 proof

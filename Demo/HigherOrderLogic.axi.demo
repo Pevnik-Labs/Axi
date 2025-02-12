@@ -1,27 +1,27 @@
 // The syntax of quantifiers over types is as follows.
-// P, Q ::= ... | forall A : Type, P | exists A : Type, P
+// P, Q ::= ... | forall {A}, P | exists {A}, P
 
-theorem forall-type-intro-example : forall (A : Type) (x : A), x = x
+theorem forall-type-intro-example : forall {A} (x : A), x = x
 proof
   pick-any A x
   refl
 qed
 
 theorem forall-type-elim-example :
-  (forall (A : Type) (x : A), x = x) --> forall n : Nat, n = n
+  (forall {A} (x : A), x = x) --> forall n : Nat, n = n
 proof
   assume (f := _)
   instantiate f Nat
 qed
 
-theorem exists-type-intro-example : exists (A : Type), forall x : A, x = x
+theorem exists-type-intro-example : exists {A}, forall x : A, x = x
 proof
   exists Nat
   pick-any x
   refl
 qed
 
-theorem exists-type-elim-example : exists (A : Type), ...
+theorem exists-type-elim-example : exists {A}, ...
 
 
 
@@ -128,11 +128,11 @@ proof
 qed
 
 // Impredicative encoding of the existential quantifier.
-myex (A : Type) (P : A -> Prop) : Prop :=
+myex {A} (P : A -> Prop) : Prop :=
   forall R : Prop, (forall x : A, P x --> R) --> R
 
 theorem myex-spec :
-  forall (A : Type) (P : A -> Prop), myex A P <--> exists x : A, P x
+  forall {A} (P : A -> Prop), myex A P <--> exists x : A, P x
 proof
   pick-any A P
   both
@@ -150,16 +150,16 @@ proof
 qed
 
 // Impredicative encoding of equality.
-myeq (A : Type) (x y : A) : Prop :=
+myeq {A} (x y : A) : Prop :=
   forall P : A -> Prop, P x --> P y
 
 theorem myeq-spec :
-  forall (A : Type) (x y : A), myeq x y <--> x = y
+  forall {A} (x y : A), myeq x y <--> x = y
 proof
-  pick-any (A : Type) (x y : A)
+  pick-any {A} (x y : A)
   both
   - assume (all := _)                                             // x = y
-    apply (instantiate all with (fun (a : A) => x = a))    // x = x
+    apply (instantiate all with (fun (a : A) => x = a))           // x = x
     refl
   - assume =->                                                    // myeq x x
     unfold myeq                                                   // forall P : A -> Prop, P x --> P x

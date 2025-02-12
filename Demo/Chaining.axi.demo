@@ -169,7 +169,7 @@ proof
 qed
 
 // The above proof is desugared as follows, where `eq-trans` is
-// this theorem: `forall (A : Type) (x y z : A), x = y --> y = z --> x = z`.
+// this theorem: `forall {A} (x y z : A), x = y --> y = z --> x = z`.
 theorem equational-chaining-desugared :
   forall x y z w : A,
     x = y --> y = z --> z = w --> x = w

@@ -65,7 +65,7 @@ qed
 axiom name := proposition
 
 // Some additional naming conventions:
-// - Type variable start with an upper case letter and follow PascalCase
+// - Type variables start with an upper case letter and follow PascalCase.
 // - Local variables start with a lower case letter and follow camelCase.
 // - Variant constructor start with an upper case letter and follow PascalCase.
 //   For structural variants, an apostrophe `'` might be used to disambiguate

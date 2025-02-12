@@ -164,27 +164,37 @@ proof                          // |- idNat'' = (fun n : Nat => n)
   refl
 qed
 
+// When a function has more than one argument, they are surrounded
+// with parentheses.
+const {A B} : A -> B -> A :=
+  fun (a : A) (b : B) => a
+
+// When there are multiple arguments of the same type, they can be
+// put together in a single pair of parentheses.
+const' {A} : A -> A -> A :=
+  fun (x y : A) => x
+
 // Functions enjoy definitional extensionality, i.e. a function
 // `f` is equal to `fun x => f x` and this can be proved with `refl`.
 theorem definitional-funext-example :
-  forall (A B : Type) (f : A -> B),
+  forall {A B} (f : A -> B),
     f = fun x : A => f x
 proof
   pick-any A B f
   refl
 qed
 
-// To define a polymorphic function, we use the quantifier `forall A : Type`
+// To define a polymorphic function, we use the quantifier `forall {A}`
 // in the function's type. Note that in the term, we don't need to bind the
 // type with `fun` - type abstractions are implicit by default.
-id : forall A : Type, A -> A :=
+id : forall {A}, A -> A :=
   fun x : A => x
 
 // To state a theorem about a polymorphic function, we can use `forall` as
 // a quantifier in the logic. Note that we write `id x`, without mentioning
 // the type `A` - type applications are implicit by default.
 theorem id-spec :
-  forall (A : Type) (x : A),
+  forall {A} (x : A),
     id x = x
 proof
   pick-any A x
@@ -193,7 +203,7 @@ qed
 
 // Just as for monomorphic functions, we can put all the arguments on the
 // left-hand side to make the definition much shorter.
-id' (A : Type) (x : A) : A := x
+id' {A} (x : A) : A := x
 
 // An interesting feature borrowed from Idris 2 are very implicit arguments -
 // we can recognize that `A` is a universally quantified type, even though
@@ -206,7 +216,7 @@ id'' (x : A) : A := x
 // Formally, `funext x in e` proves `f = g` when `e` proves `f x = g x`
 // in the context extended with `x : A`.
 theorem funext-example :
-  forall (A B : Type) (f g : A -> B),
+  forall {A B} (f g : A -> B),
     (forall x : A, f x = g x) --> f = g
 proof
   pick-any A B f g
@@ -241,7 +251,7 @@ annotatedLetExample (a b : Float32) : Float32 :=
 // When we encounter a `let` binding in a proof, we can get rid of it
 // with `simpl`.
 theorem let-computation-example :
-  forall (A : Type) (e1 e2 : A),
+  forall {A} (e1 e2 : A),
     (let x := e1 in e2) = (fun x => e2) e1
 proof
   pick-any A e1 e2  // A : Type, e1 e2 : A |- (let x := e1 in e2) = (fun x => e2) e1
@@ -249,17 +259,20 @@ proof
   refl
 qed
 
-// We can define record types using a pretty familiar syntax.
+// To define a record type, we need to provide its name and list its fields.
 // We use the keyword `of` to declare the fields' types.
-type Point :=
-{
+record type Point
   x of Float32
   y of Float32
-}
 
 // In a record type `T` with field `f of A`,
 // `f` is a function of type `T -> A`.
 fieldTypeExample : Point -> Float32 := x
+
+// Alternatively, we can write the field types out in full.
+record type Point
+  x : Point -> Float32
+  y : Point -> Float32
 
 // We can access record fields using the familiar dot syntax.
 dotSyntaxExample (p : Point) : Float32 := p.x
@@ -309,12 +322,10 @@ qed
 // We can define another record type, `Point3D`, whose field names overlap
 // with fields names of `Point`. At the top level this causes some ambiguity,
 // but we will allow to disambiguate based on types or explicitly.
-type Point3D :=
-{
+record type Point3D
   x of Float32
   y of Float32
   z of Float32
-}
 
 // We can explicitly disambiguate between the `x` from `Point` and the
 // one from `Point3D` using dot syntax.
@@ -334,11 +345,9 @@ embedInXYZ (p : Point) : Point3D :=
 
 // Records can be polymorphic, just like functions.
 // We can implement pairs as polymorphic records.
-type Prod A B :=
-{
-  fst of A;
-  snd of B;
-}
+record type Prod A B
+  fst of A
+  snd of B
 
 // We can also use tuple syntax for records, but only if
 // the type of the record can be inferred. In particular,
@@ -348,14 +357,14 @@ tupleSyntaxExample : Prod Int32 Float32 := (42, 3.14)
 // As an alternative way of eliminating records, we can
 // pattern match on them, using both record literal syntax
 // and tuple syntax.
-swapRecord (A B : Type) (p : Prod A B) : Prod B A :=
+swapRecord {A B} (p : Prod A B) : Prod B A :=
 | {x := x; y := y} => {x := y; y := x}
 
-swapTuple (A B : Type) (p : Prod A B) : Prod B A :=
+swapTuple {A B} (p : Prod A B) : Prod B A :=
 | (x, y) => (y, x)
 
 // We can also pattern match on a record in a `let` binding.
-swapLet (A B : Type) (p : Prod A B) : Prod B A :=
+swapLet {A B} (p : Prod A B) : Prod B A :=
   let (x, y) := p in (y, x)
 
 // We can define inductive types with a convenient syntax.
@@ -363,7 +372,7 @@ swapLet (A B : Type) (p : Prod A B) : Prod B A :=
 // Also note that we use `yes` and `no` as names of the booleans,
 // to make it easier for newcomers not to confuse them with the
 // propositions `True` and `False`.
-type Bool :=
+inductive type Bool
 | no
 | yes
 
@@ -417,39 +426,55 @@ qed
 
 // Inductive types can be polymorphic.
 // We use the keyword `of` to declare the constructors' argument types.
-type Option A :=
+inductive type Option A
 | none
 | some of A
 
 // For an inductive type `T` with a constructor `c of A`,
 // `c` is a function of type `A -> T`.
-constructorTypeExample : forall A : Type, A -> Option A := some
+constructorTypeExample : forall {A}, A -> Option A := some
 
-type Sum A B :=
+inductive type Sum A B
 | inl of A
 | inr of B
 
-swapSum (A B : Type) (x : Sum A B) : Sum B A :=
+// As an alternative, we can write the constructor's type out in full.
+inductive type Sum A B
+| inl : A -> Sum A B
+| inr : B -> Sum A B
+
+// As a third alternative, we can describe the constructors' argument types
+// with a more "applied" syntax.
+inductive type Sum A B
+| inl (a : A)
+| inr (b : B)
+
+// As a fourth alternative, we can use the "applied" syntax, but also mention
+// the return type.
+inductive type Sum A B
+| inl (a : A) : Sum A B
+| inr (b : B) : Sum A B
+
+swapSum {A B} (x : Sum A B) : Sum B A :=
 | inl a => inr a
 | inr b => inl b
 
-// Type definition (inductive)
-type List A :=
+inductive type List A
 | nil
-| cons of {hd of A; tl of List A}
+| cons (h : A) (t : List A)
 
 // Recursive functions
-map (f : A -> B) (l : List A) : List B :=
+map {A B} (f : A -> B) (l : List A) : List B :=
 | nil => nil
 | cons h t => cons (f h) (map f t)
 
-app (l1 l2 : List A) : List A :=
+app {A} (l1 l2 : List A) : List A :=
 | nil, _ => l2
 | cons h t , _ => cons h (app t l2)
 
 // Proof by induction
 theorem map-id :
-  forall A (l : List A), map id l = l
+  forall {A} (l : List A), map id l = l
 proof
   pick-any A l
   induction l
@@ -457,32 +482,18 @@ proof
   | cons => rewrite (map id t = t) in refl
 qed
 
-theorem map-id-term-style : forall A l, map id l = l :=
+theorem map-id-term-style :
+  forall {A} l, map id l = l
+proof
   pick-any A l in
   induction l
   | nil => refl
   | cons => rewrite (map id t = t) in refl
-
-
+qed
 
 // Our core language also has a simple type class mechanism.
 // Type classes are more or less equivalent to records with
 // type parameters, with some special syntax to make use of
 // them in type signatures.
-class Eq (A : Type) :=
-{
-  eqb : A -> A -> 
-}
-
-// Relation declaration
-declaration R : Nat -> Nat -> Prop
-
-// Polymorphic relation declaration
-declaration R : forall A : Type, A -> A -> Prop
-
-// Proposition definition
-and (P Q : Prop) : Prop := P /\ Q
-or (P Q : Prop) : Prop := P \/ Q
-impl (P Q : Prop) : Prop := P --> Q
-iff (P Q : Prop) : Prop := P <--> Q
-not (P : Prop) : Prop := ~ P
+class Eq A
+  eqb : A -> A -> Bool
