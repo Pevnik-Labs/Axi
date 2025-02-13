@@ -259,20 +259,11 @@ proof
   refl
 qed
 
-// To define a record type, we need to provide its name and list its fields.
-// We use the keyword `of` to declare the fields' types.
+// To define a record type, we need to provide its name together with
+// a list of its fields and their types.
 record type Point
-  x of Float32
-  y of Float32
-
-// In a record type `T` with field `f of A`,
-// `f` is a function of type `T -> A`.
-fieldTypeExample : Point -> Float32 := x
-
-// Alternatively, we can write the field types out in full.
-record type Point
-  x : Point -> Float32
-  y : Point -> Float32
+  x : Float32
+  y : Float32
 
 // We can access record fields using the familiar dot syntax.
 dotSyntaxExample (p : Point) : Float32 := p.x
@@ -280,6 +271,10 @@ dotSyntaxExample (p : Point) : Float32 := p.x
 // However, presumably we can also access fields using
 // ordinary function application syntax.
 alternativeFieldAccessExample (p : Point) : Float32 := x p
+
+// In case you wonder about the type correctness of the above example,
+// in a record type `T` with field `f : A`, `f` is a function of type `T -> A`.
+fieldTypeExample : Point -> Float32 := x
 
 // As a third possibility, we can `open` a record and refer to the fields
 // directly, without dot syntax or having to apply them.
@@ -306,7 +301,7 @@ proof
 qed
 
 // Because of the above, we can prove record equality component-wise.
-theorem record-equality-example :
+theorem record-equality :
   forall p1 p2 : Point,
     p1.x = p2.x --> p1.y = p2.y --> p1 = p2
 proof
@@ -319,13 +314,28 @@ proof
     = p2                      by refl
 qed
 
+// When we need to update a record, we can use the syntax
+// `update r with {x1 := e1; ...; xN := eN}`.
+move-x (dist : Float32) (p : Point) : Point :=
+  update p with {x := p.x + dist}
+
+theorem move-x-spec :
+  forall (dist : Float32) (p : Point),
+    move-x dist p = {x := p.x + dist; y := p.y}
+proof
+  pick-any dist p
+  apply (instantiate record-equality with _ _)
+  - simpl
+    refl
+  - refl
+
 // We can define another record type, `Point3D`, whose field names overlap
 // with fields names of `Point`. At the top level this causes some ambiguity,
 // but we will allow to disambiguate based on types or explicitly.
 record type Point3D
-  x of Float32
-  y of Float32
-  z of Float32
+  x : Float32
+  y : Float32
+  z : Float32
 
 // We can explicitly disambiguate between the `x` from `Point` and the
 // one from `Point3D` using dot syntax.
@@ -346,8 +356,8 @@ embedInXYZ (p : Point) : Point3D :=
 // Records can be polymorphic, just like functions.
 // We can implement pairs as polymorphic records.
 record type Prod A B
-  fst of A
-  snd of B
+  fst : A
+  snd : B
 
 // We can also use tuple syntax for records, but only if
 // the type of the record can be inferred. In particular,
@@ -360,6 +370,13 @@ tupleSyntaxExample : Prod Int32 Float32 := (42, 3.14)
 swapRecord {A B} (p : Prod A B) : Prod B A :=
 | {x := x; y := y} => {x := y; y := x}
 
+// Since a typical record pattern repeats all the field names twice,
+// like in `{x1 := x1; ...; xn := xn}`, it makes sense to have some
+// special syntax to avoid this.
+swapRecord' {A B} (p : Prod A B) : Prod B A :=
+| {x; y} => {x := y; y := x}
+
+// Pattern matching is also allowed using the tuple syntax.
 swapTuple {A B} (p : Prod A B) : Prod B A :=
 | (x, y) => (y, x)
 
@@ -367,21 +384,49 @@ swapTuple {A B} (p : Prod A B) : Prod B A :=
 swapLet {A B} (p : Prod A B) : Prod B A :=
   let (x, y) := p in (y, x)
 
-// We can define inductive types with a convenient syntax.
-// Note that the first pipe `|` is mandatory.
-// Also note that we use `yes` and `no` as names of the booleans,
-// to make it easier for newcomers not to confuse them with the
-// propositions `True` and `False`.
-inductive type Bool
-| no
-| yes
+// The syntax for defining (inductive) data types:
+// ```
+// data type TypeName
+//   constructor1 : ArgType1_1 -> ... -> ArgType1_M1 -> TypeName
+//   ...
+//   constructorN : ArgTypeN_1 -> ... -> ArgTypeN1_MN -> TypeName
+// ```
+// Note that we use `yes` and `no` as names of the booleans, to make it easier
+// for newcomers not to confuse them with the propositions `True` and `False`.
+data type Bool
+  no
+  yes
 
-// We can define functions out of inductive types by pattern matching.
+// We can define functions out of data types by pattern matching.
+// The syntax is OCaml-like:
+// ```
+// match t with
+// | pat1 => expr1
+// ...
+// | patN => exprN
+// ```
 notb (b : Bool) : Bool :=
+  match b with
+  | no  => yes
+  | yes => no
+
+// However, since a `match` is very often the first thing we'll be
+// doing when defining a function, there is a shorthand for this
+// situation: we omit then final `:=` and start listing the branches
+// right away. Only the arguments that are not bound on the left of
+// the final `:` are being matched.
+notb' : Bool -> Bool
 | no  => yes
 | yes => no
 
-// We can reason by cases on elements of inductive types using `cases`.
+// We can reason by cases on elements of data types using `cases`.
+// The syntax is analogous as for pattern matching, i.e.
+// ```
+// cases t
+// | pat1 => proofterm1
+// ...
+// | patN => prooftermN
+// ```
 theorem notb-notb :
   forall b : Bool,
     notb (notb b) = b
@@ -406,7 +451,7 @@ theorem notb-notb-term-style :
     | yes => simpl in refl
 
 // We can match one more than one argument at a time.
-andb (b1 b2 : Bool) : Bool :=
+andb : Bool -> Bool -> Bool
 | no , _   => no
 | _  , no  => no
 | yes, yes => yes
@@ -424,71 +469,155 @@ proof
   | yes, yes => refl
 qed
 
+// For `Bool`, we can use `if` instead of `match`.
+orb (b1 b2 : Bool) : Bool :=
+  if b1 then yes else b2
+
+theorem orb-no-l :
+  forall b : Bool,
+    orb no b = b
+proof
+  pick-any b
+  cases b
+  | no  => refl
+  | yes => refl
+qed
+
+theorem if-example :
+  forall (b : Bool) {A} (x y : A),
+    (if b then x else y)
+      =
+    match b with
+    | no  => y
+    | yes => x
+proof
+  pick-any b {A} x y
+  cases b
+  | no  => refl
+  | yes => refl
+qed
+
 // Inductive types can be polymorphic.
 // We use the keyword `of` to declare the constructors' argument types.
-inductive type Option A
-| none
-| some of A
+data type Option A
+  none
+  some of A
 
-// For an inductive type `T` with a constructor `c of A`,
+// For a data type `T` with a constructor `c of A`,
 // `c` is a function of type `A -> T`.
 constructorTypeExample : forall {A}, A -> Option A := some
 
-inductive type Sum A B
-| inl of A
-| inr of B
+orElse {A} (x : Option A) (default : A) : A :=
+  if x is some a then a else default
+
+theorem orElse-none :
+  forall {A} (x : Option A) (default : A),
+    orElse none default = default
+proof
+  pick-any {A} x default  // A : Type, x : Option A, default : A |- orElse none default = default
+  simpl                   // A : Type, x : Option A, default : A |- default = default
+  refl
+qed
+
+theorem orElse-some :
+  forall {A} (x : Option A) (a default : A),
+    orElse (some a) default = a
+proof
+  pick-any {A} x a default  // A : Type, x : Option A, a default : A |- orElse (some a) default = a
+  simpl                     // A : Type, x : Option A, a default : A |- a = a
+  refl
+qed
+
+data type Sum A B
+  inl of A
+  inr of B
 
 // As an alternative, we can write the constructor's type out in full.
-inductive type Sum A B
-| inl : A -> Sum A B
-| inr : B -> Sum A B
+data type Sum A B
+  inl : A -> Sum A B
+  inr : B -> Sum A B
 
 // As a third alternative, we can describe the constructors' argument types
 // with a more "applied" syntax.
-inductive type Sum A B
-| inl (a : A)
-| inr (b : B)
+data type Sum A B
+  inl (a : A)
+  inr (b : B)
 
 // As a fourth alternative, we can use the "applied" syntax, but also mention
 // the return type.
-inductive type Sum A B
-| inl (a : A) : Sum A B
-| inr (b : B) : Sum A B
+data type Sum A B
+  inl (a : A) : Sum A B
+  inr (b : B) : Sum A B
 
-swapSum {A B} (x : Sum A B) : Sum B A :=
+swapSum {A B} : Sum A B -> Sum B A
 | inl a => inr a
 | inr b => inl b
 
-inductive type List A
-| nil
-| cons (h : A) (t : List A)
+data type List A
+  nil
+  cons (h : A) (t : List A)
 
-// Recursive functions
-map {A B} (f : A -> B) (l : List A) : List B :=
+// Recursive functions.
+map {A B} (f : A -> B) : List A -> List B
 | nil => nil
 | cons h t => cons (f h) (map f t)
 
-app {A} (l1 l2 : List A) : List A :=
-| nil, _ => l2
-| cons h t , _ => cons h (app t l2)
+app {A} : List A -> List A -> List A
+| nil     , l2 => l2
+| cons h t, l2 => cons h (app t l2)
 
 // Proof by induction
 theorem map-id :
-  forall {A} (l : List A), map id l = l
+  forall {A} (l : List A),
+    map id l = l
 proof
-  pick-any A l
+  pick-any A l                   // A : Type, l : List A |- map id l = l
   induction l
-  | nil => refl
-  | cons => rewrite (map id t = t) in refl
+  | nil =>                       // A : Type |- map id nil = nil
+    simpl                        // A : Type |- nil = nil
+    refl
+  | cons h t =>                  // A : Type |- map id (cons h t) = cons h t
+    simpl                        // A : Type |- cons h (map id t) = cons h t
+    rewrite (map id t = t)       // A : Type |- cons h t = cons h t
+    refl
 qed
 
 theorem map-id-term-style :
-  forall {A} l, map id l = l
+  forall {A} (l : List A),
+    map id l = l
 proof
   pick-any A l in
   induction l
   | nil => refl
   | cons => rewrite (map id t = t) in refl
+qed
+
+theorem map-id-chaining :
+  forall {A} (l : List A),
+    map id l = l
+proof
+  pick-any A l
+  induction l
+  | nil =>
+    chaining=
+        map id nil
+      = nil                         by simpl
+  | cons h t =>
+    chaining=
+        map id (cons h t)
+      = cons h (map id t)           by simpl
+      = cons h t                    by (map id t = t)
+    refl
+qed
+
+theorem map-id-rw :
+  forall {A} (l : List A),
+    map id l = l
+proof
+  pick-any A l
+  induction l
+  | nil => rw /simpl, /refl
+  | cons h (t & ih) => rw /simpl, ih, /refl
 qed
 
 // Our core language also has a simple type class mechanism.
