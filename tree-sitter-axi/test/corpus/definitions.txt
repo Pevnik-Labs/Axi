@@ -1,0 +1,102 @@
+====================
+Constant definition
+====================
+#!/usr/bin/env axi
+my_constant : Nat := 42
+
+---
+
+(source_file
+  (separator)
+  (shebang)
+  (separator)
+  (constant_definition
+    (identifier)
+    (type
+      (identifier))
+    (expression
+      (number)))
+  (separator))
+
+====================
+Function definition
+====================
+my_function : Nat -> Nat := fun x => plus x x
+my_function (x : Nat) : Nat := plus x x
+
+---
+
+(source_file
+  (separator)
+  (constant_definition
+    (identifier)
+    (type
+      (type
+        (identifier))
+      (type
+        (identifier)))
+    (expression
+      (lambda_expression
+        (parameters
+          (identifier))
+        (expression
+          (function_call
+            (expression
+              (identifier))
+            (expression
+              (function_call
+                (expression
+                  (identifier))
+                (expression
+                  (identifier)))))))))
+  (separator)
+  (constant_definition
+    (identifier)
+    (parameters
+      (typed_identifiers
+        (identifier)
+        (type
+          (identifier))))
+    (type
+      (identifier))
+    (expression
+      (function_call
+        (expression
+          (identifier))
+        (expression
+          (function_call
+            (expression
+              (identifier))
+            (expression
+              (identifier)))))))
+  (separator))
+
+=======================
+Record type definition
+=======================
+record type Vector a where
+  x : a
+  y : a
+
+---
+
+(source_file
+  (separator)
+  (record_type_definition
+    (identifier)
+    (parameters
+      (identifier))
+    (begin)
+    (separator)
+    (record_field_declaration
+      (identifier)
+      (type
+        (identifier)))
+    (separator)
+    (record_field_declaration
+      (identifier)
+      (type
+        (identifier)))
+    (end))
+  (separator))
+

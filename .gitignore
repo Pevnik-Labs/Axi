@@ -8,4 +8,5 @@
 *fls
 *fdb_latexmk
 *.synctex(busy)
+build
 result
