@@ -8,6 +8,7 @@ You should read the files in the following order:
 1. [Classical propositional logic](ClassicalPropositionalLogic.axi.demo)
 1. [First-order logic](FirstOrderLogic.axi.demo)
 1. [Chaining](Chaining.axi.demo)
+1. [Type quantification](TypeQuantification.axi.demo)
 1. [Higher-order logic](HigherOrderLogic.axi.demo)
 1. [Programming (TODO)](Programming.axi.demo)
 1. [Classical higher-order logic (TODO)](ClassicalHigherOrderLogic.axi.demo)

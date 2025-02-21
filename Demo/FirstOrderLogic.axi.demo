@@ -1,5 +1,5 @@
 // The syntax of quantifiers and equality is as follows.
-// By convention, type variables start are denoted with upper case letters.
+// Note that, by convention, type variables start with upper case letters.
 // P, Q ::= ... | forall x : A, P | exists x : A, P | t1 = t2
 
 // In the rest of the file, we will need a type `A`, a term `a` of type `A`,

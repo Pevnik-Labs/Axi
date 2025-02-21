@@ -1,39 +1,6 @@
-// The syntax of quantifiers over types is as follows.
-// P, Q ::= ... | forall {A}, P | exists {A}, P
-
-theorem forall-type-intro-example : forall {A} (x : A), x = x
-proof
-  pick-any A x
-  refl
-qed
-
-theorem forall-type-elim-example :
-  (forall {A} (x : A), x = x) --> forall n : Nat, n = n
-proof
-  assume (f := _)
-  instantiate f Nat
-qed
-
-theorem exists-type-intro-example : exists {A}, forall x : A, x = x
-proof
-  exists Nat
-  pick-any x
-  refl
-qed
-
-theorem exists-type-elim-example : exists {A}, ...
-
-
-
-// Higher-order logic is added to the system in the following way.
-// We extend the type language with a new type, called `Prop`, which serves
-// as the type of propositions. Functions into `Prop` are identified with
-// predicates and relations.
-// There's a subtlety, however. These new types exist only in the logical
-// part of the language, for example when writing type annotations in quantifiers.
-// In the programming part of the language, these types are not present, so for
-// example it is not possible to implement a program that takes a propositions as
-// an argument.
+// The syntax of higher-order quantifiers is as follows.
+// Note that `L` stands for a logical kind.
+// P, Q ::= ... | forall P : L, Q | exists P : L, Q
 
 theorem forall-prop-intro-example : forall P : Prop, P --> P
 proof
