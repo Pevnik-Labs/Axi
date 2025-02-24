@@ -19,7 +19,7 @@ qed
 
 theorem forall-prop-elim-example : (forall P : Prop, P) --> False
 proof
-  assume (all := _)
+  assume (all = _)
   instantiate all with False
 qed
 
@@ -27,20 +27,20 @@ qed
 
 // We can define our custom equivalent of `False` as a proposition which
 // says that all propositions hold.
-myfalse : Prop := forall R : Prop, R
+myfalse : Prop = forall R : Prop, R
 
 // `myfalse` is equivalent to `False`.
 theorem myfalse-spec : myfalse <--> False
 proof
   both
-  - assume (mf := _)
+  - assume (mf = _)
     instantiate mf with False
   - assume False
     absurd False
 qed
 
 // The impredicative encoding of `True`.
-mytrue : Prop := foral R : Prop, R --> R
+mytrue : Prop = foral R : Prop, R --> R
 
 theorem mytrue-spec : mytrue <--> True
 proof
@@ -54,13 +54,13 @@ proof
 qed
 
 // Impredicative encoding of conjunction.
-myand (P Q : Prop) : Prop := forall R : Prop, (P --> Q --> R) --> R
+myand (P Q : Prop) : Prop = forall R : Prop, (P --> Q --> R) --> R
 
 theorem myand-spec : forall P Q : Prop, myand P Q <--> P /\ Q
 proof
   pick-any P Q
   both
-  - assume (pq := _)
+  - assume (pq = _)
     both
     - apply (instantiate pq with P)
       assume P _
@@ -70,20 +70,20 @@ proof
       assumption
   - assume (both P Q)
     pick-any R
-    assume (pqr := _)
+    assume (pqr = _)
     apply pqr
     - assumption
     - assumption
 qed
 
 // Impredicative encoding of disjunction.
-myor (P Q : Prop) : Prop := forall R : Prop, (P --> R) --> (Q --> R) --> R
+myor (P Q : Prop) : Prop = forall R : Prop, (P --> R) --> (Q --> R) --> R
 
 theorem myor-spec : forall P Q : Prop, myor P Q <--> P \/ Q
 proof
   pick-any P Q
   both
-  - assume (pq := _)
+  - assume (pq = _)
     apply (instantiate pq with (P \/ Q))
     - or-left
     - or-right
@@ -95,7 +95,7 @@ proof
 qed
 
 // Impredicative encoding of the existential quantifier.
-myex {A} (P : A -> Prop) : Prop :=
+myex {A} (P : A -> Prop) : Prop =
   forall R : Prop, (forall x : A, P x --> R) --> R
 
 theorem myex-spec :
@@ -103,7 +103,7 @@ theorem myex-spec :
 proof
   pick-any A P
   both
-  - assume (mx := _)
+  - assume (mx = _)
     apply (instantiate myex with (exists x : A, P x))
     pick-any (x : A)
     assume (P x)
@@ -111,22 +111,22 @@ proof
     assumption
   - assume (exists x such-that (P x))
     pick-any R
-    assume (all := _)
+    assume (all = _)
     instantiate all with x
     assumption
 qed
 
 // Impredicative encoding of equality.
-myeq {A} (x y : A) : Prop :=
+myeq {A} (x y : A) : Prop =
   forall P : A -> Prop, P x --> P y
 
 theorem myeq-spec :
-  forall {A} (x y : A), myeq x y <--> x = y
+  forall {A} (x y : A), myeq x y <--> x === y
 proof
   pick-any {A} (x y : A)
   both
-  - assume (all := _)                                             // x = y
-    apply (instantiate all with (fun (a : A) => x = a))           // x = x
+  - assume (all = _)                                             // x === y
+    apply (instantiate all with (fun (a : A) => x === a))        // x === x
     refl
   - assume =->                                                    // myeq x x
     unfold myeq                                                   // forall P : A -> Prop, P x --> P x

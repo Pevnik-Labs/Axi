@@ -9,7 +9,7 @@ declaration P Q R S T : Prop
 theorem implication-chaining-backwards :
   (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T
 proof
-  // Let Γ := P --> Q, Q --> R, R --> S, S --> T, P
+  // Let Γ = P --> Q, Q --> R, R --> S, S --> T, P
   assume (P --> Q) (Q --> R) (R --> S) (S --> T) P  // Γ |- T  // After making all the assumptions, the goal is `T`.
   chaining<-- T                                     // Γ |- T  // We start the chain. `<--` means it's backward chaining for implication. The goal is still `T`.
     <-- S         by (S --> T)                      // Γ |- S  // The goal changes to `S` because `S` implies `T`, as proven in the `by` clause.
@@ -21,7 +21,7 @@ qed
 
 // In proofterm style, the above proof looks as follows.
 theorem implication-chaining-backwards-term-style :
-  (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T :=
+  (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T =
   assume (P --> Q) (Q --> R) (R --> S) (S --> T) P in
     chaining<-- T
       <-- S         by (S --> T)
@@ -78,7 +78,7 @@ qed
 theorem implication-chaining-backwards-direct :
   (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T
 proof
-  // Let Γ := P --> Q, Q --> R, R --> S, S --> T
+  // Let Γ = P --> Q, Q --> R, R --> S, S --> T
   assume (P --> Q) (Q --> R) (R --> S) (S --> T)  // Γ |- P --> T  // Let's assume everything EXCEPT the last `P`, so that the goal is `P --> T`.
   chaining<-- T                                   // Γ |- P --> T  // We start the chain. The goal is still `P --> T`.
     <-- S         by (S --> T)                    // Γ |- P --> S  // The goal changes to `P --> S` because `S` implies `T`, as proven in the `by` clause.
@@ -104,7 +104,7 @@ qed
 theorem implication-chaining-forwards :
   (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T
 proof
-  // Let Γ := P --> Q, Q --> R, R --> S, S --> T
+  // Let Γ = P --> Q, Q --> R, R --> S, S --> T
   assume (P --> Q) (Q --> R) (R --> S) (S --> T)  // Γ |- P --> T  // After making all the assumptions, the goal is `P --> T`.
   chaining--> P                                   // Γ |- P --> T  // We start the chain. `-->` means it's forward chaining for implication. The goal is still `P --> T`.
     --> Q         by (P --> Q)                    // Γ |- Q --> T  // The goal changes to `Q --> T` because `P` implies `Q`, as proven in the `by` clause.
@@ -129,7 +129,7 @@ qed
 theorem biconditional-chaining :
   (P <--> Q) --> (Q <--> R) --> (R <--> S) --> (S <--> T) --> P <--> T
 proof
-  // Let Γ := P <--> Q, Q <--> R, R <--> S, S <--> T
+  // Let Γ = P <--> Q, Q <--> R, R <--> S, S <--> T
   assume (P <--> Q) (Q <--> R) (R <--> S) (S <--> T)  // Γ |- P <--> T  // After making all the assumptions, the goal is `P <--> T`.
   chaining<--> P                                      // Γ |- P <--> T  // We start the chain. `<-->` means it's chaining for biconditional. The goal is still `P <--> T`.
     <--> Q        by (P <--> Q)                       // Γ |- Q <--> T  // The goal changes to `Q <--> T` because `P <--> Q`, as proven in the `by` clause.
@@ -157,27 +157,27 @@ declaration P : A -> Prop
 // Equational chaining also supports directly proving equalities.
 theorem equational-chaining-direct :
   forall x y z w : A,
-    x = y --> y = z --> z = w --> x = w
+    x === y --> y === z --> z === w --> x === w
 proof
   pick-any x y z w
-  // Let Γ := x y z w : A, x = y, y = z, z = w
-  assume (x = y) (y = z) (z = w)  // Γ |- x = w  // After making all the assumptions, the goal is `x = w`.
-  chaining= x                     // Γ |- x = w  // We start the chain. `=` means it's chaining for equality. The goal is still `x = w`.
-    = y        by (x = y)         // Γ |- y = w  // The goal changes to `y = w` because `x = y`, as proven in the `by` clause.
-    = z        by (y = z)         // Γ |- z = w
-    = w        by (z = w)         // In the last step we prove `z = w`, which is precisely our goal, so we're done.
+  // Let Γ = x y z w : A, x === y, y === z, z === w
+  assume (x === y) (y === z) (z === w)  // Γ |- x === w  // After making all the assumptions, the goal is `x === w`.
+  chaining=== x                         // Γ |- x === w  // We start the chain. `===` means it's chaining for equality. The goal is still `x === w`.
+    === y        by (x === y)           // Γ |- y === w  // The goal changes to `y === w` because `x === y`, as proven in the `by` clause.
+    === z        by (y === z)           // Γ |- z === w
+    === w        by (z === w)           // In the last step we prove `z === w`, which is precisely our goal, so we're done.
 qed
 
 // The above proof is desugared as follows, where `eq-trans` is
-// this theorem: `forall {A} (x y z : A), x = y --> y = z --> x = z`.
+// this theorem: `forall {A} (x y z : A), x === y --> y === z --> x === z`.
 theorem equational-chaining-desugared :
   forall x y z w : A,
-    x = y --> y = z --> z = w --> x = w
+    x === y --> y === z --> z === w --> x === w
 proof
   pick-any x y z w
-  assume (x = y) (y = z) (z = w)
-  apply (instantiate eq-trans with A x y w) (x = y)
-  apply (instantiate eq-trans with A y z w) (y = z) (z = w)
+  assume (x === y) (y === z) (z === w)
+  apply (instantiate eq-trans with A x y w) (x === y)
+  apply (instantiate eq-trans with A y z w) (y === z) (z === w)
 qed
 
 // Let's declare a transitive relation on `A`. Note that up to this point `R`
@@ -192,7 +192,7 @@ theorem relational-chaining :
     R a b --> R b c --> R c d --> R d e --> R a e
 proof
   pick-any a b c d e
-  // Let Γ := R a b, R b c, R c d, R d e
+  // Let Γ = R a b, R b c, R c d, R d e
   assume (R a b) (R b c) (R c d) (R d e)  // Γ |- R a e // After making all the assumptions, the goal is `R a e`.
   chaining R a                            // Γ |- R a e // We start the chain. `chaining R` means it's chaining for the relation `R`. The goal is still `R a e`.
     R b           by (R a b)              // Γ |- R b e // The goal changes to `R b e` because `R a b`, as proven in the `by` clause, and because `R` is transitive.
@@ -214,4 +214,4 @@ proof
   apply (instantiate trans with c d e) (R c d) (R d e)
 qed
 
-// TODO: mixed chaining, like x <= y < z or x < y = z
+// TODO: mixed chaining, like x <= y < z or x < y === z

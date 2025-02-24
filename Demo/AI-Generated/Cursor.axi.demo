@@ -2,8 +2,8 @@
 
 theorem iff-not-nand : ~ (P <--> Q) --> ~ P \/ ~ Q
 proof
-  assume (npq := ~ (P <--> Q))            // npq := ~ (P <--> Q) |- ~ P \/ ~ Q
-  by-contradiction (h := ~ (~ P \/ ~ Q))  // npq, h := ~ (~ P \/ ~ Q) |- False
+  assume (npq = ~ (P <--> Q))             // npq = ~ (P <--> Q) |- ~ P \/ ~ Q
+  by-contradiction (h = ~ (~ P \/ ~ Q))   // npq, h = ~ (~ P \/ ~ Q) |- False
   apply npq                               // npq, h |- P <--> Q
   both
   -                                       // npq, h |- P --> Q
@@ -22,7 +22,7 @@ qed
 
 theorem iff-not-conv : (~ P <--> ~ Q) --> (P <--> Q)
 proof
-  assume (both (npq := ~ P --> ~ Q) (nqp := ~ Q --> ~ P))
+  assume (both (npq = ~ P --> ~ Q) (nqp = ~ Q --> ~ P))
   both
   -                         // npq, nqp |- P --> Q
     assume P                // npq, nqp, P |- Q
@@ -38,8 +38,8 @@ qed
 
 theorem de-morgan : ~ (P /\ Q) --> ~ P \/ ~ Q
 proof
-  assume (npq := ~ (P /\ Q))              // npq := ~ (P /\ Q) |- ~ P \/ ~ Q
-  by-contradiction (h := ~ (~ P \/ ~ Q))  // npq, h := ~ (~ P \/ ~ Q) |- False
+  assume (npq = ~ (P /\ Q))               // npq = ~ (P /\ Q) |- ~ P \/ ~ Q
+  by-contradiction (h = ~ (~ P \/ ~ Q))   // npq, h = ~ (~ P \/ ~ Q) |- False
   apply h                                 // npq, h |- ~ P \/ ~ Q
   or-left                                 // npq, h |- ~ P
   assume P                                // npq, h, P |- False
@@ -54,7 +54,7 @@ qed
 
 theorem de-morgan-conv : ~ P \/ ~ Q --> ~ (P /\ Q)
 proof
-  assume (npnq := ~ P \/ ~ Q)            // npnq := ~ P \/ ~ Q |- ~ (P /\ Q)
+  assume (npnq = ~ P \/ ~ Q)             // npnq = ~ P \/ ~ Q |- ~ (P /\ Q)
   assume (both P Q)                      // npnq, P, Q |- False
   cases npnq
   - assume (~ P)                         // npnq, P, Q, ~ P |- False
@@ -80,13 +80,13 @@ qed
 theorem impl-and-distrib : (P --> Q /\ R) <--> (P --> Q) /\ (P --> R)
 proof
   both                                               // |- (P --> Q /\ R) --> (P --> Q) /\ (P --> R)
-  - assume (pqr := P --> Q /\ R)                     // pqr := P --> Q /\ R |- (P --> Q) /\ (P --> R)
+  - assume (pqr = P --> Q /\ R)                      // pqr = P --> Q /\ R |- (P --> Q) /\ (P --> R)
     both
     - assume P                                       // pqr, P |- Q
       and-left (apply pqr P)
     - assume P                                       // pqr, P |- R
       and-right (apply pqr P)
-  - assume (both (pq := P --> Q) (pr := P --> R))    // pq := P --> Q, pr := P --> R |- P --> Q /\ R
+  - assume (both (pq = P --> Q) (pr = P --> R))      // pq = P --> Q, pr = P --> R |- P --> Q /\ R
     assume P                                         // pq, pr, P |- Q /\ R
     both
     - apply pq P                                     // pq, pr, P |- Q
@@ -96,7 +96,7 @@ qed
 theorem impl-or-distrib : ((P \/ Q) --> R) <--> (P --> R) /\ (Q --> R)
 proof
   both                                               // |- ((P \/ Q) --> R) --> (P --> R) /\ (Q --> R)
-  - assume (pqr := (P \/ Q) --> R)                   // pqr := (P \/ Q) --> R |- (P --> R) /\ (Q --> R)
+  - assume (pqr = (P \/ Q) --> R)                    // pqr = (P \/ Q) --> R |- (P --> R) /\ (Q --> R)
     both
     - assume P                                       // pqr, P |- R
       apply pqr                                      // pqr, P |- P \/ Q
@@ -106,21 +106,21 @@ proof
       apply pqr                                      // pqr, Q |- P \/ Q
       or-right                                       // pqr, Q |- Q
       assumption
-  - assume (both (pr := P --> R) (qr := Q --> R))    // pr := P --> R, qr := Q --> R |- (P \/ Q) --> R
-    assume (pq := P \/ Q)                            // pr, qr, pq := P \/ Q |- R
+  - assume (both (pr = P --> R) (qr = Q --> R))      // pr = P --> R, qr = Q --> R |- (P \/ Q) --> R
+    assume (pq = P \/ Q)                             // pr, qr, pq = P \/ Q |- R
     cases pq
-    - assume P                                       // pr := P --> R, qr := Q --> R, P |- R
-      apply pr                                       // pr := P --> R, qr := Q --> R, P |- P
+    - assume P                                       // pr = P --> R, qr = Q --> R, P |- R
+      apply pr                                       // pr = P --> R, qr = Q --> R, P |- P
       assumption
-    - assume Q                                       // pr := P --> R, qr := Q --> R, Q |- R
-      apply qr                                       // pr := P --> R, qr := Q --> R, Q |- Q
+    - assume Q                                       // pr = P --> R, qr = Q --> R, Q |- R
+      apply qr                                       // pr = P --> R, qr = Q --> R, Q |- Q
       assumption
 qed
 
 theorem and-or-distrib : P /\ (Q \/ R) <--> (P /\ Q) \/ (P /\ R)
 proof
   both                                     // |- P /\ (Q \/ R) --> (P /\ Q) \/ (P /\ R)
-  - assume (both P (qr := Q \/ R))         // P, qr := Q \/ R |- (P /\ Q) \/ (P /\ R)
+  - assume (both P (qr = Q \/ R))          // P, qr = Q \/ R |- (P /\ Q) \/ (P /\ R)
     cases qr
     - assume Q                             // P, Q |- (P /\ Q) \/ (P /\ R)
       or-left                              // P, Q |- P /\ Q
@@ -128,7 +128,7 @@ proof
     - assume R                             // P, R |- (P /\ Q) \/ (P /\ R)
       or-right                             // P, R |- P /\ R
       both P R
-  - assume (pqpr := (P /\ Q) \/ (P /\ R))  // pqpr := (P /\ Q) \/ (P /\ R) |- P /\ (Q \/ R)
+  - assume (pqpr = (P /\ Q) \/ (P /\ R))   // pqpr = (P /\ Q) \/ (P /\ R) |- P /\ (Q \/ R)
     cases pqpr
     - assume (both P Q)                    // P, Q |- P /\ (Q \/ R)
       both P                               // P, Q |- Q \/ R

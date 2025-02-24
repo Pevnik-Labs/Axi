@@ -30,32 +30,32 @@
 // - Subtyping.
 // - And possibly more...
 
-// The syntax for a definition is `name : type := body`.
-answer : Int32 := 42
+// The syntax for a definition is `name : type = body`.
+answer : Int32 = 42
 
 // Type annotations at the top-level are mandatory, so the code below
 // results in an error, even though it's easy to infer the type.
-missingAnnotationError := 42
+missingAnnotationError = 42
 
 // To replace a definition with its body in a proof, we can use `unfold`.
-theorem unfold-example : answer = 42
-proof              // |- answer = 42
-  unfold answer    // |- 42 = 42
+theorem unfold-example : answer === 42
+proof              // |- answer === 42
+  unfold answer    // |- 42 === 42
   refl
 qed
 
 // In proofterm style, it doesn't make much sense to use `unfold`,
 // because its results are only visible in the goal, which is only
 // visible in tactic mode.
-theorem unfold-example-term-style : answer = 42 :=
+theorem unfold-example-term-style : answer === 42 =
   unfold answer in
     refl
 
-// To define a type synonym, we can use the syntax `type name := body`.
-type MediumSizedInt := Int32
+// To define a type synonym, we can use the syntax `type name = body`.
+type MediumSizedInt = Int32
 
 // We can use such a type just as any other.
-anotherAnswer : MediumSizedInt := 42
+anotherAnswer : MediumSizedInt = 42
 
 // To see that `MediumSizedInt` is considered equal to `Int32`, it
 // suffices to state the following theorem. If these types were
@@ -63,7 +63,7 @@ anotherAnswer : MediumSizedInt := 42
 // and we can proceed to prove it.
 // Also note that to `unfold` multiple definitions, we separate them
 // with commas.
-theorem type-synonym-example : anotherAnswer = answer
+theorem type-synonym-example : anotherAnswer === answer
 proof
   unfold anotherAnswer, answer
   refl
@@ -76,109 +76,109 @@ qed
 // `Hash`es, etc.
 
 // `Int`s of various sizes.
-int8Example  : Int8  := -100
-int16Example : Int16 := 0
-int32Example : Int32 := 42
-int64Example : Int64 := 2^32
+int8Example  : Int8  = -100
+int16Example : Int16 = 0
+int32Example : Int32 = 42
+int64Example : Int64 = 2^32
 
 // `Uint`s of various sizes.
-uint8Example :  Uint8  := 42
-uint16Example : Uint16 := 42
-uint32Example : Uint32 := 42
-uint64Example : Uint64 := 42
+uint8Example :  Uint8  = 42
+uint16Example : Uint16 = 42
+uint32Example : Uint32 = 42
+uint64Example : Uint64 = 42
 
 // `Float`s of various sizes.
-float8Example  : Float8  := 1.0
-float16Example : Float16 := 2.8e13
-float32Example : Float32 := 0.4e-6
-float64Example : Float64 := NaN
+float8Example  : Float8  = 1.0
+float16Example : Float16 = 2.8e13
+float32Example : Float32 = 0.4e-6
+float64Example : Float64 = NaN
 
 // Characters.
-charExample : Char := '\n'
+charExample : Char = '\n'
 
 // Strings.
-stringExample : String := "where lambo?"
+stringExample : String = "where lambo?"
 
 // `t : A` is a type annotation. We can use it to give a hint to make
 // the type checker think that `t` has type `A`, but only if it can
 // check that this is indeed the case.
 // As an example, we can use an annotation to make the type checker
 // think that `1` is a float, even though it is ordinarily an int.
-annotationExample : Float32 :=
+annotationExample : Float32 =
   1 : Float32
 
 // The syntax for anonymous functions is `fun x : A => e`.
-idNat : Nat -> Nat :=
+idNat : Nat -> Nat =
   fun n : Nat => n
 
 // To simplify an expression to its result, use the `simpl` tactic.
-theorem simpl-example : idNat 42 = 42
-proof             // |- idNat 42 = 42
-  unfold idNat    // |- (fun n : Nat => n) 42 = 42
-  simpl           // |- 42 = 42
+theorem simpl-example : idNat 42 === 42
+proof             // |- idNat 42 === 42
+  unfold idNat    // |- (fun n : Nat => n) 42 === 42
+  simpl           // |- 42 === 42
   refl
 qed
 
 // `simpl` doesn't make much sense in proofterm style,
 // because it only affects the goal.
-theorem simpl-exampl-term-style : idNat 42 = 42 :=
+theorem simpl-exampl-term-style : idNat 42 === 42 =
   unfold idNat in
     simpl in
       refl
 
 // When a definition needs to be unfolded to perform simplification,
 // `simpl` can do it.
-theorem simpl-without-unfold : idNat 42 = 42
-proof                    // |- idNat 42 = 42
-  simpl                  // |- 42 = 42
+theorem simpl-without-unfold : idNat 42 === 42
+proof                    // |- idNat 42 === 42
+  simpl                  // |- 42 === 42
   refl
 qed
 
 // Of course since both `unfold` and `simpl` work only to change how the goal
 // is displayed, to prove the above theorems it suffice to use `refl`.
-theorem refl-is-enough : idNat 42 = 42
+theorem refl-is-enough : idNat 42 === 42
 proof
   refl
 qed
 
 // We don't need to put a type annotation on the binder if it can be inferred.
-idNat' : Nat -> Nat :=
+idNat' : Nat -> Nat =
   fun n => n
 
 // Even though we did not write the annotation on the binder,
 // it will be present whne the definition is unfolded.
-theorem no-annotation-desugared : idNat' = (fun n : Nat => n)
-proof                       // |- idNat' = (fun n : Nat => n)
-  unfold idNat'             // |- (fun n : Nat => n) = (fun n : Nat => n)
+theorem no-annotation-desugared : idNat' === (fun n : Nat => n)
+proof                       // |- idNat' === (fun n : Nat => n)
+  unfold idNat'             // |- (fun n : Nat => n) === (fun n : Nat => n)
   refl
 qed
 
 // We can make the definition shorter by putting all arguments on
 // the left-hand side.
-idNat'' (n : Nat) : Nat := n
+idNat'' (n : Nat) : Nat = n
 
 // The short definition produces the same term as the other two definitions.
-theorem short-definition-desugared : idNat'' = (fun n : Nat => n)
-proof                          // |- idNat'' = (fun n : Nat => n)
-  unfold idNat'                // |- (fun n : Nat => n) = (fun n : Nat => n)
+theorem short-definition-desugared : idNat'' === (fun n : Nat => n)
+proof                          // |- idNat'' === (fun n : Nat => n)
+  unfold idNat'                // |- (fun n : Nat => n) === (fun n : Nat => n)
   refl
 qed
 
 // When a function has more than one argument, they are surrounded
 // with parentheses.
-const {A B} : A -> B -> A :=
+const {A B} : A -> B -> A =
   fun (a : A) (b : B) => a
 
 // When there are multiple arguments of the same type, they can be
 // put together in a single pair of parentheses.
-const' {A} : A -> A -> A :=
+const' {A} : A -> A -> A =
   fun (x y : A) => x
 
 // Functions enjoy definitional extensionality, i.e. a function
 // `f` is equal to `fun x => f x` and this can be proved with `refl`.
 theorem definitional-funext-example :
   forall {A B} (f : A -> B),
-    f = fun x : A => f x
+    f === fun x : A => f x
 proof
   pick-any A B f
   refl
@@ -187,7 +187,7 @@ qed
 // To define a polymorphic function, we use the quantifier `forall {A}`
 // in the function's type. Note that in the term, we don't need to bind the
 // type with `fun` - type abstractions are implicit by default.
-id : forall {A}, A -> A :=
+id : forall {A}, A -> A =
   fun x : A => x
 
 // To state a theorem about a polymorphic function, we can use `forall` as
@@ -195,7 +195,7 @@ id : forall {A}, A -> A :=
 // the type `A` - type applications are implicit by default.
 theorem id-spec :
   forall {A} (x : A),
-    id x = x
+    id x === x
 proof
   pick-any A x
   refl
@@ -203,48 +203,48 @@ qed
 
 // Just as for monomorphic functions, we can put all the arguments on the
 // left-hand side to make the definition much shorter.
-id' {A} (x : A) : A := x
+id' {A} (x : A) : A = x
 
 // An interesting feature borrowed from Idris 2 are very implicit arguments -
 // we can recognize that `A` is a universally quantified type, even though
 // this was not explicitly written. However, this will only be possible when
 // the type variable is a single uppercase letter.
-id'' (x : A) : A := x
+id'' (x : A) : A = x
 
 // If two functions return the same result for all arguments, they are equal.
 // This principle is called (propositional) function extensionality.
-// Formally, `funext x in e` proves `f = g` when `e` proves `f x = g x`
+// Formally, `funext x in e` proves `f === g` when `e` proves `f x === g x`
 // in the context extended with `x : A`.
 theorem funext-example :
   forall {A B} (f g : A -> B),
-    (forall x : A, f x = g x) --> f = g
+    (forall x : A, f x === g x) --> f === g
 proof
   pick-any A B f g
-  // Let Γ := A B : Type, f g : A -> B, eq := forall x : A, f x = g x
-  assume (eq := _)  // Γ |- f = g
-  funext x          // Γ, x : A |- f x = g x
+  // Let Γ = A B : Type, f g : A -> B, eq = forall x : A, f x === g x
+  assume (eq = _)   // Γ |- f === g
+  funext x          // Γ, x : A |- f x === g x
   instantiate eq
 qed
 
 // We can use `let` bindings.
-letExample (a b : Float32) : Float32 :=
-  let x := a + b in
-    let y := a - b in
+letExample (a b : Float32) : Float32 =
+  let x = a + b in
+    let y = a - b in
       x * y
 
 // In case we have more than one `let` binding, we can group them in a block.
-letBlockExample (a b : Float32) : Float32 :=
+letBlockExample (a b : Float32) : Float32 =
   let
-    x := a + b
-    y := a - b
+    x = a + b
+    y = a - b
   in
     x * y
 
 // We may put type annotations on variables in `let`s.
-annotatedLetExample (a b : Float32) : Float32 :=
+annotatedLetExample (a b : Float32) : Float32 =
   let
-    x : Float32 := a + b
-    y : Float32 := a - b
+    x : Float32 = a + b
+    y : Float32 = a - b
   in
     x * y
 
@@ -252,10 +252,10 @@ annotatedLetExample (a b : Float32) : Float32 :=
 // with `simpl`.
 theorem let-computation-example :
   forall {A} (e1 e2 : A),
-    (let x := e1 in e2) = (fun x => e2) e1
+    (let x = e1 in e2) === (fun x => e2) e1
 proof
-  pick-any A e1 e2  // A : Type, e1 e2 : A |- (let x := e1 in e2) = (fun x => e2) e1
-  simpl             // A : Type, e1 e2 : A |- (fun x => e2) e1 = (fun x => e2) e1
+  pick-any A e1 e2  // A : Type, e1 e2 : A |- (let x = e1 in e2) === (fun x => e2) e1
+  simpl             // A : Type, e1 e2 : A |- (fun x => e2) e1 === (fun x => e2) e1
   refl
 qed
 
@@ -266,35 +266,35 @@ record type Point
   y : Float32
 
 // We can access record fields using the familiar dot syntax.
-dotSyntaxExample (p : Point) : Float32 := p.x
+dotSyntaxExample (p : Point) : Float32 = p.x
 
 // However, presumably we can also access fields using
 // ordinary function application syntax.
-alternativeFieldAccessExample (p : Point) : Float32 := x p
+alternativeFieldAccessExample (p : Point) : Float32 = x p
 
 // In case you wonder about the type correctness of the above example,
 // in a record type `T` with field `f : A`, `f` is a function of type `T -> A`.
-fieldTypeExample : Point -> Float32 := x
+fieldTypeExample : Point -> Float32 = x
 
 // As a third possibility, we can `open` a record and refer to the fields
 // directly, without dot syntax or having to apply them.
-recordOpeningExample (p : Point) : Float32 :=
+recordOpeningExample (p : Point) : Float32 =
   open p in x
 
 // We can build records with record literal syntax.
-recordLiteralSyntaxExample : Point :=
+recordLiteralSyntaxExample : Point =
 {
-  x := 1.0
-  y := 1e10
+  x = 1.0
+  y = 1e10
 }
 
 // We can also write record literals inline.
-inlineRecordLiteralExample : Point := {x := 1.0; y := 1e10}
+inlineRecordLiteralExample : Point = {x = 1.0; y = 1e10}
 
 // Records, similarly to functions, enjoy definitional extensionality.
 theorem definitional-record-extensionality-example :
   forall p : Point,
-    p = {x := p.x; y := p.y}
+    p === {x = p.x; y = p.y}
 proof
   pick-any p
   refl
@@ -303,25 +303,25 @@ qed
 // Because of the above, we can prove record equality component-wise.
 theorem record-equality :
   forall p1 p2 : Point,
-    p1.x = p2.x --> p1.y = p2.y --> p1 = p2
+    p1.x === p2.x --> p1.y === p2.y --> p1 === p2
 proof
   pick-any p1 p2
-  assume (eqx eqy := _)
-  chaining= p1
-    = {x := p1.x; y := p1.y}  by refl
-    = {x := p2.x; y := p1.y}  by eqx
-    = {x := p2.x; y := p2.y}  by eqy
-    = p2                      by refl
+  assume (eqx eqy = _)
+  chaining=== p1
+    === {x = p1.x; y = p1.y}  by refl
+    === {x = p2.x; y = p1.y}  by eqx
+    === {x = p2.x; y = p2.y}  by eqy
+    === p2                    by refl
 qed
 
 // When we need to update a record, we can use the syntax
-// `update r with {x1 := e1; ...; xN := eN}`.
-move-x (dist : Float32) (p : Point) : Point :=
-  update p with {x := p.x + dist}
+// `update r with {x1 = e1; ...; xN = eN}`.
+move-x (dist : Float32) (p : Point) : Point =
+  update p with {x = p.x + dist}
 
 theorem move-x-spec :
   forall (dist : Float32) (p : Point),
-    move-x dist p = {x := p.x + dist; y := p.y}
+    move-x dist p === {x = p.x + dist; y = p.y}
 proof
   pick-any dist p
   apply (instantiate record-equality with _ _)
@@ -339,19 +339,19 @@ record type Point3D
 
 // We can explicitly disambiguate between the `x` from `Point` and the
 // one from `Point3D` using dot syntax.
-explicitDisambiguationExample : Point3D -> Float32 :=
+explicitDisambiguationExample : Point3D -> Float32 =
   Point3D.x
 
 // We can also disambiguate implicitly, based on types.
-implicitDisambiguationExample : Point3D -> Float32 := x
+implicitDisambiguationExample : Point3D -> Float32 = x
 
 // Any kind of conversion between these two records must be performed
 // manually.
-projectToXY (p : Point3D) : Point :=
-  {x := p.x; y := p.y}
+projectToXY (p : Point3D) : Point =
+  {x = p.x; y = p.y}
 
-embedInXYZ (p : Point) : Point3D :=
-  {x := p.x; y := p.y; z := 0.0}
+embedInXYZ (p : Point) : Point3D =
+  {x = p.x; y = p.y; z = 0.0}
 
 // Records can be polymorphic, just like functions.
 // We can implement pairs as polymorphic records.
@@ -362,27 +362,27 @@ record type Prod A B
 // We can also use tuple syntax for records, but only if
 // the type of the record can be inferred. In particular,
 // this can always be done at the top level.
-tupleSyntaxExample : Prod Int32 Float32 := (42, 3.14)
+tupleSyntaxExample : Prod Int32 Float32 = (42, 3.14)
 
 // As an alternative way of eliminating records, we can
 // pattern match on them, using both record literal syntax
 // and tuple syntax.
-swapRecord {A B} (p : Prod A B) : Prod B A :=
-| {x := x; y := y} => {x := y; y := x}
+swapRecord {A B} (p : Prod A B) : Prod B A =
+| {x = x; y = y} => {x = y; y = x}
 
 // Since a typical record pattern repeats all the field names twice,
-// like in `{x1 := x1; ...; xn := xn}`, it makes sense to have some
+// like in `{x1 = x1; ...; xn = xn}`, it makes sense to have some
 // special syntax to avoid this.
-swapRecord' {A B} (p : Prod A B) : Prod B A :=
-| {x; y} => {x := y; y := x}
+swapRecord' {A B} (p : Prod A B) : Prod B A =
+| {x; y} => {x = y; y = x}
 
 // Pattern matching is also allowed using the tuple syntax.
-swapTuple {A B} (p : Prod A B) : Prod B A :=
+swapTuple {A B} (p : Prod A B) : Prod B A =
 | (x, y) => (y, x)
 
 // We can also pattern match on a record in a `let` binding.
-swapLet {A B} (p : Prod A B) : Prod B A :=
-  let (x, y) := p in (y, x)
+swapLet {A B} (p : Prod A B) : Prod B A =
+  let (x, y) = p in (y, x)
 
 // The syntax for defining (inductive) data types:
 // ```
@@ -405,14 +405,14 @@ data type Bool
 // ...
 // | patN => exprN
 // ```
-notb (b : Bool) : Bool :=
+notb (b : Bool) : Bool =
   match b with
   | no  => yes
   | yes => no
 
 // However, since a `match` is very often the first thing we'll be
 // doing when defining a function, there is a shorthand for this
-// situation: we omit then final `:=` and start listing the branches
+// situation: we omit then final `=` and start listing the branches
 // right away. Only the arguments that are not bound on the left of
 // the final `:` are being matched.
 notb' : Bool -> Bool
@@ -429,22 +429,22 @@ notb' : Bool -> Bool
 // ```
 theorem notb-notb :
   forall b : Bool,
-    notb (notb b) = b
-proof                  // forall b : Bool, notb (notb b) = b
-  pick-any b           // b : Bool |- notb (notb b) = b
+    notb (notb b) === b
+proof                  // forall b : Bool, notb (notb b) === b
+  pick-any b           // b : Bool |- notb (notb b) === b
   cases b
-  | no =>              // |- notb (notb no) = no
-    simpl              // |- no = no
+  | no =>              // |- notb (notb no) === no
+    simpl              // |- no === no
     refl
-  | yes =>             // |- notb (notb yes) = yes
-    simpl              // |- yes = yes
+  | yes =>             // |- notb (notb yes) === yes
+    simpl              // |- yes === yes
     refl
 qed
 
 // In proofterm style, the above proof looks as follows.
 theorem notb-notb-term-style :
   forall b : Bool,
-    notb (notb b) = b :=
+    notb (notb b) === b =
   pick-any b in
     cases b of
     | no  => simpl in refl
@@ -459,7 +459,7 @@ andb : Bool -> Bool -> Bool
 // Similarly, we can reason by cases on more than one term.
 theorem andb-comm :
   forall b1 b2 : Bool,
-    andb b1 b2 = andb b2 b1
+    andb b1 b2 === andb b2 b1
 proof
   pick-any b1 b2
   cases b1, b2
@@ -470,12 +470,12 @@ proof
 qed
 
 // For `Bool`, we can use `if` instead of `match`.
-orb (b1 b2 : Bool) : Bool :=
+orb (b1 b2 : Bool) : Bool =
   if b1 then yes else b2
 
 theorem orb-no-l :
   forall b : Bool,
-    orb no b = b
+    orb no b === b
 proof
   pick-any b
   cases b
@@ -486,7 +486,7 @@ qed
 theorem if-example :
   forall (b : Bool) {A} (x y : A),
     (if b then x else y)
-      =
+      ===
     match b with
     | no  => y
     | yes => x
@@ -505,26 +505,26 @@ data type Option A
 
 // For a data type `T` with a constructor `c of A`,
 // `c` is a function of type `A -> T`.
-constructorTypeExample : forall {A}, A -> Option A := some
+constructorTypeExample : forall {A}, A -> Option A = some
 
-orElse {A} (x : Option A) (default : A) : A :=
+orElse {A} (x : Option A) (default : A) : A =
   if x is some a then a else default
 
 theorem orElse-none :
   forall {A} (x : Option A) (default : A),
-    orElse none default = default
+    orElse none default === default
 proof
-  pick-any {A} x default  // A : Type, x : Option A, default : A |- orElse none default = default
-  simpl                   // A : Type, x : Option A, default : A |- default = default
+  pick-any {A} x default  // A : Type, x : Option A, default : A |- orElse none default === default
+  simpl                   // A : Type, x : Option A, default : A |- default === default
   refl
 qed
 
 theorem orElse-some :
   forall {A} (x : Option A) (a default : A),
-    orElse (some a) default = a
+    orElse (some a) default === a
 proof
-  pick-any {A} x a default  // A : Type, x : Option A, a default : A |- orElse (some a) default = a
-  simpl                     // A : Type, x : Option A, a default : A |- a = a
+  pick-any {A} x a default  // A : Type, x : Option A, a default : A |- orElse (some a) default === a
+  simpl                     // A : Type, x : Option A, a default : A |- a === a
   refl
 qed
 
@@ -569,50 +569,50 @@ app {A} : List A -> List A -> List A
 // Proof by induction
 theorem map-id :
   forall {A} (l : List A),
-    map id l = l
+    map id l === l
 proof
-  pick-any A l                   // A : Type, l : List A |- map id l = l
+  pick-any A l                   // A : Type, l : List A |- map id l === l
   induction l
-  | nil =>                       // A : Type |- map id nil = nil
-    simpl                        // A : Type |- nil = nil
+  | nil =>                       // A : Type |- map id nil === nil
+    simpl                        // A : Type |- nil === nil
     refl
-  | cons h t =>                  // A : Type |- map id (cons h t) = cons h t
-    simpl                        // A : Type |- cons h (map id t) = cons h t
-    rewrite (map id t = t)       // A : Type |- cons h t = cons h t
+  | cons h t =>                  // A : Type |- map id (cons h t) === cons h t
+    simpl                        // A : Type |- cons h (map id t) === cons h t
+    rewrite (map id t === t)     // A : Type |- cons h t === cons h t
     refl
 qed
 
 theorem map-id-term-style :
   forall {A} (l : List A),
-    map id l = l
+    map id l === l
 proof
   pick-any A l in
   induction l
   | nil => refl
-  | cons => rewrite (map id t = t) in refl
+  | cons => rewrite (map id t === t) in refl
 qed
 
 theorem map-id-chaining :
   forall {A} (l : List A),
-    map id l = l
+    map id l === l
 proof
   pick-any A l
   induction l
   | nil =>
-    chaining=
-        map id nil
-      = nil                         by simpl
+    chaining===
+          map id nil
+      === nil                         by simpl
   | cons h t =>
-    chaining=
-        map id (cons h t)
-      = cons h (map id t)           by simpl
-      = cons h t                    by (map id t = t)
+    chaining===
+          map id (cons h t)
+      === cons h (map id t)           by simpl
+      === cons h t                    by (map id t === t)
     refl
 qed
 
 theorem map-id-rw :
   forall {A} (l : List A),
-    map id l = l
+    map id l === l
 proof
   pick-any A l
   induction l

@@ -7,7 +7,7 @@
 // Note that the braces are mandatory and match the syntax used in the
 // programming layer.
 theorem forall-type-intro-example :
-  forall {A}, forall x : A, x = x
+  forall {A}, forall x : A, x === x
 proof
   pick-any A
   pick-any x
@@ -16,7 +16,7 @@ qed
 
 // We don't need to write the `forall`s and the `pick-any`s separately.
 theorem forall-type-intro-example' :
-  forall {A} (x : A), x = x
+  forall {A} (x : A), x === x
 proof
   pick-any A x
   refl
@@ -24,21 +24,21 @@ qed
 
 // In proofterm style, the above proof looks as follows.
 theorem forall-type-intro-example-term-style :
-  forall {A} (x : A), x = x :=
+  forall {A} (x : A), x === x =
   pick-any A x in refl
 
 // We eliminate the universal quantifier using `instantiate`, just like for
 // the first-order universal quantifier.
 theorem forall-type-elim-example :
-  (forall {A} (x : A), x = x) --> forall n : Nat, n = n
+  (forall {A} (x : A), x === x) --> forall n : Nat, n === n
 proof
-  assume (f := _)
+  assume (f = _)
   instantiate f with Nat
 qed
 
 // The syntax for the existential quantifier over types is `exists {A}, ...`.
 // To prove a proposition of this form, we use `exists`.
-theorem exists-type-intro-example : exists {A}, forall x : A, x = x
+theorem exists-type-intro-example : exists {A}, forall x : A, x === x
 proof
   exists Nat
   pick-any x
@@ -53,7 +53,7 @@ declaration R : Prop
 // some type, then it just holds.
 theorem exists-type-elim-example : (exists {A}, R) --> R
 proof
-  assume (ex := _)
+  assume (ex = _)
   pick-witness A for ex
   assumption
 qed

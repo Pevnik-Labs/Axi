@@ -69,8 +69,8 @@ However, in this document we are not concerned with these - we only care about t
 
 Let's read the table:
 - First row: given propositions `P` and `Q`, we can form the proposition `P --> Q`, which is the implication from `P` to `Q`. A concrete example is `True --> True` and a concrete proof of this propositions would be `assume True in trivial`.
-- Second row: given a type `A` and a proposition `P` (which can depend on `x` of type `A`), we can form the proposition `forall x : A, P`. A concrete example is `forall x : Int, x = x`, the proof of which is `pick-any x in refl x`.
-- Third row: given a programming kind `K` and a proposition `P` (which can depend on `T` of kind `K`), we can form the proposition `forall {T : K}, P`. A concrete example is `forall {A : Type}, forall x : A, x = x`, the proof of which is `pick-any {A} in pick-any x in refl x`.
+- Second row: given a type `A` and a proposition `P` (which can depend on `x` of type `A`), we can form the proposition `forall x : A, P`. A concrete example is `forall x : Int, x === x`, the proof of which is `pick-any x in refl x`.
+- Third row: given a programming kind `K` and a proposition `P` (which can depend on `T` of kind `K`), we can form the proposition `forall {T : K}, P`. A concrete example is `forall {A : Type}, forall x : A, x === x`, the proof of which is `pick-any {A} in pick-any x in refl x`.
 - Fourth row: given a logical kind `L` and a proposition `Q` (which can depend on `P` of kind `L`), we can form the proposition `forall P : L, Q`. A concrete example is `forall P : Prop, P --> P`, the proof of which is `pick-any P in assume P in P`.
 
 Are there any other logical entities besides propositions that inhabit `LKind`? Yes! There are at least predicates and relations (which are present in the demo), but there can be even more, including polymorphic predicates and "logical operators" (which include logical connectives and much more).
@@ -82,8 +82,8 @@ Are there any other logical entities besides propositions that inhabit `LKind`? 
 | "Logical" operators         | ❌ no  | `L1 -> L2`          | (LKind, LKind, LKind) |
 
 Let's read the table:
-- First row: given a type `A` and a logical kind `L`, we can form the logical kind `A -> L`. A concrete example is `Int -> Prop`, the logical kind of predicates on the integers. A concrete object of this type would be `fun i : Int => i = 42`.
-- Second row: given a programming kind `K` and a logical kind `L` (which can depend on `T` of kind `K`), we can form the logical kind `forall {T : K}, L`. A concrete example is `forall {A : Type}, A -> A -> Prop`, the logical kind of polymorphic homogenous binary relations. A concrete object of this type would be `tfun A : Type => fun x y : A => x = y \/ ~ (x = y)`.
+- First row: given a type `A` and a logical kind `L`, we can form the logical kind `A -> L`. A concrete example is `Int -> Prop`, the logical kind of predicates on the integers. A concrete object of this type would be `fun i : Int => i === 42`.
+- Second row: given a programming kind `K` and a logical kind `L` (which can depend on `T` of kind `K`), we can form the logical kind `forall {T : K}, L`. A concrete example is `forall {A : Type}, A -> A -> Prop`, the logical kind of polymorphic homogenous binary relations. A concrete object of this type would be `tfun A : Type => fun x y : A => x === y \/ ~ (x === y)`.
 - Third row: given logical kinds `L1` and `L2`, we can form another logical kind `L1 -> L2`. A concrete example is `Prop -> Prop -> Prop`, the logical kind of binary logical connectives, concrete examples of which are conjunction `/\` and disjunction `\/`.
 
 ## What's the metatheory?

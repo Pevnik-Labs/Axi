@@ -14,7 +14,7 @@ proof
 qed
 
 // In proofterm style, the above proof looks as follows.
-theorem double-negation-term-style : ~ ~ P --> P :=
+theorem double-negation-term-style : ~ ~ P --> P =
   assume (~ ~ P) in
     by-contradiction (~ P) in
       (apply (~ ~ P) (~ P))
@@ -24,7 +24,7 @@ theorem double-negation-term-style : ~ ~ P --> P :=
 // using `by-contradiction`.
 theorem lem : P \/ ~ P
 proof
-  by-contradiction (not-lem := ~ (P \/ ~ P))
+  by-contradiction (not-lem = ~ (P \/ ~ P))
   apply not-lem
   or-right
   assume P
@@ -48,7 +48,7 @@ qed
 // Peirce's law.
 theorem peirce : ((P --> Q) --> P) --> P
 proof
-  assume (pqp := _)
+  assume (pqp = _)
   by-contradiction (~ P)
   apply (~ P), pqp
   assume P
@@ -58,7 +58,7 @@ qed
 // Of the two laws of contraposition, one is only valid classically.
 theorem contraposition-classic : (~ Q --> ~ P) --> (P --> Q)
 proof
-  assume (nqnp := _) p
+  assume (nqnp = _) p
   by-contradiction (~ Q)
   apply nqnp (~ Q) P
 qed
@@ -76,7 +76,7 @@ qed
 theorem material-implication-intro : (P --> Q) --> ~ P \/ Q
 proof
   assume (P --> Q)
-  by-contradiction (no := ~ (~ P \/ Q))
+  by-contradiction (no = ~ (~ P \/ Q))
   apply no
   or-left
   assume P
@@ -91,7 +91,7 @@ qed
 theorem weak-or-elim : (~ P --> Q) --> P \/ Q
 proof
   assume (~ P --> Q)
-  by-contradiction (npq := ~ (P \/ Q))
+  by-contradiction (npq = ~ (P \/ Q))
   apply npq
   or-right
   apply (~ P --> Q)
@@ -105,7 +105,7 @@ qed
 // that either conjunct is false.
 theorem and-from-weak-and : ~ (~ P \/ ~ Q) --> P /\ Q
 proof
-  assume (pq := _)
+  assume (pq = _)
   by-contradiction (both (~ P) (~ Q))
   apply pq
   or-left
@@ -116,7 +116,7 @@ qed
 // logically equivalent.
 theorem xor-not-iff : ~ (P <--> Q) --> (P /\ ~ Q) \/ (~ P /\ Q)
 proof
-  assume (npq := _)
+  assume (npq = _)
   cases (lem P) // illegal, lem not yet universally quantified
   - assume P
     or-left
@@ -143,7 +143,7 @@ qed
 // In classical logic, propositions are linearly ordered by implication.
 theorem godel-dummet : (P --> Q) \/ (Q --> P)
 proof
-  by-contradiction (h := _)
+  by-contradiction (h = _)
   apply h
   or-left
   assume P
@@ -157,12 +157,12 @@ qed
 // Premise independence for disjunction.
 theorem premise-independence : (P --> Q \/ R) --> ((P --> Q) \/ (P --> R))
 proof
-  assume (pqr := _)
-  by-contradiction (ng := _)
+  assume (pqr = _)
+  by-contradiction (ng = _)
   apply ng
   or-left
   assume P
-  by-contradiction (nq := ~ Q)
+  by-contradiction (nq = ~ Q)
   apply ng
   cases (apply pqr P)
   - assume Q
