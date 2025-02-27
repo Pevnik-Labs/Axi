@@ -2,8 +2,10 @@
 // Note that, by convention, type variables start with upper case letters.
 // P, Q ::= ... | forall {A}, P | exists {A}, P
 
-// To prove a proposition of the form `forall {A}, P`, we use `pick-any`.
-// This is contrary to the programming layer, which lacks type abstraction.
+// To prove a proposition that universally quantifies over types, we use
+// `pick-any`, just like for first-order quantifiers.
+// `pick-any A in e` proves `forall {A}, P A` provided that
+// `e` proves `P` in the context extended with `A : Type`.
 // Note that the braces are mandatory and match the syntax used in the
 // programming layer.
 theorem forall-type-intro-example :
@@ -14,7 +16,7 @@ proof
   refl
 qed
 
-// We don't need to write the `forall`s and the `pick-any`s separately.
+// We can write the `forall`s and the `pick-any`s together.
 theorem forall-type-intro-example' :
   forall {A} (x : A), x === x
 proof
@@ -25,19 +27,22 @@ qed
 // In proofterm style, the above proof looks as follows.
 theorem forall-type-intro-example-term-style :
   forall {A} (x : A), x === x =
-  pick-any A x in refl
+    pick-any A x in refl
 
 // We eliminate the universal quantifier using `instantiate`, just like for
 // the first-order universal quantifier.
+// `instantiate e with T` proves `P T` provided that
+// `e` proves `forall {A}, P A`.
 theorem forall-type-elim-example :
   (forall {A} (x : A), x === x) --> forall n : Nat, n === n
 proof
-  assume (f = _)
-  instantiate f with Nat
+  assume all
+  instantiate all with Nat
 qed
 
-// The syntax for the existential quantifier over types is `exists {A}, ...`.
-// To prove a proposition of this form, we use `exists`.
+// The syntax for the existential quantifier over types is `exists {A}, P A`.
+// `exists T such that e` proves `exists {A}, P A` provided that
+// `e` proves `P T`.
 theorem exists-type-intro-example : exists {A}, forall x : A, x === x
 proof
   exists Nat
@@ -48,12 +53,21 @@ qed
 // The example will be silly, let's declare `R` to be a proposition.
 declaration R : Prop
 
-// The existential quantifier is eliminated with `pick-witness`.
+// `pick-witness T p for e1 in e2` proves `Q` provided that
+// `e1 proves `exists {A}, P A` and that
+// `e2` proves `Q` in the context extended with `T : Type` and `p : P T`.
 // In our silly example, we prove that if the proposition `R` holds for
 // some type, then it just holds.
 theorem exists-type-elim-example : (exists {A}, R) --> R
 proof
-  assume (ex = _)
-  pick-witness A for ex
+  assume ex
+  pick-witness A r for ex
+  assumption
+qed
+
+// Of course we can also fuse the `pick-witness` with the preceding `assume`.
+theorem exists-type-elim-example : (exists {A}, R) --> R
+proof
+  assume (exists A such-that r)
   assumption
 qed

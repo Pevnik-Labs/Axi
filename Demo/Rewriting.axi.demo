@@ -6,31 +6,31 @@ theorem equational-chaining :
     x === y --> y === z --> z === w --> P w --> P x
 proof
   pick-any x y z w
-  // Let Γ = x y z w : A, x === y, y === z, z === w, P w
-  assume (x === y) (y === z) (z === w) (P w)  // Γ |- P x  // After making all the assumptions, the goal is `P x`.
-  chaining= (P x)                       // Γ |- P x  // We start the chain. `=` means it's chaining for equality. The goal is still `P x`.
-    === (P y)        by (x === y)           // Γ |- P y  // The goal changes to `P y` because `x === y`, as proven in the `by` clause.
-    === (P z)        by (y === z)           // Γ |- P z
-    === (P w)        by (z === w)           // Γ |- P w  // After the final step, the goal that we are left with is `P w`.
-    assumption                          // We now solve `P w`, the goal produced by chaining.
+  // Let Γ = x y z w : A, xy : x === y, yz : y === z, zw : z === w, pw : P w
+  assume xy yz zw pw  // Γ |- P x  // After making all the assumptions, the goal is `P x`.
+  chaining=== (P x)         // Γ |- P x  // We start the chain. `===` means it's chaining for equality. The goal is still `P x`.
+    === (P y)        by xy  // Γ |- P y  // The goal changes to `P y` because `x === y`, as proven in the `by` clause.
+    === (P z)        by yz  // Γ |- P z
+    === (P w)        by zw  // Γ |- P w  // After the final step, the goal that we are left with is `P w`.
+    assumption              // We now solve `P w`, the goal produced by chaining.
 qed
 
 // In proofterm style, the above proof looks as follows.
 theorem equational-chaining-term-style :
   forall x y z w : A,
     x === y --> y === z --> z === w --> P w --> P x =
-  pick-any x y z w in
-    assume (x === y) (y === z) (z === w) (P w) in
-      chaining= (P x)
-        === (P y)        by (x === y)
-        === (P z)        by (y === z)
-        === (P w)        by (z === w)
-      in
-        assumption
+      pick-any x y z w in
+        assume xy yz zw pw in
+          chaining=== (P x)
+            === (P y)        by xy
+            === (P z)        by yz
+            === (P w)        by zw
+          in
+            assumption
 
 // In general, an equational chain of the form
 // ```
-// chaining= P
+// chaining=== P
 //   === P_1      by e_1
 //   ...
 //   === P_n      by e_n
@@ -42,10 +42,10 @@ theorem equational-chaining-desugared :
     x === y --> y === z --> z === w --> P w --> P x
 proof
   pick-any x y z w
-  assume (x === y) (y === z) (z === w) (P w)
-  rewrite (x === y)
-  rewrite (y === z)
-  rewrite (z === w)
+  assume xy yz zw pw
+  rewrite xy
+  rewrite yz
+  rewrite zw
   assumption
 qed
 
@@ -57,13 +57,13 @@ theorem equational-chaining-reverse-direction :
     x === y --> y === z --> z === w --> P x --> P w
 proof
   pick-any x y z w
-  // Let Γ = x y z w : A, x === y, y === z, z === w
-  assume (x === y) (y === z) (z === w)       // Γ |- P x --> P w  // After making all the assumptions, the goal is `P x --> P w`.
-  chaining= (P x --> P w)              // Γ |- P x --> P w  // We start the chain. The goal is still `P x --> P w`.
-    === (P y --> P w)        by (x === y)  // Γ |- P y --> P w  // The goal changes to `P y --> Pw` because `x === y`, as proven in the `by` clause.
-    === (P z --> P w)        by (y === z)  // Γ |- P z --> P w
-    === (P w --> P w)        by (z === w)  // Γ |- P w --> P w  // After the final step, the goal that we are left with is `P w --> P w`.
-  assume (P w)                         // Γ, P w |- P w     // We now solve `P w --> Pw`, the goal produced by chaining.
+  // Let Γ = x y z w : A, xy : x === y, yz : y === z, zw : z === w
+  assume xy yz zw                   // Γ |- P x --> P w  // After making all the assumptions, the goal is `P x --> P w`.
+  chaining=== (P x --> P w)         // Γ |- P x --> P w  // We start the chain. The goal is still `P x --> P w`.
+    === (P y --> P w)        by xy  // Γ |- P y --> P w  // The goal changes to `P y --> Pw` because `x === y`, as proven in the `by` clause.
+    === (P z --> P w)        by yz  // Γ |- P z --> P w
+    === (P w --> P w)        by zw  // Γ |- P w --> P w  // After the final step, the goal that we are left with is `P w --> P w`.
+  assume pw : P w                   // Γ, P w |- P w     // We now solve `P w --> Pw`, the goal produced by chaining.
   assumption
 qed
 
@@ -72,10 +72,10 @@ theorem equational-chaining-reverse-direction' :
     x === y --> y === z --> z === w --> P x --> P w
 proof
   pick-any P x y z w
-  // Let Γ = x y z w : A, x === y, y === z, z === w, P x
-  assume (x === y) (y === z) (z === w) (P x)  // Γ |- P w  // After making all the assumptions, the goal is `P w`.
-  chaining= (P w)
-    === (P z)        by symmetry (z === w) // apply (instantiate eq-sym with _ _) (z === w) //proving (w === z) by rewrite (z === w) in refl
-    === (P y)        by proving (z === y) by rewrite (y === z) in refl
-    === (P x)        by proving (y === x) by rewrite (x === y) in refl
+  // Let Γ = x y z w : A, xy : x === y, yz : y === z, zw : z === w, px : P x
+  assume xy yz zw px                 // Γ |- P w  // After making all the assumptions, the goal is `P w`.
+  chaining=== (P w)
+    === (P z)        by symmetry zw  // apply (instantiate eq-sym with _ _) zw // proving (w === z) by rewrite zw in refl
+    === (P y)        by proving (z === y) by rewrite yz in refl
+    === (P x)        by proving (y === x) by rewrite xy in refl
 qed

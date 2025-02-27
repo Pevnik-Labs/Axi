@@ -70,8 +70,8 @@ However, in this document we are not concerned with these - we only care about t
 Let's read the table:
 - First row: given propositions `P` and `Q`, we can form the proposition `P --> Q`, which is the implication from `P` to `Q`. A concrete example is `True --> True` and a concrete proof of this propositions would be `assume True in trivial`.
 - Second row: given a type `A` and a proposition `P` (which can depend on `x` of type `A`), we can form the proposition `forall x : A, P`. A concrete example is `forall x : Int, x === x`, the proof of which is `pick-any x in refl x`.
-- Third row: given a programming kind `K` and a proposition `P` (which can depend on `T` of kind `K`), we can form the proposition `forall {T : K}, P`. A concrete example is `forall {A : Type}, forall x : A, x === x`, the proof of which is `pick-any {A} in pick-any x in refl x`.
-- Fourth row: given a logical kind `L` and a proposition `Q` (which can depend on `P` of kind `L`), we can form the proposition `forall P : L, Q`. A concrete example is `forall P : Prop, P --> P`, the proof of which is `pick-any P in assume P in P`.
+- Third row: given a programming kind `K` and a proposition `P` (which can depend on `T` of kind `K`), we can form the proposition `forall {T : K}, P`. A concrete example is `forall {A : Type}, forall x : A, x === x`, the proof of which is `pick-any A in pick-any x in refl x`.
+- Fourth row: given a logical kind `L` and a proposition `Q` (which can depend on `P` of kind `L`), we can form the proposition `forall P : L, Q`. A concrete example is `forall P : Prop, P --> P`, the proof of which is `pick-any P in assume (p : P) in p`.
 
 Are there any other logical entities besides propositions that inhabit `LKind`? Yes! There are at least predicates and relations (which are present in the demo), but there can be even more, including polymorphic predicates and "logical operators" (which include logical connectives and much more).
 
@@ -112,4 +112,4 @@ Now, the paper proves some nice theorem about this *Q over P* construction:
 - if *P* and *Q* are weakly normalizing, then so is *Q over P*
 - *Q over P* is a conservative extension of *Q*, i.e. a theorem is provable in *Q over P* if and only if it is provable in *Q*
 
-Together these theorems guarantee that thecore of T-Axi is weakly normalizing, from which follows that its logic is consistent.
+Together these theorems guarantee that the core of T-Axi is weakly normalizing, from which follows that its logic is consistent.

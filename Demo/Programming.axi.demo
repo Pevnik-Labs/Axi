@@ -61,8 +61,8 @@ anotherAnswer : MediumSizedInt = 42
 // suffices to state the following theorem. If these types were
 // different, we would get a type error, but the theorem is accepted
 // and we can proceed to prove it.
-// Also note that to `unfold` multiple definitions, we separate them
-// with commas.
+// Also note that to `unfold` multiple definitions, we separate their
+// names with commas.
 theorem type-synonym-example : anotherAnswer === answer
 proof
   unfold anotherAnswer, answer
@@ -135,18 +135,18 @@ proof                    // |- idNat 42 === 42
 qed
 
 // Of course since both `unfold` and `simpl` work only to change how the goal
-// is displayed, to prove the above theorems it suffice to use `refl`.
+// is displayed, to prove the above theorem it suffices to use `refl`.
 theorem refl-is-enough : idNat 42 === 42
 proof
   refl
 qed
 
-// We don't need to put a type annotation on the binder if it can be inferred.
+// We don't need to put a type annotation on the variable if it can be inferred.
 idNat' : Nat -> Nat =
   fun n => n
 
-// Even though we did not write the annotation on the binder,
-// it will be present whne the definition is unfolded.
+// Even though we did not write the annotation on the variable,
+// it will be present when the definition is unfolded.
 theorem no-annotation-desugared : idNat' === (fun n : Nat => n)
 proof                       // |- idNat' === (fun n : Nat => n)
   unfold idNat'             // |- (fun n : Nat => n) === (fun n : Nat => n)
@@ -220,8 +220,8 @@ theorem funext-example :
     (forall x : A, f x === g x) --> f === g
 proof
   pick-any A B f g
-  // Let Γ = A B : Type, f g : A -> B, eq = forall x : A, f x === g x
-  assume (eq = _)   // Γ |- f === g
+  // Let Γ = A B : Type, f g : A -> B, eq : forall x : A, f x === g x
+  assume eq         // Γ |- f === g
   funext x          // Γ, x : A |- f x === g x
   instantiate eq
 qed
@@ -306,7 +306,7 @@ theorem record-equality :
     p1.x === p2.x --> p1.y === p2.y --> p1 === p2
 proof
   pick-any p1 p2
-  assume (eqx eqy = _)
+  assume eqx eqy
   chaining=== p1
     === {x = p1.x; y = p1.y}  by refl
     === {x = p2.x; y = p1.y}  by eqx
@@ -365,8 +365,7 @@ record type Prod A B
 tupleSyntaxExample : Prod Int32 Float32 = (42, 3.14)
 
 // As an alternative way of eliminating records, we can
-// pattern match on them, using both record literal syntax
-// and tuple syntax.
+// pattern match on them (using record literal syntax).
 swapRecord {A B} (p : Prod A B) : Prod B A =
 | {x = x; y = y} => {x = y; y = x}
 
@@ -445,10 +444,10 @@ qed
 theorem notb-notb-term-style :
   forall b : Bool,
     notb (notb b) === b =
-  pick-any b in
-    cases b of
-    | no  => simpl in refl
-    | yes => simpl in refl
+      pick-any b in
+        cases b of
+        | no  => simpl in refl
+        | yes => simpl in refl
 
 // We can match one more than one argument at a time.
 andb : Bool -> Bool -> Bool
@@ -491,7 +490,7 @@ theorem if-example :
     | no  => y
     | yes => x
 proof
-  pick-any b {A} x y
+  pick-any b A x y
   cases b
   | no  => refl
   | yes => refl
@@ -514,7 +513,7 @@ theorem orElse-none :
   forall {A} (x : Option A) (default : A),
     orElse none default === default
 proof
-  pick-any {A} x default  // A : Type, x : Option A, default : A |- orElse none default === default
+  pick-any A x default    // A : Type, x : Option A, default : A |- orElse none default === default
   simpl                   // A : Type, x : Option A, default : A |- default === default
   refl
 qed
@@ -523,7 +522,7 @@ theorem orElse-some :
   forall {A} (x : Option A) (a default : A),
     orElse (some a) default === a
 proof
-  pick-any {A} x a default  // A : Type, x : Option A, a default : A |- orElse (some a) default === a
+  pick-any A x a default    // A : Type, x : Option A, a default : A |- orElse (some a) default === a
   simpl                     // A : Type, x : Option A, a default : A |- a === a
   refl
 qed
@@ -571,26 +570,24 @@ theorem map-id :
   forall {A} (l : List A),
     map id l === l
 proof
-  pick-any A l                   // A : Type, l : List A |- map id l === l
+  pick-any A l          // A : Type, l : List A |- map id l === l
   induction l
-  | nil =>                       // A : Type |- map id nil === nil
-    simpl                        // A : Type |- nil === nil
+  | nil =>              // A : Type |- map id nil === nil
+    simpl               // A : Type |- nil === nil
     refl
-  | cons h t =>                  // A : Type |- map id (cons h t) === cons h t
-    simpl                        // A : Type |- cons h (map id t) === cons h t
-    rewrite (map id t === t)     // A : Type |- cons h t === cons h t
+  | cons h (t & IH) =>  // A : Type, h : A, t : List A, IH : map id t === t |- map id (cons h t) === cons h t
+    simpl               // A : Type, h : A, t : List A, IH : map id t === t |- cons h (map id t) === cons h t
+    rewrite IH          // A : Type, h : A, t : List A, IH : map id t === t |- cons h t === cons h t
     refl
 qed
 
 theorem map-id-term-style :
   forall {A} (l : List A),
-    map id l === l
-proof
-  pick-any A l in
-  induction l
-  | nil => refl
-  | cons => rewrite (map id t === t) in refl
-qed
+    map id l === l =
+      pick-any A l in
+      induction l
+      | nil => refl
+      | cons h (t & IH) => rewrite IH in refl
 
 theorem map-id-chaining :
   forall {A} (l : List A),
@@ -602,11 +599,11 @@ proof
     chaining===
           map id nil
       === nil                         by simpl
-  | cons h t =>
+  | cons h (t & IH) =>
     chaining===
           map id (cons h t)
       === cons h (map id t)           by simpl
-      === cons h t                    by (map id t === t)
+      === cons h t                    by IH
     refl
 qed
 
@@ -617,7 +614,7 @@ proof
   pick-any A l
   induction l
   | nil => rw /simpl, /refl
-  | cons h (t & ih) => rw /simpl, ih, /refl
+  | cons h (t & IH) => rw /simpl, IH, /refl
 qed
 
 // Our core language also has a simple type class mechanism.
