@@ -24,9 +24,10 @@
 // - Cryptography.
 
 // In later files, we will describe features such as:
+// - Dependent types.
+// - Structural records and variants (in the core language, they are nominal).
 // - Termination checker.
 // - Linear typing.
-// - Structural records and variants (in the core language, they are nominal).
 // - Subtyping.
 // - And possibly more...
 
@@ -383,13 +384,11 @@ swapTuple {A B} (p : Prod A B) : Prod B A =
 swapLet {A B} (p : Prod A B) : Prod B A =
   let (x, y) = p in (y, x)
 
-// The syntax for defining (inductive) data types:
-// ```
-// data type TypeName
-//   constructor1 : ArgType1_1 -> ... -> ArgType1_M1 -> TypeName
-//   ...
-//   constructorN : ArgTypeN_1 -> ... -> ArgTypeN1_MN -> TypeName
-// ```
+// `let`s support all pattern matching syntaxes for records.
+swapLet' {A B} (p : Prod A B) : Prod B A =
+  let {x; y} = p in (y, x)
+
+// We can define data types using the keyword `data type`.
 // Note that we use `yes` and `no` as names of the booleans, to make it easier
 // for newcomers not to confuse them with the propositions `True` and `False`.
 data type Bool
@@ -401,7 +400,7 @@ data type Bool
 // ```
 // match t with
 // | pat1 => expr1
-// ...
+//    ⋮
 // | patN => exprN
 // ```
 notb (b : Bool) : Bool =
@@ -423,20 +422,20 @@ notb' : Bool -> Bool
 // ```
 // cases t
 // | pat1 => proofterm1
-// ...
+//    ⋮
 // | patN => prooftermN
 // ```
 theorem notb-notb :
   forall b : Bool,
     notb (notb b) === b
-proof                  // forall b : Bool, notb (notb b) === b
-  pick-any b           // b : Bool |- notb (notb b) === b
+proof                    // |- forall b : Bool, notb (notb b) === b
+  pick-any b             // b : Bool |- notb (notb b) === b
   cases b
-  | no =>              // |- notb (notb no) === no
-    simpl              // |- no === no
+  | no =>                // b : Bool |- notb (notb no) === no
+    simpl                // b : Bool |- no === no
     refl
-  | yes =>             // |- notb (notb yes) === yes
-    simpl              // |- yes === yes
+  | yes =>               // b : Bool |- notb (notb yes) === yes
+    simpl                // b : Bool |- yes === yes
     refl
 qed
 
@@ -445,11 +444,11 @@ theorem notb-notb-term-style :
   forall b : Bool,
     notb (notb b) === b =
       pick-any b in
-        cases b of
+        cases b
         | no  => simpl in refl
         | yes => simpl in refl
 
-// We can match one more than one argument at a time.
+// We can match more than one argument at a time.
 andb : Bool -> Bool -> Bool
 | no , _   => no
 | _  , no  => no
@@ -468,20 +467,27 @@ proof
   | yes, yes => refl
 qed
 
-// For `Bool`, we can use `if` instead of `match`.
+// For `Bool`, we can use the more traditional `if` instead of `match`.
 orb (b1 b2 : Bool) : Bool =
   if b1 then yes else b2
 
-theorem orb-no-l :
+// When proving theorems about `if`s, we still use `cases`.
+theorem orb-no-r :
   forall b : Bool,
-    orb no b === b
-proof
-  pick-any b
+    orb b no === b
+proof               // |- forall b : Bool, orb b no === b
+  pick-any b        // b : Bool |- orb b no === b
+  unfold orb        // b : Bool |- if b then yes else no === b
   cases b
-  | no  => refl
-  | yes => refl
+  | no  =>          // b : Bool |- if no then yes else no === no
+    simpl           // b : Bool |- no === no
+    refl
+  | yes =>          // b : Bool |- if yes then yes else no === yes
+    simpl           // b : Bool |- yes === yes
+    refl
 qed
 
+// In fact, `if` is equal to the appropriate `match`.
 theorem if-example :
   forall (b : Bool) {A} (x y : A),
     (if b then x else y)
@@ -496,8 +502,9 @@ proof
   | yes => refl
 qed
 
-// Inductive types can be polymorphic.
-// We use the keyword `of` to declare the constructors' argument types.
+// Data types can be polymorphic.
+// We use the keyword `of` to declare the constructors' argument types,
+// if there are any.
 data type Option A
   none
   some of A
@@ -506,81 +513,129 @@ data type Option A
 // `c` is a function of type `A -> T`.
 constructorTypeExample : forall {A}, A -> Option A = some
 
+// We can use `if` not only with `Bool`, but with any two-constructor data type.
+// Moreover, there's a special version of `if`, `if t is pat then t1 else t2`,
+// which acts like pattern matching with a single branch, including binding variables
+// in the `then`-branch of the `if`.
 orElse {A} (x : Option A) (default : A) : A =
   if x is some a then a else default
 
-theorem orElse-none :
-  forall {A} (x : Option A) (default : A),
-    orElse none default === default
+// Proving theorems about this fancy `if` is still done using `cases`.
+// `is` is equivalent to the following `match`.
+theorem is-Option-spec :
+  forall {A B} (f : A -> B) (x : Option A) (a : A) (b : B),
+    (if x is some a then f a else b)
+      ===
+    match x with
+    | none => b
+    | some a => f a
 proof
-  pick-any A x default    // A : Type, x : Option A, default : A |- orElse none default === default
-  simpl                   // A : Type, x : Option A, default : A |- default === default
-  refl
+  pick-any A B f x a b
+  cases x
+  | none => refl
+  | some a => refl
 qed
 
-theorem orElse-some :
-  forall {A} (x : Option A) (a default : A),
-    orElse (some a) default === a
-proof
-  pick-any A x a default    // A : Type, x : Option A, a default : A |- orElse (some a) default === a
-  simpl                     // A : Type, x : Option A, a default : A |- a === a
-  refl
-qed
+// In case you were wondering, the full syntax for defining data types
+// is as follows:
+// ```
+// data type TypeName
+//   constructor1 : ArgType1_1 -> ... -> ArgType1_M1 -> TypeName
+//      ⋮
+//   constructorN : ArgTypeN_1 -> ... -> ArgTypeN1_MN -> TypeName
+// ```
+// However, this full syntax is quite lengthy, and that's why we've
+// been using shorthands so far. Let's see the full syntax in action
+// and all the possible shorthands on a simple example.
 
-data type Sum A B
-  inl of A
-  inr of B
-
-// As an alternative, we can write the constructor's type out in full.
+// In the full syntax, we write the full types of all constructors.
 data type Sum A B
   inl : A -> Sum A B
   inr : B -> Sum A B
 
-// As a third alternative, we can describe the constructors' argument types
-// with a more "applied" syntax.
-data type Sum A B
-  inl (a : A)
-  inr (b : B)
-
-// As a fourth alternative, we can use the "applied" syntax, but also mention
-// the return type.
+// Similarly to top-level definitions, we can move the arguments to
+// the left of the colon.
 data type Sum A B
   inl (a : A) : Sum A B
   inr (b : B) : Sum A B
 
+// If the constructor arguments are on the left, we can omit the
+// codomain of the constructor, since it's always the same as the
+// type we're defining anyway.
+data type Sum A B
+  inl (a : A)
+  inr (b : B)
+
+// Last but not least, if we only want to give the types of the constructors'
+// arguments, we can use `of`.
+data type Sum A B
+  inl of A
+  inr of B
+
+// All the above definitions of `Sum` are the same. The only possible difference
+// could be that with the arguments named, some tools might use these names for
+// tasks like generating code templates or something. Or maybe they can serve as
+// style guide for copilot AIs.
+
+// An example function on sums.
 swapSum {A B} : Sum A B -> Sum B A
 | inl a => inr a
 | inr b => inl b
 
+// The proofs go throught using `cases`, as before.
+theorem swapSum-spec :
+  forall {A B} (x : Sum A B),
+    swapSum (swapSum x) === x
+proof
+  pick-any A B x
+  cases x
+  | inl a => refl
+  | inr b => refl
+qed
+
+// Data type can be recursive (or rather, inductive).
+// Lists, the bread and butter of functional programming,
+// can be defined as follows.
 data type List A
   nil
   cons (h : A) (t : List A)
 
-// Recursive functions.
+// There's nothing special about defining recursive functions.
+// We can perform a recursive call whenever we want.
 map {A B} (f : A -> B) : List A -> List B
-| nil => nil
+| nil      => nil
 | cons h t => cons (f h) (map f t)
 
-app {A} : List A -> List A -> List A
-| nil     , l2 => l2
-| cons h t, l2 => cons h (app t l2)
-
-// Proof by induction
+// Proving theorems about recursive functions requires induction.
+// The full syntax is very similar to `cases`:
+// ```
+// induction t
+// | c_1 a_1_1 ... a_1_m => e_1
+//    ⋮
+// | c_n a_n_1 ... a_n_m => e_n
+// ```
+// This proves `P t` provided that
+// `e_1` proves `P (c_1 ...)`, ..., and that
+// `e_n` proves `P (c_n ...)`.
+// However, note one special thing: for recursive arguments (like `t` below),
+// the pattern becomes `(t & IH)`, which means that we name not only `t`, but
+// also the corresponding induction hypothesis.
 theorem map-id :
   forall {A} (l : List A),
     map id l === l
-proof
+proof                   // |- forall {A} (l : List A), map id l === l
   pick-any A l          // A : Type, l : List A |- map id l === l
   induction l
-  | nil =>              // A : Type |- map id nil === nil
-    simpl               // A : Type |- nil === nil
+  | nil =>              // A : Type, l : List A |- map id nil === nil
+    simpl               // A : Type, l : List A |- nil === nil
     refl
-  | cons h (t & IH) =>  // A : Type, h : A, t : List A, IH : map id t === t |- map id (cons h t) === cons h t
-    simpl               // A : Type, h : A, t : List A, IH : map id t === t |- cons h (map id t) === cons h t
-    rewrite IH          // A : Type, h : A, t : List A, IH : map id t === t |- cons h t === cons h t
+  | cons h (t & IH) =>  // A : Type, l : List A, h : A, t : List A, IH : map id t === t |- map id (cons h t) === cons h t
+    simpl               // A : Type, l : List A, h : A, t : List A, IH : map id t === t |- cons h (map id t) === cons h t
+    rewrite IH          // A : Type, l : List A, h : A, t : List A, IH : map id t === t |- cons h t === cons h t
     refl
 qed
 
+// In proofterm style, the above proof looks as follows.
 theorem map-id-term-style :
   forall {A} (l : List A),
     map id l === l =
@@ -589,35 +644,44 @@ theorem map-id-term-style :
       | nil => refl
       | cons h (t & IH) => rewrite IH in refl
 
+// If you think the first proof was ugly, we can also use chaining.
 theorem map-id-chaining :
   forall {A} (l : List A),
     map id l === l
-proof
-  pick-any A l
+proof                                  // |- forall {A} (l : List A), map id l === l
+  pick-any A l                         // A : List, l : List A |- map id l === l
   induction l
-  | nil =>
-    chaining===
-          map id nil
-      === nil                         by simpl
+  | nil =>                             // A : List, l : List A |- map id nil === nil
+    chaining
+      === map id nil
+      === nil                by simpl
+  | cons h (t & IH) =>                 // A : Type, l : List A, h : A, t : List A, IH : map id t === t |- map id (cons h t) === cons h t
+    chaining
+      === map id (cons h t)
+      === cons h (map id t)  by simpl  // A : Type, l : List A, h : A, t : List A, IH : map id t === t |- cons h (map id t) === cons h t
+      === cons h t           by IH
+qed
+
+// Another theorem.
+theorem map-comp :
+  forall {A B C} (f : A -> B) (g : B -> C) (l : List A),
+    map (fun a => g (f a)) l === map g (map f l)
+proof
+  pick-any A B C f g l
+  induction l
+  | nil => refl
   | cons h (t & IH) =>
-    chaining===
-          map id (cons h t)
-      === cons h (map id t)           by simpl
-      === cons h t                    by IH
+    simpl
+    rewrite IH
     refl
 qed
 
-theorem map-id-rw :
-  forall {A} (l : List A),
-    map id l === l
-proof
-  pick-any A l
-  induction l
-  | nil => rw /simpl, /refl
-  | cons h (t & IH) => rw /simpl, IH, /refl
-qed
+app {A} (l1 l2 : List A) : List A =
+  match l1 with
+  | nil      => l2
+  | cons h t => cons h (app t l2)
 
-// Our core language also has a simple type class mechanism.
+// The core language also has a simple type class mechanism.
 // Type classes are more or less equivalent to records with
 // type parameters, with some special syntax to make use of
 // them in type signatures.
