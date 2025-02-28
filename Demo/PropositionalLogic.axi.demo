@@ -53,11 +53,10 @@ proof
   p
 qed
 
-// When we `assume` the same proposition twice, we can use a single pair of
-// parentheses.
+// When we `assume` the same proposition twice, we don't even need parentheses.
 theorem assume-two-same : P --> P --> P
 proof
-  assume (p1 p2 : P)
+  assume p1 p2 : P
   p1
 qed
 
@@ -133,7 +132,7 @@ qed
 // We can chain many-argument `apply` just like the ordinary one.
 theorem impl-dist : (P --> Q --> R) --> ((P --> Q) --> (P --> R))
 proof
-  assume (pqr : P --> Q --> R) (pq : P --> Q) P
+  assume (pqr : P --> Q --> R) (pq : P --> Q) p
   apply pqr p, pq
   p
 qed
@@ -151,7 +150,7 @@ qed
 // There's no way to prove `False`.
 theorem false-elim-example : False --> P
 proof
-  assume (e : False)
+  assume e : False
   absurd e
 qed
 
@@ -285,7 +284,7 @@ qed
 // just as for conjunction.
 theorem iff-elim-l : (P <--> Q) --> (P --> Q)
 proof
-  assume (pq : P <--> Q)
+  assume pq : P <--> Q
   and-left pq
 qed
 
@@ -482,6 +481,7 @@ proof
   assume (npq : ~ P \/ Q) (p : P)
   cases npq
   - assume np : ~ P
+    absurd
     apply contradiction np p
   - assume q : Q
     assumption
@@ -490,6 +490,7 @@ qed
 theorem noncontradiction : ~ (P /\ ~ P)
 proof
   assume (both p np)
+  absurd
   apply contradiction np p
 qed
 
@@ -530,6 +531,7 @@ proof
   ?pr =
     cases npr
     - assume np
+      absurd
       apply contradiction np p
     - assume r
       or-right r
@@ -544,6 +546,7 @@ proof
   ?pr =
     cases npr
     - assume np
+      absurd
       apply contradiction np p
     - assume r
       or-right r
@@ -554,14 +557,16 @@ proof
   assume (both np nq) npq
   cases npq
   - assume p
+    absurd
     apply contradiction np p
   - assume q
+    absurd
     apply contradiction nq q
 qed
 
 theorem not-or-elim : ~ (P \/ Q) --> ~ P /\ ~ Q
 proof
-  assume (npq : ~ (P \/ Q))
+  assume npq : ~ (P \/ Q)
   both
   - assume p
     apply npq

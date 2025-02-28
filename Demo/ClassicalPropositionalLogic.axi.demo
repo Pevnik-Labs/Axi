@@ -58,7 +58,8 @@ proof
   by-contradiction np : ~ P
   apply np, pqp
   assume p
-  contradiction np p
+  absurd
+  apply contradiction np p
 qed
 
 // Of the two laws of contraposition, this one is only valid classically.
@@ -146,8 +147,10 @@ proof
     apply npq
     both
     - assume p
+      absurd
       apply contradiction np p
     - assume q
+      absurd
       apply contradiction nq q
 qed
 
