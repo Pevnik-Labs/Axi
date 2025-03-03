@@ -206,12 +206,6 @@ qed
 // left-hand side to make the definition much shorter.
 id' {A} (x : A) : A = x
 
-// An interesting feature borrowed from Idris 2 are very implicit arguments -
-// we can recognize that `A` is a universally quantified type, even though
-// this was not explicitly written. However, this will only be possible when
-// the type variable is a single uppercase letter.
-id'' (x : A) : A = x
-
 // If two functions return the same result for all arguments, they are equal.
 // This principle is called (propositional) function extensionality.
 // Formally, `funext x in e` proves `f === g` when `e` proves `f x === g x`
@@ -308,7 +302,8 @@ theorem record-equality :
 proof
   pick-any p1 p2
   assume eqx eqy
-  chaining=== p1
+  chaining
+    === p1
     === {x = p1.x; y = p1.y}  by refl
     === {x = p2.x; y = p1.y}  by eqx
     === {x = p2.x; y = p2.y}  by eqy
@@ -645,41 +640,113 @@ theorem map-id-term-style :
       | cons h (t & IH) => rewrite IH in refl
 
 // If you think the first proof was ugly, we can also use chaining.
+// Proofs that use chaining are harder to write, as there's much
+// more writing involved, but easier to read, because the result of
+// all intermediate steps in the proof are readily visible. When using
+// chaining, we are really performing the same proof steps as before
+// (as can be seen in the `by` clauses), but additionally their effect
+// on the conclusion also gets recorded, instead of being left implicit.
 theorem map-id-chaining :
   forall {A} (l : List A),
     map id l === l
-proof                                  // |- forall {A} (l : List A), map id l === l
-  pick-any A l                         // A : List, l : List A |- map id l === l
+proof
+  pick-any A l
   induction l
-  | nil =>                             // A : List, l : List A |- map id nil === nil
+  | nil =>
     chaining
       === map id nil
       === nil                by simpl
-  | cons h (t & IH) =>                 // A : Type, l : List A, h : A, t : List A, IH : map id t === t |- map id (cons h t) === cons h t
+  | cons h (t & IH) =>
     chaining
       === map id (cons h t)
-      === cons h (map id t)  by simpl  // A : Type, l : List A, h : A, t : List A, IH : map id t === t |- cons h (map id t) === cons h t
-      === cons h t           by IH
+      === cons h (map id t)  by simpl
+      === cons h t           by rewrite IH
 qed
 
-// Another theorem.
+// Let's see some more proofs by induction for the sake of examples.
 theorem map-comp :
   forall {A B C} (f : A -> B) (g : B -> C) (l : List A),
     map (fun a => g (f a)) l === map g (map f l)
 proof
   pick-any A B C f g l
   induction l
-  | nil => refl
+  | nil =>
+    chaining
+      === map (fun a => g (f a)) nil
+      === nil                                        by simpl
   | cons h (t & IH) =>
-    simpl
-    rewrite IH
-    refl
+    chaining
+      === map (fun a => g (f a)) (cons h t)
+      === cons (g (f h)) (map (fun a => g (f a)) t)  by simpl
+      === cons (g (f h)) (map g (map f t))           by rewrite IH
+      === map g (map f (cons h t))                   by refl
 qed
 
+// Often, we will want another name for a variant of an already existing theorem.
+// A natural name for the right-to-left direction of the above theorem `map-comp`
+// is `map-map`.
+theorem map-map :
+  forall {A B C} (f : A -> B) (g : B -> C) (l : List A),
+    map g (map f l) === map (fun a => g (f a)) l =
+proof
+  pick-any A B C f g l
+  rewrite (instantiate map-comp with f g l)
+  refl
+qed
+
+// When we want to do recursion on an argument which is followed by more
+// arguments, we can't use our convenience syntax and must resort to the
+// more primitive `match`.
 app {A} (l1 l2 : List A) : List A =
   match l1 with
   | nil      => l2
   | cons h t => cons h (app t l2)
+
+// List concatenation is associative.
+theorem app-assoc :
+  forall {A} (l1 l2 l3 : List A),
+    app (app l1 l2) l3 === app l1 (app l2 l3)
+proof
+  pick-any A l1
+  induction l1
+  | nil =>
+    chaining
+      === app (app nil l2) l3
+      === app nil (app l2 l3)  by refl
+  | cons h (t & IH) =>
+    chaining
+      === app (app (cons h t) l2) l3
+      === cons h (app (app t l2) l3)  by simpl
+      === cons h (app t (app l2 l3))  by rewrite IH
+      === app (cons h t) (app l2 l3)  by refl
+qed
+
+// Reversing a list.
+rev {A} : List A -> List A
+| nil      => nil
+| cons h t => app (rev t) (cons h nil)
+
+// The reverse of a concatenated list is the concatenation of the reversed lists.
+theorem rev-app :
+  forall {A} (l1 l2 : List A),
+    rev (app l1 l2) === app (rev l2) (rev l1)
+proof
+  pick-any A l1 l2
+  induction l1
+  | nil =>
+    chaining
+      === rev (app nil l2)
+      === rev l2            by refl
+      === app (rev l2) nil  by rewrite <-app-nil-r
+  | cons h (t & IH) =>
+    chaining
+      === rev (app (cons h t) l2)
+      === rev (cons h (app t l2))                        by simpl
+      === app (rev (app t l2)) (cons h nil)              by simpl
+      === app (app (rev l2) (rev t)) (cons h nil)        by rewrite IH
+      === app (app (rev l2) (app (rev t) (cons h nil)))  by rewrite app-assoc
+      === app (app (rev l2) (rev (cons h t)))            by simpl
+qed
 
 // The core language also has a simple type class mechanism.
 // Type classes are more or less equivalent to records with

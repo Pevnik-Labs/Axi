@@ -7,7 +7,7 @@ theorem equational-chaining :
 proof
   pick-any x y z w
   // Let Γ = x y z w : A, xy : x === y, yz : y === z, zw : z === w, pw : P w
-  assume xy yz zw pw  // Γ |- P x  // After making all the assumptions, the goal is `P x`.
+  assume xy yz zw pw        // Γ |- P x  // After making all the assumptions, the goal is `P x`.
   chaining=== (P x)         // Γ |- P x  // We start the chain. `===` means it's chaining for equality. The goal is still `P x`.
     === (P y)        by xy  // Γ |- P y  // The goal changes to `P y` because `x === y`, as proven in the `by` clause.
     === (P z)        by yz  // Γ |- P z
