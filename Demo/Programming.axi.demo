@@ -726,7 +726,8 @@ rev {A} : List A -> List A
 | nil      => nil
 | cons h t => app (rev t) (cons h nil)
 
-// The reverse of a concatenated list is the concatenation of the reversed lists.
+// Reversing a concatenation of two list results in a concatenation of
+// the reversed lists in reverse order.
 theorem rev-app :
   forall {A} (l1 l2 : List A),
     rev (app l1 l2) === app (rev l2) (rev l1)
@@ -752,5 +753,90 @@ qed
 // Type classes are more or less equivalent to records with
 // type parameters, with some special syntax to make use of
 // them in type signatures.
+// `Eq` is a class whose types have a function that checks
+// if two elements of the type are equal.
 class Eq A
   eqb : A -> A -> Bool
+
+// We can define an instance of the class for a particular type
+// by defining all the functions the class requires.
+// Note that when defining the class's fields, the syntax is the
+// same as at the top-level. For example, we must give a full type
+// annotation to each function, and we can use the shorthand syntax
+// for pattern matching.
+instance Eq Bool
+  eqb : Bool -> Bool -> Bool
+  | no , no  => yes
+  | yes, yes => yes
+  | _  , _   => no
+
+// We can define conditional instances that depend on the existence
+// of instances of the same or other classes.
+// Note that in our example, our use of `eqb` in `eqb x y` refers to
+// the `eqb` for type `A` which comes from the instance of `Eq` for `A`
+// that our instance depends on.
+instance Eq (Option A) <= Eq A
+  eqb : Option A -> Option A -> Bool
+  | none  , none   => yes
+  | some x, some y => eqb x y
+  | _     , _      => no
+
+// Conditional instances can have more than one dependency.
+instance Eq (Sum A B) <= Eq A, Eq B
+  eqb : Sum A B -> Sum A B -> Bool
+  | inl a1, inl a2 => eqb a1 a2
+  | inr b1, inr b2 => eqb b1 b2
+  | _     , _      => no
+
+// Implementations of class functions can be recursive.
+// Of course they can!
+instance Eq (List A) <= Eq A
+  eqb : List A -> List A -> Bool
+  | nil, nil => yes
+  | cons h1 t1, cons h2 ht => andb (eqb h1 h2) (eqb t1 t2)
+  | _, _ => no
+
+// We can define functions which work with all types that belong to a given
+// class. The syntax for a type class argument is `[Eq A]`, i.e. class
+// instances are put in square brackets.
+// As an example, we can define a function that checks if two elements of a
+// type are not equal, provided that the type supports the `Eq` class.
+neqb {A} [Eq A] (x y : A) : Bool =
+  notb (eqb x y)
+
+// When not on the left-hand side of the colon, class instances are put in
+// a `forall`, also with square brackets.
+neqb : forall {A} [Eq A], A -> A -> Bool =
+  fun x y : A => notb (eqb x y)
+
+// Now, a question arises: what can we prove about functions that make
+// use of type classes? Not much, it turns out. We might think `eqb` is
+// a function for deciding equality, but in reality it could just as well
+// be any random function that does nothing useful.
+// In the example below, we define an instance of `Eq` for `Uint8` (one of
+// our base types), in which `eq` always returns `no`. There's nothing that
+// would force us to return `yes` when the arguments actually are equal.
+instance Eq Uint8
+  eqb (x y : Uint8) : Bool =
+    no
+
+// However, not all hope is lost. Besides ordinary "programming" type classes,
+// there are also type classes in the logical layer, and they can force their
+// member functions to satisfy various properties, which we'll make good use of.
+// By the way, just as we can define conditional class instances, we can define
+// classes that can require their arguments to belong to some other class.
+class LawfulEq A <= Eq A
+  eqb-spec : forall x y : A, eqb x y === true <--> x === y
+
+// With lawful classes, we can indeed do some proving. As an example, let's prove
+// an obvious specification of `neqb`.
+theorem neqb-spec :
+  forall {A} [LawfulEq A] (x y : A),
+    neqb x y === true <--> ~ (x === y)
+proof                 // |- forall {A} [LawfulEq A] (x y : A), neqb x y === true <--> ~ (x === y)
+  pick-any A _ x y    // A : Type, LawfulEq A, x y : A |- neqb x y === true <--> ~ (x === y)
+  unfold neqb         // A : Type, LawfulEq A, x y : A |- notb (eqb x y) === true <--> ~ (x === y)
+  both
+  - assume (hnot : notb (eqb x y) === true) (heq : x === y)
+                      // A : Type, LawfulEq A, x y : A, hnot : notb (eqb x y) === true, heq : x === y |- False
+    
