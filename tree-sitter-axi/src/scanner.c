@@ -18,7 +18,7 @@ typedef enum TokenType
 
 typedef struct ScannerState
 {
-    // `rulers[0]` stores the last confirmed ruler, less than or equal to `top`.
+    // `rulers[0]` is always zero.
     // `rulers[1]`, ..., `rulers[top]` store the rulers.
     // Negative values indicate tentative rulers.
     int32_t rulers[TOP_MAX + 1];
@@ -31,13 +31,14 @@ static inline bool valid_state(const ScannerState *const scanner_state, FILE *co
 {
     bool valid = scanner_state->top <= TOP_MAX;
     fprintf(file, "{top: %i, rulers: [", scanner_state->top);
-    for (int32_t i = 1; i <= TOP_MAX && i <= scanner_state->top; i++)
+    int32_t prev = 0;
+    for (int32_t i = 0; i <= TOP_MAX && i <= scanner_state->top; i++)
     {
-        fprintf(file, "%i", scanner_state->rulers[i]);
-        if (i < TOP_MAX)
-            fprintf(file, i == scanner_state->top ? "|" : ",");
-        if (i < scanner_state->top)
-            valid &= scanner_state->rulers[i] <= scanner_state->rulers[i + 1];
+        const char *sep = i < TOP_MAX ? i == scanner_state->top ? "|" : "," : "";
+        fprintf(file, "%i%s", scanner_state->rulers[i], sep);
+        valid &= prev <= labs(scanner_state->rulers[i]);
+        if (scanner_state->rulers[i] >= 0)
+            prev = scanner_state->rulers[i];
     }
     fprintf(file, "]}\n");
     return valid;
@@ -86,7 +87,7 @@ static inline bool try_emit_begin(ScannerState *scanner_state, const int32_t col
     if (column >= 0 && scanner_state->top < TOP_MAX)
     {
         scanner_state->top++;
-        scanner_state->rulers[scanner_state->top] = -column;
+        scanner_state->rulers[scanner_state->top] = ~column;
         fprintf(stderr, "begin: %i\n", scanner_state->rulers[scanner_state->top]);
         lexer->result_symbol = BEGIN;
         return true;
@@ -105,7 +106,7 @@ bool tree_sitter_axi_external_scanner_scan(ScannerState *scanner_state, TSLexer 
     assert(valid_state(scanner_state, stderr));
     const bool error_recovery = valid_symbols[BEGIN] && valid_symbols[SEPARATOR] && valid_symbols[END];
     if (error_recovery)
-        return try_emit_end(scanner_state, lexer);
+        return fprintf(stderr, "error recovery\n"), try_emit_end(scanner_state, lexer);
     if (valid_symbols[BEGIN])
         return try_emit_begin(scanner_state, lexer->get_column(lexer), lexer);
     bool line_break = false;
@@ -127,7 +128,7 @@ bool tree_sitter_axi_external_scanner_scan(ScannerState *scanner_state, TSLexer 
         }
     }
     const int32_t ruler = scanner_state->rulers[scanner_state->top];
-    if (valid_symbols[END] && column < (ruler & INT32_MAX))
+    if (valid_symbols[END] && column < labs(ruler))
         return try_emit_end(scanner_state, lexer);
-    return valid_symbols[SEPARATOR] && column == (ruler & INT32_MAX) && emit_separator(lexer);
+    return valid_symbols[SEPARATOR] && column == ruler && emit_separator(lexer);
 }

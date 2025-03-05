@@ -221,8 +221,8 @@ qed
 // first introduced ?p.
 theorem named-blocks-not-in-order-example : P --> Q --> P /\ Q
 proof
-  assume x y
-  both ?p ?q
+  assume p q
+  both ?x ?y
   ?y = q
   ?x = p
 qed

@@ -2,7 +2,7 @@
 Constant definition
 ====================
 #!/usr/bin/env axi
-my_constant : Nat := 42
+my_constant : Nat = 42
 
 ---
 
@@ -14,15 +14,15 @@ my_constant : Nat := 42
     (identifier)
     (type
       (identifier))
-    (expression
+    (value
       (number)))
   (separator))
 
 ====================
 Function definition
 ====================
-my_function : Nat -> Nat := fun x => plus x x
-my_function (x : Nat) : Nat := plus x x
+my_function : Nat -> Nat = \x -> plus x x
+my_function (x : Nat) : Nat = plus x x
 
 ---
 
@@ -31,44 +31,34 @@ my_function (x : Nat) : Nat := plus x x
   (constant_definition
     (identifier)
     (type
-      (type
-        (identifier))
-      (type
+      (arrow
+        (identifier)
         (identifier)))
-    (expression
-      (lambda_expression
+    (value
+      (lambda
         (parameters
           (identifier))
-        (expression
-          (function_call
-            (expression
-              (identifier))
-            (expression
-              (function_call
-                (expression
-                  (identifier))
-                (expression
-                  (identifier)))))))))
+        (call
+          (call
+            (identifier)
+            (identifier))
+          (identifier)))))
   (separator)
   (constant_definition
     (identifier)
     (parameters
-      (typed_identifiers
+      (explicit_parameters
         (identifier)
         (type
           (identifier))))
     (type
       (identifier))
-    (expression
-      (function_call
-        (expression
+    (value
+      (call
+        (call
+          (identifier)
           (identifier))
-        (expression
-          (function_call
-            (expression
-              (identifier))
-            (expression
-              (identifier)))))))
+        (identifier))))
   (separator))
 
 =======================

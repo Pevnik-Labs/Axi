@@ -14,39 +14,45 @@
 ] @punctuation.bracket
 
 [
+  ":"
   ","
+  "\\"
+  "|"
 ] @punctuation.delimiter
 
 [
-  "->"
-  "=>"
-  ":"
-  ":="
-  "-->"
-  "<-->"
-  "\\/"
+  "&"
   "/\\"
-  "~"
+  "->"
   "="
+  "==="
+  "==="
+  "<-->"
+  "-->"
+  "~"
+  "\\/"
 ] @operator
 
 [
+  "apply"
+  "assume"
   "axiom"
+  "both"
   "data"
   "forall"
-  "fun"
+  "of"
   "proof"
   "proposition"
   "qed"
   "record"
-  "refl"
   "theorem"
-  "trivial"
-  "type"
+  (assumption)
+  (refl)
+  (trivial)
 ] @keyword
 
 [
-  (shebang)
-  (line_comment)
   (block_comment)
+  (line_comment)
+  (shebang)
 ] @comment
