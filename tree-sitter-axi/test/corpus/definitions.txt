@@ -1,68 +1,68 @@
 ====================
-Constant definition
+Constant declaration
 ====================
 #!/usr/bin/env axi
 my_constant : Nat = 42
 
 ---
 
-(source_file
-  (separator)
-  (shebang)
-  (separator)
-  (constant_definition
-    (identifier)
-    (type
-      (identifier))
-    (value
-      (number)))
-  (separator))
+    (source_file
+      (separator)
+      (shebang)
+      (separator)
+      (constant_declaration
+        (identifier)
+        (type_ann
+          (identifier))
+        (value
+          (number)))
+      (separator))
 
 ====================
-Function definition
+Function declaration
 ====================
 my_function : Nat -> Nat = \x -> plus x x
 my_function (x : Nat) : Nat = plus x x
 
 ---
 
-(source_file
-  (separator)
-  (constant_definition
-    (identifier)
-    (type
-      (arrow
+    (source_file
+      (separator)
+      (constant_declaration
         (identifier)
-        (identifier)))
-    (value
-      (lambda
-        (parameters
-          (identifier))
-        (call
-          (call
+        (type_ann
+          (arrow
             (identifier)
-            (identifier))
-          (identifier)))))
-  (separator)
-  (constant_definition
-    (identifier)
-    (parameters
-      (explicit_parameters
+            (identifier)))
+        (value
+          (lambda
+            (ann_patterns
+              (identifier))
+            (call
+              (call
+                (identifier)
+                (identifier))
+              (identifier)))))
+      (separator)
+      (constant_declaration
         (identifier)
-        (type
-          (identifier))))
-    (type
-      (identifier))
-    (value
-      (call
-        (call
-          (identifier)
+        (parameters
+          (explicit_parameters
+            (identifier)
+            (type_ann
+              (identifier))))
+        (type_ann
           (identifier))
-        (identifier))))
-  (separator))
+        (value
+          (call
+            (call
+              (identifier)
+              (identifier))
+            (identifier))))
+      (separator))
 
 =======================
-Record type definition
+Record type declaration
 =======================
 record type Vector a where
   x : a
@@ -70,23 +70,26 @@ record type Vector a where
 
 ---
 
-(source_file
-  (separator)
-  (record_type_definition
-    (identifier)
-    (parameters
-      (identifier))
-    (begin)
-    (separator)
-    (record_field_declaration
-      (identifier)
-      (type
-        (identifier)))
-    (separator)
-    (record_field_declaration
-      (identifier)
-      (type
-        (identifier)))
-    (end))
-  (separator))
+    (source_file
+      (separator)
+      (structure_declaration
+        (record)
+        (type)
+        (identifier)
+        (parameters
+          (identifier))
+        (block
+          (begin)
+          (separator)
+          (constant_declaration
+            (identifier)
+            (type_ann
+              (identifier)))
+          (separator)
+          (constant_declaration
+            (identifier)
+            (type_ann
+              (identifier)))
+          (end)))
+      (separator))
 

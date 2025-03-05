@@ -1,5 +1,32 @@
 [
   {
+    "type": "ann_patterns",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "ann_patterns",
+          "named": true
+        },
+        {
+          "type": "both_pattern",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "type_ann",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "apply",
     "named": true,
     "fields": {},
@@ -8,7 +35,19 @@
       "required": true,
       "types": [
         {
+          "type": "apply",
+          "named": true
+        },
+        {
           "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "bullet",
           "named": true
         },
         {
@@ -16,7 +55,7 @@
           "named": true
         },
         {
-          "type": "cases",
+          "type": "clauses",
           "named": true
         },
         {
@@ -71,7 +110,19 @@
       "required": true,
       "types": [
         {
+          "type": "apply",
+          "named": true
+        },
+        {
           "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "bullet",
           "named": true
         },
         {
@@ -79,7 +130,7 @@
           "named": true
         },
         {
-          "type": "cases",
+          "type": "clauses",
           "named": true
         },
         {
@@ -130,27 +181,11 @@
     "named": true,
     "fields": {},
     "children": {
-      "multiple": true,
+      "multiple": false,
       "required": false,
       "types": [
         {
-          "type": "both_pattern",
-          "named": true
-        },
-        {
-          "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "refl",
-          "named": true
-        },
-        {
-          "type": "trivial",
-          "named": true
-        },
-        {
-          "type": "typed_assumptions",
+          "type": "ann_patterns",
           "named": true
         }
       ]
@@ -173,7 +208,46 @@
           "named": true
         },
         {
-          "type": "type",
+          "type": "type_ann",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "axiom_declaration",
+          "named": true
+        },
+        {
+          "type": "begin",
+          "named": true
+        },
+        {
+          "type": "constant_declaration",
+          "named": true
+        },
+        {
+          "type": "end",
+          "named": true
+        },
+        {
+          "type": "separator",
+          "named": true
+        },
+        {
+          "type": "structure_declaration",
+          "named": true
+        },
+        {
+          "type": "theorem_declaration",
           "named": true
         }
       ]
@@ -188,7 +262,82 @@
       "required": true,
       "types": [
         {
+          "type": "ann_patterns",
+          "named": true
+        },
+        {
           "type": "both_pattern",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "bullet",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "apply",
+          "named": true
+        },
+        {
+          "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assume",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "begin",
+          "named": true
+        },
+        {
+          "type": "bullet",
+          "named": true
+        },
+        {
+          "type": "call",
+          "named": true
+        },
+        {
+          "type": "clauses",
+          "named": true
+        },
+        {
+          "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "disjunction",
+          "named": true
+        },
+        {
+          "type": "end",
+          "named": true
+        },
+        {
+          "type": "equality",
+          "named": true
+        },
+        {
+          "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "forall",
           "named": true
         },
         {
@@ -196,15 +345,23 @@
           "named": true
         },
         {
-          "type": "refl",
+          "type": "implication",
           "named": true
         },
         {
-          "type": "trivial",
+          "type": "lambda",
           "named": true
         },
         {
-          "type": "typed_assumptions",
+          "type": "negation",
+          "named": true
+        },
+        {
+          "type": "number",
+          "named": true
+        },
+        {
+          "type": "separator",
           "named": true
         }
       ]
@@ -219,7 +376,19 @@
       "required": true,
       "types": [
         {
+          "type": "apply",
+          "named": true
+        },
+        {
           "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "bullet",
           "named": true
         },
         {
@@ -227,7 +396,7 @@
           "named": true
         },
         {
-          "type": "cases",
+          "type": "clauses",
           "named": true
         },
         {
@@ -274,9 +443,189 @@
     }
   },
   {
-    "type": "cases",
+    "type": "clause",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "apply",
+          "named": true
+        },
+        {
+          "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "bullet",
+          "named": true
+        },
+        {
+          "type": "call",
+          "named": true
+        },
+        {
+          "type": "clauses",
+          "named": true
+        },
+        {
+          "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "disjunction",
+          "named": true
+        },
+        {
+          "type": "equality",
+          "named": true
+        },
+        {
+          "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "forall",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "implication",
+          "named": true
+        },
+        {
+          "type": "lambda",
+          "named": true
+        },
+        {
+          "type": "negation",
+          "named": true
+        },
+        {
+          "type": "number",
+          "named": true
+        },
+        {
+          "type": "patterns",
+          "named": true
+        },
+        {
+          "type": "separator",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "clauses",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "ann_patterns",
+          "named": true
+        },
+        {
+          "type": "begin",
+          "named": true
+        },
+        {
+          "type": "clause",
+          "named": true
+        },
+        {
+          "type": "end",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "con_ann",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "apply",
+          "named": true
+        },
+        {
+          "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "bullet",
+          "named": true
+        },
+        {
+          "type": "call",
+          "named": true
+        },
+        {
+          "type": "clauses",
+          "named": true
+        },
+        {
+          "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "disjunction",
+          "named": true
+        },
+        {
+          "type": "equality",
+          "named": true
+        },
+        {
+          "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "forall",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "implication",
+          "named": true
+        },
+        {
+          "type": "lambda",
+          "named": true
+        },
+        {
+          "type": "negation",
+          "named": true
+        },
+        {
+          "type": "number",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "conjunction",
@@ -287,7 +636,19 @@
       "required": true,
       "types": [
         {
+          "type": "apply",
+          "named": true
+        },
+        {
           "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "bullet",
           "named": true
         },
         {
@@ -295,7 +656,7 @@
           "named": true
         },
         {
-          "type": "cases",
+          "type": "clauses",
           "named": true
         },
         {
@@ -342,13 +703,17 @@
     }
   },
   {
-    "type": "constant_definition",
+    "type": "constant_declaration",
     "named": true,
     "fields": {},
     "children": {
       "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "con_ann",
+          "named": true
+        },
         {
           "type": "identifier",
           "named": true
@@ -358,117 +723,19 @@
           "named": true
         },
         {
+          "type": "proposition",
+          "named": true
+        },
+        {
           "type": "type",
+          "named": true
+        },
+        {
+          "type": "type_ann",
           "named": true
         },
         {
           "type": "value",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "constructor_declaration",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "arrow",
-          "named": true
-        },
-        {
-          "type": "call",
-          "named": true
-        },
-        {
-          "type": "cases",
-          "named": true
-        },
-        {
-          "type": "conjunction",
-          "named": true
-        },
-        {
-          "type": "disjunction",
-          "named": true
-        },
-        {
-          "type": "equality",
-          "named": true
-        },
-        {
-          "type": "equivalence",
-          "named": true
-        },
-        {
-          "type": "forall",
-          "named": true
-        },
-        {
-          "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "implication",
-          "named": true
-        },
-        {
-          "type": "lambda",
-          "named": true
-        },
-        {
-          "type": "negation",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "parameters",
-          "named": true
-        },
-        {
-          "type": "type",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "data_type_definition",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "begin",
-          "named": true
-        },
-        {
-          "type": "constructor_declaration",
-          "named": true
-        },
-        {
-          "type": "end",
-          "named": true
-        },
-        {
-          "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "parameters",
-          "named": true
-        },
-        {
-          "type": "separator",
           "named": true
         }
       ]
@@ -483,7 +750,19 @@
       "required": true,
       "types": [
         {
+          "type": "apply",
+          "named": true
+        },
+        {
           "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "bullet",
           "named": true
         },
         {
@@ -491,7 +770,7 @@
           "named": true
         },
         {
-          "type": "cases",
+          "type": "clauses",
           "named": true
         },
         {
@@ -546,7 +825,19 @@
       "required": true,
       "types": [
         {
+          "type": "apply",
+          "named": true
+        },
+        {
           "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "bullet",
           "named": true
         },
         {
@@ -554,7 +845,7 @@
           "named": true
         },
         {
-          "type": "cases",
+          "type": "clauses",
           "named": true
         },
         {
@@ -609,7 +900,19 @@
       "required": true,
       "types": [
         {
+          "type": "apply",
+          "named": true
+        },
+        {
           "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "bullet",
           "named": true
         },
         {
@@ -617,7 +920,7 @@
           "named": true
         },
         {
-          "type": "cases",
+          "type": "clauses",
           "named": true
         },
         {
@@ -676,7 +979,7 @@
           "named": true
         },
         {
-          "type": "type",
+          "type": "type_ann",
           "named": true
         }
       ]
@@ -691,7 +994,19 @@
       "required": true,
       "types": [
         {
+          "type": "apply",
+          "named": true
+        },
+        {
           "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "bullet",
           "named": true
         },
         {
@@ -699,7 +1014,7 @@
           "named": true
         },
         {
-          "type": "cases",
+          "type": "clauses",
           "named": true
         },
         {
@@ -758,7 +1073,19 @@
       "required": true,
       "types": [
         {
+          "type": "apply",
+          "named": true
+        },
+        {
           "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "bullet",
           "named": true
         },
         {
@@ -766,7 +1093,7 @@
           "named": true
         },
         {
-          "type": "cases",
+          "type": "clauses",
           "named": true
         },
         {
@@ -825,7 +1152,7 @@
           "named": true
         },
         {
-          "type": "type",
+          "type": "type_ann",
           "named": true
         }
       ]
@@ -840,7 +1167,23 @@
       "required": true,
       "types": [
         {
+          "type": "ann_patterns",
+          "named": true
+        },
+        {
+          "type": "apply",
+          "named": true
+        },
+        {
           "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "bullet",
           "named": true
         },
         {
@@ -848,7 +1191,7 @@
           "named": true
         },
         {
-          "type": "cases",
+          "type": "clauses",
           "named": true
         },
         {
@@ -890,10 +1233,6 @@
         {
           "type": "number",
           "named": true
-        },
-        {
-          "type": "parameters",
-          "named": true
         }
       ]
     }
@@ -907,7 +1246,19 @@
       "required": true,
       "types": [
         {
+          "type": "apply",
+          "named": true
+        },
+        {
           "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "bullet",
           "named": true
         },
         {
@@ -915,7 +1266,7 @@
           "named": true
         },
         {
-          "type": "cases",
+          "type": "clauses",
           "named": true
         },
         {
@@ -985,6 +1336,29 @@
     }
   },
   {
+    "type": "patterns",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "ann_patterns",
+          "named": true
+        },
+        {
+          "type": "both_pattern",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "proof",
     "named": true,
     "fields": {},
@@ -994,6 +1368,10 @@
       "types": [
         {
           "type": "apply",
+          "named": true
+        },
+        {
+          "type": "arrow",
           "named": true
         },
         {
@@ -1009,88 +1387,23 @@
           "named": true
         },
         {
-          "type": "end",
+          "type": "bullet",
           "named": true
         },
         {
-          "type": "identifier",
+          "type": "call",
           "named": true
         },
         {
-          "type": "refl",
+          "type": "clauses",
           "named": true
         },
         {
-          "type": "separator",
+          "type": "conjunction",
           "named": true
         },
         {
-          "type": "trivial",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "proposition_definition",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "parameters",
-          "named": true
-        },
-        {
-          "type": "type",
-          "named": true
-        },
-        {
-          "type": "value",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "record_field_declaration",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "parameters",
-          "named": true
-        },
-        {
-          "type": "type",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "record_type_definition",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "begin",
+          "type": "disjunction",
           "named": true
         },
         {
@@ -1098,15 +1411,35 @@
           "named": true
         },
         {
+          "type": "equality",
+          "named": true
+        },
+        {
+          "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "forall",
+          "named": true
+        },
+        {
           "type": "identifier",
           "named": true
         },
         {
-          "type": "parameters",
+          "type": "implication",
           "named": true
         },
         {
-          "type": "record_field_declaration",
+          "type": "lambda",
+          "named": true
+        },
+        {
+          "type": "negation",
+          "named": true
+        },
+        {
+          "type": "number",
           "named": true
         },
         {
@@ -1130,19 +1463,7 @@
           "named": true
         },
         {
-          "type": "constant_definition",
-          "named": true
-        },
-        {
-          "type": "data_type_definition",
-          "named": true
-        },
-        {
-          "type": "proposition_definition",
-          "named": true
-        },
-        {
-          "type": "record_type_definition",
+          "type": "constant_declaration",
           "named": true
         },
         {
@@ -1154,14 +1475,61 @@
           "named": true
         },
         {
-          "type": "theorem_definition",
+          "type": "structure_declaration",
+          "named": true
+        },
+        {
+          "type": "theorem_declaration",
           "named": true
         }
       ]
     }
   },
   {
-    "type": "theorem_definition",
+    "type": "structure_declaration",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "block",
+          "named": true
+        },
+        {
+          "type": "data",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "module",
+          "named": true
+        },
+        {
+          "type": "parameters",
+          "named": true
+        },
+        {
+          "type": "proposition",
+          "named": true
+        },
+        {
+          "type": "record",
+          "named": true
+        },
+        {
+          "type": "type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "theorem_declaration",
     "named": true,
     "fields": {},
     "children": {
@@ -1181,11 +1549,7 @@
           "named": true
         },
         {
-          "type": "separator",
-          "named": true
-        },
-        {
-          "type": "type",
+          "type": "type_ann",
           "named": true
         },
         {
@@ -1196,7 +1560,7 @@
     }
   },
   {
-    "type": "type",
+    "type": "type_ann",
     "named": true,
     "fields": {},
     "children": {
@@ -1204,7 +1568,19 @@
       "required": true,
       "types": [
         {
+          "type": "apply",
+          "named": true
+        },
+        {
           "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "bullet",
           "named": true
         },
         {
@@ -1212,7 +1588,7 @@
           "named": true
         },
         {
-          "type": "cases",
+          "type": "clauses",
           "named": true
         },
         {
@@ -1259,41 +1635,6 @@
     }
   },
   {
-    "type": "typed_assumptions",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "both_pattern",
-          "named": true
-        },
-        {
-          "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "refl",
-          "named": true
-        },
-        {
-          "type": "trivial",
-          "named": true
-        },
-        {
-          "type": "type",
-          "named": true
-        },
-        {
-          "type": "typed_assumptions",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "value",
     "named": true,
     "fields": {},
@@ -1302,7 +1643,19 @@
       "required": true,
       "types": [
         {
+          "type": "apply",
+          "named": true
+        },
+        {
           "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "bullet",
           "named": true
         },
         {
@@ -1310,7 +1663,7 @@
           "named": true
         },
         {
-          "type": "cases",
+          "type": "clauses",
           "named": true
         },
         {
@@ -1381,6 +1734,10 @@
     "named": false
   },
   {
+    "type": ".",
+    "named": false
+  },
+  {
     "type": "/\\",
     "named": false
   },
@@ -1439,7 +1796,7 @@
   },
   {
     "type": "data",
-    "named": false
+    "named": true
   },
   {
     "type": "end",
@@ -1459,6 +1816,10 @@
     "extra": true
   },
   {
+    "type": "module",
+    "named": true
+  },
+  {
     "type": "number",
     "named": true
   },
@@ -1472,7 +1833,7 @@
   },
   {
     "type": "proposition",
-    "named": false
+    "named": true
   },
   {
     "type": "qed",
@@ -1480,10 +1841,6 @@
   },
   {
     "type": "record",
-    "named": false
-  },
-  {
-    "type": "refl",
     "named": true
   },
   {
@@ -1499,12 +1856,8 @@
     "named": false
   },
   {
-    "type": "trivial",
-    "named": true
-  },
-  {
     "type": "type",
-    "named": false
+    "named": true
   },
   {
     "type": "where",

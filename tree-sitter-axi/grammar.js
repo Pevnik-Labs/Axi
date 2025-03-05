@@ -16,6 +16,7 @@ const rbrace = "}";
 // punctuation
 const colon = ":";
 const comma = ",";
+const dot = ".";
 const lambda = "\\";
 const pipe = "|";
 
@@ -35,21 +36,20 @@ const apply = "apply";
 const assume = "assume";
 const axiom = "axiom";
 const both = "both";
-const data = "data";
 const forall = "forall";
 const of = "of";
 const proof = "proof";
-const proposition = "proposition";
 const qed = "qed";
-const record = "record";
 const theorem = "theorem";
-const type = "type";
 const where = "where";
 
 // named keyword nodes
 const assumption = "assumption";
-const refl = "refl";
-const trivial = "trivial";
+const data = "data";
+const module_ = "module";
+const proposition = "proposition";
+const record = "record";
+const type = "type";
 
 module.exports = grammar({
   name: "axi",
@@ -94,74 +94,65 @@ module.exports = grammar({
     number: $ => /\d+/,
 
     _declaration: $ => choice(
-      $.data_type_definition,
-      $.record_type_definition,
-      $.constant_definition,
-      $.theorem_definition,
-      $.axiom_declaration,
-      $.proposition_definition
+      $.structure_declaration,
+      $.constant_declaration,
+      $.theorem_declaration,
+      $.axiom_declaration
     ),
 
-    data_type_definition: $ => seq(
-      data,
-      type,
+    structure_declaration: $ => seq(
+      $._structure_specifier,
+      optional($._sort_specifier),
       $.identifier,
       optional($.parameters),
-      where,
-      $.begin,
-      repeat(seq(
-        $.separator,
-        $.constructor_declaration
-      )),
-      $.end
+      $.block
     ),
 
-    constructor_declaration: $ => seq(
+    constant_declaration: $ => seq(
+      optional($._sort_specifier),
       $.identifier,
       optional($.parameters),
-      optional(choice(
-        seq(
-          of,
-          optional(seq(
-            $._term,
-            repeat(seq(
-              amp,
-              $._term
-            ))
-          ))
-        ),
-        $.type
-      ))
-    ),
-
-    record_type_definition: $ => seq(
-      record,
-      type,
-      $.identifier,
-      optional($.parameters),
-      where,
-      $.begin,
-      repeat(seq(
-        $.separator,
-        $.record_field_declaration
-      )),
-      $.end
-    ),
-
-    record_field_declaration: $ => seq(
-      $.identifier,
-      optional($.parameters),
-      optional($.type)
-    ),
-
-    constant_definition: $ => seq(
-      $.identifier,
-      optional($.parameters),
-      optional($.type),
+      optional($._ann),
       optional($.value)
     ),
 
-    parameters: $ => prec.left(repeat1($._parameter)),
+    theorem_declaration: $ => seq(
+      theorem,
+      $.identifier,
+      optional($.parameters),
+      $.type_ann,
+      $._definition
+    ),
+
+    axiom_declaration: $ => seq(
+      axiom,
+      $.identifier,
+      optional($.parameters),
+      $.type_ann
+    ),
+
+    _structure_specifier: $ => choice(
+      $.data,
+      $.record,
+      $.module
+    ),
+
+    data: $ => data,
+
+    record: $ => record,
+
+    module: $ => module_,
+
+    _sort_specifier: $ => choice(
+      $.type,
+      $.proposition
+    ),
+
+    type: $ => type,
+
+    proposition: $ => proposition,
+
+    parameters: $ => repeat1($._parameter),
 
     _parameter: $ => choice(
       $.identifier,
@@ -169,29 +160,25 @@ module.exports = grammar({
       $.implicit_parameters
     ),
 
-    explicit_parameters: $ => seq(lparen, repeat1($.identifier), optional($.type), rparen),
-    implicit_parameters: $ => seq(lbrace, repeat1($.identifier), optional($.type), rbrace),
+    explicit_parameters: $ => seq(lparen, repeat1($.identifier), optional($.type_ann), rparen),
+    implicit_parameters: $ => seq(lbrace, repeat1($.identifier), optional($.type_ann), rbrace),
 
-    theorem_definition: $ => seq(
-      theorem,
-      $.identifier,
-      optional($.parameters),
-      $.type,
-      $.separator,
-      choice(
-        $.proof,
-        $.value
-      )
+    block: $ => seq(
+      where,
+      $.begin,
+      repeat(seq(
+        $.separator,
+        $._declaration)),
+      $.end
     ),
 
-    axiom_declaration: $ => prec(1, seq(
-      axiom,
-      optional($.identifier),
-      optional($.parameters),
-      $.type
-    )),
+    _definition: $ => choice(
+      $.proof,
+      $.value
+    ),
 
     proof: $ => seq(
+      $.separator,
       proof,
       $.begin,
       repeat(seq(
@@ -203,70 +190,47 @@ module.exports = grammar({
     ),
 
     _proof_step: $ => choice(
-      $.assumption,
-      $.identifier,
-      $.refl,
-      $.trivial,
       $.assume,
-      $.apply,
-    ),
-
-    assumption: $ => assumption,
-
-    refl: $ => refl,
-
-    trivial: $ => trivial,
-
-    assume: $ => $._assumptions,
-
-    _assumptions: $ => seq(
-      assume,
-      repeat1($._atomic_proof_pattern)
-    ),
-
-    proof_patterns: $ => repeat1($._atomic_proof_pattern),
-
-    _atomic_proof_pattern: $ => choice(
-      $.identifier,
-      $.refl,
-      $.trivial,
-      seq(lparen, $._nested_proof_pattern, rparen)
-    ),
-
-    _nested_proof_pattern: $ => choice(
-      $.typed_assumptions,
-      $.both_pattern,
-      $._atomic_proof_pattern
-    ),
-
-    typed_assumptions: $ => seq(
-      repeat1($._atomic_proof_pattern),
-      $.type,
-    ),
-
-    both_pattern: $ => seq(both, $._atomic_proof_pattern, $._atomic_proof_pattern),
-
-    apply: $ => seq(
-      apply,
       $._term,
-      repeat(seq(comma, $._term))
     ),
 
-    proposition_definition: $ => seq(
-      proposition,
+    assume: $ => seq(assume, optional($.ann_patterns)),
+
+    patterns: $ => repeat1($._atomic_pattern),
+
+    _atomic_pattern: $ => choice(
       $.identifier,
-      optional($.parameters),
-      optional($.type),
-      optional($.value)
+      seq(lparen, $._nested_pattern, rparen)
     ),
 
-    type: $ => seq(colon, $._term),
+    _nested_pattern: $ => choice(
+      $.ann_patterns,
+      $.both_pattern
+    ),
+
+    ann_patterns: $ => seq(
+      repeat1($._atomic_pattern),
+      optional($.type_ann),
+    ),
+
+    both_pattern: $ => seq(both, $._atomic_pattern, $._atomic_pattern),
+
+    _ann: $ => choice(
+      $.con_ann,
+      $.type_ann
+    ),
+
+    con_ann: $ => seq(of, $._term, repeat(seq(amp, $._term))),
+
+    type_ann: $ => seq(colon, $._term),
 
     value: $ => seq(eq, $._term),
 
     _term: $ => choice(
       $.lambda,
-      $.cases,
+      $.clauses,
+      $.bullet,
+      $.apply,
       $.forall,
       $.arrow,
       $.implication,
@@ -276,27 +240,44 @@ module.exports = grammar({
       $.negation,
       $.equality,
       $.call,
+      $.assumption,
       $.number,
       $.identifier,
       seq(lparen, $._term, rparen),
     ),
 
-    lambda: $ => prec.right(0, seq(
+    lambda: $ => seq(
       lambda,
-      $.parameters,
+      optional($.ann_patterns),
       arrow,
       $._term
-    )),
-
-    cases: $ => seq(pipe, arrow),
-
-    case: $ => prec.left(10, seq(pipe, repeat($.pattern), arrow, prec.right(0, $._term))),
-
-    pattern: $ => choice(
-      prec(10, seq($.pattern, repeat1($.pattern))),
-      prec(11, $.identifier),
-      prec(11, seq(lparen, $.pattern, rparen)),
     ),
+
+    clauses: $ => seq(
+      lambda,
+      optional($.ann_patterns),
+      where,
+      $.begin,
+      repeat($.clause),
+      $.end
+    ),
+
+    clause: $ => seq($.separator, optional(pipe), $.patterns, arrow, $._term),
+
+    assume_in: $ => seq($.assume, "in", $._term),
+
+    bullet: $ => seq(
+      dot,
+      $.begin,
+      $._proof_step,
+      repeat(seq(
+        $.separator,
+        $._proof_step
+      )),
+      $.end
+    ),
+
+    apply: $ => prec.right(0, seq(apply, $._term, repeat(seq(comma, $._term)))),
 
     forall: $ => prec.right(0, seq(forall, optional($.parameters), comma, $._term)),
 
@@ -315,5 +296,7 @@ module.exports = grammar({
     equality: $ => prec.left(6, seq($._term, equality, $._term)),
 
     call: $ => prec.left(10, seq($._term, $._term)),
+
+    assumption: $ => assumption,
   }
 });

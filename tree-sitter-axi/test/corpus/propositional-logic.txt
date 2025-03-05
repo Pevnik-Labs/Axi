@@ -7,31 +7,34 @@ proposition R : Prop
 
 ---
 
-(source_file
-  (separator)
-  (proposition_definition
-    (identifier)
-    (type
-      (identifier)))
-  (separator)
-  (proposition_definition
-    (identifier)
-    (type
-      (identifier)))
-  (separator)
-  (proposition_definition
-    (identifier)
-    (type
-      (identifier)))
-  (separator))
+    (source_file
+      (separator)
+      (constant_declaration
+        (proposition)
+        (identifier)
+        (type_ann
+          (identifier)))
+      (separator)
+      (constant_declaration
+        (proposition)
+        (identifier)
+        (type_ann
+          (identifier)))
+      (separator)
+      (constant_declaration
+        (proposition)
+        (identifier)
+        (type_ann
+          (identifier)))
+      (separator))
 
 ===========
 Assumption
 ===========
 theorem weakening : P --> Q --> P
 proof
-  assume (p : P)
-  assume (q : Q)
+  assume p : P
+  assume q : Q
   p
 qed
 
@@ -43,7 +46,7 @@ qed
 
 theorem assume-two-same : P --> P --> P
 proof
-  assume (p1 p2 : P)
+  assume p1 p2 : P
   p1
 qed
 
@@ -72,166 +75,169 @@ qed
 
 ---
 
-(source_file
-  (separator)
-  (theorem_definition
-    (identifier)
-    (type
-      (implication
+    (source_file
+      (separator)
+      (theorem_declaration
         (identifier)
-        (implication
+        (type_ann
+          (implication
+            (identifier)
+            (implication
+              (identifier)
+              (identifier))))
+        (proof
+          (separator)
+          (begin)
+          (separator)
+          (assume
+            (ann_patterns
+              (identifier)
+              (type_ann
+                (identifier))))
+          (separator)
+          (assume
+            (ann_patterns
+              (identifier)
+              (type_ann
+                (identifier))))
+          (separator)
           (identifier)
-          (identifier))))
-    (separator)
-    (proof
-      (begin)
+          (end)))
       (separator)
-      (assume
-        (typed_assumptions
-          (identifier)
-          (type
-            (identifier))))
-      (separator)
-      (assume
-        (typed_assumptions
-          (identifier)
-          (type
-            (identifier))))
-      (separator)
-      (identifier)
-      (end)))
-  (separator)
-  (theorem_definition
-    (identifier)
-    (type
-      (implication
+      (theorem_declaration
         (identifier)
-        (implication
+        (type_ann
+          (implication
+            (identifier)
+            (implication
+              (identifier)
+              (identifier))))
+        (proof
+          (separator)
+          (begin)
+          (separator)
+          (assume
+            (ann_patterns
+              (ann_patterns
+                (identifier)
+                (type_ann
+                  (identifier)))
+              (ann_patterns
+                (identifier)
+                (type_ann
+                  (identifier)))))
+          (separator)
           (identifier)
-          (identifier))))
-    (separator)
-    (proof
-      (begin)
+          (end)))
       (separator)
-      (assume
-        (typed_assumptions
-          (identifier)
-          (type
-            (identifier)))
-        (typed_assumptions
-          (identifier)
-          (type
-            (identifier))))
-      (separator)
-      (identifier)
-      (end)))
-  (separator)
-  (theorem_definition
-    (identifier)
-    (type
-      (implication
+      (theorem_declaration
         (identifier)
-        (implication
+        (type_ann
+          (implication
+            (identifier)
+            (implication
+              (identifier)
+              (identifier))))
+        (proof
+          (separator)
+          (begin)
+          (separator)
+          (assume
+            (ann_patterns
+              (identifier)
+              (identifier)
+              (type_ann
+                (identifier))))
+          (separator)
           (identifier)
-          (identifier))))
-    (separator)
-    (proof
-      (begin)
+          (end)))
       (separator)
-      (assume
-        (typed_assumptions
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (identifier)
+            (implication
+              (identifier)
+              (identifier))))
+        (proof
+          (separator)
+          (begin)
+          (separator)
+          (assume
+            (ann_patterns
+              (ann_patterns
+                (identifier)
+                (type_ann
+                  (identifier)))
+              (identifier)))
+          (separator)
           (identifier)
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (identifier)
+            (implication
+              (identifier)
+              (identifier))))
+        (proof
+          (separator)
+          (begin)
+          (separator)
+          (assume
+            (ann_patterns
+              (identifier)
+              (identifier)))
+          (separator)
           (identifier)
-          (type
-            (identifier))))
+          (end)))
       (separator)
-      (identifier)
-      (end)))
-  (separator)
-  (theorem_definition
-    (identifier)
-    (type
-      (implication
+      (theorem_declaration
         (identifier)
-        (implication
+        (parameters
+          (explicit_parameters
+            (identifier)
+            (type_ann
+              (identifier)))
+          (explicit_parameters
+            (identifier)
+            (type_ann
+              (identifier))))
+        (type_ann
+          (identifier))
+        (proof
+          (separator)
+          (begin)
+          (separator)
           (identifier)
-          (identifier))))
-    (separator)
-    (proof
-      (begin)
+          (end)))
       (separator)
-      (assume
-        (typed_assumptions
-          (identifier)
-          (type
-            (identifier)))
-        (identifier))
-      (separator)
-      (identifier)
-      (end)))
-  (separator)
-  (theorem_definition
-    (identifier)
-    (type
-      (implication
+      (theorem_declaration
         (identifier)
-        (implication
-          (identifier)
-          (identifier))))
-    (separator)
-    (proof
-      (begin)
-      (separator)
-      (assume
-        (identifier)
-        (identifier))
-      (separator)
-      (identifier)
-      (end)))
-  (separator)
-  (theorem_definition
-    (identifier)
-    (parameters
-      (explicit_parameters
-        (identifier)
-        (type
-          (identifier)))
-      (explicit_parameters
-        (identifier)
-        (type
-          (identifier))))
-    (type
-      (identifier))
-    (separator)
-    (proof
-      (begin)
-      (separator)
-      (identifier)
-      (end)))
-  (separator)
-  (theorem_definition
-    (identifier)
-    (type
-      (implication
-        (identifier)
-        (implication
-          (identifier)
-          (identifier))))
-    (separator)
-    (proof
-      (begin)
-      (separator)
-      (assume
-        (identifier)
-        (identifier))
-      (separator)
-      (assumption)
-      (end)))
-  (separator))
+        (type_ann
+          (implication
+            (identifier)
+            (implication
+              (identifier)
+              (identifier))))
+        (proof
+          (separator)
+          (begin)
+          (separator)
+          (assume
+            (ann_patterns
+              (identifier)
+              (identifier)))
+          (separator)
+          (assumption)
+          (end)))
+      (separator))
 
 ============
 Application
-:skip
 ============
 theorem impl-elim : (P --> Q) --> P --> Q
 proof
@@ -276,11 +282,213 @@ qed
 
 ---
 
-(source_file)
+    (source_file
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (implication
+              (identifier)
+              (identifier))
+            (implication
+              (identifier)
+              (identifier))))
+        (proof
+          (separator)
+          (begin)
+          (separator)
+          (assume
+            (ann_patterns
+              (identifier)
+              (identifier)))
+          (separator)
+          (apply
+            (call
+              (identifier)
+              (identifier)))
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (implication
+              (identifier)
+              (implication
+                (identifier)
+                (identifier)))
+            (implication
+              (identifier)
+              (implication
+                (identifier)
+                (identifier)))))
+        (proof
+          (separator)
+          (begin)
+          (separator)
+          (assume
+            (ann_patterns
+              (identifier)
+              (identifier)
+              (identifier)))
+          (separator)
+          (apply
+            (call
+              (call
+                (identifier)
+                (identifier))
+              (identifier)))
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (implication
+              (identifier)
+              (implication
+                (identifier)
+                (identifier)))
+            (implication
+              (identifier)
+              (implication
+                (identifier)
+                (identifier)))))
+        (proof
+          (separator)
+          (begin)
+          (separator)
+          (assume
+            (ann_patterns
+              (identifier)
+              (identifier)
+              (identifier)))
+          (separator)
+          (apply
+            (call
+              (apply
+                (call
+                  (identifier)
+                  (identifier)))
+              (identifier)))
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (implication
+              (identifier)
+              (identifier))
+            (implication
+              (implication
+                (identifier)
+                (identifier))
+              (implication
+                (identifier)
+                (identifier)))))
+        (proof
+          (separator)
+          (begin)
+          (separator)
+          (assume
+            (ann_patterns
+              (identifier)
+              (identifier)
+              (identifier)))
+          (separator)
+          (apply
+            (identifier))
+          (separator)
+          (apply
+            (identifier))
+          (separator)
+          (identifier)
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (implication
+              (identifier)
+              (identifier))
+            (implication
+              (implication
+                (identifier)
+                (identifier))
+              (implication
+                (identifier)
+                (identifier)))))
+        (proof
+          (separator)
+          (begin)
+          (separator)
+          (assume
+            (ann_patterns
+              (identifier)
+              (identifier)
+              (identifier)))
+          (separator)
+          (apply
+            (identifier)
+            (identifier))
+          (separator)
+          (identifier)
+          (end)))
+      (separator)
+      (line_comment)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (implication
+              (identifier)
+              (implication
+                (identifier)
+                (identifier)))
+            (implication
+              (implication
+                (identifier)
+                (identifier))
+              (implication
+                (identifier)
+                (identifier)))))
+        (proof
+          (separator)
+          (begin)
+          (separator)
+          (assume
+            (ann_patterns
+              (ann_patterns
+                (identifier)
+                (type_ann
+                  (implication
+                    (identifier)
+                    (implication
+                      (identifier)
+                      (identifier)))))
+              (ann_patterns
+                (identifier)
+                (type_ann
+                  (implication
+                    (identifier)
+                    (identifier))))
+              (identifier)))
+          (separator)
+          (apply
+            (call
+              (identifier)
+              (identifier))
+            (identifier))
+          (separator)
+          (identifier)
+          (end)))
+      (separator))
 
 =================
 True, False, Not
-:skip
 =================
 theorem true-intro-example : True
 proof
@@ -293,18 +501,12 @@ proof
   absurd e
 qed
 
-// The negation of `P` is written `~ P`.
-// `~ P` is not a primitive, but rather an abbreviation of `P --> False`.
-// Negation is therefore proved using `assume`, just like implication.
 theorem not-false : ~ False
 proof
   assume e
   e
 qed
 
-// Negation is eliminated with `apply`, just like implication.
-// The below theorem, called `contradiction`, may also be used as an
-// eliminator for negation for the purpose of readability.
 theorem contradiction : ~ P --> P --> False
 proof
   assume (np : ~ P) (p : P)
@@ -313,7 +515,87 @@ qed
 
 ---
 
-(source_file)
+    (source_file
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (identifier))
+        (proof
+          (separator)
+          (begin)
+          (separator)
+          (identifier)
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (identifier)
+            (identifier)))
+        (proof
+          (separator)
+          (begin)
+          (separator)
+          (assume
+            (ann_patterns
+              (identifier)
+              (type_ann
+                (identifier))))
+          (separator)
+          (call
+            (identifier)
+            (identifier))
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (negation
+            (identifier)))
+        (proof
+          (separator)
+          (begin)
+          (separator)
+          (assume
+            (ann_patterns
+              (identifier)))
+          (separator)
+          (identifier)
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (negation
+              (identifier))
+            (implication
+              (identifier)
+              (identifier))))
+        (proof
+          (separator)
+          (begin)
+          (separator)
+          (assume
+            (ann_patterns
+              (ann_patterns
+                (identifier)
+                (type_ann
+                  (negation
+                    (identifier))))
+              (ann_patterns
+                (identifier)
+                (type_ann
+                  (identifier)))))
+          (separator)
+          (apply
+            (call
+              (identifier)
+              (identifier)))
+          (end)))
+      (separator))
 
 ============
 Conjunction
@@ -329,8 +611,8 @@ theorem tactic-style-bullets-example : P --> Q --> P /\ Q
 proof
   assume p q
   both
-  - p
-  - q
+  . p
+  . q
 qed
 
 theorem named-blocks-example : P --> Q --> P /\ Q
@@ -341,9 +623,6 @@ proof
   lemma y by q
 qed
 
-// Note that these named blocks don't need to be proved in the order they
-// were introduced in the proof. Below, we prove ?q first, even though we
-// first introduced ?p.
 theorem named-blocks-not-in-order-example : P --> Q --> P /\ Q
 proof
   assume p q
@@ -389,7 +668,6 @@ qed
 
 ==============
 Biconditional
-:skip
 ==============
 theorem iff-intro : (P --> Q) --> (Q --> P) --> P <--> Q
 proof
@@ -411,11 +689,101 @@ qed
 
 ---
 
-(source_file)
+    (source_file
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (implication
+              (identifier)
+              (identifier))
+            (implication
+              (implication
+                (identifier)
+                (identifier))
+              (equivalence
+                (identifier)
+                (identifier)))))
+        (proof
+          (separator)
+          (begin)
+          (separator)
+          (assume
+            (ann_patterns
+              (ann_patterns
+                (identifier)
+                (type_ann
+                  (implication
+                    (identifier)
+                    (identifier))))
+              (ann_patterns
+                (identifier)
+                (type_ann
+                  (implication
+                    (identifier)
+                    (identifier))))))
+          (separator)
+          (call
+            (call
+              (identifier)
+              (identifier))
+            (identifier))
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (equivalence
+              (identifier)
+              (identifier))
+            (implication
+              (identifier)
+              (identifier))))
+        (proof
+          (separator)
+          (begin)
+          (separator)
+          (assume
+            (ann_patterns
+              (identifier)
+              (type_ann
+                (equivalence
+                  (identifier)
+                  (identifier)))))
+          (separator)
+          (call
+            (identifier)
+            (identifier))
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (equivalence
+              (identifier)
+              (identifier))
+            (implication
+              (identifier)
+              (identifier))))
+        (proof
+          (separator)
+          (begin)
+          (separator)
+          (assume
+            (ann_patterns
+              (both_pattern
+                (identifier)
+                (identifier))))
+          (separator)
+          (identifier)
+          (end)))
+      (separator))
 
 ============
 Disjunction
-:skip
 ============
 theorem or-intro-l : P --> P \/ Q
 proof
@@ -426,12 +794,6 @@ qed
 theorem or-idempotent : P \/ P --> P
 proof
   assume pp
-  cases pp (assume p in p) (assume p in p)
-qed
-
-theorem or-idempotent' : P \/ P --> P
-proof
-  assume pp
   cases pp impl-refl impl-refl
 qed
 
@@ -439,15 +801,107 @@ theorem or-elim-tactic-style : P \/ Q --> Q \/ P
 proof
   assume pq
   cases pq
-  - assume p
+  . assume p
     or-right p
-  - assume q
+  . assume q
     or-left q
 qed
 
 ---
 
-(source_file)
+    (source_file
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (identifier)
+            (disjunction
+              (identifier)
+              (identifier))))
+        (proof
+          (separator)
+          (begin)
+          (separator)
+          (assume
+            (ann_patterns
+              (identifier)))
+          (separator)
+          (call
+            (identifier)
+            (identifier))
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (disjunction
+              (identifier)
+              (identifier))
+            (identifier)))
+        (proof
+          (separator)
+          (begin)
+          (separator)
+          (assume
+            (ann_patterns
+              (identifier)))
+          (separator)
+          (call
+            (call
+              (call
+                (identifier)
+                (identifier))
+              (identifier))
+            (identifier))
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (disjunction
+              (identifier)
+              (identifier))
+            (disjunction
+              (identifier)
+              (identifier))))
+        (proof
+          (separator)
+          (begin)
+          (separator)
+          (assume
+            (ann_patterns
+              (identifier)))
+          (separator)
+          (call
+            (identifier)
+            (identifier))
+          (separator)
+          (bullet
+            (begin)
+            (assume
+              (ann_patterns
+                (identifier)))
+            (separator)
+            (call
+              (identifier)
+              (identifier))
+            (end))
+          (separator)
+          (bullet
+            (begin)
+            (assume
+              (ann_patterns
+                (identifier)))
+            (separator)
+            (call
+              (identifier)
+              (identifier))
+            (end))
+          (end)))
+      (separator))
 
 ============
 Lemma
@@ -525,9 +979,9 @@ theorem or-comm : P \/ Q --> Q \/ P
 proof
   assume pq
   cases pq
-  - assume p
+  . assume p
     or-right p
-  - assume q
+  . assume q
     or-left q
 qed
 
@@ -541,8 +995,8 @@ theorem and-comm : P /\ Q --> Q /\ P
 proof
   assume pq
   both
-  - and-right pq
-  - and-left pq
+  . and-right pq
+  . and-left pq
 qed
 
 theorem and-comm' : P /\ Q --> Q /\ P
@@ -555,10 +1009,10 @@ theorem impl-or-neg : ~ P \/ Q --> (P --> Q)
 proof
   assume (npq : ~ P \/ Q) (p : P)
   cases npq
-  - assume np : ~ P
+  . assume np : ~ P
     absurd
     apply contradiction np p
-  - assume q : Q
+  . assume q : Q
     assumption
 qed
 
@@ -592,8 +1046,8 @@ theorem iff-not : (P <--> Q) --> (~ P <--> ~ Q)
 proof
   assume (both pq qp)
   both
-  - apply contraposition qp
-  - apply contraposition pq
+  . apply contraposition qp
+  . apply contraposition pq
 qed
 
 theorem resolution : (P \/ Q) /\ (~ P \/ R) --> Q \/ R
@@ -605,10 +1059,10 @@ proof
     or-left q
   lemma pr by
     cases npr
-    - assume np
+    . assume np
       absurd
       apply contradiction np p
-    - assume r
+    . assume r
       or-right r
 qed
 
@@ -620,10 +1074,10 @@ proof
     or-left q
   lemma pr by
     cases npr
-    - assume np
+    . assume np
       absurd
       apply contradiction np p
-    - assume r
+    . assume r
       or-right r
 qed
 
@@ -631,10 +1085,10 @@ theorem not-or-intro : ~ P /\ ~ Q --> ~ (P \/ Q)
 proof
   assume (both np nq) npq
   cases npq
-  - assume p
+  . assume p
     absurd
     apply contradiction np p
-  - assume q
+  . assume q
     absurd
     apply contradiction nq q
 qed
@@ -643,11 +1097,11 @@ theorem not-or-elim : ~ (P \/ Q) --> ~ P /\ ~ Q
 proof
   assume npq : ~ (P \/ Q)
   both
-  - assume p
+  . assume p
     apply npq
     or-left
     p
-  - assume q
+  . assume q
     apply npq
     or-right
     q

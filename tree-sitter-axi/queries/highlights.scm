@@ -6,6 +6,9 @@
 ((identifier) @constant
  (#match? @constant "^[A-Z][A-Z0-9_]*$"))
 
+((identifier) @keyword
+ (#match? @keyword "^absurd|and-left|and-right|cases|or-left|or-right|refl|trivial$"))
+
 [
   "("
   ")"
@@ -16,6 +19,7 @@
 [
   ":"
   ","
+  "."
   "\\"
   "|"
 ] @punctuation.delimiter
@@ -38,17 +42,17 @@
   "assume"
   "axiom"
   "both"
-  "data"
   "forall"
   "of"
   "proof"
-  "proposition"
   "qed"
-  "record"
   "theorem"
+  "where"
   (assumption)
-  (refl)
-  (trivial)
+  (data)
+  (proposition)
+  (record)
+  (type)
 ] @keyword
 
 [
