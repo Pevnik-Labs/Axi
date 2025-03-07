@@ -1,6 +1,6 @@
 [
   {
-    "type": "ann_patterns",
+    "type": "ann_pattern",
     "named": true,
     "fields": {},
     "children": {
@@ -8,11 +8,11 @@
       "required": true,
       "types": [
         {
-          "type": "ann_patterns",
+          "type": "ann_pattern",
           "named": true
         },
         {
-          "type": "both_pattern",
+          "type": "ctor_pattern",
           "named": true
         },
         {
@@ -47,11 +47,11 @@
           "named": true
         },
         {
-          "type": "bullet",
+          "type": "call",
           "named": true
         },
         {
-          "type": "call",
+          "type": "call_by",
           "named": true
         },
         {
@@ -76,6 +76,10 @@
         },
         {
           "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
           "named": true
         },
         {
@@ -122,11 +126,11 @@
           "named": true
         },
         {
-          "type": "bullet",
+          "type": "call",
           "named": true
         },
         {
-          "type": "call",
+          "type": "call_by",
           "named": true
         },
         {
@@ -151,6 +155,10 @@
         },
         {
           "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
           "named": true
         },
         {
@@ -185,7 +193,7 @@
       "required": false,
       "types": [
         {
-          "type": "ann_patterns",
+          "type": "patterns",
           "named": true
         }
       ]
@@ -215,69 +223,7 @@
     }
   },
   {
-    "type": "block",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "axiom_declaration",
-          "named": true
-        },
-        {
-          "type": "begin",
-          "named": true
-        },
-        {
-          "type": "constant_declaration",
-          "named": true
-        },
-        {
-          "type": "end",
-          "named": true
-        },
-        {
-          "type": "separator",
-          "named": true
-        },
-        {
-          "type": "structure_declaration",
-          "named": true
-        },
-        {
-          "type": "theorem_declaration",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "both_pattern",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "ann_patterns",
-          "named": true
-        },
-        {
-          "type": "both_pattern",
-          "named": true
-        },
-        {
-          "type": "identifier",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "bullet",
+    "type": "bullet_block",
     "named": true,
     "fields": {},
     "children": {
@@ -305,11 +251,15 @@
           "named": true
         },
         {
-          "type": "bullet",
+          "type": "bullet_block",
           "named": true
         },
         {
           "type": "call",
+          "named": true
+        },
+        {
+          "type": "call_by",
           "named": true
         },
         {
@@ -341,6 +291,10 @@
           "named": true
         },
         {
+          "type": "hole_identifier",
+          "named": true
+        },
+        {
           "type": "identifier",
           "named": true
         },
@@ -350,6 +304,113 @@
         },
         {
           "type": "lambda",
+          "named": true
+        },
+        {
+          "type": "lemma_declaration",
+          "named": true
+        },
+        {
+          "type": "negation",
+          "named": true
+        },
+        {
+          "type": "number",
+          "named": true
+        },
+        {
+          "type": "separator",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "by_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "apply",
+          "named": true
+        },
+        {
+          "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assume",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "begin",
+          "named": true
+        },
+        {
+          "type": "bullet_block",
+          "named": true
+        },
+        {
+          "type": "call",
+          "named": true
+        },
+        {
+          "type": "call_by",
+          "named": true
+        },
+        {
+          "type": "clauses",
+          "named": true
+        },
+        {
+          "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "disjunction",
+          "named": true
+        },
+        {
+          "type": "end",
+          "named": true
+        },
+        {
+          "type": "equality",
+          "named": true
+        },
+        {
+          "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "implication",
+          "named": true
+        },
+        {
+          "type": "lambda",
+          "named": true
+        },
+        {
+          "type": "lemma_declaration",
           "named": true
         },
         {
@@ -388,11 +449,11 @@
           "named": true
         },
         {
-          "type": "bullet",
+          "type": "call",
           "named": true
         },
         {
-          "type": "call",
+          "type": "call_by",
           "named": true
         },
         {
@@ -417,6 +478,93 @@
         },
         {
           "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "implication",
+          "named": true
+        },
+        {
+          "type": "lambda",
+          "named": true
+        },
+        {
+          "type": "negation",
+          "named": true
+        },
+        {
+          "type": "number",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "call_by",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "apply",
+          "named": true
+        },
+        {
+          "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "by_block",
+          "named": true
+        },
+        {
+          "type": "call",
+          "named": true
+        },
+        {
+          "type": "call_by",
+          "named": true
+        },
+        {
+          "type": "clauses",
+          "named": true
+        },
+        {
+          "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "disjunction",
+          "named": true
+        },
+        {
+          "type": "equality",
+          "named": true
+        },
+        {
+          "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
           "named": true
         },
         {
@@ -463,11 +611,11 @@
           "named": true
         },
         {
-          "type": "bullet",
+          "type": "call",
           "named": true
         },
         {
-          "type": "call",
+          "type": "call_by",
           "named": true
         },
         {
@@ -495,6 +643,10 @@
           "named": true
         },
         {
+          "type": "hole_identifier",
+          "named": true
+        },
+        {
           "type": "identifier",
           "named": true
         },
@@ -517,10 +669,6 @@
         {
           "type": "patterns",
           "named": true
-        },
-        {
-          "type": "separator",
-          "named": true
         }
       ]
     }
@@ -534,10 +682,6 @@
       "required": true,
       "types": [
         {
-          "type": "ann_patterns",
-          "named": true
-        },
-        {
           "type": "begin",
           "named": true
         },
@@ -547,6 +691,14 @@
         },
         {
           "type": "end",
+          "named": true
+        },
+        {
+          "type": "patterns",
+          "named": true
+        },
+        {
+          "type": "separator",
           "named": true
         }
       ]
@@ -573,11 +725,11 @@
           "named": true
         },
         {
-          "type": "bullet",
+          "type": "call",
           "named": true
         },
         {
-          "type": "call",
+          "type": "call_by",
           "named": true
         },
         {
@@ -602,6 +754,10 @@
         },
         {
           "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
           "named": true
         },
         {
@@ -648,11 +804,11 @@
           "named": true
         },
         {
-          "type": "bullet",
+          "type": "call",
           "named": true
         },
         {
-          "type": "call",
+          "type": "call_by",
           "named": true
         },
         {
@@ -677,6 +833,10 @@
         },
         {
           "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
           "named": true
         },
         {
@@ -742,6 +902,29 @@
     }
   },
   {
+    "type": "ctor_pattern",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "ann_pattern",
+          "named": true
+        },
+        {
+          "type": "ctor_pattern",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "disjunction",
     "named": true,
     "fields": {},
@@ -762,11 +945,11 @@
           "named": true
         },
         {
-          "type": "bullet",
+          "type": "call",
           "named": true
         },
         {
-          "type": "call",
+          "type": "call_by",
           "named": true
         },
         {
@@ -791,6 +974,10 @@
         },
         {
           "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
           "named": true
         },
         {
@@ -837,11 +1024,11 @@
           "named": true
         },
         {
-          "type": "bullet",
+          "type": "call",
           "named": true
         },
         {
-          "type": "call",
+          "type": "call_by",
           "named": true
         },
         {
@@ -866,6 +1053,10 @@
         },
         {
           "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
           "named": true
         },
         {
@@ -912,11 +1103,11 @@
           "named": true
         },
         {
-          "type": "bullet",
+          "type": "call",
           "named": true
         },
         {
-          "type": "call",
+          "type": "call_by",
           "named": true
         },
         {
@@ -941,6 +1132,10 @@
         },
         {
           "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
           "named": true
         },
         {
@@ -1006,11 +1201,11 @@
           "named": true
         },
         {
-          "type": "bullet",
+          "type": "call",
           "named": true
         },
         {
-          "type": "call",
+          "type": "call_by",
           "named": true
         },
         {
@@ -1035,6 +1230,10 @@
         },
         {
           "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
           "named": true
         },
         {
@@ -1085,11 +1284,11 @@
           "named": true
         },
         {
-          "type": "bullet",
+          "type": "call",
           "named": true
         },
         {
-          "type": "call",
+          "type": "call_by",
           "named": true
         },
         {
@@ -1114,6 +1313,10 @@
         },
         {
           "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
           "named": true
         },
         {
@@ -1167,10 +1370,6 @@
       "required": true,
       "types": [
         {
-          "type": "ann_patterns",
-          "named": true
-        },
-        {
           "type": "apply",
           "named": true
         },
@@ -1183,11 +1382,11 @@
           "named": true
         },
         {
-          "type": "bullet",
+          "type": "call",
           "named": true
         },
         {
-          "type": "call",
+          "type": "call_by",
           "named": true
         },
         {
@@ -1215,6 +1414,10 @@
           "named": true
         },
         {
+          "type": "hole_identifier",
+          "named": true
+        },
+        {
           "type": "identifier",
           "named": true
         },
@@ -1232,6 +1435,45 @@
         },
         {
           "type": "number",
+          "named": true
+        },
+        {
+          "type": "patterns",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "lemma_declaration",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "by_block",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "parameters",
+          "named": true
+        },
+        {
+          "type": "proof_block",
+          "named": true
+        },
+        {
+          "type": "type_ann",
+          "named": true
+        },
+        {
+          "type": "value",
           "named": true
         }
       ]
@@ -1258,11 +1500,11 @@
           "named": true
         },
         {
-          "type": "bullet",
+          "type": "call",
           "named": true
         },
         {
-          "type": "call",
+          "type": "call_by",
           "named": true
         },
         {
@@ -1287,6 +1529,10 @@
         },
         {
           "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
           "named": true
         },
         {
@@ -1344,22 +1590,26 @@
       "required": true,
       "types": [
         {
-          "type": "ann_patterns",
+          "type": "ann_pattern",
           "named": true
         },
         {
-          "type": "both_pattern",
+          "type": "ctor_pattern",
           "named": true
         },
         {
           "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "type_ann",
           "named": true
         }
       ]
     }
   },
   {
-    "type": "proof",
+    "type": "proof_block",
     "named": true,
     "fields": {},
     "children": {
@@ -1387,11 +1637,15 @@
           "named": true
         },
         {
-          "type": "bullet",
+          "type": "bullet_block",
           "named": true
         },
         {
           "type": "call",
+          "named": true
+        },
+        {
+          "type": "call_by",
           "named": true
         },
         {
@@ -1423,6 +1677,10 @@
           "named": true
         },
         {
+          "type": "hole_identifier",
+          "named": true
+        },
+        {
           "type": "identifier",
           "named": true
         },
@@ -1432,6 +1690,10 @@
         },
         {
           "type": "lambda",
+          "named": true
+        },
+        {
+          "type": "lemma_declaration",
           "named": true
         },
         {
@@ -1494,10 +1756,6 @@
       "required": true,
       "types": [
         {
-          "type": "block",
-          "named": true
-        },
-        {
           "type": "data",
           "named": true
         },
@@ -1524,6 +1782,10 @@
         {
           "type": "type",
           "named": true
+        },
+        {
+          "type": "where_block",
+          "named": true
         }
       ]
     }
@@ -1537,6 +1799,10 @@
       "required": true,
       "types": [
         {
+          "type": "by_block",
+          "named": true
+        },
+        {
           "type": "identifier",
           "named": true
         },
@@ -1545,7 +1811,7 @@
           "named": true
         },
         {
-          "type": "proof",
+          "type": "proof_block",
           "named": true
         },
         {
@@ -1580,11 +1846,11 @@
           "named": true
         },
         {
-          "type": "bullet",
+          "type": "call",
           "named": true
         },
         {
-          "type": "call",
+          "type": "call_by",
           "named": true
         },
         {
@@ -1609,6 +1875,10 @@
         },
         {
           "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
           "named": true
         },
         {
@@ -1655,11 +1925,11 @@
           "named": true
         },
         {
-          "type": "bullet",
+          "type": "call",
           "named": true
         },
         {
-          "type": "call",
+          "type": "call_by",
           "named": true
         },
         {
@@ -1687,6 +1957,10 @@
           "named": true
         },
         {
+          "type": "hole_identifier",
+          "named": true
+        },
+        {
           "type": "identifier",
           "named": true
         },
@@ -1704,6 +1978,45 @@
         },
         {
           "type": "number",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "where_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "axiom_declaration",
+          "named": true
+        },
+        {
+          "type": "begin",
+          "named": true
+        },
+        {
+          "type": "constant_declaration",
+          "named": true
+        },
+        {
+          "type": "end",
+          "named": true
+        },
+        {
+          "type": "separator",
+          "named": true
+        },
+        {
+          "type": "structure_declaration",
+          "named": true
+        },
+        {
+          "type": "theorem_declaration",
           "named": true
         }
       ]
@@ -1791,7 +2104,7 @@
     "extra": true
   },
   {
-    "type": "both",
+    "type": "by",
     "named": false
   },
   {
@@ -1807,8 +2120,16 @@
     "named": false
   },
   {
+    "type": "hole_identifier",
+    "named": true
+  },
+  {
     "type": "identifier",
     "named": true
+  },
+  {
+    "type": "lemma",
+    "named": false
   },
   {
     "type": "line_comment",

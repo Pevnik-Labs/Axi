@@ -85,18 +85,17 @@ qed
             (implication
               (identifier)
               (identifier))))
-        (proof
-          (separator)
+        (proof_block
           (begin)
           (separator)
           (assume
-            (ann_patterns
+            (patterns
               (identifier)
               (type_ann
                 (identifier))))
           (separator)
           (assume
-            (ann_patterns
+            (patterns
               (identifier)
               (type_ann
                 (identifier))))
@@ -112,17 +111,16 @@ qed
             (implication
               (identifier)
               (identifier))))
-        (proof
-          (separator)
+        (proof_block
           (begin)
           (separator)
           (assume
-            (ann_patterns
-              (ann_patterns
+            (patterns
+              (ann_pattern
                 (identifier)
                 (type_ann
                   (identifier)))
-              (ann_patterns
+              (ann_pattern
                 (identifier)
                 (type_ann
                   (identifier)))))
@@ -138,12 +136,11 @@ qed
             (implication
               (identifier)
               (identifier))))
-        (proof
-          (separator)
+        (proof_block
           (begin)
           (separator)
           (assume
-            (ann_patterns
+            (patterns
               (identifier)
               (identifier)
               (type_ann
@@ -160,13 +157,12 @@ qed
             (implication
               (identifier)
               (identifier))))
-        (proof
-          (separator)
+        (proof_block
           (begin)
           (separator)
           (assume
-            (ann_patterns
-              (ann_patterns
+            (patterns
+              (ann_pattern
                 (identifier)
                 (type_ann
                   (identifier)))
@@ -183,12 +179,11 @@ qed
             (implication
               (identifier)
               (identifier))))
-        (proof
-          (separator)
+        (proof_block
           (begin)
           (separator)
           (assume
-            (ann_patterns
+            (patterns
               (identifier)
               (identifier)))
           (separator)
@@ -208,8 +203,7 @@ qed
               (identifier))))
         (type_ann
           (identifier))
-        (proof
-          (separator)
+        (proof_block
           (begin)
           (separator)
           (identifier)
@@ -223,12 +217,11 @@ qed
             (implication
               (identifier)
               (identifier))))
-        (proof
-          (separator)
+        (proof_block
           (begin)
           (separator)
           (assume
-            (ann_patterns
+            (patterns
               (identifier)
               (identifier)))
           (separator)
@@ -294,12 +287,11 @@ qed
             (implication
               (identifier)
               (identifier))))
-        (proof
-          (separator)
+        (proof_block
           (begin)
           (separator)
           (assume
-            (ann_patterns
+            (patterns
               (identifier)
               (identifier)))
           (separator)
@@ -323,12 +315,11 @@ qed
               (implication
                 (identifier)
                 (identifier)))))
-        (proof
-          (separator)
+        (proof_block
           (begin)
           (separator)
           (assume
-            (ann_patterns
+            (patterns
               (identifier)
               (identifier)
               (identifier)))
@@ -355,12 +346,11 @@ qed
               (implication
                 (identifier)
                 (identifier)))))
-        (proof
-          (separator)
+        (proof_block
           (begin)
           (separator)
           (assume
-            (ann_patterns
+            (patterns
               (identifier)
               (identifier)
               (identifier)))
@@ -388,12 +378,11 @@ qed
               (implication
                 (identifier)
                 (identifier)))))
-        (proof
-          (separator)
+        (proof_block
           (begin)
           (separator)
           (assume
-            (ann_patterns
+            (patterns
               (identifier)
               (identifier)
               (identifier)))
@@ -421,12 +410,11 @@ qed
               (implication
                 (identifier)
                 (identifier)))))
-        (proof
-          (separator)
+        (proof_block
           (begin)
           (separator)
           (assume
-            (ann_patterns
+            (patterns
               (identifier)
               (identifier)
               (identifier)))
@@ -455,13 +443,12 @@ qed
               (implication
                 (identifier)
                 (identifier)))))
-        (proof
-          (separator)
+        (proof_block
           (begin)
           (separator)
           (assume
-            (ann_patterns
-              (ann_patterns
+            (patterns
+              (ann_pattern
                 (identifier)
                 (type_ann
                   (implication
@@ -469,7 +456,7 @@ qed
                     (implication
                       (identifier)
                       (identifier)))))
-              (ann_patterns
+              (ann_pattern
                 (identifier)
                 (type_ann
                   (implication
@@ -521,8 +508,7 @@ qed
         (identifier)
         (type_ann
           (identifier))
-        (proof
-          (separator)
+        (proof_block
           (begin)
           (separator)
           (identifier)
@@ -534,12 +520,11 @@ qed
           (implication
             (identifier)
             (identifier)))
-        (proof
-          (separator)
+        (proof_block
           (begin)
           (separator)
           (assume
-            (ann_patterns
+            (patterns
               (identifier)
               (type_ann
                 (identifier))))
@@ -554,12 +539,11 @@ qed
         (type_ann
           (negation
             (identifier)))
-        (proof
-          (separator)
+        (proof_block
           (begin)
           (separator)
           (assume
-            (ann_patterns
+            (patterns
               (identifier)))
           (separator)
           (identifier)
@@ -574,18 +558,17 @@ qed
             (implication
               (identifier)
               (identifier))))
-        (proof
-          (separator)
+        (proof_block
           (begin)
           (separator)
           (assume
-            (ann_patterns
-              (ann_patterns
+            (patterns
+              (ann_pattern
                 (identifier)
                 (type_ann
                   (negation
                     (identifier))))
-              (ann_patterns
+              (ann_pattern
                 (identifier)
                 (type_ann
                   (identifier)))))
@@ -599,7 +582,6 @@ qed
 
 ============
 Conjunction
-:skip
 ============
 theorem and-intro : P --> Q --> P /\ Q
 proof
@@ -664,11 +646,284 @@ qed
 
 ---
 
-(source_file)
+    (source_file
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (identifier)
+            (implication
+              (identifier)
+              (conjunction
+                (identifier)
+                (identifier)))))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (identifier)
+              (identifier)))
+          (separator)
+          (call
+            (call
+              (identifier)
+              (identifier))
+            (identifier))
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (identifier)
+            (implication
+              (identifier)
+              (conjunction
+                (identifier)
+                (identifier)))))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (identifier)
+              (identifier)))
+          (separator)
+          (identifier)
+          (separator)
+          (bullet_block
+            (begin)
+            (separator)
+            (identifier)
+            (end))
+          (separator)
+          (bullet_block
+            (begin)
+            (separator)
+            (identifier)
+            (end))
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (identifier)
+            (implication
+              (identifier)
+              (conjunction
+                (identifier)
+                (identifier)))))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (identifier)
+              (identifier)))
+          (separator)
+          (call
+            (call
+              (identifier)
+              (hole_identifier))
+            (hole_identifier))
+          (separator)
+          (lemma_declaration
+            (identifier)
+            (by_block
+              (begin)
+              (separator)
+              (identifier)
+              (end)))
+          (separator)
+          (lemma_declaration
+            (identifier)
+            (by_block
+              (begin)
+              (separator)
+              (identifier)
+              (end)))
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (identifier)
+            (implication
+              (identifier)
+              (conjunction
+                (identifier)
+                (identifier)))))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (identifier)
+              (identifier)))
+          (separator)
+          (call
+            (call
+              (identifier)
+              (hole_identifier))
+            (hole_identifier))
+          (separator)
+          (lemma_declaration
+            (identifier)
+            (by_block
+              (begin)
+              (separator)
+              (identifier)
+              (end)))
+          (separator)
+          (lemma_declaration
+            (identifier)
+            (by_block
+              (begin)
+              (separator)
+              (identifier)
+              (end)))
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (conjunction
+              (identifier)
+              (identifier))
+            (identifier)))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (identifier)))
+          (separator)
+          (call
+            (identifier)
+            (identifier))
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (conjunction
+              (identifier)
+              (identifier))
+            (identifier)))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (ctor_pattern
+                (identifier)
+                (identifier)
+                (identifier))))
+          (separator)
+          (identifier)
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (conjunction
+              (identifier)
+              (identifier))
+            (identifier)))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (ann_pattern
+                (ctor_pattern
+                  (identifier)
+                  (identifier)
+                  (identifier))
+                (type_ann
+                  (conjunction
+                    (identifier)
+                    (identifier))))))
+          (separator)
+          (identifier)
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (conjunction
+              (identifier)
+              (identifier))
+            (identifier)))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (ctor_pattern
+                (identifier)
+                (ann_pattern
+                  (identifier)
+                  (type_ann
+                    (identifier)))
+                (ann_pattern
+                  (identifier)
+                  (type_ann
+                    (identifier))))))
+          (separator)
+          (identifier)
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (conjunction
+              (conjunction
+                (identifier)
+                (identifier))
+              (identifier))
+            (conjunction
+              (identifier)
+              (conjunction
+                (identifier)
+                (identifier)))))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (ctor_pattern
+                (identifier)
+                (ctor_pattern
+                  (identifier)
+                  (identifier)
+                  (identifier))
+                (identifier))))
+          (separator)
+          (call
+            (identifier)
+            (identifier))
+          (separator)
+          (call
+            (call
+              (identifier)
+              (identifier))
+            (identifier))
+          (end)))
+      (separator))
 
-==============
-Biconditional
-==============
+============
+Equivalence
+============
 theorem iff-intro : (P --> Q) --> (Q --> P) --> P <--> Q
 proof
   assume (pq : P --> Q) (qp : Q --> P)
@@ -705,19 +960,18 @@ qed
               (equivalence
                 (identifier)
                 (identifier)))))
-        (proof
-          (separator)
+        (proof_block
           (begin)
           (separator)
           (assume
-            (ann_patterns
-              (ann_patterns
+            (patterns
+              (ann_pattern
                 (identifier)
                 (type_ann
                   (implication
                     (identifier)
                     (identifier))))
-              (ann_patterns
+              (ann_pattern
                 (identifier)
                 (type_ann
                   (implication
@@ -741,12 +995,11 @@ qed
             (implication
               (identifier)
               (identifier))))
-        (proof
-          (separator)
+        (proof_block
           (begin)
           (separator)
           (assume
-            (ann_patterns
+            (patterns
               (identifier)
               (type_ann
                 (equivalence
@@ -768,13 +1021,13 @@ qed
             (implication
               (identifier)
               (identifier))))
-        (proof
-          (separator)
+        (proof_block
           (begin)
           (separator)
           (assume
-            (ann_patterns
-              (both_pattern
+            (patterns
+              (ctor_pattern
+                (identifier)
                 (identifier)
                 (identifier))))
           (separator)
@@ -819,12 +1072,11 @@ qed
             (disjunction
               (identifier)
               (identifier))))
-        (proof
-          (separator)
+        (proof_block
           (begin)
           (separator)
           (assume
-            (ann_patterns
+            (patterns
               (identifier)))
           (separator)
           (call
@@ -840,12 +1092,11 @@ qed
               (identifier)
               (identifier))
             (identifier)))
-        (proof
-          (separator)
+        (proof_block
           (begin)
           (separator)
           (assume
-            (ann_patterns
+            (patterns
               (identifier)))
           (separator)
           (call
@@ -867,22 +1118,22 @@ qed
             (disjunction
               (identifier)
               (identifier))))
-        (proof
-          (separator)
+        (proof_block
           (begin)
           (separator)
           (assume
-            (ann_patterns
+            (patterns
               (identifier)))
           (separator)
           (call
             (identifier)
             (identifier))
           (separator)
-          (bullet
+          (bullet_block
             (begin)
+            (separator)
             (assume
-              (ann_patterns
+              (patterns
                 (identifier)))
             (separator)
             (call
@@ -890,10 +1141,11 @@ qed
               (identifier))
             (end))
           (separator)
-          (bullet
+          (bullet_block
             (begin)
+            (separator)
             (assume
-              (ann_patterns
+              (patterns
                 (identifier)))
             (separator)
             (call
@@ -905,7 +1157,6 @@ qed
 
 ============
 Lemma
-:skip
 ============
 theorem lemma-example : P \/ P --> P
 proof
@@ -927,11 +1178,91 @@ qed
 
 ---
 
-(source_file)
+    (source_file
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (disjunction
+              (identifier)
+              (identifier))
+            (identifier)))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (identifier)))
+          (separator)
+          (lemma_declaration
+            (identifier)
+            (type_ann
+              (implication
+                (identifier)
+                (identifier)))
+            (by_block
+              (begin)
+              (separator)
+              (assume
+                (patterns
+                  (identifier)))
+              (separator)
+              (identifier)
+              (end)))
+          (separator)
+          (call
+            (call
+              (call
+                (identifier)
+                (identifier))
+              (identifier))
+            (identifier))
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (disjunction
+              (identifier)
+              (identifier))
+            (identifier)))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (identifier)))
+          (separator)
+          (call
+            (call
+              (call
+                (identifier)
+                (identifier))
+              (hole_identifier))
+            (hole_identifier))
+          (separator)
+          (lemma_declaration
+            (identifier)
+            (type_ann
+              (implication
+                (identifier)
+                (identifier)))
+            (by_block
+              (begin)
+              (separator)
+              (assume
+                (patterns
+                  (identifier)))
+              (separator)
+              (identifier)
+              (end)))
+          (end)))
+      (separator))
 
 ==================
 Suffices, proving
-:skip
 ==================
 theorem suffices-example : (P --> Q) --> (Q --> R) --> P --> R
 proof
@@ -943,7 +1274,7 @@ proof
   assumption
 qed
 
-theorem conclusion-annotation-example : Q -> P \/ (Q \/ R)
+theorem conclusion-annotation-example : Q --> P \/ (Q \/ R)
 proof
   assume q
   proving (P \/ (Q \/ R))
@@ -956,11 +1287,101 @@ qed
 
 ---
 
-(source_file)
+    (source_file
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (implication
+              (identifier)
+              (identifier))
+            (implication
+              (implication
+                (identifier)
+                (identifier))
+              (implication
+                (identifier)
+                (identifier)))))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (identifier)
+              (identifier)
+              (identifier)))
+          (separator)
+          (call_by
+            (call
+              (identifier)
+              (identifier))
+            (by_block
+              (begin)
+              (separator)
+              (apply
+                (identifier))
+              (end)))
+          (separator)
+          (call_by
+            (call
+              (identifier)
+              (identifier))
+            (by_block
+              (begin)
+              (separator)
+              (apply
+                (identifier))
+              (end)))
+          (separator)
+          (assumption)
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (identifier)
+            (disjunction
+              (identifier)
+              (disjunction
+                (identifier)
+                (identifier)))))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (identifier)))
+          (separator)
+          (call
+            (identifier)
+            (disjunction
+              (identifier)
+              (disjunction
+                (identifier)
+                (identifier))))
+          (separator)
+          (identifier)
+          (separator)
+          (call
+            (identifier)
+            (disjunction
+              (identifier)
+              (identifier)))
+          (separator)
+          (identifier)
+          (separator)
+          (call
+            (identifier)
+            (identifier))
+          (separator)
+          (assumption)
+          (end)))
+      (separator))
 
 =========
 Examples
-:skip
 =========
 theorem curry : (P /\ Q --> R) --> P --> Q --> R
 proof
@@ -1109,4 +1530,739 @@ qed
 
 ---
 
-(source_file)
+    (source_file
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (implication
+              (conjunction
+                (identifier)
+                (identifier))
+              (identifier))
+            (implication
+              (identifier)
+              (implication
+                (identifier)
+                (identifier)))))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (identifier)
+              (identifier)
+              (identifier)))
+          (separator)
+          (apply
+            (identifier))
+          (separator)
+          (call
+            (call
+              (identifier)
+              (identifier))
+            (identifier))
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (implication
+              (identifier)
+              (implication
+                (identifier)
+                (identifier)))
+            (implication
+              (conjunction
+                (identifier)
+                (identifier))
+              (identifier))))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (identifier)
+              (ctor_pattern
+                (identifier)
+                (identifier)
+                (identifier))))
+          (separator)
+          (apply
+            (call
+              (call
+                (identifier)
+                (identifier))
+              (identifier)))
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (disjunction
+              (identifier)
+              (identifier))
+            (disjunction
+              (identifier)
+              (identifier))))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (identifier)))
+          (separator)
+          (call
+            (identifier)
+            (identifier))
+          (separator)
+          (bullet_block
+            (begin)
+            (separator)
+            (assume
+              (patterns
+                (identifier)))
+            (separator)
+            (call
+              (identifier)
+              (identifier))
+            (end))
+          (separator)
+          (bullet_block
+            (begin)
+            (separator)
+            (assume
+              (patterns
+                (identifier)))
+            (separator)
+            (call
+              (identifier)
+              (identifier))
+            (end))
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (disjunction
+              (identifier)
+              (identifier))
+            (disjunction
+              (identifier)
+              (identifier))))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (identifier)))
+          (separator)
+          (call
+            (call
+              (call
+                (identifier)
+                (identifier))
+              (identifier))
+            (identifier))
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (conjunction
+              (identifier)
+              (identifier))
+            (conjunction
+              (identifier)
+              (identifier))))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (identifier)))
+          (separator)
+          (identifier)
+          (separator)
+          (bullet_block
+            (begin)
+            (separator)
+            (call
+              (identifier)
+              (identifier))
+            (end))
+          (separator)
+          (bullet_block
+            (begin)
+            (separator)
+            (call
+              (identifier)
+              (identifier))
+            (end))
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (conjunction
+              (identifier)
+              (identifier))
+            (conjunction
+              (identifier)
+              (identifier))))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (ctor_pattern
+                (identifier)
+                (identifier)
+                (identifier))))
+          (separator)
+          (call
+            (call
+              (identifier)
+              (identifier))
+            (identifier))
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (disjunction
+              (negation
+                (identifier))
+              (identifier))
+            (implication
+              (identifier)
+              (identifier))))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (ann_pattern
+                (identifier)
+                (type_ann
+                  (disjunction
+                    (negation
+                      (identifier))
+                    (identifier))))
+              (ann_pattern
+                (identifier)
+                (type_ann
+                  (identifier)))))
+          (separator)
+          (call
+            (identifier)
+            (identifier))
+          (separator)
+          (bullet_block
+            (begin)
+            (separator)
+            (assume
+              (patterns
+                (identifier)
+                (type_ann
+                  (negation
+                    (identifier)))))
+            (separator)
+            (identifier)
+            (separator)
+            (apply
+              (call
+                (call
+                  (identifier)
+                  (identifier))
+                (identifier)))
+            (end))
+          (separator)
+          (bullet_block
+            (begin)
+            (separator)
+            (assume
+              (patterns
+                (identifier)
+                (type_ann
+                  (identifier))))
+            (separator)
+            (assumption)
+            (end))
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (negation
+            (conjunction
+              (identifier)
+              (negation
+                (identifier)))))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (ctor_pattern
+                (identifier)
+                (identifier)
+                (identifier))))
+          (separator)
+          (identifier)
+          (separator)
+          (apply
+            (call
+              (call
+                (identifier)
+                (identifier))
+              (identifier)))
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (implication
+              (identifier)
+              (identifier))
+            (implication
+              (negation
+                (identifier))
+              (negation
+                (identifier)))))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (identifier)
+              (identifier)
+              (identifier)))
+          (separator)
+          (apply
+            (identifier)
+            (identifier))
+          (separator)
+          (assumption)
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (implication
+              (identifier)
+              (negation
+                (identifier)))
+            (implication
+              (identifier)
+              (negation
+                (identifier)))))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (identifier)
+              (identifier)
+              (identifier)))
+          (separator)
+          (apply
+            (call
+              (call
+                (identifier)
+                (identifier))
+              (identifier)))
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (implication
+              (implication
+                (identifier)
+                (identifier))
+              (implication
+                (implication
+                  (identifier)
+                  (identifier))
+                (identifier)))
+            (implication
+              (equivalence
+                (identifier)
+                (identifier))
+              (identifier))))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (identifier)
+              (ctor_pattern
+                (identifier)
+                (identifier)
+                (identifier))))
+          (separator)
+          (apply
+            (call
+              (call
+                (identifier)
+                (identifier))
+              (identifier)))
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (equivalence
+              (identifier)
+              (identifier))
+            (equivalence
+              (negation
+                (identifier))
+              (negation
+                (identifier)))))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (ctor_pattern
+                (identifier)
+                (identifier)
+                (identifier))))
+          (separator)
+          (identifier)
+          (separator)
+          (bullet_block
+            (begin)
+            (separator)
+            (apply
+              (call
+                (identifier)
+                (identifier)))
+            (end))
+          (separator)
+          (bullet_block
+            (begin)
+            (separator)
+            (apply
+              (call
+                (identifier)
+                (identifier)))
+            (end))
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (conjunction
+              (disjunction
+                (identifier)
+                (identifier))
+              (disjunction
+                (negation
+                  (identifier))
+                (identifier)))
+            (disjunction
+              (identifier)
+              (identifier))))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (ctor_pattern
+                (identifier)
+                (identifier)
+                (identifier))))
+          (separator)
+          (call
+            (call
+              (call
+                (identifier)
+                (identifier))
+              (hole_identifier))
+            (hole_identifier))
+          (separator)
+          (lemma_declaration
+            (identifier)
+            (by_block
+              (begin)
+              (separator)
+              (assume
+                (patterns
+                  (identifier)))
+              (separator)
+              (call
+                (identifier)
+                (identifier))
+              (end)))
+          (separator)
+          (lemma_declaration
+            (identifier)
+            (by_block
+              (begin)
+              (separator)
+              (call
+                (identifier)
+                (identifier))
+              (separator)
+              (bullet_block
+                (begin)
+                (separator)
+                (assume
+                  (patterns
+                    (identifier)))
+                (separator)
+                (identifier)
+                (separator)
+                (apply
+                  (call
+                    (call
+                      (identifier)
+                      (identifier))
+                    (identifier)))
+                (end))
+              (separator)
+              (bullet_block
+                (begin)
+                (separator)
+                (assume
+                  (patterns
+                    (identifier)))
+                (separator)
+                (call
+                  (identifier)
+                  (identifier))
+                (end))
+              (end)))
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (conjunction
+              (disjunction
+                (identifier)
+                (identifier))
+              (disjunction
+                (negation
+                  (identifier))
+                (identifier)))
+            (disjunction
+              (identifier)
+              (identifier))))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (ctor_pattern
+                (identifier)
+                (identifier)
+                (identifier))))
+          (separator)
+          (call
+            (call
+              (call
+                (identifier)
+                (identifier))
+              (call
+                (call
+                  (call
+                    (identifier)
+                    (identifier))
+                  (identifier))
+                (hole_identifier)))
+            (call
+              (call
+                (call
+                  (identifier)
+                  (identifier))
+                (identifier))
+              (hole_identifier)))
+          (separator)
+          (lemma_declaration
+            (identifier)
+            (by_block
+              (begin)
+              (separator)
+              (call
+                (identifier)
+                (identifier))
+              (end)))
+          (separator)
+          (lemma_declaration
+            (identifier)
+            (by_block
+              (begin)
+              (separator)
+              (call
+                (identifier)
+                (identifier))
+              (separator)
+              (bullet_block
+                (begin)
+                (separator)
+                (assume
+                  (patterns
+                    (identifier)))
+                (separator)
+                (identifier)
+                (separator)
+                (apply
+                  (call
+                    (call
+                      (identifier)
+                      (identifier))
+                    (identifier)))
+                (end))
+              (separator)
+              (bullet_block
+                (begin)
+                (separator)
+                (assume
+                  (patterns
+                    (identifier)))
+                (separator)
+                (call
+                  (identifier)
+                  (identifier))
+                (end))
+              (end)))
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (conjunction
+              (negation
+                (identifier))
+              (negation
+                (identifier)))
+            (negation
+              (disjunction
+                (identifier)
+                (identifier)))))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (ctor_pattern
+                (identifier)
+                (identifier)
+                (identifier))
+              (identifier)))
+          (separator)
+          (call
+            (identifier)
+            (identifier))
+          (separator)
+          (bullet_block
+            (begin)
+            (separator)
+            (assume
+              (patterns
+                (identifier)))
+            (separator)
+            (identifier)
+            (separator)
+            (apply
+              (call
+                (call
+                  (identifier)
+                  (identifier))
+                (identifier)))
+            (end))
+          (separator)
+          (bullet_block
+            (begin)
+            (separator)
+            (assume
+              (patterns
+                (identifier)))
+            (separator)
+            (identifier)
+            (separator)
+            (apply
+              (call
+                (call
+                  (identifier)
+                  (identifier))
+                (identifier)))
+            (end))
+          (end)))
+      (separator)
+      (theorem_declaration
+        (identifier)
+        (type_ann
+          (implication
+            (negation
+              (disjunction
+                (identifier)
+                (identifier)))
+            (conjunction
+              (negation
+                (identifier))
+              (negation
+                (identifier)))))
+        (proof_block
+          (begin)
+          (separator)
+          (assume
+            (patterns
+              (identifier)
+              (type_ann
+                (negation
+                  (disjunction
+                    (identifier)
+                    (identifier))))))
+          (separator)
+          (identifier)
+          (separator)
+          (bullet_block
+            (begin)
+            (separator)
+            (assume
+              (patterns
+                (identifier)))
+            (separator)
+            (apply
+              (identifier))
+            (separator)
+            (identifier)
+            (separator)
+            (identifier)
+            (end))
+          (separator)
+          (bullet_block
+            (begin)
+            (separator)
+            (assume
+              (patterns
+                (identifier)))
+            (separator)
+            (apply
+              (identifier))
+            (separator)
+            (identifier)
+            (separator)
+            (identifier)
+            (end))
+          (end)))
+      (separator))

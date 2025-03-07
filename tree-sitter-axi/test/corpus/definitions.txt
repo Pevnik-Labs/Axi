@@ -36,7 +36,7 @@ my_function (x : Nat) : Nat = plus x x
             (identifier)))
         (value
           (lambda
-            (ann_patterns
+            (patterns
               (identifier))
             (call
               (call
@@ -78,7 +78,7 @@ record type Vector a where
         (identifier)
         (parameters
           (identifier))
-        (block
+        (where_block
           (begin)
           (separator)
           (constant_declaration

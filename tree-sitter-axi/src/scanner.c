@@ -14,85 +14,127 @@ typedef enum TokenType
     END
 } TokenType;
 
-#define TOP_MAX (TREE_SITTER_SERIALIZATION_BUFFER_SIZE / sizeof(int32_t) - 1)
+#define TOP_MAX (TREE_SITTER_SERIALIZATION_BUFFER_SIZE / sizeof(uint32_t) - 1)
+#define TENTATIVE ((uint32_t)1 << 31)
 
-typedef struct ScannerState
+typedef struct Scanner
 {
+    // Range [0, top + 1) stores the rulers.
+    // Range [top + 1, TOP_MAX + 1) is zeroed.
     // `rulers[0]` is always zero.
-    // `rulers[1]`, ..., `rulers[top]` store the rulers.
-    // Negative values indicate tentative rulers.
-    int32_t rulers[TOP_MAX + 1];
+    // If the most significant bit of a ruler is clear, it indicates a confirmed ruler.
+    // Every ruler is greater than the previous confirmed ruler.
+    uint32_t rulers[TOP_MAX + 1];
 
     // The index of the last ruler, less than or equal to `TOP_MAX`.
-    int32_t top;
-} ScannerState;
+    uint32_t top;
+} Scanner;
 
-static inline bool valid_state(const ScannerState *const scanner_state, FILE *const file)
+static inline bool is_tentative_at(const Scanner *const self, const uint32_t index)
 {
-    bool valid = scanner_state->top <= TOP_MAX;
-    fprintf(file, "{top: %i, rulers: [", scanner_state->top);
-    int32_t prev = 0;
-    for (int32_t i = 0; i <= TOP_MAX && i <= scanner_state->top; i++)
-    {
-        const char *sep = i < TOP_MAX ? i == scanner_state->top ? "|" : "," : "";
-        fprintf(file, "%i%s", scanner_state->rulers[i], sep);
-        valid &= prev <= labs(scanner_state->rulers[i]);
-        if (scanner_state->rulers[i] >= 0)
-            prev = scanner_state->rulers[i];
-    }
-    fprintf(file, "]}\n");
+    return self->rulers[index] & TENTATIVE;
+}
+
+static inline uint32_t get_ruler_at(const Scanner *const self, const uint32_t index)
+{
+    return self->rulers[index] & ~TENTATIVE;
+}
+
+static inline bool debug_print(const Scanner *const self, FILE *const file, const bool valid)
+{
+    const uint32_t max = valid ? self->top : TOP_MAX;
+    const uint32_t top = self->top <= TOP_MAX ? self->top : TOP_MAX;
+    fprintf(file, (valid ? "[" : "{top: %i, rulers: ["), self->top);
+    for (uint32_t i = 0; i <= max; i++)
+        fprintf(
+            file,
+            (i < top ? "%s%i," : i == top   ? "%s%i"
+                             : i == top + 1 ? "|%s%i"
+                                            : ",%s%i"),
+            (is_tentative_at(self, i) ? "?" : ""),
+            get_ruler_at(self, i));
+    fprintf(file, "]%s\n", (valid ? "" : "}"));
     return valid;
 }
 
-ScannerState *tree_sitter_axi_external_scanner_create()
+static inline bool is_valid(const Scanner *const self)
 {
-    static ScannerState scanner_state;
-    static_assert(sizeof(scanner_state.rulers) <= TREE_SITTER_SERIALIZATION_BUFFER_SIZE);
-    return &scanner_state;
+    uint32_t prev = self->rulers[0];
+    bool valid = self->top <= TOP_MAX && prev == 0;
+    uint32_t i = 1;
+    for (; valid && i <= self->top; i++)
+    {
+        const uint32_t ruler = get_ruler_at(self, i);
+        valid = prev < ruler;
+        if (!is_tentative_at(self, i))
+            prev = ruler;
+    }
+    for (; valid && i <= TOP_MAX; i++)
+        valid = self->rulers[i] == 0;
+    return valid;
 }
 
-void tree_sitter_axi_external_scanner_destroy(ScannerState *scanner_state)
+static inline uint32_t get_last_confirmed(const Scanner *const self)
+{
+
+}
+
+static inline void confirm_ruler(Scanner *const self, const bool line_break)
+{
+    if (line_break)
+        self->rulers[self->top] &= ~TENTATIVE;
+}
+
+Scanner *tree_sitter_axi_external_scanner_create()
+{
+    static Scanner scanner;
+    static_assert(sizeof(scanner.rulers) <= TREE_SITTER_SERIALIZATION_BUFFER_SIZE);
+    return &scanner;
+}
+
+void tree_sitter_axi_external_scanner_destroy(const Scanner *const self)
 {
 }
 
-unsigned tree_sitter_axi_external_scanner_serialize(const ScannerState *scanner_state, char *buffer)
+unsigned tree_sitter_axi_external_scanner_serialize(const Scanner *self, char *buffer)
 {
-    const unsigned length = sizeof(int32_t[scanner_state->top + 1]);
-    memcpy(buffer, scanner_state->rulers, length);
+    const unsigned length = sizeof(uint32_t[self->top + 1]);
+    memcpy(buffer, self->rulers, length);
     return length;
 }
 
-void tree_sitter_axi_external_scanner_deserialize(ScannerState *scanner_state, const char *buffer, unsigned length)
+void tree_sitter_axi_external_scanner_deserialize(Scanner *const self, const char *const buffer, const unsigned length)
 {
-    memcpy(scanner_state->rulers, buffer, length);
-    scanner_state->top = length / sizeof(int32_t) - 1;
-    if (scanner_state->top > TOP_MAX)
-        scanner_state->top = scanner_state->rulers[0] = 0;
+    const uint32_t top = length / sizeof(uint32_t) - 1;
+    self->top = top <= TOP_MAX ? top : 0;
+    memcpy(self->rulers, buffer, length);
+    memset((char *)self->rulers + length, 0, sizeof(self->rulers) - length);
 }
 
-static inline bool try_emit_end(ScannerState *scanner_state, TSLexer *lexer)
+static inline bool try_emit_end(Scanner *const self, TSLexer *const lexer)
 {
-    if (scanner_state->top > 0)
-    {
-        fprintf(stderr, "end: %i\n", scanner_state->rulers[scanner_state->top]);
-        scanner_state->top--;
-        lexer->result_symbol = END;
-        return true;
-    }
-    return false;
+    if (self->top == 0)
+        return false;
+    self->rulers[self->top] = 0;
+    self->top--;
+    lexer->result_symbol = END;
+    return true;
 }
 
-static inline bool try_emit_begin(ScannerState *scanner_state, const int32_t column, TSLexer *lexer)
+static inline bool try_emit_begin(Scanner *const self, const bool line_break, const uint32_t column, TSLexer *const lexer)
 {
-    if (column >= 0 && scanner_state->top < TOP_MAX)
-    {
-        scanner_state->top++;
-        scanner_state->rulers[scanner_state->top] = ~column;
-        fprintf(stderr, "begin: %i\n", scanner_state->rulers[scanner_state->top]);
-        lexer->result_symbol = BEGIN;
-        return true;
-    }
-    return false;
+    if (self->top >= TOP_MAX)
+        return false;
+    uint32_t last_confirmed = self->top;
+    while (is_tentative_at(self, last_confirmed))
+        last_confirmed--;
+    if (column <= self->rulers[last_confirmed])
+        return false;
+    self->top++;
+    self->rulers[self->top] = column | TENTATIVE;
+    confirm_ruler(self, line_break);
+    lexer->result_symbol = BEGIN;
+    return true;
 }
 
 static inline bool emit_separator(TSLexer *lexer)
@@ -101,34 +143,24 @@ static inline bool emit_separator(TSLexer *lexer)
     return true;
 }
 
-bool tree_sitter_axi_external_scanner_scan(ScannerState *scanner_state, TSLexer *lexer, const bool *valid_symbols)
+bool tree_sitter_axi_external_scanner_scan(Scanner *const self, TSLexer *const lexer, const bool valid[])
 {
-    assert(valid_state(scanner_state, stderr));
-    const bool error_recovery = valid_symbols[BEGIN] && valid_symbols[SEPARATOR] && valid_symbols[END];
+    assert(is_valid(self) || debug_print(self, stderr, false));
+    const bool error_recovery = valid[BEGIN] && valid[SEPARATOR] && valid[END];
     if (error_recovery)
-        return fprintf(stderr, "error recovery\n"), try_emit_end(scanner_state, lexer);
-    if (valid_symbols[BEGIN])
-        return try_emit_begin(scanner_state, lexer->get_column(lexer), lexer);
+        return try_emit_end(self, lexer);
     bool line_break = false;
     for (; !lexer->eof(lexer) && isspace(lexer->lookahead); lexer->advance(lexer, false))
         if (lexer->lookahead == '\n')
             line_break = true;
-    const int32_t column = (int32_t)lexer->get_column(lexer);
-    if (column < 0)
+    const uint32_t column = lexer->get_column(lexer);
+    if (column >= TENTATIVE)
         return false;
-    if (line_break && scanner_state->rulers[scanner_state->top] < 0)
-    {
-        scanner_state->rulers[scanner_state->top] = column;
-        for (int32_t i = scanner_state->top; i >= 0; i--)
-        {
-            if (scanner_state->rulers[i] > column)
-                return false;
-            if (scanner_state->rulers[i] >= 0)
-                break;
-        }
-    }
-    const int32_t ruler = scanner_state->rulers[scanner_state->top];
-    if (valid_symbols[END] && column < labs(ruler))
-        return try_emit_end(scanner_state, lexer);
-    return valid_symbols[SEPARATOR] && column == ruler && emit_separator(lexer);
+    if (valid[BEGIN])
+        return try_emit_begin(self, line_break, column, lexer);
+    confirm_ruler(self, line_break);
+    const uint32_t ruler = get_ruler_at(self, self->top);
+    if (valid[END] && column < ruler)
+        return try_emit_end(self, lexer);
+    return valid[SEPARATOR] && column == ruler && emit_separator(lexer);
 }

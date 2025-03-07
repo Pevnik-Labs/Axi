@@ -1,3 +1,5 @@
+(hole_identifier) @variable
+
 (identifier) @variable
 
 ((identifier) @constructor
@@ -7,7 +9,7 @@
  (#match? @constant "^[A-Z][A-Z0-9_]*$"))
 
 ((identifier) @keyword
- (#match? @keyword "^absurd|and-left|and-right|cases|or-left|or-right|refl|trivial$"))
+ (#match? @keyword "^absurd|and-left|and-right|both|cases|or-left|or-right|proving|refl|suffices|trivial$"))
 
 [
   "("
@@ -41,8 +43,9 @@
   "apply"
   "assume"
   "axiom"
-  "both"
+  "by"
   "forall"
+  "lemma"
   "of"
   "proof"
   "qed"
