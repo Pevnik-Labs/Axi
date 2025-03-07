@@ -161,7 +161,7 @@ idNat'' (n : Nat) : Nat = n
 // The short definition produces the same term as the other two definitions.
 theorem short-definition-desugared : idNat'' === (fun n : Nat => n)
 proof                          // |- idNat'' === (fun n : Nat => n)
-  unfold idNat'                // |- (fun n : Nat => n) === (fun n : Nat => n)
+  unfold idNat''                // |- (fun n : Nat => n) === (fun n : Nat => n)
   refl
 qed
 
@@ -213,12 +213,11 @@ id' {A} (x : A) : A = x
 theorem funext-example :
   forall {A B} (f g : A -> B),
     (forall x : A, f x === g x) --> f === g
-proof
-  pick-any A B f g
-  // Let Γ = A B : Type, f g : A -> B, eq : forall x : A, f x === g x
-  assume eq         // Γ |- f === g
-  funext x          // Γ, x : A |- f x === g x
-  instantiate eq
+proof                                  // |- forall {A B} (f g : A -> B), (forall x : A, f x === g x) --> f === g
+  pick-any A B f g                     // A B : Type, f g : A -> B |- (forall x : A, f x === g x) --> f === g
+  assume eq                            // A B : Type, f g : A -> B, eq : forall x : A, f x === g x |- f === g
+  funext x                             // A B : Type, f g : A -> B, eq : forall x : A, f x === g x, x : A |- f x === g x
+  instantiate eq                       // Theorem proved!
 qed
 
 // We can use `let` bindings.
@@ -301,7 +300,7 @@ theorem record-equality :
     p1.x === p2.x --> p1.y === p2.y --> p1 === p2
 proof
   pick-any p1 p2
-  assume eqx eqy
+  assume (eqx : p1.x === p2.x) (eqy : p1.y === p2.y)
   chaining
     === p1
     === {x = p1.x; y = p1.y}  by refl
@@ -362,14 +361,14 @@ tupleSyntaxExample : Prod Int32 Float32 = (42, 3.14)
 
 // As an alternative way of eliminating records, we can
 // pattern match on them (using record literal syntax).
-swapRecord {A B} (p : Prod A B) : Prod B A =
-| {x = x; y = y} => {x = y; y = x}
+swapRecord {A B} : Prod A B -> Prod B A
+| {fst = x; snd = y} => {fst = y; snd = x}
 
 // Since a typical record pattern repeats all the field names twice,
 // like in `{x1 = x1; ...; xn = xn}`, it makes sense to have some
 // special syntax to avoid this.
 swapRecord' {A B} (p : Prod A B) : Prod B A =
-| {x; y} => {x = y; y = x}
+| {fst; snd} => {fst = snd; snd = fst}
 
 // Pattern matching is also allowed using the tuple syntax.
 swapTuple {A B} (p : Prod A B) : Prod B A =
@@ -687,7 +686,7 @@ qed
 // is `map-map`.
 theorem map-map :
   forall {A B C} (f : A -> B) (g : B -> C) (l : List A),
-    map g (map f l) === map (fun a => g (f a)) l =
+    map g (map f l) === map (fun a => g (f a)) l
 proof
   pick-any A B C f g l
   rewrite (instantiate map-comp with f g l)
@@ -826,7 +825,59 @@ instance Eq Uint8
 // By the way, just as we can define conditional class instances, we can define
 // classes that can require their arguments to belong to some other class.
 class LawfulEq A <= Eq A
-  eqb-spec : forall x y : A, eqb x y === true <--> x === y
+  eqb-spec1 : forall x y : A, eqb x y === true --> x === y
+  eqb-spec2 : forall x y : A, x === y --> eqb x y === true
+
+theorem eqb-diag :
+  forall {A} [LawfulEq A] (l : List A),
+    eqb l l === true
+proof
+  pick-any A l
+  induction l
+  | nil =>
+    refl
+  | cons h (t & IH) =>
+    chaining
+      === eqb (cons h t) (cons h t)
+      === andb (eqb h h) (eqb t t)   by simpl
+      === andb true (eqb t t)        by rewrite (apply (instantiate eqb-spec2 with h h) refl)
+      === andb true true             by rewrite IH
+      === true                       by refl
+qed
+
+instance LawfulEq (List A) <= LawfulEq A
+  theorem eqb-spec1 :
+    forall l1 l2 : List A,
+      eqb l1 l2 === true --> l1 === l2
+  proof
+    pick-any l1 l2
+    assume h : eqb l1 l2 === true
+    induction l1
+    | nil =>
+      cases l2
+      | nil =>
+        refl
+      | cons _ _ =>
+        ...
+    | cons h1 t1 =>
+      cases l2
+      | nil =>
+        ...
+      | cons h2 t2 =>
+        // h : andb (eqb h1 h2) (eqb t1 t2) === true
+  qed
+
+  theorem eqb-spec2 :
+    forall l1 l2 : List A,
+      l1 === l2 --> eqb l1 l2 === true
+  proof
+    pick-any A _ l1 l2
+    assume h : l1 === l2
+    chaining
+      === eqb l1 l2
+      === eqb l2 l2  by rewrite h
+      === true       by rewrite (instantiate eqb-diag with A ? l2)
+  qed
 
 // With lawful classes, we can indeed do some proving. As an example, let's prove
 // an obvious specification of `neqb`.

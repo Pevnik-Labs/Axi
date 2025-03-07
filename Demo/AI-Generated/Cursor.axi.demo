@@ -1,139 +1,59 @@
-// All code in this file is written by Cursor (either GPT 4o or Claude 3.5 Sonnet), except for some comments.
+// An attempt at a propositional logic benchmark for various AIs.
 
-theorem iff-not-nand : ~ (P <--> Q) --> ~ P \/ ~ Q
+// default/4o(?) one shot.
+// DeepSeek V3 one-shot.
+theorem iff-not-nand :
+  ~ (P <--> Q) --> ~ P \/ ~ Q
 proof
-  assume (npq = ~ (P <--> Q))             // npq = ~ (P <--> Q) |- ~ P \/ ~ Q
-  by-contradiction (h = ~ (~ P \/ ~ Q))   // npq, h = ~ (~ P \/ ~ Q) |- False
-  apply npq                               // npq, h |- P <--> Q
-  both
-  -                                       // npq, h |- P --> Q
-    assume P                              // npq, h, P |- Q
-    by-contradiction (~ Q)                // npq, h, P, ~ Q |- False
-    apply h                               // npq, h, P, ~ Q |- ~ P \/ ~ Q
-    or-right                              // npq, h, P, ~ Q |- ~ Q
-    assumption
-  -                                       // npq, h |- Q --> P
-    assume Q                              // npq, h, Q |- P
-    by-contradiction (~ P)                // npq, h, Q, ~ P |- False
-    apply h                               // npq, h, Q, ~ P |- ~ P \/ ~ Q
-    or-left                               // npq, h, Q, ~ P |- ~ P
-    assumption
+
 qed
 
-theorem iff-not-conv : (~ P <--> ~ Q) --> (P <--> Q)
+// 4o one shot.
+// DeepSeek V3 two shot.
+theorem and-or-distrib :
+  P /\ (Q \/ R) <--> (P /\ Q) \/ (P /\ R)
 proof
-  assume (both (npq = ~ P --> ~ Q) (nqp = ~ Q --> ~ P))
-  both
-  -                         // npq, nqp |- P --> Q
-    assume P                // npq, nqp, P |- Q
-    by-contradiction (~ Q)  // npq, nqp, P, ~ Q |- False
-    apply nqp (~ Q)         // npq, nqp, P, ~ Q |- P
-    assumption
-  -                         // npq, nqp |- Q --> P
-    assume Q                // npq, nqp, Q |- P
-    by-contradiction (~ P)  // npq, nqp, Q, ~ P |- False
-    apply npq (~ P)         // npq, nqp, Q, ~ P |- Q
-    assumption
+
 qed
 
-theorem de-morgan : ~ (P /\ Q) --> ~ P \/ ~ Q
+// 4o one shot, but with a more complicated proof.
+// DeepSeek V3 two shot.
+theorem de-morgan :
+  ~ (P /\ Q) --> ~ P \/ ~ Q
 proof
-  assume (npq = ~ (P /\ Q))               // npq = ~ (P /\ Q) |- ~ P \/ ~ Q
-  by-contradiction (h = ~ (~ P \/ ~ Q))   // npq, h = ~ (~ P \/ ~ Q) |- False
-  apply h                                 // npq, h |- ~ P \/ ~ Q
-  or-left                                 // npq, h |- ~ P
-  assume P                                // npq, h, P |- False
-  apply h                                 // npq, h, P |- ~ P \/ ~ Q
-  or-right                                // npq, h, P |- ~ Q
-  assume Q                                // npq, h, P, Q |- False
-  apply npq                               // npq, h, P, Q |- P /\ Q
-  both
-  - assumption                            // npq, h, P, Q |- P
-  - assumption                            // npq, h, P, Q |- Q
+
 qed
 
-theorem de-morgan-conv : ~ P \/ ~ Q --> ~ (P /\ Q)
+// 4o two shot.
+// DeepSeek V3 one-shot.
+theorem de-morgan-conv :
+  ~ P \/ ~ Q --> ~ (P /\ Q)
 proof
-  assume (npnq = ~ P \/ ~ Q)             // npnq = ~ P \/ ~ Q |- ~ (P /\ Q)
-  assume (both P Q)                      // npnq, P, Q |- False
-  cases npnq
-  - assume (~ P)                         // npnq, P, Q, ~ P |- False
-    contradiction (~ P) P
-  - assume (~ Q)                         // npnq, P, Q, ~ Q |- False
-    contradiction (~ Q) Q
+
 qed
 
-theorem de-morgan-or : ~ (P /\ Q) <--> ~ P \/ ~ Q
+// DeepSeek V3 two shot.
+theorem de-morgan-and :
+  ~ (P \/ Q) <--> ~ P /\ ~ Q
 proof
-  both
-  - apply de-morgan
-  - apply de-morgan-conv
+
 qed
 
-theorem de-morgan-and : ~ (P \/ Q) <--> ~ P /\ ~ Q
+theorem impl-and-distrib :
+  (P --> Q /\ R) <--> (P --> Q) /\ (P --> R)
 proof
-  both
-  - apply not-or-elim
-  - apply not-or-intro
+
 qed
 
-theorem impl-and-distrib : (P --> Q /\ R) <--> (P --> Q) /\ (P --> R)
+theorem impl-or-distrib :
+  ((P \/ Q) --> R) <--> (P --> R) /\ (Q --> R)
 proof
-  both                                               // |- (P --> Q /\ R) --> (P --> Q) /\ (P --> R)
-  - assume (pqr = P --> Q /\ R)                      // pqr = P --> Q /\ R |- (P --> Q) /\ (P --> R)
-    both
-    - assume P                                       // pqr, P |- Q
-      and-left (apply pqr P)
-    - assume P                                       // pqr, P |- R
-      and-right (apply pqr P)
-  - assume (both (pq = P --> Q) (pr = P --> R))      // pq = P --> Q, pr = P --> R |- P --> Q /\ R
-    assume P                                         // pq, pr, P |- Q /\ R
-    both
-    - apply pq P                                     // pq, pr, P |- Q
-    - apply pr P                                     // pq, pr, P |- R
+
 qed
 
-theorem impl-or-distrib : ((P \/ Q) --> R) <--> (P --> R) /\ (Q --> R)
+// Very hard, no AI can solve it.
+theorem iff-not-conv :
+  (~ P <--> ~ Q) --> (P <--> Q)
 proof
-  both                                               // |- ((P \/ Q) --> R) --> (P --> R) /\ (Q --> R)
-  - assume (pqr = (P \/ Q) --> R)                    // pqr = (P \/ Q) --> R |- (P --> R) /\ (Q --> R)
-    both
-    - assume P                                       // pqr, P |- R
-      apply pqr                                      // pqr, P |- P \/ Q
-      or-left                                        // pqr, P |- P
-      assumption
-    - assume Q                                       // pqr, Q |- R
-      apply pqr                                      // pqr, Q |- P \/ Q
-      or-right                                       // pqr, Q |- Q
-      assumption
-  - assume (both (pr = P --> R) (qr = Q --> R))      // pr = P --> R, qr = Q --> R |- (P \/ Q) --> R
-    assume (pq = P \/ Q)                             // pr, qr, pq = P \/ Q |- R
-    cases pq
-    - assume P                                       // pr = P --> R, qr = Q --> R, P |- R
-      apply pr                                       // pr = P --> R, qr = Q --> R, P |- P
-      assumption
-    - assume Q                                       // pr = P --> R, qr = Q --> R, Q |- R
-      apply qr                                       // pr = P --> R, qr = Q --> R, Q |- Q
-      assumption
-qed
 
-theorem and-or-distrib : P /\ (Q \/ R) <--> (P /\ Q) \/ (P /\ R)
-proof
-  both                                     // |- P /\ (Q \/ R) --> (P /\ Q) \/ (P /\ R)
-  - assume (both P (qr = Q \/ R))          // P, qr = Q \/ R |- (P /\ Q) \/ (P /\ R)
-    cases qr
-    - assume Q                             // P, Q |- (P /\ Q) \/ (P /\ R)
-      or-left                              // P, Q |- P /\ Q
-      both P Q
-    - assume R                             // P, R |- (P /\ Q) \/ (P /\ R)
-      or-right                             // P, R |- P /\ R
-      both P R
-  - assume (pqpr = (P /\ Q) \/ (P /\ R))   // pqpr = (P /\ Q) \/ (P /\ R) |- P /\ (Q \/ R)
-    cases pqpr
-    - assume (both P Q)                    // P, Q |- P /\ (Q \/ R)
-      both P                               // P, Q |- Q \/ R
-      or-left Q
-    - assume (both P R)                    // P, R |- P /\ (Q \/ R)
-      both P                               // P, R |- Q \/ R
-      or-right R
 qed

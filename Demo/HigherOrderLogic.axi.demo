@@ -49,11 +49,11 @@ qed
 
 // The impredicative encoding of `True`.
 mytrue : Prop =
-  foral R : Prop, R --> R
+  forall R : Prop, R --> R
 
 theorem mytrue-spec :
   mytrue <--> True
-proof                                // |- mytrue <--> True
+proof                               // |- mytrue <--> True
   both
                                     // |- mytrue --> True
   - assume _                        // |- True
