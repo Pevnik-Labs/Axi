@@ -74,11 +74,6 @@ static inline bool is_valid(const Scanner *const self)
     return valid;
 }
 
-static inline uint32_t get_last_confirmed(const Scanner *const self)
-{
-
-}
-
 static inline void confirm_ruler(Scanner *const self, const bool line_break)
 {
     if (line_break)
@@ -88,7 +83,7 @@ static inline void confirm_ruler(Scanner *const self, const bool line_break)
 Scanner *tree_sitter_axi_external_scanner_create()
 {
     static Scanner scanner;
-    static_assert(sizeof(scanner.rulers) <= TREE_SITTER_SERIALIZATION_BUFFER_SIZE);
+    static_assert(sizeof(scanner.rulers) <= TREE_SITTER_SERIALIZATION_BUFFER_SIZE, "");
     return &scanner;
 }
 
@@ -145,7 +140,7 @@ static inline bool emit_separator(TSLexer *lexer)
 
 bool tree_sitter_axi_external_scanner_scan(Scanner *const self, TSLexer *const lexer, const bool valid[])
 {
-    assert(is_valid(self) || debug_print(self, stderr, false));
+    assert(is_valid(self));
     const bool error_recovery = valid[BEGIN] && valid[SEPARATOR] && valid[END];
     if (error_recovery)
         return try_emit_end(self, lexer);

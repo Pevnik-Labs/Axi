@@ -43,6 +43,10 @@
           "named": true
         },
         {
+          "type": "assume_in",
+          "named": true
+        },
+        {
           "type": "assumption",
           "named": true
         },
@@ -122,6 +126,10 @@
           "named": true
         },
         {
+          "type": "assume_in",
+          "named": true
+        },
+        {
           "type": "assumption",
           "named": true
         },
@@ -190,8 +198,95 @@
     "fields": {},
     "children": {
       "multiple": false,
-      "required": false,
+      "required": true,
       "types": [
+        {
+          "type": "patterns",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "assume_in",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "apply",
+          "named": true
+        },
+        {
+          "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assume_in",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "call",
+          "named": true
+        },
+        {
+          "type": "call_by",
+          "named": true
+        },
+        {
+          "type": "clauses",
+          "named": true
+        },
+        {
+          "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "disjunction",
+          "named": true
+        },
+        {
+          "type": "equality",
+          "named": true
+        },
+        {
+          "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "implication",
+          "named": true
+        },
+        {
+          "type": "lambda",
+          "named": true
+        },
+        {
+          "type": "negation",
+          "named": true
+        },
+        {
+          "type": "number",
+          "named": true
+        },
         {
           "type": "patterns",
           "named": true
@@ -240,6 +335,10 @@
         },
         {
           "type": "assume",
+          "named": true
+        },
+        {
+          "type": "assume_in",
           "named": true
         },
         {
@@ -346,6 +445,10 @@
           "named": true
         },
         {
+          "type": "assume_in",
+          "named": true
+        },
+        {
           "type": "assumption",
           "named": true
         },
@@ -445,6 +548,10 @@
           "named": true
         },
         {
+          "type": "assume_in",
+          "named": true
+        },
+        {
           "type": "assumption",
           "named": true
         },
@@ -521,6 +628,10 @@
         },
         {
           "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assume_in",
           "named": true
         },
         {
@@ -604,6 +715,10 @@
         },
         {
           "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assume_in",
           "named": true
         },
         {
@@ -721,6 +836,10 @@
           "named": true
         },
         {
+          "type": "assume_in",
+          "named": true
+        },
+        {
           "type": "assumption",
           "named": true
         },
@@ -797,6 +916,10 @@
         },
         {
           "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assume_in",
           "named": true
         },
         {
@@ -925,6 +1048,25 @@
     }
   },
   {
+    "type": "declaration",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "parameters",
+          "named": true
+        },
+        {
+          "type": "type_ann",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "disjunction",
     "named": true,
     "fields": {},
@@ -938,6 +1080,10 @@
         },
         {
           "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assume_in",
           "named": true
         },
         {
@@ -1020,6 +1166,10 @@
           "named": true
         },
         {
+          "type": "assume_in",
+          "named": true
+        },
+        {
           "type": "assumption",
           "named": true
         },
@@ -1096,6 +1246,10 @@
         },
         {
           "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assume_in",
           "named": true
         },
         {
@@ -1197,6 +1351,10 @@
           "named": true
         },
         {
+          "type": "assume_in",
+          "named": true
+        },
+        {
           "type": "assumption",
           "named": true
         },
@@ -1277,6 +1435,10 @@
         },
         {
           "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assume_in",
           "named": true
         },
         {
@@ -1375,6 +1537,10 @@
         },
         {
           "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assume_in",
           "named": true
         },
         {
@@ -1493,6 +1659,10 @@
         },
         {
           "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assume_in",
           "named": true
         },
         {
@@ -1629,6 +1799,10 @@
           "named": true
         },
         {
+          "type": "assume_in",
+          "named": true
+        },
+        {
           "type": "assumption",
           "named": true
         },
@@ -1726,6 +1900,10 @@
         },
         {
           "type": "constant_declaration",
+          "named": true
+        },
+        {
+          "type": "declaration",
           "named": true
         },
         {
@@ -1842,6 +2020,10 @@
           "named": true
         },
         {
+          "type": "assume_in",
+          "named": true
+        },
+        {
           "type": "assumption",
           "named": true
         },
@@ -1918,6 +2100,10 @@
         },
         {
           "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assume_in",
           "named": true
         },
         {
@@ -2001,6 +2187,10 @@
         },
         {
           "type": "constant_declaration",
+          "named": true
+        },
+        {
+          "type": "declaration",
           "named": true
         },
         {
@@ -2112,6 +2302,10 @@
     "named": true
   },
   {
+    "type": "declaration",
+    "named": false
+  },
+  {
     "type": "end",
     "named": true
   },
@@ -2126,6 +2320,10 @@
   {
     "type": "identifier",
     "named": true
+  },
+  {
+    "type": "in",
+    "named": false
   },
   {
     "type": "lemma",

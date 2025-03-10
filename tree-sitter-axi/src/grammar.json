@@ -99,6 +99,10 @@
         {
           "type": "SYMBOL",
           "name": "axiom_declaration"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "declaration"
         }
       ]
     },
@@ -300,6 +304,31 @@
         {
           "type": "SYMBOL",
           "name": "type_ann"
+        }
+      ]
+    },
+    "declaration": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "declaration"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "parameters"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "type_ann"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
         }
       ]
     },
@@ -615,16 +644,8 @@
           "value": "assume"
         },
         {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "patterns"
-            },
-            {
-              "type": "BLANK"
-            }
-          ]
+          "type": "SYMBOL",
+          "name": "patterns"
         }
       ]
     },
@@ -809,6 +830,10 @@
       "members": [
         {
           "type": "SYMBOL",
+          "name": "assume_in"
+        },
+        {
+          "type": "SYMBOL",
           "name": "lambda"
         },
         {
@@ -876,21 +901,29 @@
           "name": "hole_identifier"
         },
         {
-          "type": "SEQ",
-          "members": [
-            {
-              "type": "STRING",
-              "value": "("
-            },
-            {
-              "type": "SYMBOL",
-              "name": "_term"
-            },
-            {
-              "type": "STRING",
-              "value": ")"
-            }
-          ]
+          "type": "PREC",
+          "value": 10,
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "("
+              },
+              {
+                "type": "PREC",
+                "value": 0,
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_term"
+                }
+              },
+              {
+                "type": "STRING",
+                "value": ")"
+              }
+            ]
+          }
         }
       ]
     },
@@ -1016,8 +1049,12 @@
         "type": "SEQ",
         "members": [
           {
+            "type": "STRING",
+            "value": "assume"
+          },
+          {
             "type": "SYMBOL",
-            "name": "assume"
+            "name": "patterns"
           },
           {
             "type": "STRING",

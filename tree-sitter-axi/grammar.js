@@ -35,8 +35,10 @@ const or = "\\/";
 const apply = "apply";
 const assume = "assume";
 const axiom = "axiom";
-const by = "by";  
+const by = "by";
+const declaration = "declaration";
 const forall = "forall";
+const in_ = "in";
 const lemma = "lemma";
 const of = "of";
 const proof = "proof";
@@ -99,7 +101,8 @@ module.exports = grammar({
       $.structure_declaration,
       $.constant_declaration,
       $.theorem_declaration,
-      $.axiom_declaration
+      $.axiom_declaration,
+      $.declaration
     ),
 
     structure_declaration: $ => seq(
@@ -139,6 +142,12 @@ module.exports = grammar({
       $.identifier,
       optional($.parameters),
       $.type_ann
+    ),
+
+    declaration: $ => seq(
+      declaration,
+      $.parameters,
+      optional($.type_ann)
     ),
 
     _structure_specifier: $ => choice(
@@ -227,7 +236,7 @@ module.exports = grammar({
       $._term,
     ),
 
-    assume: $ => seq(assume, optional($.patterns)),
+    assume: $ => seq(assume, $.patterns),
 
     patterns: $ => seq(
       repeat1($._atomic_pattern),
@@ -267,6 +276,7 @@ module.exports = grammar({
     value: $ => seq(eq, $._term),
 
     _term: $ => choice(
+      $.assume_in,
       $.lambda,
       $.clauses,
       $.apply,
@@ -284,7 +294,7 @@ module.exports = grammar({
       $.number,
       $.identifier,
       $.hole_identifier,
-      seq(lparen, $._term, rparen),
+      prec(10, seq(lparen, prec(0, $._term), rparen)),
     ),
 
     lambda: $ => prec.right(seq(
@@ -308,7 +318,7 @@ module.exports = grammar({
 
     clause: $ => seq(optional(pipe), $.patterns, arrow, $._term),
 
-    assume_in: $ => prec.right(seq($.assume, "in", $._term)),
+    assume_in: $ => prec.right(seq(assume, $.patterns, in_, $._term)),
 
     apply: $ => prec.left(seq(apply, $._term, repeat(seq(comma, prec.left($._term))))),
 

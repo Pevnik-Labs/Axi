@@ -7,7 +7,7 @@
       "path": ".",
       "file-types": [
         "axi",
-        "demo"
+        "axi.demo"
       ],
       "content-regex": null,
       "highlights": "queries/highlights.scm",

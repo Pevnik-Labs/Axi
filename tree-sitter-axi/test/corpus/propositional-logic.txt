@@ -265,7 +265,6 @@ proof
   p
 qed
 
-// We can chain many-argument `apply` just like the ordinary one.
 theorem impl-dist : (P --> Q --> R) --> ((P --> Q) --> (P --> R))
 proof
   assume (pqr : P --> Q --> R) (pq : P --> Q) p
@@ -426,7 +425,6 @@ qed
           (identifier)
           (end)))
       (separator)
-      (line_comment)
       (theorem_declaration
         (identifier)
         (type_ann
@@ -2080,18 +2078,12 @@ qed
               (call
                 (identifier)
                 (identifier))
-              (call
-                (call
-                  (call
-                    (identifier)
-                    (identifier))
+              (assume_in
+                (patterns
                   (identifier))
                 (hole_identifier)))
-            (call
-              (call
-                (call
-                  (identifier)
-                  (identifier))
+            (assume_in
+              (patterns
                 (identifier))
               (hole_identifier)))
           (separator)
