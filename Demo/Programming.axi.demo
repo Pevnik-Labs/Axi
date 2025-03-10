@@ -161,7 +161,7 @@ idNat'' (n : Nat) : Nat = n
 // The short definition produces the same term as the other two definitions.
 theorem short-definition-desugared : idNat'' === (fun n : Nat => n)
 proof                          // |- idNat'' === (fun n : Nat => n)
-  unfold idNat''                // |- (fun n : Nat => n) === (fun n : Nat => n)
+  unfold idNat''               // |- (fun n : Nat => n) === (fun n : Nat => n)
   refl
 qed
 
@@ -255,7 +255,7 @@ qed
 
 // To define a record type, we need to provide its name together with
 // a list of its fields and their types.
-record type Point
+record type Point where
   x : Float32
   y : Float32
 
@@ -327,7 +327,7 @@ proof
 // We can define another record type, `Point3D`, whose field names overlap
 // with fields names of `Point`. At the top level this causes some ambiguity,
 // but we will allow to disambiguate based on types or explicitly.
-record type Point3D
+record type Point3D where
   x : Float32
   y : Float32
   z : Float32
@@ -350,7 +350,7 @@ embedInXYZ (p : Point) : Point3D =
 
 // Records can be polymorphic, just like functions.
 // We can implement pairs as polymorphic records.
-record type Prod A B
+record type Prod A B where
   fst : A
   snd : B
 
@@ -385,7 +385,7 @@ swapLet' {A B} (p : Prod A B) : Prod B A =
 // We can define data types using the keyword `data type`.
 // Note that we use `yes` and `no` as names of the booleans, to make it easier
 // for newcomers not to confuse them with the propositions `True` and `False`.
-data type Bool
+data type Bool where
   no
   yes
 
@@ -414,7 +414,7 @@ notb' : Bool -> Bool
 // We can reason by cases on elements of data types using `cases`.
 // The syntax is analogous as for pattern matching, i.e.
 // ```
-// cases t
+// cases t with
 // | pat1 => proofterm1
 //    ⋮
 // | patN => prooftermN
@@ -424,7 +424,7 @@ theorem notb-notb :
     notb (notb b) === b
 proof                    // |- forall b : Bool, notb (notb b) === b
   pick-any b             // b : Bool |- notb (notb b) === b
-  cases b
+  cases b with
   | no =>                // b : Bool |- notb (notb no) === no
     simpl                // b : Bool |- no === no
     refl
@@ -438,7 +438,7 @@ theorem notb-notb-term-style :
   forall b : Bool,
     notb (notb b) === b =
       pick-any b in
-        cases b
+        cases b with
         | no  => simpl in refl
         | yes => simpl in refl
 
@@ -454,7 +454,7 @@ theorem andb-comm :
     andb b1 b2 === andb b2 b1
 proof
   pick-any b1 b2
-  cases b1, b2
+  cases b1, b2 with
   | no , no  => refl
   | no , yes => refl
   | yes, no  => refl
@@ -472,7 +472,7 @@ theorem orb-no-r :
 proof               // |- forall b : Bool, orb b no === b
   pick-any b        // b : Bool |- orb b no === b
   unfold orb        // b : Bool |- if b then yes else no === b
-  cases b
+  cases b with
   | no  =>          // b : Bool |- if no then yes else no === no
     simpl           // b : Bool |- no === no
     refl
@@ -491,7 +491,7 @@ theorem if-example :
     | yes => x
 proof
   pick-any b A x y
-  cases b
+  cases b with
   | no  => refl
   | yes => refl
 qed
@@ -499,7 +499,7 @@ qed
 // Data types can be polymorphic.
 // We use the keyword `of` to declare the constructors' argument types,
 // if there are any.
-data type Option A
+data type Option A where
   none
   some of A
 
@@ -525,7 +525,7 @@ theorem is-Option-spec :
     | some a => f a
 proof
   pick-any A B f x a b
-  cases x
+  cases x with
   | none => refl
   | some a => refl
 qed
@@ -533,7 +533,7 @@ qed
 // In case you were wondering, the full syntax for defining data types
 // is as follows:
 // ```
-// data type TypeName
+// data type TypeName where
 //   constructor1 : ArgType1_1 -> ... -> ArgType1_M1 -> TypeName
 //      ⋮
 //   constructorN : ArgTypeN_1 -> ... -> ArgTypeN1_MN -> TypeName
@@ -543,26 +543,26 @@ qed
 // and all the possible shorthands on a simple example.
 
 // In the full syntax, we write the full types of all constructors.
-data type Sum A B
+data type Sum A B where
   inl : A -> Sum A B
   inr : B -> Sum A B
 
 // Similarly to top-level definitions, we can move the arguments to
 // the left of the colon.
-data type Sum A B
+data type Sum A B where
   inl (a : A) : Sum A B
   inr (b : B) : Sum A B
 
 // If the constructor arguments are on the left, we can omit the
 // codomain of the constructor, since it's always the same as the
 // type we're defining anyway.
-data type Sum A B
+data type Sum A B where
   inl (a : A)
   inr (b : B)
 
 // Last but not least, if we only want to give the types of the constructors'
 // arguments, we can use `of`.
-data type Sum A B
+data type Sum A B where
   inl of A
   inr of B
 
@@ -582,7 +582,7 @@ theorem swapSum-spec :
     swapSum (swapSum x) === x
 proof
   pick-any A B x
-  cases x
+  cases x with
   | inl a => refl
   | inr b => refl
 qed
@@ -590,7 +590,7 @@ qed
 // Data type can be recursive (or rather, inductive).
 // Lists, the bread and butter of functional programming,
 // can be defined as follows.
-data type List A
+data type List A where
   nil
   cons (h : A) (t : List A)
 
@@ -603,7 +603,7 @@ map {A B} (f : A -> B) : List A -> List B
 // Proving theorems about recursive functions requires induction.
 // The full syntax is very similar to `cases`:
 // ```
-// induction t
+// induction t with
 // | c_1 a_1_1 ... a_1_m => e_1
 //    ⋮
 // | c_n a_n_1 ... a_n_m => e_n
@@ -619,7 +619,7 @@ theorem map-id :
     map id l === l
 proof                   // |- forall {A} (l : List A), map id l === l
   pick-any A l          // A : Type, l : List A |- map id l === l
-  induction l
+  induction l with
   | nil =>              // A : Type, l : List A |- map id nil === nil
     simpl               // A : Type, l : List A |- nil === nil
     refl
@@ -634,7 +634,7 @@ theorem map-id-term-style :
   forall {A} (l : List A),
     map id l === l =
       pick-any A l in
-      induction l
+      induction l with
       | nil => refl
       | cons h (t & IH) => rewrite IH in refl
 
@@ -650,7 +650,7 @@ theorem map-id-chaining :
     map id l === l
 proof
   pick-any A l
-  induction l
+  induction l with
   | nil =>
     chaining
       === map id nil
@@ -668,7 +668,7 @@ theorem map-comp :
     map (fun a => g (f a)) l === map g (map f l)
 proof
   pick-any A B C f g l
-  induction l
+  induction l with
   | nil =>
     chaining
       === map (fun a => g (f a)) nil
@@ -707,7 +707,7 @@ theorem app-assoc :
     app (app l1 l2) l3 === app l1 (app l2 l3)
 proof
   pick-any A l1
-  induction l1
+  induction l1 with
   | nil =>
     chaining
       === app (app nil l2) l3
@@ -732,7 +732,7 @@ theorem rev-app :
     rev (app l1 l2) === app (rev l2) (rev l1)
 proof
   pick-any A l1 l2
-  induction l1
+  induction l1 with
   | nil =>
     chaining
       === rev (app nil l2)
@@ -754,7 +754,7 @@ qed
 // them in type signatures.
 // `Eq` is a class whose types have a function that checks
 // if two elements of the type are equal.
-class Eq A
+class Eq A where
   eqb : A -> A -> Bool
 
 // We can define an instance of the class for a particular type
@@ -763,7 +763,7 @@ class Eq A
 // same as at the top-level. For example, we must give a full type
 // annotation to each function, and we can use the shorthand syntax
 // for pattern matching.
-instance Eq Bool
+instance Eq Bool where
   eqb : Bool -> Bool -> Bool
   | no , no  => yes
   | yes, yes => yes
@@ -774,14 +774,14 @@ instance Eq Bool
 // Note that in our example, our use of `eqb` in `eqb x y` refers to
 // the `eqb` for type `A` which comes from the instance of `Eq` for `A`
 // that our instance depends on.
-instance Eq (Option A) <= Eq A
+instance Eq (Option A) <= Eq A where
   eqb : Option A -> Option A -> Bool
   | none  , none   => yes
   | some x, some y => eqb x y
   | _     , _      => no
 
 // Conditional instances can have more than one dependency.
-instance Eq (Sum A B) <= Eq A, Eq B
+instance Eq (Sum A B) <= Eq A, Eq B where
   eqb : Sum A B -> Sum A B -> Bool
   | inl a1, inl a2 => eqb a1 a2
   | inr b1, inr b2 => eqb b1 b2
@@ -789,7 +789,7 @@ instance Eq (Sum A B) <= Eq A, Eq B
 
 // Implementations of class functions can be recursive.
 // Of course they can!
-instance Eq (List A) <= Eq A
+instance Eq (List A) <= Eq A where
   eqb : List A -> List A -> Bool
   | nil, nil => yes
   | cons h1 t1, cons h2 ht => andb (eqb h1 h2) (eqb t1 t2)
@@ -815,7 +815,7 @@ neqb : forall {A} [Eq A], A -> A -> Bool =
 // In the example below, we define an instance of `Eq` for `Uint8` (one of
 // our base types), in which `eq` always returns `no`. There's nothing that
 // would force us to return `yes` when the arguments actually are equal.
-instance Eq Uint8
+instance Eq Uint8 where
   eqb (x y : Uint8) : Bool =
     no
 
@@ -824,7 +824,7 @@ instance Eq Uint8
 // member functions to satisfy various properties, which we'll make good use of.
 // By the way, just as we can define conditional class instances, we can define
 // classes that can require their arguments to belong to some other class.
-class LawfulEq A <= Eq A
+class LawfulEq A <= Eq A where
   eqb-spec1 : forall x y : A, eqb x y === true --> x === y
   eqb-spec2 : forall x y : A, x === y --> eqb x y === true
 
@@ -833,7 +833,7 @@ theorem eqb-diag :
     eqb l l === true
 proof
   pick-any A l
-  induction l
+  induction l with
   | nil =>
     refl
   | cons h (t & IH) =>
@@ -845,22 +845,22 @@ proof
       === true                       by refl
 qed
 
-instance LawfulEq (List A) <= LawfulEq A
+instance LawfulEq (List A) <= LawfulEq A where
   theorem eqb-spec1 :
     forall l1 l2 : List A,
       eqb l1 l2 === true --> l1 === l2
   proof
     pick-any l1 l2
     assume h : eqb l1 l2 === true
-    induction l1
+    induction l1 with
     | nil =>
-      cases l2
+      cases l2 with
       | nil =>
         refl
       | cons _ _ =>
         ...
     | cons h1 t1 =>
-      cases l2
+      cases l2 with
       | nil =>
         ...
       | cons h2 t2 =>
@@ -890,4 +890,4 @@ proof                 // |- forall {A} [LawfulEq A] (x y : A), neqb x y === true
   both
   - assume (hnot : notb (eqb x y) === true) (heq : x === y)
                       // A : Type, LawfulEq A, x y : A, hnot : notb (eqb x y) === true, heq : x === y |- False
-    
+qed

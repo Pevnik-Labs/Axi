@@ -29,7 +29,8 @@ proof
   - unfold injective
     pick-any (x y : A)
     assume (eq : f x === f y)
-    chaining=== x
+    chaining
+      === x
       === g (f x)   by (rewrite <-(instantiate gf with x) in refl) // Note that we need `x === g (f x)` whereas `gf` gives `g (f x) === x`.
       === g (f y)   by eq
       === y         by rewrite (instantiate gf with y)

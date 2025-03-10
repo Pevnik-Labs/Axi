@@ -444,8 +444,8 @@ qed
 // provide a conclusion annotation to make this obvious. The syntax is
 // `proving P by e`, where `P` is a proposition and `e` proves `P`.
 theorem conclusion-annotation-example :
-  Q -> P \/ (Q \/ R)
-proof                                  // |- Q -> P \/ (Q \/ R)
+  Q --> P \/ (Q \/ R)
+proof                                  // |- Q --> P \/ (Q \/ R)
   assume q                             // q : Q |- P \/ (Q \/ R)
   proving (P \/ (Q \/ R))              // q : Q |- P \/ (Q \/ R)
   or-right                             // q : Q |- Q \/ R
@@ -456,7 +456,7 @@ proof                                  // |- Q -> P \/ (Q \/ R)
 qed
 
 // In proofterm style, the above proof looks as follows.
-theorem conclusion-annotation-example-term-style : Q -> P \/ (Q \/ R) =
+theorem conclusion-annotation-example-term-style : Q --> P \/ (Q \/ R) =
   assume q in
     proving (P \/ (Q \/ R)) by or-right
       (proving (Q \/ R) by or-left
@@ -466,8 +466,8 @@ theorem conclusion-annotation-example-term-style : Q -> P \/ (Q \/ R) =
 // `proving P by e1 in e2`, where we assert the goal and then
 // give a single-step tactic on the same line.
 theorem conclusion-annotation-alternative :
-  Q -> P \/ (Q \/ R)
-proof                                  // |- Q -> P \/ (Q \/ R)
+  Q --> P \/ (Q \/ R)
+proof                                  // |- Q --> P \/ (Q \/ R)
   assume q                             // q : Q |- P \/ (Q \/ R)
   proving (P \/ (Q \/ R)) by or-right  // q : Q |- Q \/ R
   proving (Q \/ R) by or-left          // q : Q |- Q

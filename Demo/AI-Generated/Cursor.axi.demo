@@ -51,7 +51,7 @@ proof
 
 qed
 
-// Very hard, no AI can solve it.
+// Very hard.
 theorem iff-not-conv :
   (~ P <--> ~ Q) --> (P <--> Q)
 proof

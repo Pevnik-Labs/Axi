@@ -132,41 +132,32 @@ proof                                  // |- ~ (~ P \/ ~ Q) --> P /\ Q
   both p q                             // Theorem proved!
 qed
 
+theorem xor-not-iff-conv :
+  ~ ((P /\ ~ Q) \/ (~ P /\ Q)) --> P <--> Q
+proof                                  // |- ~ ((P /\ ~ Q) \/ (~ P /\ Q)) --> P <--> Q
+  assume nxor                          // nxor : ~ ((P /\ ~ Q) \/ (~ P /\ Q)) |- P <--> Q
+  both
+                                       // nxor : ~ ((P /\ ~ Q) \/ (~ P /\ Q)) |- P --> Q
+  - assume p                           // nxor : ~ ((P /\ ~ Q) \/ (~ P /\ Q)), p : P |- Q
+    by-contradiction nq                // nxor : ~ ((P /\ ~ Q) \/ (~ P /\ Q)), p : P, nq : ~ Q |- False
+    apply nxor                         // nxor : ~ ((P /\ ~ Q) \/ (~ P /\ Q)), p : P, nq : ~ Q |- (P /\ ~ Q) \/ (~ P /\ Q)
+    or-left                            // nxor : ~ ((P /\ ~ Q) \/ (~ P /\ Q)), p : P, nq : ~ Q |- P /\ ~ Q
+    both p nq                          // Goal solved!
+                                       // nxor : ~ ((P /\ ~ Q) \/ (~ P /\ Q)) |- Q --> P
+  - assume q                           // nxor : ~ ((P /\ ~ Q) \/ (~ P /\ Q)), q : Q |- P
+    by-contradiction np                // nxor : ~ ((P /\ ~ Q) \/ (~ P /\ Q)), q : Q, np : ~ P |- False
+    apply nxor                         // nxor : ~ ((P /\ ~ Q) \/ (~ P /\ Q)), q : Q, np : ~ P |- (P /\ ~ Q) \/ (~ P /\ Q)
+    or-right                           // nxor : ~ ((P /\ ~ Q) \/ (~ P /\ Q)), q : Q, np : ~ P |- ~ P /\ Q
+    both np q                          // Theorem proved!
+qed
+
 // In classical logic, `P xor Q` follows from the fact that they aren't
 // logically equivalent.
 theorem xor-not-iff :
   ~ (P <--> Q) --> (P /\ ~ Q) \/ (~ P /\ Q)
 proof                                  // |- ~ (P <--> Q) --> (P /\ ~ Q) \/ (~ P /\ Q)
-  assume npq : ~ (P <--> Q)            // npq : ~ (P <--> Q) |- (P /\ ~ Q) \/ (~ P /\ Q)
-  cases lem
-                                       // npq : ~ (P <--> Q) |- P --> (P /\ ~ Q) \/ (~ P /\ Q)
-  - assume p                           // npq : ~ (P <--> Q), p : P |- (P /\ ~ Q) \/ (~ P /\ Q)
-    or-left                            // npq : ~ (P <--> Q), p : P |- P /\ ~ Q
-    both p                             // npq : ~ (P <--> Q), p : P |- ~ Q
-    assume q                           // npq : ~ (P <--> Q), p : P, q : Q |- False
-    apply npq                          // npq : ~ (P <--> Q), p : P, q : Q |- P <--> Q
-    both
-                                       // npq : ~ (P <--> Q), p : P, q : Q |- P --> Q
-    - assume _                         // npq : ~ (P <--> Q), p : P, q : Q |- Q
-      assumption                       // Goal solved!
-                                       // npq : ~ (P <--> Q), p : P, q : Q |- Q --> P
-    - assume _                         // npq : ~ (P <--> Q), p : P, q : Q |- P
-      assumption                       // Goal solved!
-                                       // npq : ~ (P <--> Q) |- ~ P --> (P /\ ~ Q) \/ (~ P /\ Q)
-  - assume np : ~ P                    // npq : ~ (P <--> Q), np : ~ P |- (P /\ ~ Q) \/ (~ P /\ Q)
-    or-right                           // npq : ~ (P <--> Q), np : ~ P |- ~ P /\ Q
-    both np                            // npq : ~ (P <--> Q), np : ~ P |- Q
-    by-contradiction nq : ~ Q          // npq : ~ (P <--> Q), np : ~ P, nq : ~ Q |- False
-    apply npq                          // npq : ~ (P <--> Q), np : ~ P, nq : ~ Q |- P <--> Q
-    both
-                                       // npq : ~ (P <--> Q), np : ~ P, nq : ~ Q |- P --> Q
-    - assume p                         // npq : ~ (P <--> Q), np : ~ P, nq : ~ Q, p : P |- Q
-      absurd                           // npq : ~ (P <--> Q), np : ~ P, nq : ~ Q, p : P |- False
-      apply contradiction np p         // Goal solved!
-                                       // npq : ~ (P <--> Q), np : ~ P, nq : ~ Q |- Q --> P
-    - assume q                         // npq : ~ (P <--> Q), np : ~ P, nq : ~ Q, q : Q |- P
-      absurd                           // npq : ~ (P <--> Q), np : ~ P, nq : ~ Q, q : Q |- False
-      apply contradiction nq q         // Theorem proved!
+  apply funny-contraposition           // |- ~ ((P /\ ~ Q) \/ (~ P /\ Q)) --> P <--> Q
+  apply xor-not-iff-conv               // Theorem proved!
 qed
 
 // In classical logic, propositions are linearly ordered by implication.
