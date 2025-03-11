@@ -198,8 +198,8 @@ proof                                  // |- P --> Q --> P /\ Q
 qed
 
 // Proofterms that are missing more than one argument can also be turned into
-// tactics, but the syntax is a bit different: the tactic blcoks must be
-// indented and preceded by the symbol `-`, which is called a "bullet"
+// tactics, but the syntax is a bit different: the tactic blocks must be
+// indented and preceded by the symbol `.`, which is called a "bullet"
 // (following Coq naming).
 theorem tactic-style-bullets-example :
   P --> Q --> P /\ Q
@@ -207,9 +207,9 @@ proof                                  // |- P --> Q --> P /\ Q
   assume p q                           // p : P, q : Q |- P /\ Q
   both                                                          // When we use `both`, the goal splits into two, which we'll show separately.
                                        // p : P, q : Q |- P
-  - p                                  // Goal solved!          // This message appears when we solved a goal, but not the entire theorem.
+  . p                                  // Goal solved!          // This message appears when we solved a goal, but not the entire theorem.
                                        // p : P, q : Q |- Q
-  - q                                  // Theorem proved!
+  . q                                  // Theorem proved!
 qed
 
 // Alternatively, the tactics for each subgoal can be enclosed in curly braces.
@@ -350,10 +350,10 @@ proof                                  // |- P \/ Q --> Q \/ P
   assume pq                            // pq : P \/ Q |- Q \/ P
   cases pq
                                        // pq : P \/ Q |- P --> Q \/ P
-  - assume p                           // pq : P \/ Q, p : P |- Q \/ P
+  . assume p                           // pq : P \/ Q, p : P |- Q \/ P
     or-right p                         // Goal solved!
                                        // pq : P \/ Q |- Q --> Q \/ P
-  - assume q                           // pq : P \/ Q, q : Q |- Q \/ P
+  . assume q                           // pq : P \/ Q, q : Q |- Q \/ P
     or-left q                          // Theorem proved!
 qed
 
@@ -517,9 +517,9 @@ proof                                  // |- P /\ Q --> Q /\ P
   assume pq                            // pq : P /\ Q |- Q /\ P
   both
                                        // pq : P /\ Q |- Q
-  - and-right pq                       // Goal solved!
+  . and-right pq                       // Goal solved!
                                        // pq : P /\ Q |- P
-  - and-left pq                        // Theorem proved!
+  . and-left pq                        // Theorem proved!
 qed
 
 // The above proof gets much shorter when pattern matching
@@ -539,11 +539,11 @@ proof                                  // |- ~ P \/ Q --> (P --> Q)
   assume (npq : ~ P \/ Q) (p : P)      // npq : ~ P \/ Q, p : P |- Q
   cases npq
                                        // npq : ~ P \/ Q, p : P |- ~ P --> Q
-  - assume np : ~ P                    // npq : ~ P \/ Q, p : P, np : ~ P |- Q
+  . assume np : ~ P                    // npq : ~ P \/ Q, p : P, np : ~ P |- Q
     absurd                             // npq : ~ P \/ Q, p : P, np : ~ P |- False
     apply contradiction np p           // Goal solved!
                                        // npq : ~ P \/ Q, p : P |- Q --> Q
-  - assume q : Q                       // npq : ~ P \/ Q, p : P, q : Q |- Q
+  . assume q : Q                       // npq : ~ P \/ Q, p : P, q : Q |- Q
     assumption                         // Theorem proved!
 qed
 
@@ -582,9 +582,9 @@ proof                                  // |- (P <--> Q) --> (~ P <--> ~ Q)
   assume (both pq qp)                  // pq : P --> Q, qp : Q --> P |- ~ P <--> ~ Q
   both
                                        // pq : P --> Q, qp : Q --> P |- ~ P --> ~ Q
-  - apply contraposition qp            // Goal solved!
+  . apply contraposition qp            // Goal solved!
                                        // pq : P --> Q, qp : Q --> P |- ~ Q --> ~ P
-  - apply contraposition pq            // Theorem proved!
+  . apply contraposition pq            // Theorem proved!
 qed
 
 theorem resolution :
@@ -598,11 +598,11 @@ proof                                  // |- (P \/ Q) /\ (~ P \/ R) --> Q \/ R
   ?pr =                                // pq : P \/ Q, npr : ~ P \/ R |- P --> Q \/ R
     cases npr
                                        // pq : P \/ Q, npr : ~ P \/ R |- ~ P --> P --> Q \/ R
-    - assume np p                      // pq : P \/ Q, npr : ~ P \/ R, np : ~ P, p : P |- Q \/ R
+    . assume np p                      // pq : P \/ Q, npr : ~ P \/ R, np : ~ P, p : P |- Q \/ R
       absurd                           // pq : P \/ Q, npr : ~ P \/ R, np : ~ P, p : P |- False
       apply contradiction np p         // Goal solved!
                                        // pq : P \/ Q, npr : ~ P \/ R |- R --> P --> Q \/ R
-    - assume r _                       // pq : P \/ Q, npr : ~ P \/ R, r : R |- Q \/ R
+    . assume r _                       // pq : P \/ Q, npr : ~ P \/ R, r : R |- Q \/ R
       or-right r                       // Theorem proved!
 qed
 
@@ -616,11 +616,11 @@ proof                                           // |- (P \/ Q) /\ (~ P \/ R) -->
   ?pr =                                         // pq : P \/ Q, npr : ~ P \/ R, p : P |- Q \/ R
     cases npr
                                                 // pq : P \/ Q, npr : ~ P \/ R, p : P |- ~ P --> Q \/ R
-    - assume np                                 // pq : P \/ Q, npr : ~ P \/ R, p : P, np : ~ P |- Q \/ R
+    . assume np                                 // pq : P \/ Q, npr : ~ P \/ R, p : P, np : ~ P |- Q \/ R
       absurd                                    // pq : P \/ Q, npr : ~ P \/ R, p : P, np : ~ P |- False
       apply contradiction np p                  // Goal solved!
                                                 // pq : P \/ Q, npr : ~ P \/ R, p : P |- R --> Q \/ R
-    - assume r                                  // pq : P \/ Q, npr : ~ P \/ R, p : P, r : R |- Q \/ R
+    . assume r                                  // pq : P \/ Q, npr : ~ P \/ R, p : P, r : R |- Q \/ R
       or-right r                                // Theorem proved!
 qed
 
@@ -630,10 +630,10 @@ proof                                  // |- ~ P /\ ~ Q --> ~ (P \/ Q)
   assume (both np nq) npq              // np : ~ P, nq : ~ Q, npq : P \/ Q |- False
   cases npq
                                        // np : ~ P, nq : ~ Q, npq : P \/ Q |- P --> False
-  - assume p                           // np : ~ P, nq : ~ Q, npq : P \/ Q, p : P |- False
+  . assume p                           // np : ~ P, nq : ~ Q, npq : P \/ Q, p : P |- False
     apply contradiction np p           // Goal solved!
                                        // np : ~ P, nq : ~ Q, npq : P \/ Q |- Q --> False
-  - assume q                           // np : ~ P, nq : ~ Q, npq : P \/ Q, q : Q |- False
+  . assume q                           // np : ~ P, nq : ~ Q, npq : P \/ Q, q : Q |- False
     apply contradiction nq q           // Theorem proved!
 qed
 
@@ -643,12 +643,12 @@ proof                                  // |- ~ (P \/ Q) --> ~ P /\ ~ Q
   assume npq : ~ (P \/ Q)              // npq : ~ (P \/ Q) |- ~ P /\ ~ Q
   both
                                        // npq : ~ (P \/ Q) |- ~ P
-  - assume p                           // npq : ~ (P \/ Q), p : P |- False
+  . assume p                           // npq : ~ (P \/ Q), p : P |- False
     apply npq                          // npq : ~ (P \/ Q), p : P |- P \/ Q
     or-left                            // npq : ~ (P \/ Q), p : P |- P
     p                                  // Goal solved!
                                        // npq : ~ (P \/ Q) |- ~ Q
-  - assume q                           // npq : ~ (P \/ Q), q : Q |- False
+  . assume q                           // npq : ~ (P \/ Q), q : Q |- False
     apply npq                          // npq : ~ (P \/ Q), q : Q |- P \/ Q
     or-right                           // npq : ~ (P \/ Q), q : Q |- Q
     q                                  // Theorem proved!

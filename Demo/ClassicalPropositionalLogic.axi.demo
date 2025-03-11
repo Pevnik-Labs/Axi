@@ -138,13 +138,13 @@ proof                                  // |- ~ ((P /\ ~ Q) \/ (~ P /\ Q)) --> P 
   assume nxor                          // nxor : ~ ((P /\ ~ Q) \/ (~ P /\ Q)) |- P <--> Q
   both
                                        // nxor : ~ ((P /\ ~ Q) \/ (~ P /\ Q)) |- P --> Q
-  - assume p                           // nxor : ~ ((P /\ ~ Q) \/ (~ P /\ Q)), p : P |- Q
+  . assume p                           // nxor : ~ ((P /\ ~ Q) \/ (~ P /\ Q)), p : P |- Q
     by-contradiction nq                // nxor : ~ ((P /\ ~ Q) \/ (~ P /\ Q)), p : P, nq : ~ Q |- False
     apply nxor                         // nxor : ~ ((P /\ ~ Q) \/ (~ P /\ Q)), p : P, nq : ~ Q |- (P /\ ~ Q) \/ (~ P /\ Q)
     or-left                            // nxor : ~ ((P /\ ~ Q) \/ (~ P /\ Q)), p : P, nq : ~ Q |- P /\ ~ Q
     both p nq                          // Goal solved!
                                        // nxor : ~ ((P /\ ~ Q) \/ (~ P /\ Q)) |- Q --> P
-  - assume q                           // nxor : ~ ((P /\ ~ Q) \/ (~ P /\ Q)), q : Q |- P
+  . assume q                           // nxor : ~ ((P /\ ~ Q) \/ (~ P /\ Q)), q : Q |- P
     by-contradiction np                // nxor : ~ ((P /\ ~ Q) \/ (~ P /\ Q)), q : Q, np : ~ P |- False
     apply nxor                         // nxor : ~ ((P /\ ~ Q) \/ (~ P /\ Q)), q : Q, np : ~ P |- (P /\ ~ Q) \/ (~ P /\ Q)
     or-right                           // nxor : ~ ((P /\ ~ Q) \/ (~ P /\ Q)), q : Q, np : ~ P |- ~ P /\ Q
@@ -188,12 +188,12 @@ proof                                  // |- (P --> Q \/ R) --> (P --> Q) \/ (P 
   apply no                             // pqr : P --> Q \/ R, no : ~ ((P --> Q) \/ (P --> R)), p : P |- (P --> Q) \/ (P --> R)
   cases (apply pqr p)
                                        // pqr : P --> Q \/ R, no : ~ ((P --> Q) \/ (P --> R)), p : P |- Q --> (P --> Q) \/ (P --> R)
-  - assume q                           // pqr : P --> Q \/ R, no : ~ ((P --> Q) \/ (P --> R)), p : P, q : Q |- (P --> Q) \/ (P --> R)
+  . assume q                           // pqr : P --> Q \/ R, no : ~ ((P --> Q) \/ (P --> R)), p : P, q : Q |- (P --> Q) \/ (P --> R)
     or-left                            // pqr : P --> Q \/ R, no : ~ ((P --> Q) \/ (P --> R)), p : P, q : Q |- P --> Q
     assume _                           // pqr : P --> Q \/ R, no : ~ ((P --> Q) \/ (P --> R)), p : P, q : Q |- Q
     assumption                         // Goal solved!
                                        // pqr : P --> Q \/ R, no : ~ ((P --> Q) \/ (P --> R)), p : P |- R --> (P --> Q) \/ (P --> R)
-  - assume r                           // pqr : P --> Q \/ R, no : ~ ((P --> Q) \/ (P --> R)), p : P, r : R |- (P --> Q) \/ (P --> R)
+  . assume r                           // pqr : P --> Q \/ R, no : ~ ((P --> Q) \/ (P --> R)), p : P, r : R |- (P --> Q) \/ (P --> R)
     or-right                           // pqr : P --> Q \/ R, no : ~ ((P --> Q) \/ (P --> R)), p : P, r : R |- P --> R
     assume _                           // pqr : P --> Q \/ R, no : ~ ((P --> Q) \/ (P --> R)), p : P, r : R |- R
     assumption                         // Theorem proved!

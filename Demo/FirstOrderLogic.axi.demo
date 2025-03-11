@@ -315,9 +315,9 @@ proof                                     // |- (forall x y z : R x y --> R y z 
   assume trans (ab : R a b) (bc : R b c)  // trans : forall x y z : R x y --> R y z --> R x z, ab : R a b, bc : R b c |- R a c
   transitivity b
                                           // trans : forall x y z : R x y --> R y z --> R x z, ab : R a b, bc : R b c |- R a b
-  - assumption                            // Goal solved!
+  . assumption                            // Goal solved!
                                           // trans : forall x y z : R x y --> R y z --> R x z, ab : R a b, bc : R b c |- R b c
-  - assumption                            // Theorem proved!
+  . assumption                            // Theorem proved!
 qed
 
 // The above proof is desugared as follows.
@@ -327,8 +327,8 @@ theorem transitivity-example-desugared :
 proof
   assume trans (ab : R a b) (bc : R b c)
   apply (instantiate trans with a b c)
-  - assumption
-  - assumption
+  . assumption
+  . assumption
 qed
 
 // Some examples.
@@ -351,11 +351,11 @@ proof                            // |- (forall x : A, P x) \/ (forall x : A, Q x
   pick-any x                     // orall : (forall x : A, P x) \/ (forall x : A, Q x), x : A |- P x \/ Q x
   cases orall
                                  // orall : (forall x : A, P x) \/ (forall x : A, Q x), x : A |- (forall x : A, P x) --> P x \/ Q x
-  - assume allp                  // orall : (forall x : A, P x) \/ (forall x : A, Q x), x : A, allp : forall x : A, P x |- P x \/ Q x
+  . assume allp                  // orall : (forall x : A, P x) \/ (forall x : A, Q x), x : A, allp : forall x : A, P x |- P x \/ Q x
     or-left                      // orall : (forall x : A, P x) \/ (forall x : A, Q x), x : A, allp : forall x : A, P x |- P x
     instantiate allp             // Goal solved!
                                  // orall : (forall x : A, P x) \/ (forall x : A, Q x), x : A |- (forall x : A, Q x) --> P x \/ Q x
-  - assume allq                  // orall : (forall x : A, P x) \/ (forall x : A, Q x), x : A, allq : forall x : A, Q x |- P x \/ Q x
+  . assume allq                  // orall : (forall x : A, P x) \/ (forall x : A, Q x), x : A, allq : forall x : A, Q x |- P x \/ Q x
     or-right                     // orall : (forall x : A, P x) \/ (forall x : A, Q x), x : A, allq : forall x : A, Q x |- Q x
     instantiate allq             // Theorem proved!
 qed
@@ -367,22 +367,22 @@ theorem forall-and :
 proof                                     // |- (forall x : A, P x /\ Q x) <--> (forall x : A, P x) /\ (forall x : A, Q x)
   both
                                           // |- (forall x : A, P x /\ Q x) --> (forall x : A, P x) /\ (forall x : A, Q x)
-  - assume all                            // all : forall x : A, P x /\ Q x |- (forall x : A, P x) /\ (forall x : A, Q x)
+  . assume all                            // all : forall x : A, P x /\ Q x |- (forall x : A, P x) /\ (forall x : A, Q x)
     both
                                           // all : forall x : A, P x /\ Q x |- forall x : A, P x
-    - pick-any x                          // all : forall x : A, P x /\ Q x, x : A |- P x
+    . pick-any x                          // all : forall x : A, P x /\ Q x, x : A |- P x
       and-left (instantiate all with x)   // Goal solved!
                                           // all : forall x : A, P x /\ Q x |- forall x : A, Q x
-    - pick-any x                          // all : forall x : A, P x /\ Q x, x : A |- Q x
+    . pick-any x                          // all : forall x : A, P x /\ Q x, x : A |- Q x
       and-right (instantiate all with x)  // Goal solved!
                                           // |- (forall x : A, P x) /\ (forall x : A, Q x) --> (forall x : A, P x /\ Q x)
-  - assume (both allp allq)               // allp : forall x : A, P x, allq : forall x : A, Q x |- forall x : A, P x /\ Q x
+  . assume (both allp allq)               // allp : forall x : A, P x, allq : forall x : A, Q x |- forall x : A, P x /\ Q x
     pick-any x                            // allp : forall x : A, P x, allq : forall x : A, Q x, x : A |- P x /\ Q x
     both
                                           // allp : forall x : A, P x, allq : forall x : A, Q x, x : A |- P x
-    - instantiate allp                    // Goal solved!
+    . instantiate allp                    // Goal solved!
                                           // allp : forall x : A, P x, allq : forall x : A, Q x, x : A |- Q x
-    - instantiate allq                    // Theorem proved!
+    . instantiate allq                    // Theorem proved!
 qed
 
 theorem ex-or :
@@ -392,28 +392,28 @@ theorem ex-or :
 proof                                 // |- (exists x : A, P x \/ Q x) <--> (exists x : A, P x) \/ (exists x : A, Q x)
   both
                                       // |- (exists x : A, P x \/ Q x) --> (exists x : A, P x) \/ (exists x : A, Q x)
-  - assume (exists x such-that exor)  // x : A, exor : P x \/ Q x |- (exists x : A, P x) \/ (exists x : A, Q x)
+  . assume (exists x such-that exor)  // x : A, exor : P x \/ Q x |- (exists x : A, P x) \/ (exists x : A, Q x)
     cases exor
                                       // x : A, exor : P x \/ Q x |- P x --> (exists x : A, P x) \/ (exists x : A, Q x)
-    - assume p                        // x : A, exor : P x \/ Q x, p : P x |- (exists x : A, P x) \/ (exists x : A, Q x)
+    . assume p                        // x : A, exor : P x \/ Q x, p : P x |- (exists x : A, P x) \/ (exists x : A, Q x)
       or-left                         // x : A, exor : P x \/ Q x, p : P x |- exists x : A, P x
       exists x                        // x : A, exor : P x \/ Q x, p : P x |- P x
       assumption                      // Goal solved!
                                       // x : A, exor : P x \/ Q x |- Q x --> (exists x : A, P x) \/ (exists x : A, Q x)
-    - assume q                        // x : A, exor : P x \/ Q x, q : Q x |- (exists x : A, P x) \/ (exists x : A, Q x)
+    . assume q                        // x : A, exor : P x \/ Q x, q : Q x |- (exists x : A, P x) \/ (exists x : A, Q x)
       or-right                        // x : A, exor : P x \/ Q x, q : Q x |- exists x : A, Q x
       exists x                        // x : A, exor : P x \/ Q x, q : Q x |- Q x
       assumption                      // Goal solved!
                                       // |- (exists x : A, P x) \/ (exists x : A, Q x) --> exists x : A, P x \/ Q x
-  - assume orex                       // orex : (exists x : A, P x) \/ (exists x : A, Q x) |- exists x : A, P x \/ Q x
+  . assume orex                       // orex : (exists x : A, P x) \/ (exists x : A, Q x) |- exists x : A, P x \/ Q x
     cases orex
                                       // orex : (exists x : A, P x) \/ (exists x : A, Q x) |- (exists x : A, P x) --> exists x : A, P x \/ Q x
-    - assume (exists x such-that p)   // orex : (exists x : A, P x) \/ (exists x : A, Q x), x : A, p : P x |- exists x : A, P x \/ Q x
+    . assume (exists x such-that p)   // orex : (exists x : A, P x) \/ (exists x : A, Q x), x : A, p : P x |- exists x : A, P x \/ Q x
       exists x                        // orex : (exists x : A, P x) \/ (exists x : A, Q x), x : A, p : P x |- P x \/ Q x
       or-left                         // orex : (exists x : A, P x) \/ (exists x : A, Q x), x : A, p : P x |- P x
       assumption                      // Goal solved!
                                       // orex : (exists x : A, P x) \/ (exists x : A, Q x) |- (exists x : A, Q x) --> exists x : A, P x \/ Q x
-    - assume (exists x such-that q)   // orex : (exists x : A, P x) \/ (exists x : A, Q x), x : A, q : Q x |- exists x : A, P x \/ Q x
+    . assume (exists x such-that q)   // orex : (exists x : A, P x) \/ (exists x : A, Q x), x : A, q : Q x |- exists x : A, P x \/ Q x
       exists x                        // orex : (exists x : A, P x) \/ (exists x : A, Q x), x : A, q : Q x |- P x \/ Q x
       or-right                        // orex : (exists x : A, P x) \/ (exists x : A, Q x), x : A, q : Q x |- Q x
       assumption                      // Theorem proved!
@@ -425,14 +425,14 @@ theorem not-exists :
   (forall x : A, ~ P x)
 proof                                    // |- ~ (exists x : A, P x) <--> (forall x : A, ~ P x)
   both
-  -                                      // |- ~ (exists x : A, P x) --> (forall x : A, ~ P x)
+  .                                      // |- ~ (exists x : A, P x) --> (forall x : A, ~ P x)
     assume nex                           // nex : ~ (exists x : A, P x) |- (forall x : A, ~ P x)
     pick-any x                           // nex : ~ (exists x : A, P x), x : A |- ~ P x
     assume p                             // nex : ~ (exists x : A, P x), x : A, p : P x |- False
     apply nex                            // nex : ~ (exists x : A, P x), x : A, p : P x |- exists x : A, P x
     exists x                             // nex : ~ (exists x : A, P x), x : A, p : P x |- P x
     assumption                           // Goal solved!
-  -                                      // |- (forall x : A, ~ P x) --> ~ (exists x : A, P x)
+  .                                      // |- (forall x : A, ~ P x) --> ~ (exists x : A, P x)
     assume allnp (exists x such-that p)  // allnp : forall x : A, ~ P x, x : A, p : P x |- False
     apply (instantiate allnp with x)     // allnp : forall x : A, ~ P x, x : A, p : P x |- P x
     assumption                           // Theorem proved!
@@ -444,7 +444,7 @@ theorem not-forall :
   exists x : A, ~ P x
 proof                                              // |- ~ (forall x : A, P x) <--> exists x : A, ~ P x
   both
-  -                                                // |- ~ (forall x : A, P x) --> exists x : A, ~ P x
+  .                                                // |- ~ (forall x : A, P x) --> exists x : A, ~ P x
     assume nall                                    // nall : ~ (forall x : A, P x) |- exists x : A, ~ P x
     by-contradiction nexn : ~ exists x : A, ~ P x  // nall : ~ (forall x : A, P x), nexn : ~ (exists x : A, ~ P x) |- False
     apply nall                                     // nall : ~ (forall x : A, P x), nexn : ~ (exists x : A, ~ P x) |- forall x : A, P x
@@ -453,7 +453,7 @@ proof                                              // |- ~ (forall x : A, P x) <
     apply nexn                                     // nall : ~ (forall x : A, P x), nexn : ~ (exists x : A, ~ P x), x : A, np : ~ P x |- exists x : A, ~ P x
     exists x                                       // nall : ~ (forall x : A, P x), nexn : ~ (exists x : A, ~ P x), x : A, np : ~ P x |- ~ P x
     assumption                                     // Goal solved!
-  -                                                // |- (exists x : A, ~ P x) --> ~ (forall x : A, P x)
+  .                                                // |- (exists x : A, ~ P x) --> ~ (forall x : A, P x)
     assume (exists x such-that np) all             // x : A, np : ~ P x, all : forall x : A, P x |- False
     apply np                                       // x : A, np : ~ P x, all : forall x : A, P x |- P x
     instantiate all                                // Theorem proved!

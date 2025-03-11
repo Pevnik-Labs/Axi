@@ -1,15 +1,63 @@
+[
+  (type)
+  (record)
+  (data)
+  (proposition)
+  "where"
+] @typedefinition
+
+[
+  "theorem"
+  "declaration"
+  "axiom"
+] @toplevel
+
+[
+  "proof"
+  "qed"
+] @proofblock
+
 (hole_identifier) @variable
 
 (identifier) @variable
 
-((identifier) @constructor
- (#match? @constructor "^[A-Z]"))
+((identifier) @kind
+ (#match? @kind "^Type|Prop$"))
 
-((identifier) @constant
- (#match? @constant "^[A-Z][A-Z0-9_]*$"))
+((identifier) @typeoperator
+ (#match? @typeoperator "^[A-Z]"))
 
-((identifier) @keyword
- (#match? @keyword "^absurd|and-left|and-right|both|cases|or-left|or-right|proving|refl|suffices|trivial$"))
+((identifier) @typevar
+ (#match? @typevar "^[A-Z]$"))
+
+((identifier) @proofterm
+ (#match? @proofterm "^absurd|and-left|and-right|both|cases|or-left|or-right|proving|refl|suffices|trivial$"))
+
+[
+  "assume"
+  "apply"
+  (assumption)
+] @proofterm
+
+((identifier) @absurd
+ (#match? @absurd "^absurd$"))
+
+((identifier) @typepropformer
+ (#match? @typepropformer "^True|False$"))
+
+[
+  "/\\"
+  "==="
+  "<-->"
+  "-->"
+  "~"
+  "\\/"
+  "->"
+  "forall"
+] @typepropformer
+
+((identifier) @typepropformer
+ (#match? @typepropformer "^exists$"))
 
 [
   "("
@@ -28,36 +76,14 @@
 
 [
   "&"
-  "/\\"
-  "->"
   "="
-  "==="
-  "==="
-  "<-->"
-  "-->"
-  "~"
-  "\\/"
 ] @operator
 
 [
-  "apply"
-  "assume"
-  "axiom"
   "by"
-  "declaration"
-  "forall"
   "in"
   "lemma"
   "of"
-  "proof"
-  "qed"
-  "theorem"
-  "where"
-  (assumption)
-  (data)
-  (proposition)
-  (record)
-  (type)
 ] @keyword
 
 [

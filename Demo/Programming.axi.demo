@@ -320,9 +320,9 @@ theorem move-x-spec :
 proof
   pick-any dist p
   apply (instantiate record-equality with _ _)
-  - simpl
+  . simpl
     refl
-  - refl
+  . refl
 
 // We can define another record type, `Point3D`, whose field names overlap
 // with fields names of `Point`. At the top level this causes some ambiguity,
@@ -888,6 +888,6 @@ proof                 // |- forall {A} [LawfulEq A] (x y : A), neqb x y === true
   pick-any A _ x y    // A : Type, LawfulEq A, x y : A |- neqb x y === true <--> ~ (x === y)
   unfold neqb         // A : Type, LawfulEq A, x y : A |- notb (eqb x y) === true <--> ~ (x === y)
   both
-  - assume (hnot : notb (eqb x y) === true) (heq : x === y)
+  . assume (hnot : notb (eqb x y) === true) (heq : x === y)
                       // A : Type, LawfulEq A, x y : A, hnot : notb (eqb x y) === true, heq : x === y |- False
 qed
