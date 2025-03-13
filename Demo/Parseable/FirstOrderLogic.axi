@@ -14,16 +14,11 @@ declaration P Q : A -> Prop
 theorem forall-intro-example :
   forall x : A,
     P x \/ True
-proof                    // |- forall x : A, P x \/ True
+proof
   pick-any x : A         // x : A |- P x \/ True
   or-right               // x : A |- True
   trivial                // Theorem proved!
 qed
-
-// In proofterm style, the above proof looks as follows.
-theorem forall-intro-example-term-style : forall x : A, P x \/ True =
-  pick-any x : A in
-    or-right trivial
 
 // We can omit the type annotation in the quantifiers if it can be inferred
 // from the context. Below, it can be inferred from the type of `P`.
@@ -47,15 +42,10 @@ qed
 // `e` proves `forall x : A, P x`.
 theorem forall-elim-example :
   (forall x : A, P x) --> P a
-proof                                       // |- (forall x : A, P x) --> P a
+proof
   assume all : forall x : A, P x            // all : forall x : A, P x |- P a
   instantiate all with a                    // Theorem proved!
 qed
-
-// In proofterm style, the above proof looks as follows.
-theorem forall-elim-example-term-style : (forall x : A, P x) --> P a =
-  assume all : forall x : A, P x in
-    instantiate all with a
 
 // Note that it can often be inferred from context what term
 // the quantifier should be instantiated with. In such a case
@@ -74,16 +64,11 @@ qed
 theorem exists-intro-example :
   exists x : A,
     P x \/ True
-proof                    // |- exists x : A, P x \/ True
+proof
   exists a               // |- P a \/ True
   or-right               // |- True
   trivial                // Theorem proved!
 qed
-
-// In proofterm style, the above proof looks as follows.
-theorem exists-intro-example-term-style : exists x : A, P x \/ True =
-  exists a such-that
-    or-right trivial
 
 // Similarly to the universal quantifier, the annotation on the variable
 // can be omitted if it can be inferred from context, like from `P` below.
@@ -108,19 +93,12 @@ qed
 // `e2` proves `Q` in the context extended with `x : A` and `p : P x`.
 theorem exists-elim-example :
   (exists x : A, P x /\ Q x) --> exists x : A, P x
-proof                                               // |- (exists x : A, P x /\ Q x) --> exists x : A, P x
+proof
   assume ex : exists x : A, P x /\ Q x              // ex : exists x : A, P x /\ Q x |- exists x : A, P x
   pick-witness x pq for ex                          // ex : exists x : A, P x /\ Q x, x : A, pq : P x /\ Q x |- exists x : A, P x
   exists x                                          // ex : exists x : A, P x /\ Q x, x : A, pq : P x /\ Q x |- P x
   and-left pq                                       // Theorem proved!
 qed
-
-// In proofterm style, the above proof looks as follows.
-theorem exists-elim-example-term-style : (exists x : A, P x /\ Q x) --> exists x : A, P x =
-  assume ex : exists x : A, P x /\ Q x in
-    pick-witness x pq for ex in
-      exists x such-that
-        and-left pq
 
 // Similarly to conjunction and biconditional, the existential quantifier can
 // be eliminated by pattern matching fused with `assume`. In the proof below,
@@ -128,7 +106,7 @@ theorem exists-elim-example-term-style : (exists x : A, P x /\ Q x) --> exists x
 // which makes the proof much shorter.
 theorem exists-elim-example' :
   (exists x : A, P x /\ Q x) --> exists x : A, P x
-proof                                               // |- (exists x : A, P x /\ Q x) --> exists x : A, P x
+proof
   assume (exists x such-that both p q)              // x : A, p : P x, q : Q x |- exists x : A, P x
   exists x such-that p                              // Theorem proved!
 qed
@@ -138,7 +116,7 @@ qed
 theorem eq-refl :
   forall x : A,
     x === x
-proof                        // |- forall x : A, x === x
+proof
   pick-any x                 // x : A |- x === x
   refl                       // Theorem proved!
 qed
@@ -159,19 +137,12 @@ theorem eq-refl-term-style : forall x : A, x === x =
 theorem eq-sym :
   forall x y : A,
     x === y --> y === x
-proof                                 // |- forall x y : A, x === y --> y === x
+proof
   pick-any x y                        // x y : A |- x === y --> y === x
   assume heq : x === y                // x y : A, heq : x === y |- y === x
   rewrite heq                         // x y : A, heq : x === y |- y === y
   refl                                // Theorem proved!
 qed
-
-// In proofterm style, the above proof looks as follows.
-theorem eq-sym-term-style : forall x y : A, x === y --> y === x =
-  pick-any x y in
-    assume eq : x === y in
-      rewrite eq in
-        refl
 
 // By default, the left-hand side of the equation is replaced with
 // the right-hand side. We can do the opposite by attaching the
@@ -179,7 +150,7 @@ theorem eq-sym-term-style : forall x y : A, x === y --> y === x =
 theorem eq-sym' :
   forall x y : A,
     x === y --> y === x
-proof                                 // |- forall x y : A, x === y --> y === x
+proof
   pick-any x y                        // x y : A |- x === y --> y === x
   assume heq : x === y                // x y : A, heq : x === y |- y === x
   rewrite <-heq                       // x y : A, heq : x === y |- x === x
@@ -191,7 +162,7 @@ qed
 theorem eq-sym'' :
   forall x y : A,
     x === y --> y === x
-proof                                 // |- forall x y : A, x === y --> y === x
+proof
   pick-any x y                        // x y : A |- x === y --> y === x
   assume heq : x === y                // x y : A, heq : x === y |- y === x
   rewrite ->heq                       // x y : A, heq : x === y |- y === y
@@ -203,7 +174,7 @@ qed
 theorem eq-trans :
   forall x y z : A,
     x === y --> y === z --> x === z
-proof                                       // |- forall x y z : A, x === y --> y === z --> x === z
+proof
   pick-any x y z                            // x y z : A |- x === y --> y === z --> x === z
   assume (xy : x === y) (yz : y === z)      // x y z : A, xy : x === y, yz : y === z |- x === z
   rewrite xy, yz                            // x y z : A, xy : x === y, yz : y === z |- z === z
@@ -214,7 +185,7 @@ qed
 theorem rewrite-modifiers :
   forall x y z : A,
     x === y --> y === z --> x === z
-proof                                       // |- forall x y z : A, x === y --> y === z --> x === z
+proof
   pick-any x y z                            // x y z : A |- x === y --> y === z --> x === z
   assume (xy : x === y) (yz : y === z)      // x y z : A, xy : x === y, yz : y === z |- x === z
   rewrite <-xy, <-yz                        // x y z : A, xy : x === y, yz : y === z |- x === x
@@ -228,7 +199,7 @@ qed
 theorem eq-elim-pattern-matching :
   forall x y z : A,
     x === y --> y === z --> x === z
-proof                                       // |- forall x y z : A, x === y --> y === z --> x === z
+proof
   pick-any x y z                            // x y z : A |- x === y --> y === z --> x === z
   assume ===> ===>                          // x y z : A, _ : x === y, _ : y === z |- z === z
   refl                                      // Theorem proved!
@@ -243,7 +214,7 @@ declaration b c : A
 // We can use `reflexivity` to prove `R x x` when `R` is a reflexive relation.
 theorem reflexivity-example :
   (forall x : A, R x x) --> R a a
-proof                              // |- (forall x : A, R x x) --> R a a
+proof
   assume rfl                       // rfl : forall x : A, R x x |- R a a
   reflexivity                      // Theorem proved!
 qed
@@ -273,7 +244,7 @@ qed
 // `symmetry e` proves `R b a` provided that `e` proves `R a b`.
 theorem symmetry-example :
   (forall x y : A, R x y --> R y x) --> R a b --> R b a
-proof                                                    // |- (forall x y : A, R x y --> R y x) --> R a b --> R b a
+proof
   assume sym (ab : R a b)                                // sym : forall x y : A, R x y --> R y x, ab : R a b |- R b a
   symmetry                                               // sym : forall x y : A, R x y --> R y x, ab : R a b |- R a b
   assumption                                             // Theorem proved!
@@ -311,7 +282,7 @@ qed
 theorem transitivity-example :
   (forall x y z : R x y --> R y z --> R x z) -->
     R a b --> R b c --> R a c
-proof                                     // |- (forall x y z : R x y --> R y z --> R x z) --> R a b --> R b c --> R a c
+proof
   assume trans (ab : R a b) (bc : R b c)  // trans : forall x y z : R x y --> R y z --> R x z, ab : R a b, bc : R b c |- R a c
   transitivity b
                                           // trans : forall x y z : R x y --> R y z --> R x z, ab : R a b, bc : R b c |- R a b
@@ -336,7 +307,7 @@ qed
 theorem forall-impl :
   (forall x : A, P x --> Q x) -->
     (forall x : A, P x) --> (forall x : A, Q x)
-proof                                            // |- (forall x : A, P x --> Q x) --> (forall x : A, P x) --> (forall x : A, Q x)
+proof
   assume pq p                                    // pq : forall x : A, P x --> Q x, p : forall x : A, P x |- forall x : A, Q x
   pick-any x                                     // pq : forall x : A, P x --> Q x, p : forall x : A, P x, x : A |- Q x
   apply (instantiate pq with x)                  // pq : forall x : A, P x --> Q x, p : forall x : A, P x, x : A |- P x
@@ -346,7 +317,7 @@ qed
 theorem forall-or :
   (forall x : A, P x) \/ (forall x : A, Q x) -->
     forall x : A, P x \/ Q x
-proof                            // |- (forall x : A, P x) \/ (forall x : A, Q x) --> forall x : A, P x \/ Q x
+proof
   assume orall                   // orall : (forall x : A, P x) \/ (forall x : A, Q x) |- forall x : A, P x \/ Q x
   pick-any x                     // orall : (forall x : A, P x) \/ (forall x : A, Q x), x : A |- P x \/ Q x
   cases orall
@@ -364,7 +335,7 @@ theorem forall-and :
   (forall x : A, P x /\ Q x)
     <-->
   (forall x : A, P x) /\ (forall x : A, Q x)
-proof                                     // |- (forall x : A, P x /\ Q x) <--> (forall x : A, P x) /\ (forall x : A, Q x)
+proof
   both
                                           // |- (forall x : A, P x /\ Q x) --> (forall x : A, P x) /\ (forall x : A, Q x)
   . assume all                            // all : forall x : A, P x /\ Q x |- (forall x : A, P x) /\ (forall x : A, Q x)
@@ -389,7 +360,7 @@ theorem ex-or :
   (exists x : A, P x \/ Q x)
     <-->
   (exists x : A, P x) \/ (exists x : A, Q x)
-proof                                 // |- (exists x : A, P x \/ Q x) <--> (exists x : A, P x) \/ (exists x : A, Q x)
+proof
   both
                                       // |- (exists x : A, P x \/ Q x) --> (exists x : A, P x) \/ (exists x : A, Q x)
   . assume (exists x such-that exor)  // x : A, exor : P x \/ Q x |- (exists x : A, P x) \/ (exists x : A, Q x)
@@ -423,7 +394,7 @@ theorem not-exists :
   ~ (exists x : A, P x)
     <-->
   (forall x : A, ~ P x)
-proof                                    // |- ~ (exists x : A, P x) <--> (forall x : A, ~ P x)
+proof
   both
   .                                      // |- ~ (exists x : A, P x) --> (forall x : A, ~ P x)
     assume nex                           // nex : ~ (exists x : A, P x) |- (forall x : A, ~ P x)
@@ -442,7 +413,7 @@ theorem not-forall :
   ~ (forall x : A, P x)
     <-->
   exists x : A, ~ P x
-proof                                              // |- ~ (forall x : A, P x) <--> exists x : A, ~ P x
+proof
   both
   .                                                // |- ~ (forall x : A, P x) --> exists x : A, ~ P x
     assume nall                                    // nall : ~ (forall x : A, P x) |- exists x : A, ~ P x

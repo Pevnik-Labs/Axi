@@ -4,13 +4,6 @@
 // We declare some propositions that we will use in the rest of this file.
 declaration P Q R : Prop
 
-// "P implies Q" is written as `P --> Q`.
-// `assume p : P in q` proves `P --> Q` provided that `q` proves `Q`
-// in the context extended with `p : P`, i.e. assuming `P` is true.
-// In other words, `assume` is implication introduction.
-theorem impl-refl-term-style : P --> P =
-  assume (p : P) in p
-
 // The above proof was written in proofterm style, like in DPLs/Athena,
 // but we can also write proofs in tactic style, like in Coq or Lean.
 // Moreover, the tactic style directly corresponds to the proofterm style,
@@ -44,12 +37,6 @@ proof
   assume q : Q                         // p : P, q : Q |- P
   p                                    // Theorem proved!
 qed
-
-// In proofterm style, the above proof looks as follows.
-theorem weakening-term-style : P --> Q --> P =
-  assume p : P in
-    assume q : Q in
-      p
 
 // When two or more `assume`s follow each other, we can condense them into one,
 // with each assumption going in separate parentheses.
@@ -149,7 +136,7 @@ proof
   apply pqr p, pq                                // pqr : P --> Q --> R, pq : P --> Q, p : P |- P
   p                                              // Theorem proved!
 qed
-/**/
+
 // The true proposition is written `True`.
 // We can prove `True` with `trivial`.
 // There's no `True` elimination, because it would be useless.
@@ -198,8 +185,8 @@ proof
 qed
 
 // Proofterms that are missing more than one argument can also be turned into
-// tactics, but the syntax is a bit different: the tactic blcoks must be
-// indented and preceded by the symbol `-`, which is called a "bullet"
+// tactics, but the syntax is a bit different: the tactic blocks must be
+// indented and preceded by the symbol `.`, which is called a "bullet"
 // (following Coq naming).
 theorem tactic-style-bullets-example :
   P --> Q --> P /\ Q
@@ -219,8 +206,8 @@ theorem named-blocks-example :
 proof
   assume p q                           // p : P, q : Q |- P /\ Q
   both ?x ?y                           // Lemmas remaining: ?x : P, ?y : Q  // The goal has been "solved", but now we must fill in ?x and ?y.
-  lemma x = p                               // Lemmas remaining: ?y : Q          // We got ?x, so only ?y remains.
-  lemma y = q                               // Theorem proved!
+  ?x = p                               // Lemmas remaining: ?y : Q          // We got ?x, so only ?y remains.
+  ?y = q                               // Theorem proved!
 qed
 
 // Note that these named blocks don't need to be proved in the order they
@@ -231,8 +218,8 @@ theorem named-blocks-not-in-order-example :
 proof
   assume p q                           // p : P, q : Q |- P /\ Q
   both ?x ?y                           // Lemmas remaining: ?x : P, ?y : Q
-  lemma y = q                               // Lemmas remaining: ?x : P          // This time, only ?x remains.
-  lemma x = p                               // Theorem proved!
+  ?y = q                               // Lemmas remaining: ?x : P          // This time, only ?x remains.
+  ?x = p                               // Theorem proved!
 qed
 
 // Conjunction elimination is `and-left` and `and-right`.
@@ -278,11 +265,6 @@ proof
   both p                               // p : P, q : Q, r : R |- Q /\ R
   both q r                             // Theorem proved!
 qed
-
-// In proofterm style, the above proof looks as follows.
-theorem and-assoc-term-style : (P /\ Q) /\ R --> P /\ (Q /\ R) =
-  assume (both (both p q) r) in
-    both p (both q r)
 
 // The biconditional is written `P <--> Q`.
 // `P <--> Q` is not a primitive, but an abbreviation of `(P --> Q) /\ (Q --> P)`.
@@ -343,20 +325,6 @@ proof
     or-left q                          // Theorem proved!
 qed
 
-// In proofterm style, the above proof looks as follows.
-theorem or-comm-term-style : P \/ Q --> Q \/ P =
-  assume pq in
-    cases pq (assume p in or-right p) (assume q in or-left q)
-
-// Note: we don't have to prove `P --> Q \/ P` inline with
-// `assume p in or-right p` (and analogously for `Q --> Q \/ P`),
-// because we can use `or-right` (respectively, `or-left`) directly.
-// Also note that theorem names can contain an apostrophe.
-theorem or-comm-term-style' : P \/ Q --> Q \/ P =
-  assume pq in
-    cases pp or-right or-left
-qed
-
 // We can prove a lemma inline with the construct `lemma x : P by p in q`,
 // where `x` is the lemma name, `P` is a proposition, `p` is its proof
 // and `q` is the proof of the main theorem.
@@ -382,7 +350,6 @@ proof
     assume p                           // orpp : P \/ P, p : P |- P
     p                                  // Theorem proved!            // This time, proving the lemma means proving the entire theorem.
 qed
-/**/
 
 // When using `lemma`, we first prove the lemma and then the main goal.
 // But we can also do this in the opposite order: we first prove the
@@ -393,17 +360,10 @@ theorem suffices-example :
   (P --> Q) --> (Q --> R) --> P --> R
 proof
   assume pq qr p                       // pq : P --> Q, qr : Q --> R, p : P |- R
-  suffices Q by qr                     // pq : P --> Q, qr : Q --> R, p : P |- Q
-  suffices P by pq                     // pq : P --> Q, qr : Q --> R, p : P |- P
+  suffices Q by qr
+  suffices P by pq
   assumption                           // Theorem proved!
 qed
-
-// In proofterm style, the above proof looks as follows.
-theorem suffices-example-term-style : (P --> Q) --> (Q --> R) --> P --> R =
-  assume pq qr p in
-    suffices Q by apply qr in
-    suffices P by apply pq in
-      assumption
 
 // We don't need to prove the goal inline.
 theorem suffices-example-no-inline :
@@ -423,7 +383,7 @@ qed
 // provide a conclusion annotation to make this obvious. The syntax is
 // `proving P by e`, where `P` is a proposition and `e` proves `P`.
 theorem conclusion-annotation-example :
-  Q -> P \/ (Q \/ R)
+  Q --> P \/ (Q \/ R)
 proof
   assume q                             // q : Q |- P \/ (Q \/ R)
   proving (P \/ (Q \/ R))              // q : Q |- P \/ (Q \/ R)
@@ -434,15 +394,6 @@ proof
   assumption                           // Theorem proved!
 qed
 
-// In proofterm style, the above proof looks as follows.
-theorem conclusion-annotation-example-term-style : Q -> P \/ (Q \/ R) =
-  assume q in
-    proving (P \/ (Q \/ R)) by
-      or-right
-      proving (Q \/ R) by
-        or-left
-        proving Q by assumption
-
 // Alternatively, we can also use an annotation of the form
 // `proving P by e1 in e2`, where we assert the goal and then
 // give a single-step tactic on the same line.
@@ -450,9 +401,9 @@ theorem conclusion-annotation-alternative :
   Q --> P \/ (Q \/ R)
 proof
   assume q                             // q : Q |- P \/ (Q \/ R)
-  proving (P \/ (Q \/ R)) by or-right  // q : Q |- Q \/ R
-  proving (Q \/ R) by or-left          // q : Q |- Q
-  proving Q by assumption              // Theorem proved!
+  proving (P \/ (Q \/ R)) by or-right
+  proving (Q \/ R) by or-left
+  proving Q by assumption
 qed
 
 // Example theorems and proofs (only constructive logic).
@@ -573,10 +524,10 @@ theorem resolution :
 proof
   assume (both pq npr)                 // pq : P \/ Q, npr : ~ P \/ R |- Q \/ R
   cases pq ?pr ?qq                     // Lemmas remaining: ?pr : P --> Q \/ R, ?qq : Q --> Q \/ R
-  lemma qq by
+  ?qq =                                // pq : P \/ Q, npr : ~ P \/ R |- Q --> Q \/ R
     assume q                           // pq : P \/ Q, npr : ~ P \/ R, q : Q |- Q \/ R
     or-left q                          // Lemma proved!
-  lemma pr by
+  ?pr =                                // pq : P \/ Q, npr : ~ P \/ R |- P --> Q \/ R
     cases npr
                                        // pq : P \/ Q, npr : ~ P \/ R |- ~ P --> P --> Q \/ R
     . assume np p                      // pq : P \/ Q, npr : ~ P \/ R, np : ~ P, p : P |- Q \/ R
@@ -592,10 +543,9 @@ theorem resolution' :
 proof
   assume (both pq npr)                          // pq : P \/ Q, npr : ~ P \/ R |- Q \/ R
   cases pq (assume p in ?pr) (assume q in ?qq)  // Lemmas remaining: ?pr : Q \/ R, ?qq : Q \/ R
-  lemma qq by
-    assume q                                    // pq : P \/ Q, npr : ~ P \/ R, q : Q |- Q \/ R
+  ?qq =                                         // pq : P \/ Q, npr : ~ P \/ R, q : Q |- Q \/ R
     or-left q                                   // Lemma proved!
-  lemma pr by
+  ?pr =                                         // pq : P \/ Q, npr : ~ P \/ R, p : P |- Q \/ R
     cases npr
                                                 // pq : P \/ Q, npr : ~ P \/ R, p : P |- ~ P --> Q \/ R
     . assume np                                 // pq : P \/ Q, npr : ~ P \/ R, p : P, np : ~ P |- Q \/ R
