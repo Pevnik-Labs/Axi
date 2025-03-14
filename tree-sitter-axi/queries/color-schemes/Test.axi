@@ -21,8 +21,6 @@ type Sum = A + B
 type All = forall {A}, T
 type Ex = exists {A}, T
 
-
-
 declaration P : Prop
 declaration Q : A -> Prop
 declaration A : Type

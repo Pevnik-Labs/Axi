@@ -1,0 +1,32 @@
+{
+  "name": "axi-syntax",
+  "displayName": "T-Axi Syntax Highlighting",
+  "description": "Syntax highlighting for T-Axi",
+  "version": "0.1.0",
+  "publisher": "khalani",
+  "repository":
+  {
+    "type": "git",
+    "url": "git+https://github.com/tvl-labs/T-Axi.git"
+  },
+  "engines":
+  {
+    "vscode": "^1.80.0"
+  },
+  "categories": ["Programming Languages"],
+  "contributes":
+  {
+    "languages":
+    [{
+      "id": "axi",
+      "extensions": [".axi", "axi.demo"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars":
+    [{
+      "language": "axi",
+      "scopeName": "source.axi",
+      "path": "../tree-sitter-axi.wasm"
+    }]
+  }
+}

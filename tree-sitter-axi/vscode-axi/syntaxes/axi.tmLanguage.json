@@ -1,0 +1,63 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Axi",
+  "scopeName": "source.axi",
+  "patterns": [
+    {
+      "name": "storage.type.axi",
+      "match": "\\b(type|record|data|proposition|where)\\b"
+    },
+    {
+      "name": "entity.name.function.axi",
+      "match": "\\b(theorem|declaration|axiom)\\b"
+    },
+    {
+      "name": "keyword.proofblock.axi",
+      "match": "\\b(proof|qed)\\b"
+    },
+    {
+      "name": "variable.other.hole.axi",
+      "match": "\\?[a-zA-Z0-9_]+"
+    },
+    {
+      "name": "variable.other.proofterm.axi",
+      "match": "\\b(absurd|and-left|and-right|both|cases|or-left|or-right|proving|refl|suffices|trivial|assume|apply)\\b"
+    },
+    {
+      "name": "keyword.other.toplevel.axi",
+      "match": "\\b(theorem|declaration|axiom)\\b"
+    },
+    {
+      "name": "constant.language.proofblock.axi",
+      "match": "\\b(proof|qed)\\b"
+    },
+    {
+      "name": "keyword.control.proofterm.axi",
+      "match": "\\b(assume|apply|assumption)\\b"
+    },
+    {
+      "name": "keyword.operator.typepropformer.axi",
+      "match": "\\b(forall|exists|True|False)\\b|\\-|\\/\\\\|->|\\/|~|=>|→|∀"
+    },
+    {
+      "name": "punctuation.bracket.axi",
+      "match": "[(){}]"
+    },
+    {
+      "name": "punctuation.delimiter.axi",
+      "match": "[:,.\\\\]"
+    },
+    {
+      "name": "variable.other.upper.axi",
+      "match": "\\b[A-Z][a-zA-Z0-9_]*\\b"
+    },
+    {
+      "name": "variable.other.lower.axi",
+      "match": "\\b[a-z][a-zA-Z0-9_]*\\b"
+    },
+    {
+      "name": "comment.line.double-slash.axi",
+      "match": "//.*$"
+    }
+  ]
+}
