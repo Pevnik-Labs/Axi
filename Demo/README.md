@@ -1,4 +1,4 @@
-# Type Theoretical Axi Demo
+# T-Axi Demo
 
 In this directory you can find the demo of T-Axi, i.e. a bunch of plain text files (file extension `.axi.demo`) which propose how the language will look and feel from the user's point of view.
 
@@ -13,4 +13,3 @@ You should read the files in the following order:
 1. [Higher-order logic](HigherOrderLogic.axi.demo)
 1. [Programming (TODO)](Programming.axi.demo)
 1. [Classical higher-order logic (TODO)](ClassicalHigherOrderLogic.axi.demo)
-1. Termination checking (TODO)

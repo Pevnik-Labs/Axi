@@ -226,29 +226,6 @@ proof                                  // |- P --> Q --> P /\ Q
   }
 qed
 
-// Missing arguments can also be named and then they are provided as blocks
-// labeled with the corresponding names.
-theorem named-blocks-example :
-  P --> Q --> P /\ Q
-proof                                  // |- P --> Q --> P /\ Q
-  assume p q                           // p : P, q : Q |- P /\ Q
-  both ?x ?y                           // Lemmas remaining: ?x : P, ?y : Q  // The goal has been "solved", but now we must fill in ?x and ?y.
-  ?x = p                               // Lemmas remaining: ?y : Q          // We got ?x, so only ?y remains.
-  ?y = q                               // Theorem proved!
-qed
-
-// Note that these named blocks don't need to be proved in the order they
-// were introduced in the proof. Below, we prove ?q first, even though we
-// first introduced ?p.
-theorem named-blocks-not-in-order-example :
-  P --> Q --> P /\ Q
-proof                                  // |- P --> Q --> P /\ Q
-  assume p q                           // p : P, q : Q |- P /\ Q
-  both ?x ?y                           // Lemmas remaining: ?x : P, ?y : Q
-  ?y = q                               // Lemmas remaining: ?x : P          // This time, only ?x remains.
-  ?x = p                               // Theorem proved!
-qed
-
 // Conjunction elimination is `and-left` and `and-right`.
 // `and-left e` proves `P` provided that `e` proves `P /\ Q`.
 // `and-right e` proves `Q` provided that `e` proves `P /\ Q`.
@@ -393,16 +370,49 @@ theorem lemma-term-style : P \/ P --> P =
     in
       cases orpp implpp implpp
 
-// An interesting idea: maybe the best syntax for named blocks is a kind of
-// reverse lemma?
+// Lemmas can also be proved after they were used. In such a case, when
+// referring to the lemma name, we need to precede it with a question mark `?`.
+// However, note that reverse lemmas don't have a term style!
 theorem reverse-lemma :
   P \/ P --> P
 proof                                  // |- P \/ P --> P
   assume orpp                          // orpp : P \/ P |- P
-  cases orpp ?implpp ?implpp           // Lemmas remaining: ?implpp : P --> P
+  cases orpp ?implpp ?implpp           // Lemmas remaining: ?implpp : P --> P  // The goal has been "solved", but now we must prove `?implpp`.
   lemma implpp : P --> P by            // orpp : P \/ P |- P --> P
     assume p                           // orpp : P \/ P, p : P |- P
-    p                                  // Theorem proved!            // This time, proving the lemma means proving the entire theorem.
+    p                                  // Theorem proved!            // In this case, proving the lemma means proving the entire theorem.
+qed
+
+// Lemmas can be proved in term style, even inside tactic-style proofs.
+theorem term-style-lemma-example
+  P --> Q --> P /\ Q
+proof                                  // |- P --> Q --> P /\ Q
+  assume p q                           // p : P, q : Q |- P /\ Q
+  both ?x ?y                           // Lemmas remaining: ?x : P, ?y : Q
+  lemma x : P = p                      // Lemmas remaining: ?y : Q          // We got ?x, so only ?y remains.
+  lemma y : Q = q                      // Theorem proved!
+qed
+
+// Note that these lemmas don't need to be proved in the order they
+// were introduced in the proof. Below, we prove ?y first, even though we
+// first introduced ?x.
+theorem term-style-lemma-not-in-order-example :
+  P --> Q --> P /\ Q
+proof                                  // |- P --> Q --> P /\ Q
+  assume p q                           // p : P, q : Q |- P /\ Q
+  both ?x ?y                           // Lemmas remaining: ?x : P, ?y : Q
+  lemma y : Q = q                      // Lemmas remaining: ?x : P          // This time, only ?x remains.
+  lemma x : P = p                      // Theorem proved!
+qed
+
+// Term style lemmas don't need annotations.
+theorem term-style-lemma-no-annotation :
+  P --> Q --> P /\ Q
+proof                                  // |- P --> Q --> P /\ Q
+  assume p q                           // p : P, q : Q |- P /\ Q
+  both ?x ?y                           // Lemmas remaining: ?x : P, ?y : Q
+  lemma x = p                          // Lemmas remaining: ?y : Q
+  lemma y = q                          // Theorem proved!
 qed
 
 // When using `lemma`, we first prove the lemma and then the main goal.

@@ -4,13 +4,12 @@
   This is a multiline comment.
 */
 
-// The basic kinds of objects are types, terms, propositions and proofs.
+// The basic objects in the language are types, terms, propositions and proofs.
 // Top-level commands can be used to either define or declare these.
 // Definitions assign names to expressions.
-
 // Declarations introduce new constants that don't have computational content.
 // Type and proposition declarations are safe, whereas term declarations and
-// axioms (i.e. proof declarations) are unsafe (may lead to inconsistency).
+// axioms (i.e. "proof declarations") are unsafe, i.e. may lead to contradiction.
 // Whether declarations should be present in the final language is unclear,
 // but they are present in comparable languages, so they are included for now.
 // In any case, we will only use declarations before introducing the various
@@ -18,7 +17,7 @@
 
 // The syntax of definitions and declarations is as follows.
 
-// Type definition.
+// Type definition, i.e. type synonym/alias.
 type NameOfType = DefBody
 
 // `type` is a keyword. `=` means "is defined as".
@@ -28,11 +27,32 @@ type NameOfType = DefBody
 // Type declaration.
 type NameOfType
 
+// Record type definition.
+record type NameOfType where
+  fieldName1 : TypeOfField1
+    ⋮
+  fieldNameN : TypeOfFieldN
+
+// `record type` and `where` are keywords.
+// `:` means "is of type".
+// By convention, names of fields must start with a lower case letter
+// and are written in camelCase.
+
+// Data type (i.e. inductive type/algebraic type) definition.
+data type NameOfType where
+  ConstructorName1 : ArgType1_1 -> ... -> ArgType1_M1 -> NameOfType
+    ⋮
+  ConstructorNameN : ArgTypeN_1 -> ... -> ArgTypeN1_MN -> NameOfType
+
+// `data type` is a keyword.
+// By convention, names of constructors must start with an upper case letter
+// and are written in PascalCase.
+// Note that this convention is not strictly followed in the demo 🙂
+
 // Term definition.
 nameOfTerm : TypeOfTerm = defBody
 
 // There is no leading keyword, because definitions are super common.
-// `:` means "is of type".
 // By convention, names of terms must start with a lower case letter
 // and are written in camelCase.
 
@@ -80,6 +100,5 @@ axiom name-of-axiom : SomeProposition
 // Some additional naming conventions:
 // - Type variables start with an upper case letter and follow PascalCase.
 // - Local variables start with a lower case letter and follow camelCase.
-// - Variant constructors start with an upper case letter and follow PascalCase.
-//   If we have structural variants, an apostrophe `'` will disambiguate
+// - If we have structural variants, an apostrophe `'` will disambiguate
 //   between a constructor and something else which overshadows its name.
