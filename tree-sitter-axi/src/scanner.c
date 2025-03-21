@@ -138,16 +138,66 @@ static inline bool emit_separator(TSLexer *lexer)
     return true;
 }
 
+static inline bool parse_space(TSLexer *lexer)
+{
+    bool line_break = false;
+    for (; !lexer->eof(lexer); lexer->advance(lexer, false), lexer->mark_end(lexer))
+    {
+        if (lexer->lookahead == '/')
+        {
+            lexer->advance(lexer, false);
+            if (lexer->lookahead == '/')
+            {
+                bool backslash = false;
+                for (;;)
+                {
+                    lexer->advance(lexer, false);
+                    if (lexer->eof(lexer))
+                        return line_break;
+                    if (!backslash && lexer->lookahead == '\n')
+                    {
+                        line_break = true;
+                        break;
+                    }
+                    backslash = lexer->lookahead == '\\';
+                }
+            }
+            else if (lexer->lookahead == '*')
+            {
+                for (;;)
+                {
+                    lexer->advance(lexer, false);
+                    if (lexer->eof(lexer))
+                        return line_break;
+                    if (lexer->lookahead == '*')
+                        continue;
+                    lexer->advance(lexer, false);
+                    while (lexer->lookahead == '*')
+                        lexer->advance(lexer, false);
+                    if (lexer->eof(lexer))
+                        return line_break;
+                    if (lexer->lookahead == '/')
+                        break;
+                }
+            }
+            else
+                return line_break;
+        }
+        else if (lexer->lookahead == '\n')
+            line_break = true;
+        else if (!isspace(lexer->lookahead))
+            return line_break;
+    }
+    return line_break;
+}
+
 bool tree_sitter_axi_external_scanner_scan(Scanner *const self, TSLexer *const lexer, const bool valid[])
 {
     assert(is_valid(self));
     const bool error_recovery = valid[BEGIN] && valid[SEPARATOR] && valid[END];
     if (error_recovery)
         return try_emit_end(self, lexer);
-    bool line_break = false;
-    for (; !lexer->eof(lexer) && isspace(lexer->lookahead); lexer->advance(lexer, false))
-        if (lexer->lookahead == '\n')
-            line_break = true;
+    const bool line_break = parse_space(lexer);
     const uint32_t column = lexer->get_column(lexer);
     if (column >= TENTATIVE)
         return false;

@@ -206,8 +206,8 @@ theorem named-blocks-example :
 proof
   assume p q                           // p : P, q : Q |- P /\ Q
   both ?x ?y                           // Lemmas remaining: ?x : P, ?y : Q  // The goal has been "solved", but now we must fill in ?x and ?y.
-  ?x = p                               // Lemmas remaining: ?y : Q          // We got ?x, so only ?y remains.
-  ?y = q                               // Theorem proved!
+  lemma x by p                         // Lemmas remaining: ?y : Q          // We got ?x, so only ?y remains.
+  lemma y by q                         // Theorem proved!
 qed
 
 // Note that these named blocks don't need to be proved in the order they
@@ -218,8 +218,8 @@ theorem named-blocks-not-in-order-example :
 proof
   assume p q                           // p : P, q : Q |- P /\ Q
   both ?x ?y                           // Lemmas remaining: ?x : P, ?y : Q
-  ?y = q                               // Lemmas remaining: ?x : P          // This time, only ?x remains.
-  ?x = p                               // Theorem proved!
+  lemma y by q                         // Lemmas remaining: ?x : P          // This time, only ?x remains.
+  lemma x by p                         // Theorem proved!
 qed
 
 // Conjunction elimination is `and-left` and `and-right`.
@@ -524,10 +524,10 @@ theorem resolution :
 proof
   assume (both pq npr)                 // pq : P \/ Q, npr : ~ P \/ R |- Q \/ R
   cases pq ?pr ?qq                     // Lemmas remaining: ?pr : P --> Q \/ R, ?qq : Q --> Q \/ R
-  ?qq =                                // pq : P \/ Q, npr : ~ P \/ R |- Q --> Q \/ R
+  lemma qq by                          // pq : P \/ Q, npr : ~ P \/ R |- Q --> Q \/ R
     assume q                           // pq : P \/ Q, npr : ~ P \/ R, q : Q |- Q \/ R
     or-left q                          // Lemma proved!
-  ?pr =                                // pq : P \/ Q, npr : ~ P \/ R |- P --> Q \/ R
+  lemma pr by                          // pq : P \/ Q, npr : ~ P \/ R |- P --> Q \/ R
     cases npr
                                        // pq : P \/ Q, npr : ~ P \/ R |- ~ P --> P --> Q \/ R
     . assume np p                      // pq : P \/ Q, npr : ~ P \/ R, np : ~ P, p : P |- Q \/ R
@@ -543,9 +543,9 @@ theorem resolution' :
 proof
   assume (both pq npr)                          // pq : P \/ Q, npr : ~ P \/ R |- Q \/ R
   cases pq (assume p in ?pr) (assume q in ?qq)  // Lemmas remaining: ?pr : Q \/ R, ?qq : Q \/ R
-  ?qq =                                         // pq : P \/ Q, npr : ~ P \/ R, q : Q |- Q \/ R
+  lemma qq by                                   // pq : P \/ Q, npr : ~ P \/ R, q : Q |- Q \/ R
     or-left q                                   // Lemma proved!
-  ?pr =                                         // pq : P \/ Q, npr : ~ P \/ R, p : P |- Q \/ R
+  lemma pr by                                   // pq : P \/ Q, npr : ~ P \/ R, p : P |- Q \/ R
     cases npr
                                                 // pq : P \/ Q, npr : ~ P \/ R, p : P |- ~ P --> Q \/ R
     . assume np                                 // pq : P \/ Q, npr : ~ P \/ R, p : P, np : ~ P |- Q \/ R

@@ -63,7 +63,7 @@
     },
     "line_comment": {
       "type": "PATTERN",
-      "value": "\\/\\/.*"
+      "value": "\\/\\/(.|\\\\\\n)*"
     },
     "shebang": {
       "type": "PATTERN",

@@ -68,7 +68,7 @@ module.exports = grammar({
   extras: $ => [
     /\s/,
     $.block_comment,
-    $.line_comment
+    $.line_comment,
   ],
 
   conflicts: $ => [],
@@ -89,7 +89,7 @@ module.exports = grammar({
 
     // comments
     block_comment: $ => /\/\*[^*]*\*+([^/*][^*]*\*+)*\//,
-    line_comment: $ => /\/\/.*/,
+    line_comment: $ => /\/\/(.|\\\n)*/,
 
     // tokens
     shebang: $ => /#!.*/,
