@@ -2,14 +2,19 @@
   "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
   "name": "Axi",
   "scopeName": "source.axi",
-  "patterns": [
+  "patterns":
+  [
+    {
+      "name": "keyword.other.kind.axi",
+      "match": "\\b(Type|Prop)\\b"
+    },
+    {
+      "name": "keyword.other.toplevel.axi",
+      "match": "\\b(theorem|declaration|axiom)\\b"
+    },
     {
       "name": "storage.type.axi",
       "match": "\\b(type|record|data|proposition|where)\\b"
-    },
-    {
-      "name": "entity.name.function.axi",
-      "match": "\\b(theorem|declaration|axiom)\\b"
     },
     {
       "name": "keyword.proofblock.axi",
@@ -22,10 +27,6 @@
     {
       "name": "variable.other.proofterm.axi",
       "match": "\\b(absurd|and-left|and-right|both|cases|or-left|or-right|proving|refl|suffices|trivial|assume|apply)\\b"
-    },
-    {
-      "name": "keyword.other.toplevel.axi",
-      "match": "\\b(theorem|declaration|axiom)\\b"
     },
     {
       "name": "constant.language.proofblock.axi",
