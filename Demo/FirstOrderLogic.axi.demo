@@ -293,7 +293,7 @@ theorem symmetry-example :
   (forall x y : A, R x y --> R y x) --> R a b --> R b a
 proof
   assume sym (ab : R a b)
-  symmetry b a
+  symmetry {b} {a}
   assumption
 qed
 

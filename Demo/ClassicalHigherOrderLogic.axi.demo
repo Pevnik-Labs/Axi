@@ -45,18 +45,18 @@ proof
   assume (both sur inj)
   exists
   . // g : B -> A
-    fun b : B =>
+    pick-any b : B
     pick-witness a for (instantiate sur with b)
     a
   . both
     . pick-any a' : A                                   // g (f a') === a'
-      unfold g                                          // (fun b => pick-witness a for (instantiate sur with b) in a) (f a') === a'
+      unfold g                                          // (\ b -> pick-witness a for (instantiate sur with b) in a) (f a') === a'
       simpl                                             // pick-witness a for (instantiate sur with (f a')) in a === a'
       pick-witness a for (instantiate sur with (f a'))  // a === a', but we now have a hypothesis f a === f a'
       apply (instantiate inj with a a')                 // f a === f a'
       assumption
     . pick-any b : B                                    // f (g b) === b
-      unfold g                                          // f ((fun (b : B) => pick-witness a for (instantiate sur with b) in a) b) === b
+      unfold g                                          // f ((\ (b : B) -> pick-witness a for (instantiate sur with b) in a) b) === b
       simpl                                             // f (pick-witness a for (instantiate sur with b) in a) === b
       pick-witness a for (instantiate sur with b)       // f a === b, but we now have a hypothesis f a === b
       assumption
@@ -72,11 +72,11 @@ proof
   pick-any A B R                                   // A B : Type, R : A -> B -> Prop |- (forall a : A, exists b : B, R a b) --> exists f : A -> B, forall a : A, R a (f a)
   assume allex                                     // A B : Type, R : A -> B -> Prop, allex = (forall a : A, exists b : B, R a b) |- exists f : A -> B, forall a : A, R a (f a)
   exists                                           // 1. Γ |- ?f : A -> B        2. Γ |- forall a : A, R a (?f a)
-  . fun a : A =>                                   // Γ, a : A |- B
+  . pick-any a : A                                 // Γ, a : A |- B
     pick-witness b for (instantiate allex with a)  // Γ, a : A, b : B, R a b |- B
     b
   . pick-any a : A                                 // Γ, a : A |- R a (f a)
-    unfold f                                       // Γ, a : A |- R a ((fun (a : A) => pick-witness b for (instantiate allex with a) in b) a)
+    unfold f                                       // Γ, a : A |- R a ((\ (a : A) -> pick-witness b for (instantiate allex with a) in b) a)
     simpl                                          // Γ, a : A |- R a (pick-witness b for (instantiate allex with a) in b)
     pick-witness b for (instantiate allex with a)  // Γ, a : A, b : B, R a b |- R a b
     assumption

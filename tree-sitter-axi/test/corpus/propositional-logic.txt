@@ -1310,10 +1310,8 @@ qed
               (identifier)
               (identifier)))
           (separator)
-          (call_by
-            (call
-              (identifier)
-              (identifier))
+          (suffices_by
+            (identifier)
             (by_block
               (begin)
               (separator)
@@ -1321,10 +1319,8 @@ qed
                 (identifier))
               (end)))
           (separator)
-          (call_by
-            (call
-              (identifier)
-              (identifier))
+          (suffices_by
+            (identifier)
             (by_block
               (begin)
               (separator)
@@ -1352,8 +1348,7 @@ qed
             (patterns
               (identifier)))
           (separator)
-          (call
-            (identifier)
+          (proving
             (disjunction
               (identifier)
               (disjunction
@@ -1362,16 +1357,14 @@ qed
           (separator)
           (identifier)
           (separator)
-          (call
-            (identifier)
+          (proving
             (disjunction
               (identifier)
               (identifier)))
           (separator)
           (identifier)
           (separator)
-          (call
-            (identifier)
+          (proving
             (identifier))
           (separator)
           (assumption)
@@ -2078,13 +2071,15 @@ qed
               (call
                 (identifier)
                 (identifier))
-              (assume_in
-                (patterns
-                  (identifier))
+              (decl_in
+                (assume
+                  (patterns
+                    (identifier)))
                 (hole_identifier)))
-            (assume_in
-              (patterns
-                (identifier))
+            (decl_in
+              (assume
+                (patterns
+                  (identifier)))
               (hole_identifier)))
           (separator)
           (lemma_declaration

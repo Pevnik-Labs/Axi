@@ -73,6 +73,10 @@
       "type": "PATTERN",
       "value": "[a-zA-Z_][-a-zA-Z0-9_']*"
     },
+    "direction": {
+      "type": "PATTERN",
+      "value": "<===|===>"
+    },
     "hole_identifier": {
       "type": "PATTERN",
       "value": "[?][a-zA-Z_][-a-zA-Z0-9_']*"
@@ -620,7 +624,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "assume"
+          "name": "_proof_decl"
         },
         {
           "type": "SYMBOL",
@@ -628,11 +632,52 @@
         },
         {
           "type": "SYMBOL",
-          "name": "lemma_declaration"
+          "name": "proving"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "witness"
         },
         {
           "type": "SYMBOL",
           "name": "_term"
+        }
+      ]
+    },
+    "_proof_decl": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "assume"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "by_contradiction"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "lemma_declaration"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "pick_any"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "pick_witness"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "chaining"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "rewrite"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "unfold"
         }
       ]
     },
@@ -646,6 +691,65 @@
         {
           "type": "SYMBOL",
           "name": "patterns"
+        }
+      ]
+    },
+    "by_contradiction": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "by-contradiction"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_atomic_pattern"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "type_ann"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        }
+      ]
+    },
+    "pick_any": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "pick-any"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "patterns"
+        }
+      ]
+    },
+    "pick_witness": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "pick-witness"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "patterns"
+        },
+        {
+          "type": "STRING",
+          "value": "for"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_term"
         }
       ]
     },
@@ -681,6 +785,27 @@
           "name": "identifier"
         },
         {
+          "type": "SYMBOL",
+          "name": "direction"
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "STRING",
+              "value": "("
+            },
+            {
+              "type": "SYMBOL",
+              "name": "witness_pattern"
+            },
+            {
+              "type": "STRING",
+              "value": ")"
+            }
+          ]
+        },
+        {
           "type": "SEQ",
           "members": [
             {
@@ -696,6 +821,27 @@
               "value": ")"
             }
           ]
+        }
+      ]
+    },
+    "witness_pattern": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "exists"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_nested_pattern"
+        },
+        {
+          "type": "STRING",
+          "value": "such-that"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_nested_pattern"
         }
       ]
     },
@@ -812,6 +958,242 @@
         }
       ]
     },
+    "chaining": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "chaining"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "begin"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SYMBOL",
+            "name": "chain_link"
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "end"
+        }
+      ]
+    },
+    "chain_link": {
+      "type": "PREC_LEFT",
+      "value": 0,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "<--"
+              },
+              {
+                "type": "STRING",
+                "value": "<-"
+              },
+              {
+                "type": "STRING",
+                "value": "-->"
+              },
+              {
+                "type": "STRING",
+                "value": "->"
+              },
+              {
+                "type": "STRING",
+                "value": "="
+              },
+              {
+                "type": "STRING",
+                "value": "==="
+              },
+              {
+                "type": "STRING",
+                "value": "<-->"
+              },
+              {
+                "type": "PREC",
+                "value": 11,
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_term"
+                }
+              }
+            ]
+          },
+          {
+            "type": "SYMBOL",
+            "name": "_term"
+          },
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "by_block"
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "rewrite": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "rewrite"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_direction"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_term"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "STRING",
+                "value": ","
+              },
+              {
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "_direction"
+                  },
+                  {
+                    "type": "BLANK"
+                  }
+                ]
+              },
+              {
+                "type": "SYMBOL",
+                "name": "_term"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "unfold": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "unfold"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_atomic_pattern"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "STRING",
+                "value": ","
+              },
+              {
+                "type": "SYMBOL",
+                "name": "_atomic_pattern"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "_direction": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "<-"
+        },
+        {
+          "type": "STRING",
+          "value": "->"
+        }
+      ]
+    },
+    "proving": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "proving"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_term"
+        }
+      ]
+    },
+    "witness": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "exists"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "SYMBOL",
+                  "name": "_term"
+                },
+                {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "SYMBOL",
+                      "name": "type_ann"
+                    },
+                    {
+                      "type": "BLANK"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        }
+      ]
+    },
     "value": {
       "type": "SEQ",
       "members": [
@@ -830,7 +1212,11 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "assume_in"
+          "name": "decl_in"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "witness_such_that"
         },
         {
           "type": "SYMBOL",
@@ -846,7 +1232,15 @@
         },
         {
           "type": "SYMBOL",
-          "name": "call_by"
+          "name": "proving_by"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "suffices_by"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "exists"
         },
         {
           "type": "SYMBOL",
@@ -886,6 +1280,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "implicit_call"
+        },
+        {
+          "type": "SYMBOL",
           "name": "assumption"
         },
         {
@@ -902,7 +1300,7 @@
         },
         {
           "type": "PREC",
-          "value": 10,
+          "value": 11,
           "content": {
             "type": "SEQ",
             "members": [
@@ -1042,19 +1440,15 @@
         }
       ]
     },
-    "assume_in": {
+    "decl_in": {
       "type": "PREC_RIGHT",
       "value": 0,
       "content": {
         "type": "SEQ",
         "members": [
           {
-            "type": "STRING",
-            "value": "assume"
-          },
-          {
             "type": "SYMBOL",
-            "name": "patterns"
+            "name": "_proof_decl"
           },
           {
             "type": "STRING",
@@ -1063,6 +1457,48 @@
           {
             "type": "SYMBOL",
             "name": "_term"
+          }
+        ]
+      }
+    },
+    "witness_such_that": {
+      "type": "PREC_RIGHT",
+      "value": 0,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "exists"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "_term"
+          },
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "type_ann"
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
+          },
+          {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "STRING",
+                "value": "such-that"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "_term"
+              }
+            ]
           }
         ]
       }
@@ -1104,9 +1540,13 @@
         ]
       }
     },
-    "call_by": {
+    "proving_by": {
       "type": "SEQ",
       "members": [
+        {
+          "type": "STRING",
+          "value": "proving"
+        },
         {
           "type": "SYMBOL",
           "name": "_term"
@@ -1116,6 +1556,68 @@
           "name": "by_block"
         }
       ]
+    },
+    "suffices_by": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "suffices"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_term"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "by_block"
+        }
+      ]
+    },
+    "exists": {
+      "type": "PREC_RIGHT",
+      "value": 0,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "exists"
+          },
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "parameters"
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
+          },
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "type_ann"
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
+          },
+          {
+            "type": "STRING",
+            "value": ","
+          },
+          {
+            "type": "SYMBOL",
+            "name": "_term"
+          }
+        ]
+      }
     },
     "forall": {
       "type": "PREC_RIGHT",
@@ -1133,6 +1635,18 @@
               {
                 "type": "SYMBOL",
                 "name": "parameters"
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
+          },
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "type_ann"
               },
               {
                 "type": "BLANK"
@@ -1319,6 +1833,31 @@
         ]
       }
     },
+    "implicit_call": {
+      "type": "PREC_LEFT",
+      "value": 10,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "SYMBOL",
+            "name": "_term"
+          },
+          {
+            "type": "STRING",
+            "value": "{"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "_term"
+          },
+          {
+            "type": "STRING",
+            "value": "}"
+          }
+        ]
+      }
+    },
     "assumption": {
       "type": "STRING",
       "value": "assumption"
@@ -1338,7 +1877,16 @@
       "name": "line_comment"
     }
   ],
-  "conflicts": [],
+  "conflicts": [
+    [
+      "_parameter_group",
+      "_term"
+    ],
+    [
+      "explicit_parameters",
+      "_term"
+    ]
+  ],
   "precedences": [],
   "externals": [
     {

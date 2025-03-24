@@ -23,27 +23,40 @@ const pipe = "|";
 // operators
 const amp = "&";
 const and = "/\\";
-const arrow = "->";
 const eq = "=";
 const equality = "===";
 const equivalence = "<-->";
-const implication = "-->";
+const laarrow = "<--";
+const larrow = "<-";
 const negation = "~";
 const or = "\\/";
+const raarrow = "-->";
+const rarrow = "->";
 
 // anonymous keyword nodes
 const apply = "apply";
 const assume = "assume";
 const axiom = "axiom";
 const by = "by";
+const by_contradiction = "by-contradiction";
+const chaining = "chaining";
 const declaration = "declaration";
+const exists = "exists";
+const for_ = "for";
 const forall = "forall";
 const in_ = "in";
 const lemma = "lemma";
 const of = "of";
+const pick_any = "pick-any";
+const pick_witness = "pick-witness";
 const proof = "proof";
+const proving = "proving";
+const rewrite = "rewrite";
+const such_that = "such-that";
+const suffices = "suffices";
 const qed = "qed";
 const theorem = "theorem";
+const unfold = "unfold";
 const where = "where";
 
 // named keyword nodes
@@ -71,7 +84,10 @@ module.exports = grammar({
     $.line_comment,
   ],
 
-  conflicts: $ => [],
+  conflicts: $ => [
+    [$._parameter_group, $._term],
+    [$.explicit_parameters, $._term]
+  ],
 
   rules: {
     // start rule
@@ -94,6 +110,7 @@ module.exports = grammar({
     // tokens
     shebang: $ => /#!.*/,
     identifier: $ => /[a-zA-Z_][-a-zA-Z0-9_']*/,
+    direction: $ => /<===|===>/,
     hole_identifier: $ => /[?][a-zA-Z_][-a-zA-Z0-9_']*/,
     number: $ => /\d+/,
 
@@ -230,13 +247,31 @@ module.exports = grammar({
     ),
 
     _proof_step: $ => choice(
-      $.assume,
+      $._proof_decl,
       $.bullet_block,
-      $.lemma_declaration,
+      $.proving,
+      $.witness,
       $._term,
     ),
 
+    _proof_decl: $ => choice(
+      $.assume,
+      $.by_contradiction,
+      $.lemma_declaration,
+      $.pick_any,
+      $.pick_witness,
+      $.chaining,
+      $.rewrite,
+      $.unfold,
+    ),
+
     assume: $ => seq(assume, $.patterns),
+
+    by_contradiction: $ => seq(by_contradiction, $._atomic_pattern, optional($.type_ann)),
+
+    pick_any: $ => seq(pick_any, $.patterns),
+
+    pick_witness: $ => seq(pick_witness, $.patterns, for_, $._term),
 
     patterns: $ => seq(
       repeat1($._atomic_pattern),
@@ -245,13 +280,22 @@ module.exports = grammar({
 
     _atomic_pattern: $ => choice(
       $.identifier,
+      $.direction,
+      seq(lparen, $.witness_pattern, rparen),
       seq(lparen, $._nested_pattern, rparen)
+    ),
+
+    witness_pattern: $ => seq(
+      exists,
+      $._nested_pattern,
+      such_that,
+      $._nested_pattern
     ),
 
     _nested_pattern: $ => choice(
       $._atomic_pattern,
       $.ctor_pattern,
-      $.ann_pattern
+      $.ann_pattern,
     ),
 
     ctor_pattern: $ => seq(
@@ -273,14 +317,40 @@ module.exports = grammar({
 
     type_ann: $ => seq(colon, prec(2, $._term)),
 
+    chaining: $ => seq(chaining, $.begin, repeat($.chain_link), $.end),
+
+    chain_link: $ => prec.left(seq(choice(
+      laarrow,
+      larrow,
+      raarrow,
+      rarrow,
+      eq,
+      equality,
+      equivalence,
+      prec(11, $._term),
+    ), $._term, optional($.by_block))),
+
+    rewrite: $ => seq(rewrite, optional($._direction), $._term, repeat(seq(comma, optional($._direction), $._term))),
+
+    unfold: $ => seq(unfold, $._atomic_pattern, repeat(seq(comma, $._atomic_pattern))),
+
+    _direction: $ => choice(larrow, rarrow),
+
+    proving: $ => seq(proving, $._term),
+
+    witness: $ => seq(exists, optional(seq($._term, optional($.type_ann)))),
+
     value: $ => seq(eq, $._term),
 
     _term: $ => choice(
-      $.assume_in,
+      $.decl_in,
+      $.witness_such_that,
       $.lambda,
       $.clauses,
       $.apply,
-      $.call_by,
+      $.proving_by,
+      $.suffices_by,
+      $.exists,
       $.forall,
       $.arrow,
       $.implication,
@@ -290,17 +360,18 @@ module.exports = grammar({
       $.negation,
       $.equality,
       $.call,
+      $.implicit_call,
       $.assumption,
       $.number,
       $.identifier,
       $.hole_identifier,
-      prec(10, seq(lparen, prec(0, $._term), rparen)),
+      prec(11, seq(lparen, prec(0, $._term), rparen)),
     ),
 
     lambda: $ => prec.right(seq(
       lambda,
       optional($.patterns),
-      arrow,
+      rarrow,
       $._term
     )),
 
@@ -316,19 +387,25 @@ module.exports = grammar({
       $.end
     )),
 
-    clause: $ => seq(optional(pipe), $.patterns, arrow, $._term),
+    clause: $ => seq(optional(pipe), $.patterns, rarrow, $._term),
 
-    assume_in: $ => prec.right(seq(assume, $.patterns, in_, $._term)),
+    decl_in: $ => prec.right(seq($._proof_decl, in_, $._term)),
+
+    witness_such_that: $ => prec.right(seq(exists, $._term, optional($.type_ann), seq(such_that, $._term))),
 
     apply: $ => prec.left(seq(apply, $._term, repeat(seq(comma, prec.left($._term))))),
 
-    call_by: $ => seq($._term, $.by_block),
+    proving_by: $ => seq(proving, $._term, $.by_block),
 
-    forall: $ => prec.right(seq(forall, optional($.parameters), comma, $._term)),
+    suffices_by: $ => seq(suffices, $._term, $.by_block),
 
-    arrow: $ => prec.right(1, seq($._term, arrow, $._term)),
+    exists: $ => prec.right(seq(exists, optional($.parameters), optional($.type_ann), comma, $._term)),
 
-    implication: $ => prec.right(1, seq($._term, implication, $._term)),
+    forall: $ => prec.right(seq(forall, optional($.parameters), optional($.type_ann), comma, $._term)),
+
+    arrow: $ => prec.right(1, seq($._term, rarrow, $._term)),
+
+    implication: $ => prec.right(1, seq($._term, raarrow, $._term)),
 
     equivalence: $ => prec.right(2, seq($._term, equivalence, $._term)),
 
@@ -341,6 +418,8 @@ module.exports = grammar({
     equality: $ => prec.right(seq($._term, choice(eq, equality), $._term)),
 
     call: $ => prec.left(10, seq($._term, $._term)),
+
+    implicit_call: $ => prec.left(10, seq($._term, lbrace, $._term, rbrace)),
 
     assumption: $ => assumption,
   }

@@ -8,11 +8,17 @@ declaration P Q R : Prop
 // like double negation elimination.
 theorem double-negation :
   ~ ~ P --> P
-proof
+proof                                  // |- ~ ~ P --> P
   assume nnp : ~ ~ P                   // nnp : ~ ~ P |- P
   by-contradiction np : ~ P            // nnp : ~ ~ P, np : ~ P |- False
   apply nnp np                         // Theorem proved!
 qed
+
+// In proofterm style, the above proof looks as follows.
+theorem double-negation-term-style : ~ ~ P --> P =
+  assume nnp : ~ ~ P in
+    by-contradiction np : ~ P in
+      apply nnp np
 
 // Note that just like for assume, we can omit the annotation.
 theorem double-negation-no-annotation :
@@ -25,7 +31,7 @@ qed
 
 // Law of Excluded Middle.
 theorem lem : P \/ ~ P
-proof
+proof                                  // |- P \/ ~ P
   by-contradiction no : ~ (P \/ ~ P)   // no : ~ (P \/ ~ P) |- False
   apply no                             // no : ~ (P \/ ~ P) |- P \/ ~ P
   or-right                             // no : ~ (P \/ ~ P) |- ~ P
@@ -40,7 +46,7 @@ qed
 // reasoning is called "Consequentia Mirabilis" and can be encapsulated
 // in a theorem.
 theorem cm : (~ P --> P) --> P
-proof
+proof                                  // |- (~ P --> P) --> P
   assume npp : ~ P --> P               // npp : (~ P --> P) |- P
   by-contradiction np : ~ P            // npp : (~ P --> P), np : ~ P |- False
   apply np, npp                        // npp : (~ P --> P), np : ~ P |- ~ P
@@ -50,7 +56,7 @@ qed
 // Peirce's law.
 theorem peirce :
   ((P --> Q) --> P) --> P
-proof
+proof                                  // |- ((P --> Q) --> P) --> P
   assume pqp : (P --> Q) --> P         // pqp : ((P --> Q) --> P) |- P
   by-contradiction np : ~ P            // pqp : ((P --> Q) --> P), np : ~ P |- False
   apply np, pqp                        // pqp : ((P --> Q) --> P), np : ~ P |- P --> Q
@@ -62,7 +68,7 @@ qed
 // Of the two laws of contraposition, this one is only valid classically.
 theorem contraposition-classic :
   (~ Q --> ~ P) --> (P --> Q)
-proof
+proof                                  // |- (~ Q --> ~ P) --> (P --> Q)
   assume nqnp p                        // nqnp : ~ Q --> ~ P, p : P |- Q
   by-contradiction nq                  // nqnp : ~ Q --> ~ P, p : P, nq : ~ Q |- False
   apply nqnp nq p                      // Theorem proved!
@@ -71,7 +77,7 @@ qed
 // There's also a funny classic version of contraposition.
 theorem funny-contraposition-classic :
   (~ P --> Q) --> (~ Q --> P)
-proof
+proof                                  // |- (~ P --> Q) --> (~ Q --> P)
   assume (npq : ~ P --> Q) (nq : ~ Q)  // npq : ~ P --> Q, nq : ~ Q |- P
   by-contradiction np : ~ P            // npq : ~ P --> Q, nq : ~ Q, np : ~ P |- False
   apply nq, npq                        // npq : ~ P --> Q, nq : ~ Q, np : ~ P |- ~ P
@@ -81,7 +87,7 @@ qed
 // In classical logic, if `P` implies `Q`, either `P` is false or `Q` is true.
 theorem material-implication-intro :
   (P --> Q) --> ~ P \/ Q
-proof
+proof                                  // |- (P --> Q) --> ~ P \/ Q
   assume pq : P --> Q                  // pq : P --> Q |- ~ P \/ Q
   by-contradiction no : ~ (~ P \/ Q)   // pq : P --> Q, no : ~ (~ P \/ Q) |- False
   apply no                             // pq : P --> Q, no : ~ (~ P \/ Q) |- ~ P \/ Q
@@ -97,7 +103,7 @@ qed
 // we can assume the other disjunct is false.
 theorem weak-or-elim :
   (~ P --> Q) --> P \/ Q
-proof
+proof                                  // |- (~ P --> Q) --> P \/ Q
   assume npq : ~ P --> Q               // npq : ~ P --> Q |- P \/ Q
   by-contradiction no : ~ (P \/ Q)     // npq : ~ P --> Q, no : ~ (P \/ Q) |- False
   apply no                             // npq : ~ P --> Q, no : ~ (P \/ Q) |- P \/ Q
@@ -113,7 +119,7 @@ qed
 // impossible that either conjunct is false.
 theorem and-from-weak-and :
   ~ (~ P \/ ~ Q) --> P /\ Q
-proof
+proof                                  // |- ~ (~ P \/ ~ Q) --> P /\ Q
   assume pq : ~ (~ P \/ ~ Q)           // pq : ~ (~ P \/ ~ Q) |- P /\ Q
   by-contradiction npq : ~ (P /\ Q)    // pq : ~ (~ P \/ ~ Q), npq : ~ (P /\ Q) |- False
   apply pq                             // pq : ~ (~ P \/ ~ Q), npq : ~ (P /\ Q) |- ~ P \/ ~ Q
@@ -128,7 +134,7 @@ qed
 
 theorem xor-not-iff-conv :
   ~ ((P /\ ~ Q) \/ (~ P /\ Q)) --> P <--> Q
-proof
+proof                                  // |- ~ ((P /\ ~ Q) \/ (~ P /\ Q)) --> P <--> Q
   assume nxor                          // nxor : ~ ((P /\ ~ Q) \/ (~ P /\ Q)) |- P <--> Q
   both
                                        // nxor : ~ ((P /\ ~ Q) \/ (~ P /\ Q)) |- P --> Q
@@ -149,7 +155,7 @@ qed
 // logically equivalent.
 theorem xor-not-iff :
   ~ (P <--> Q) --> (P /\ ~ Q) \/ (~ P /\ Q)
-proof
+proof                                  // |- ~ (P <--> Q) --> (P /\ ~ Q) \/ (~ P /\ Q)
   apply funny-contraposition           // |- ~ ((P /\ ~ Q) \/ (~ P /\ Q)) --> P <--> Q
   apply xor-not-iff-conv               // Theorem proved!
 qed
@@ -157,7 +163,7 @@ qed
 // In classical logic, propositions are linearly ordered by implication.
 theorem godel-dummet :
   (P --> Q) \/ (Q --> P)
-proof
+proof                                  // |- (P --> Q) \/ (Q --> P)
   by-contradiction h                   // h : ~ ((P --> Q) \/ (Q --> P)) |- False
   apply h                              // h : ~ ((P --> Q) \/ (Q --> P)) |- (P --> Q) \/ (Q --> P)
   or-left                              // h : ~ ((P --> Q) \/ (Q --> P)) |- P --> Q
@@ -172,7 +178,7 @@ qed
 // Premise independence for disjunction.
 theorem premise-independence :
   (P --> Q \/ R) --> (P --> Q) \/ (P --> R)
-proof
+proof                                  // |- (P --> Q \/ R) --> (P --> Q) \/ (P --> R)
   assume pqr : P --> Q \/ R            // pqr : P --> Q \/ R |- (P --> Q) \/ (P --> R)
   by-contradiction no                  // pqr : P --> Q \/ R, no : ~ ((P --> Q) \/ (P --> R)) |- False
   apply no                             // pqr : P --> Q \/ R, no : ~ ((P --> Q) \/ (P --> R)) |- (P --> Q) \/ (P --> R)

@@ -16,11 +16,19 @@
           "named": true
         },
         {
+          "type": "direction",
+          "named": true
+        },
+        {
           "type": "identifier",
           "named": true
         },
         {
           "type": "type_ann",
+          "named": true
+        },
+        {
+          "type": "witness_pattern",
           "named": true
         }
       ]
@@ -43,10 +51,6 @@
           "named": true
         },
         {
-          "type": "assume_in",
-          "named": true
-        },
-        {
           "type": "assumption",
           "named": true
         },
@@ -55,15 +59,15 @@
           "named": true
         },
         {
-          "type": "call_by",
-          "named": true
-        },
-        {
           "type": "clauses",
           "named": true
         },
         {
           "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
           "named": true
         },
         {
@@ -76,6 +80,10 @@
         },
         {
           "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
           "named": true
         },
         {
@@ -95,6 +103,10 @@
           "named": true
         },
         {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -104,6 +116,18 @@
         },
         {
           "type": "number",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
           "named": true
         }
       ]
@@ -126,10 +150,6 @@
           "named": true
         },
         {
-          "type": "assume_in",
-          "named": true
-        },
-        {
           "type": "assumption",
           "named": true
         },
@@ -138,15 +158,15 @@
           "named": true
         },
         {
-          "type": "call_by",
-          "named": true
-        },
-        {
           "type": "clauses",
           "named": true
         },
         {
           "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
           "named": true
         },
         {
@@ -159,6 +179,10 @@
         },
         {
           "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
           "named": true
         },
         {
@@ -178,6 +202,10 @@
           "named": true
         },
         {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -187,6 +215,18 @@
         },
         {
           "type": "number",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
           "named": true
         }
       ]
@@ -200,93 +240,6 @@
       "multiple": false,
       "required": true,
       "types": [
-        {
-          "type": "patterns",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "assume_in",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "apply",
-          "named": true
-        },
-        {
-          "type": "arrow",
-          "named": true
-        },
-        {
-          "type": "assume_in",
-          "named": true
-        },
-        {
-          "type": "assumption",
-          "named": true
-        },
-        {
-          "type": "call",
-          "named": true
-        },
-        {
-          "type": "call_by",
-          "named": true
-        },
-        {
-          "type": "clauses",
-          "named": true
-        },
-        {
-          "type": "conjunction",
-          "named": true
-        },
-        {
-          "type": "disjunction",
-          "named": true
-        },
-        {
-          "type": "equality",
-          "named": true
-        },
-        {
-          "type": "equivalence",
-          "named": true
-        },
-        {
-          "type": "forall",
-          "named": true
-        },
-        {
-          "type": "hole_identifier",
-          "named": true
-        },
-        {
-          "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "implication",
-          "named": true
-        },
-        {
-          "type": "lambda",
-          "named": true
-        },
-        {
-          "type": "negation",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
         {
           "type": "patterns",
           "named": true
@@ -338,10 +291,6 @@
           "named": true
         },
         {
-          "type": "assume_in",
-          "named": true
-        },
-        {
           "type": "assumption",
           "named": true
         },
@@ -354,11 +303,15 @@
           "named": true
         },
         {
+          "type": "by_contradiction",
+          "named": true
+        },
+        {
           "type": "call",
           "named": true
         },
         {
-          "type": "call_by",
+          "type": "chaining",
           "named": true
         },
         {
@@ -367,6 +320,10 @@
         },
         {
           "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
           "named": true
         },
         {
@@ -386,6 +343,10 @@
           "named": true
         },
         {
+          "type": "exists",
+          "named": true
+        },
+        {
           "type": "forall",
           "named": true
         },
@@ -399,6 +360,10 @@
         },
         {
           "type": "implication",
+          "named": true
+        },
+        {
+          "type": "implicit_call",
           "named": true
         },
         {
@@ -418,7 +383,43 @@
           "named": true
         },
         {
+          "type": "pick_any",
+          "named": true
+        },
+        {
+          "type": "pick_witness",
+          "named": true
+        },
+        {
+          "type": "proving",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "rewrite",
+          "named": true
+        },
+        {
           "type": "separator",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "unfold",
+          "named": true
+        },
+        {
+          "type": "witness",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
           "named": true
         }
       ]
@@ -445,10 +446,6 @@
           "named": true
         },
         {
-          "type": "assume_in",
-          "named": true
-        },
-        {
           "type": "assumption",
           "named": true
         },
@@ -461,11 +458,15 @@
           "named": true
         },
         {
+          "type": "by_contradiction",
+          "named": true
+        },
+        {
           "type": "call",
           "named": true
         },
         {
-          "type": "call_by",
+          "type": "chaining",
           "named": true
         },
         {
@@ -474,6 +475,10 @@
         },
         {
           "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
           "named": true
         },
         {
@@ -493,6 +498,10 @@
           "named": true
         },
         {
+          "type": "exists",
+          "named": true
+        },
+        {
           "type": "forall",
           "named": true
         },
@@ -506,6 +515,10 @@
         },
         {
           "type": "implication",
+          "named": true
+        },
+        {
+          "type": "implicit_call",
           "named": true
         },
         {
@@ -525,7 +538,78 @@
           "named": true
         },
         {
+          "type": "pick_any",
+          "named": true
+        },
+        {
+          "type": "pick_witness",
+          "named": true
+        },
+        {
+          "type": "proving",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "rewrite",
+          "named": true
+        },
+        {
           "type": "separator",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "unfold",
+          "named": true
+        },
+        {
+          "type": "witness",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "by_contradiction",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "ann_pattern",
+          "named": true
+        },
+        {
+          "type": "ctor_pattern",
+          "named": true
+        },
+        {
+          "type": "direction",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "type_ann",
+          "named": true
+        },
+        {
+          "type": "witness_pattern",
           "named": true
         }
       ]
@@ -548,10 +632,6 @@
           "named": true
         },
         {
-          "type": "assume_in",
-          "named": true
-        },
-        {
           "type": "assumption",
           "named": true
         },
@@ -560,15 +640,15 @@
           "named": true
         },
         {
-          "type": "call_by",
-          "named": true
-        },
-        {
           "type": "clauses",
           "named": true
         },
         {
           "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
           "named": true
         },
         {
@@ -581,6 +661,10 @@
         },
         {
           "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
           "named": true
         },
         {
@@ -600,6 +684,10 @@
           "named": true
         },
         {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -610,12 +698,24 @@
         {
           "type": "number",
           "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
+          "named": true
         }
       ]
     }
   },
   {
-    "type": "call_by",
+    "type": "chain_link",
     "named": true,
     "fields": {},
     "children": {
@@ -631,10 +731,6 @@
           "named": true
         },
         {
-          "type": "assume_in",
-          "named": true
-        },
-        {
           "type": "assumption",
           "named": true
         },
@@ -647,15 +743,15 @@
           "named": true
         },
         {
-          "type": "call_by",
-          "named": true
-        },
-        {
           "type": "clauses",
           "named": true
         },
         {
           "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
           "named": true
         },
         {
@@ -668,6 +764,10 @@
         },
         {
           "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
           "named": true
         },
         {
@@ -687,6 +787,10 @@
           "named": true
         },
         {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -696,6 +800,41 @@
         },
         {
           "type": "number",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "chaining",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "begin",
+          "named": true
+        },
+        {
+          "type": "chain_link",
+          "named": true
+        },
+        {
+          "type": "end",
           "named": true
         }
       ]
@@ -718,10 +857,6 @@
           "named": true
         },
         {
-          "type": "assume_in",
-          "named": true
-        },
-        {
           "type": "assumption",
           "named": true
         },
@@ -730,15 +865,15 @@
           "named": true
         },
         {
-          "type": "call_by",
-          "named": true
-        },
-        {
           "type": "clauses",
           "named": true
         },
         {
           "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
           "named": true
         },
         {
@@ -751,6 +886,10 @@
         },
         {
           "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
           "named": true
         },
         {
@@ -770,6 +909,10 @@
           "named": true
         },
         {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -783,6 +926,18 @@
         },
         {
           "type": "patterns",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
           "named": true
         }
       ]
@@ -836,10 +991,6 @@
           "named": true
         },
         {
-          "type": "assume_in",
-          "named": true
-        },
-        {
           "type": "assumption",
           "named": true
         },
@@ -848,15 +999,15 @@
           "named": true
         },
         {
-          "type": "call_by",
-          "named": true
-        },
-        {
           "type": "clauses",
           "named": true
         },
         {
           "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
           "named": true
         },
         {
@@ -869,6 +1020,10 @@
         },
         {
           "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
           "named": true
         },
         {
@@ -888,6 +1043,10 @@
           "named": true
         },
         {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -897,6 +1056,18 @@
         },
         {
           "type": "number",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
           "named": true
         }
       ]
@@ -919,10 +1090,6 @@
           "named": true
         },
         {
-          "type": "assume_in",
-          "named": true
-        },
-        {
           "type": "assumption",
           "named": true
         },
@@ -931,15 +1098,15 @@
           "named": true
         },
         {
-          "type": "call_by",
-          "named": true
-        },
-        {
           "type": "clauses",
           "named": true
         },
         {
           "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
           "named": true
         },
         {
@@ -952,6 +1119,10 @@
         },
         {
           "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
           "named": true
         },
         {
@@ -971,6 +1142,10 @@
           "named": true
         },
         {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -980,6 +1155,18 @@
         },
         {
           "type": "number",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
           "named": true
         }
       ]
@@ -1041,7 +1228,146 @@
           "named": true
         },
         {
+          "type": "direction",
+          "named": true
+        },
+        {
           "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "witness_pattern",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "decl_in",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "apply",
+          "named": true
+        },
+        {
+          "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assume",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "by_contradiction",
+          "named": true
+        },
+        {
+          "type": "call",
+          "named": true
+        },
+        {
+          "type": "chaining",
+          "named": true
+        },
+        {
+          "type": "clauses",
+          "named": true
+        },
+        {
+          "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
+          "named": true
+        },
+        {
+          "type": "disjunction",
+          "named": true
+        },
+        {
+          "type": "equality",
+          "named": true
+        },
+        {
+          "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
+          "named": true
+        },
+        {
+          "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "implication",
+          "named": true
+        },
+        {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
+          "type": "lambda",
+          "named": true
+        },
+        {
+          "type": "lemma_declaration",
+          "named": true
+        },
+        {
+          "type": "negation",
+          "named": true
+        },
+        {
+          "type": "number",
+          "named": true
+        },
+        {
+          "type": "pick_any",
+          "named": true
+        },
+        {
+          "type": "pick_witness",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "rewrite",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "unfold",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
           "named": true
         }
       ]
@@ -1083,10 +1409,6 @@
           "named": true
         },
         {
-          "type": "assume_in",
-          "named": true
-        },
-        {
           "type": "assumption",
           "named": true
         },
@@ -1095,15 +1417,15 @@
           "named": true
         },
         {
-          "type": "call_by",
-          "named": true
-        },
-        {
           "type": "clauses",
           "named": true
         },
         {
           "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
           "named": true
         },
         {
@@ -1116,6 +1438,10 @@
         },
         {
           "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
           "named": true
         },
         {
@@ -1135,6 +1461,10 @@
           "named": true
         },
         {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -1144,6 +1474,18 @@
         },
         {
           "type": "number",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
           "named": true
         }
       ]
@@ -1166,10 +1508,6 @@
           "named": true
         },
         {
-          "type": "assume_in",
-          "named": true
-        },
-        {
           "type": "assumption",
           "named": true
         },
@@ -1178,15 +1516,15 @@
           "named": true
         },
         {
-          "type": "call_by",
-          "named": true
-        },
-        {
           "type": "clauses",
           "named": true
         },
         {
           "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
           "named": true
         },
         {
@@ -1199,6 +1537,10 @@
         },
         {
           "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
           "named": true
         },
         {
@@ -1218,6 +1560,10 @@
           "named": true
         },
         {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -1227,6 +1573,18 @@
         },
         {
           "type": "number",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
           "named": true
         }
       ]
@@ -1249,10 +1607,6 @@
           "named": true
         },
         {
-          "type": "assume_in",
-          "named": true
-        },
-        {
           "type": "assumption",
           "named": true
         },
@@ -1261,15 +1615,15 @@
           "named": true
         },
         {
-          "type": "call_by",
-          "named": true
-        },
-        {
           "type": "clauses",
           "named": true
         },
         {
           "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
           "named": true
         },
         {
@@ -1282,6 +1636,10 @@
         },
         {
           "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
           "named": true
         },
         {
@@ -1301,6 +1659,10 @@
           "named": true
         },
         {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -1310,6 +1672,125 @@
         },
         {
           "type": "number",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "exists",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "apply",
+          "named": true
+        },
+        {
+          "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "call",
+          "named": true
+        },
+        {
+          "type": "clauses",
+          "named": true
+        },
+        {
+          "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
+          "named": true
+        },
+        {
+          "type": "disjunction",
+          "named": true
+        },
+        {
+          "type": "equality",
+          "named": true
+        },
+        {
+          "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
+          "named": true
+        },
+        {
+          "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "implication",
+          "named": true
+        },
+        {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
+          "type": "lambda",
+          "named": true
+        },
+        {
+          "type": "negation",
+          "named": true
+        },
+        {
+          "type": "number",
+          "named": true
+        },
+        {
+          "type": "parameters",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "type_ann",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
           "named": true
         }
       ]
@@ -1351,10 +1832,6 @@
           "named": true
         },
         {
-          "type": "assume_in",
-          "named": true
-        },
-        {
           "type": "assumption",
           "named": true
         },
@@ -1363,15 +1840,15 @@
           "named": true
         },
         {
-          "type": "call_by",
-          "named": true
-        },
-        {
           "type": "clauses",
           "named": true
         },
         {
           "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
           "named": true
         },
         {
@@ -1384,6 +1861,10 @@
         },
         {
           "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
           "named": true
         },
         {
@@ -1403,6 +1884,10 @@
           "named": true
         },
         {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -1416,6 +1901,22 @@
         },
         {
           "type": "parameters",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "type_ann",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
           "named": true
         }
       ]
@@ -1438,10 +1939,6 @@
           "named": true
         },
         {
-          "type": "assume_in",
-          "named": true
-        },
-        {
           "type": "assumption",
           "named": true
         },
@@ -1450,15 +1947,15 @@
           "named": true
         },
         {
-          "type": "call_by",
-          "named": true
-        },
-        {
           "type": "clauses",
           "named": true
         },
         {
           "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
           "named": true
         },
         {
@@ -1471,6 +1968,10 @@
         },
         {
           "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
           "named": true
         },
         {
@@ -1490,6 +1991,10 @@
           "named": true
         },
         {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -1499,6 +2004,117 @@
         },
         {
           "type": "number",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "implicit_call",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "apply",
+          "named": true
+        },
+        {
+          "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "call",
+          "named": true
+        },
+        {
+          "type": "clauses",
+          "named": true
+        },
+        {
+          "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
+          "named": true
+        },
+        {
+          "type": "disjunction",
+          "named": true
+        },
+        {
+          "type": "equality",
+          "named": true
+        },
+        {
+          "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
+          "named": true
+        },
+        {
+          "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "implication",
+          "named": true
+        },
+        {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
+          "type": "lambda",
+          "named": true
+        },
+        {
+          "type": "negation",
+          "named": true
+        },
+        {
+          "type": "number",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
           "named": true
         }
       ]
@@ -1540,10 +2156,6 @@
           "named": true
         },
         {
-          "type": "assume_in",
-          "named": true
-        },
-        {
           "type": "assumption",
           "named": true
         },
@@ -1552,15 +2164,15 @@
           "named": true
         },
         {
-          "type": "call_by",
-          "named": true
-        },
-        {
           "type": "clauses",
           "named": true
         },
         {
           "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
           "named": true
         },
         {
@@ -1573,6 +2185,10 @@
         },
         {
           "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
           "named": true
         },
         {
@@ -1592,6 +2208,10 @@
           "named": true
         },
         {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -1605,6 +2225,18 @@
         },
         {
           "type": "patterns",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
           "named": true
         }
       ]
@@ -1662,10 +2294,6 @@
           "named": true
         },
         {
-          "type": "assume_in",
-          "named": true
-        },
-        {
           "type": "assumption",
           "named": true
         },
@@ -1674,15 +2302,15 @@
           "named": true
         },
         {
-          "type": "call_by",
-          "named": true
-        },
-        {
           "type": "clauses",
           "named": true
         },
         {
           "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
           "named": true
         },
         {
@@ -1695,6 +2323,10 @@
         },
         {
           "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
           "named": true
         },
         {
@@ -1714,6 +2346,10 @@
           "named": true
         },
         {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -1723,6 +2359,18 @@
         },
         {
           "type": "number",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
           "named": true
         }
       ]
@@ -1768,11 +2416,137 @@
           "named": true
         },
         {
+          "type": "direction",
+          "named": true
+        },
+        {
           "type": "identifier",
           "named": true
         },
         {
           "type": "type_ann",
+          "named": true
+        },
+        {
+          "type": "witness_pattern",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pick_any",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "patterns",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "pick_witness",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "apply",
+          "named": true
+        },
+        {
+          "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "call",
+          "named": true
+        },
+        {
+          "type": "clauses",
+          "named": true
+        },
+        {
+          "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
+          "named": true
+        },
+        {
+          "type": "disjunction",
+          "named": true
+        },
+        {
+          "type": "equality",
+          "named": true
+        },
+        {
+          "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
+          "named": true
+        },
+        {
+          "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "implication",
+          "named": true
+        },
+        {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
+          "type": "lambda",
+          "named": true
+        },
+        {
+          "type": "negation",
+          "named": true
+        },
+        {
+          "type": "number",
+          "named": true
+        },
+        {
+          "type": "patterns",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
           "named": true
         }
       ]
@@ -1799,10 +2573,6 @@
           "named": true
         },
         {
-          "type": "assume_in",
-          "named": true
-        },
-        {
           "type": "assumption",
           "named": true
         },
@@ -1815,11 +2585,15 @@
           "named": true
         },
         {
+          "type": "by_contradiction",
+          "named": true
+        },
+        {
           "type": "call",
           "named": true
         },
         {
-          "type": "call_by",
+          "type": "chaining",
           "named": true
         },
         {
@@ -1828,6 +2602,10 @@
         },
         {
           "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
           "named": true
         },
         {
@@ -1847,6 +2625,10 @@
           "named": true
         },
         {
+          "type": "exists",
+          "named": true
+        },
+        {
           "type": "forall",
           "named": true
         },
@@ -1860,6 +2642,10 @@
         },
         {
           "type": "implication",
+          "named": true
+        },
+        {
+          "type": "implicit_call",
           "named": true
         },
         {
@@ -1879,7 +2665,344 @@
           "named": true
         },
         {
+          "type": "pick_any",
+          "named": true
+        },
+        {
+          "type": "pick_witness",
+          "named": true
+        },
+        {
+          "type": "proving",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "rewrite",
+          "named": true
+        },
+        {
           "type": "separator",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "unfold",
+          "named": true
+        },
+        {
+          "type": "witness",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "proving",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "apply",
+          "named": true
+        },
+        {
+          "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "call",
+          "named": true
+        },
+        {
+          "type": "clauses",
+          "named": true
+        },
+        {
+          "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
+          "named": true
+        },
+        {
+          "type": "disjunction",
+          "named": true
+        },
+        {
+          "type": "equality",
+          "named": true
+        },
+        {
+          "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
+          "named": true
+        },
+        {
+          "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "implication",
+          "named": true
+        },
+        {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
+          "type": "lambda",
+          "named": true
+        },
+        {
+          "type": "negation",
+          "named": true
+        },
+        {
+          "type": "number",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "proving_by",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "apply",
+          "named": true
+        },
+        {
+          "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "by_block",
+          "named": true
+        },
+        {
+          "type": "call",
+          "named": true
+        },
+        {
+          "type": "clauses",
+          "named": true
+        },
+        {
+          "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
+          "named": true
+        },
+        {
+          "type": "disjunction",
+          "named": true
+        },
+        {
+          "type": "equality",
+          "named": true
+        },
+        {
+          "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
+          "named": true
+        },
+        {
+          "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "implication",
+          "named": true
+        },
+        {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
+          "type": "lambda",
+          "named": true
+        },
+        {
+          "type": "negation",
+          "named": true
+        },
+        {
+          "type": "number",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "rewrite",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "apply",
+          "named": true
+        },
+        {
+          "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "call",
+          "named": true
+        },
+        {
+          "type": "clauses",
+          "named": true
+        },
+        {
+          "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
+          "named": true
+        },
+        {
+          "type": "disjunction",
+          "named": true
+        },
+        {
+          "type": "equality",
+          "named": true
+        },
+        {
+          "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
+          "named": true
+        },
+        {
+          "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "implication",
+          "named": true
+        },
+        {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
+          "type": "lambda",
+          "named": true
+        },
+        {
+          "type": "negation",
+          "named": true
+        },
+        {
+          "type": "number",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
           "named": true
         }
       ]
@@ -1969,6 +3092,109 @@
     }
   },
   {
+    "type": "suffices_by",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "apply",
+          "named": true
+        },
+        {
+          "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "by_block",
+          "named": true
+        },
+        {
+          "type": "call",
+          "named": true
+        },
+        {
+          "type": "clauses",
+          "named": true
+        },
+        {
+          "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
+          "named": true
+        },
+        {
+          "type": "disjunction",
+          "named": true
+        },
+        {
+          "type": "equality",
+          "named": true
+        },
+        {
+          "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
+          "named": true
+        },
+        {
+          "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "implication",
+          "named": true
+        },
+        {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
+          "type": "lambda",
+          "named": true
+        },
+        {
+          "type": "negation",
+          "named": true
+        },
+        {
+          "type": "number",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "theorem_declaration",
     "named": true,
     "fields": {},
@@ -2020,10 +3246,6 @@
           "named": true
         },
         {
-          "type": "assume_in",
-          "named": true
-        },
-        {
           "type": "assumption",
           "named": true
         },
@@ -2032,15 +3254,15 @@
           "named": true
         },
         {
-          "type": "call_by",
-          "named": true
-        },
-        {
           "type": "clauses",
           "named": true
         },
         {
           "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
           "named": true
         },
         {
@@ -2053,6 +3275,10 @@
         },
         {
           "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
           "named": true
         },
         {
@@ -2072,6 +3298,10 @@
           "named": true
         },
         {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -2081,6 +3311,49 @@
         },
         {
           "type": "number",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "unfold",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "ann_pattern",
+          "named": true
+        },
+        {
+          "type": "ctor_pattern",
+          "named": true
+        },
+        {
+          "type": "direction",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "witness_pattern",
           "named": true
         }
       ]
@@ -2103,10 +3376,6 @@
           "named": true
         },
         {
-          "type": "assume_in",
-          "named": true
-        },
-        {
           "type": "assumption",
           "named": true
         },
@@ -2115,15 +3384,15 @@
           "named": true
         },
         {
-          "type": "call_by",
-          "named": true
-        },
-        {
           "type": "clauses",
           "named": true
         },
         {
           "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
           "named": true
         },
         {
@@ -2136,6 +3405,10 @@
         },
         {
           "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
           "named": true
         },
         {
@@ -2155,6 +3428,10 @@
           "named": true
         },
         {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -2164,6 +3441,18 @@
         },
         {
           "type": "number",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
           "named": true
         }
       ]
@@ -2213,6 +3502,243 @@
     }
   },
   {
+    "type": "witness",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "apply",
+          "named": true
+        },
+        {
+          "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "call",
+          "named": true
+        },
+        {
+          "type": "clauses",
+          "named": true
+        },
+        {
+          "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
+          "named": true
+        },
+        {
+          "type": "disjunction",
+          "named": true
+        },
+        {
+          "type": "equality",
+          "named": true
+        },
+        {
+          "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
+          "named": true
+        },
+        {
+          "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "implication",
+          "named": true
+        },
+        {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
+          "type": "lambda",
+          "named": true
+        },
+        {
+          "type": "negation",
+          "named": true
+        },
+        {
+          "type": "number",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "type_ann",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "witness_pattern",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "ann_pattern",
+          "named": true
+        },
+        {
+          "type": "ctor_pattern",
+          "named": true
+        },
+        {
+          "type": "direction",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "witness_pattern",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "witness_such_that",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "apply",
+          "named": true
+        },
+        {
+          "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "call",
+          "named": true
+        },
+        {
+          "type": "clauses",
+          "named": true
+        },
+        {
+          "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
+          "named": true
+        },
+        {
+          "type": "disjunction",
+          "named": true
+        },
+        {
+          "type": "equality",
+          "named": true
+        },
+        {
+          "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
+          "named": true
+        },
+        {
+          "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "implication",
+          "named": true
+        },
+        {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
+          "type": "lambda",
+          "named": true
+        },
+        {
+          "type": "negation",
+          "named": true
+        },
+        {
+          "type": "number",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "type_ann",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "&",
     "named": false
   },
@@ -2246,6 +3772,14 @@
   },
   {
     "type": ":",
+    "named": false
+  },
+  {
+    "type": "<-",
+    "named": false
+  },
+  {
+    "type": "<--",
     "named": false
   },
   {
@@ -2298,6 +3832,14 @@
     "named": false
   },
   {
+    "type": "by-contradiction",
+    "named": false
+  },
+  {
+    "type": "chaining",
+    "named": false
+  },
+  {
     "type": "data",
     "named": true
   },
@@ -2306,8 +3848,20 @@
     "named": false
   },
   {
+    "type": "direction",
+    "named": true
+  },
+  {
     "type": "end",
     "named": true
+  },
+  {
+    "type": "exists",
+    "named": false
+  },
+  {
+    "type": "for",
+    "named": false
   },
   {
     "type": "forall",
@@ -2347,12 +3901,24 @@
     "named": false
   },
   {
+    "type": "pick-any",
+    "named": false
+  },
+  {
+    "type": "pick-witness",
+    "named": false
+  },
+  {
     "type": "proof",
     "named": false
   },
   {
     "type": "proposition",
     "named": true
+  },
+  {
+    "type": "proving",
+    "named": false
   },
   {
     "type": "qed",
@@ -2363,6 +3929,10 @@
     "named": true
   },
   {
+    "type": "rewrite",
+    "named": false
+  },
+  {
     "type": "separator",
     "named": true
   },
@@ -2371,12 +3941,24 @@
     "named": true
   },
   {
+    "type": "such-that",
+    "named": false
+  },
+  {
+    "type": "suffices",
+    "named": false
+  },
+  {
     "type": "theorem",
     "named": false
   },
   {
     "type": "type",
     "named": true
+  },
+  {
+    "type": "unfold",
+    "named": false
   },
   {
     "type": "where",

@@ -31,7 +31,7 @@
  (#match? @typevar "^[A-Z]$"))
 
 ((identifier) @proofterm
- (#match? @proofterm "^absurd|and-left|and-right|both|cases|or-left|or-right|proving|refl|suffices|trivial$"))
+ (#match? @proofterm "^absurd|and-left|and-right|both|cases|instantiate|or-left|or-right|refl|simpl|symmetry|transitivity|trivial|with$"))
 
 [
   "assume"
@@ -50,9 +50,12 @@
   "==="
   "<-->"
   "-->"
+  "->"
+  "<-"
   "~"
   "\\/"
-  "->"
+  "<--"
+  "<-"
   "forall"
 ] @typepropformer
 
@@ -81,9 +84,19 @@
 
 [
   "by"
+  "by-contradiction"
+  "chaining"
   "in"
+  "for"
   "lemma"
   "of"
+  "pick-any"
+  "pick-witness"
+  "proving"
+  "rewrite"
+  "such-that"
+  "suffices"
+  "unfold"
 ] @keyword
 
 [

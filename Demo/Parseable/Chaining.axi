@@ -13,12 +13,25 @@ proof
   assume pq qr rs st p       // Γ |- T  // After making all the assumptions, the goal is `T`.
   chaining
     <-- T                    // Γ |- T  // We start the chain. `<--` means it's backward chaining for implication. The goal is still `T`.
-    <-- S         by st
-    <-- R         by rs
-    <-- Q         by qr
-    <-- P         by pq
+    <-- S         by st      // Γ |- S  // The goal changes to `S` because `S` implies `T`, as proven in the `by` clause.
+    <-- R         by rs      // Γ |- R
+    <-- Q         by qr      // Γ |- Q
+    <-- P         by pq      // Γ |- P  // After the final step, the goal that we are left with is `P`.
   assumption                 // We now solve `P`, the goal produced by chaining.
 qed
+
+// In proofterm style, the above proof looks as follows.
+theorem implication-chaining-backwards-term-style :
+  (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T =
+  assume pq qr rs st p in
+    chaining
+      <-- T
+      <-- S         by st
+      <-- R         by rs
+      <-- Q         by qr
+      <-- P         by pq
+    in
+      assumption
 
 // The chaining gets desugared to a bunch of uses of `apply`.
 theorem implication-chaining-backwards-desugared :
@@ -73,10 +86,10 @@ proof
   assume pq qr rs st         // Γ |- P --> T  // Let's assume everything EXCEPT the last `P`, so that the goal is `P --> T`.
   chaining
     <-- T                    // Γ |- P --> T  // We start the chain. The goal is still `P --> T`.
-    <-- S         by st
-    <-- R         by rs
-    <-- Q         by qr
-    <-- P         by pq
+    <-- S         by st      // Γ |- P --> S  // The goal changes to `P --> S` because `S` implies `T`, as proven in the `by` clause.
+    <-- R         by rs      // Γ |- P --> R
+    <-- Q         by qr      // Γ |- P --> Q
+    <-- P         by pq      // In the last step we prove `P --> Q`, which is precisely our goal, so we're done.
 qed
 
 // The above proof is desugared as follows, where `impl-trans'` is
@@ -100,10 +113,10 @@ proof
   assume pq qr rs st         // Γ |- P --> T  // After making all the assumptions, the goal is `P --> T`.
   chaining
     --> P                    // Γ |- P --> T  // We start the chain. `-->` means it's forward chaining for implication. The goal is still `P --> T`.
-    --> Q         by pq
-    --> R         by qr
-    --> S         by rs
-    --> T         by st
+    --> Q         by pq      // Γ |- Q --> T  // The goal changes to `Q --> T` because `P` implies `Q`, as proven in the `by` clause.
+    --> R         by qr      // Γ |- R --> T
+    --> S         by rs      // Γ |- S --> T
+    --> T         by st      // In the last step we prove `S --> T`, which is precisely our goal, so we're done.
 qed
 
 // The above proof is desugared as follows, where `impl-trans` is
@@ -126,10 +139,10 @@ proof
   assume pq qr rs st          // Γ |- P <--> T  // After making all the assumptions, the goal is `P <--> T`.
   chaining
     <--> P                   // Γ |- P <--> T  // We start the chain. `<-->` means it's chaining for biconditional. The goal is still `P <--> T`.
-    <--> Q        by pq
-    <--> R        by qr
-    <--> S        by rs
-    <--> T        by st
+    <--> Q        by pq      // Γ |- Q <--> T  // The goal changes to `Q <--> T` because `P <--> Q`, as proven in the `by` clause.
+    <--> R        by qr      // Γ |- R <--> T
+    <--> S        by rs      // Γ |- S <--> T
+    <--> T        by st      // In the last step we prove `S <--> T`, which is precisely our goal, so we're done.
 qed
 
 // The above proof is desugared as follows, where `iff-trans` is
@@ -159,9 +172,9 @@ proof
   assume xy yz zw            // Γ |- x === w  // After making all the assumptions, the goal is `x === w`.
   chaining
     === x                    // Γ |- x === w  // We start the chain. `===` means it's chaining for equality. The goal is still `x === w`.
-    === y        by xy
-    === z        by yz
-    === w        by zw
+    === y        by xy       // Γ |- y === w  // The goal changes to `y === w` because `x === y`, as proven in the `by` clause.
+    === z        by yz       // Γ |- z === w
+    === w        by zw       // In the last step we prove `z === w`, which is precisely our goal, so we're done.
 qed
 
 // The above proof is desugared as follows, where `eq-trans` is
@@ -191,10 +204,10 @@ proof
   assume ab bc cd de         // Γ |- R a e // After making all the assumptions, the goal is `R a e`.
   chaining
     R a                      // Γ |- R a e // We start the chain. `R` means it's chaining for the relation `R`. The goal is still `R a e`.
-    R b           by ab
-    R c           by bc
-    R d           by cd
-    R e           by de
+    R b           by ab      // Γ |- R b e // The goal changes to `R b e` because `R a b`, as proven in the `by` clause, and because `R` is transitive.
+    R c           by bc      // Γ |- R c e
+    R d           by cd      // Γ |- R d e
+    R e           by de      // In the last step we prove `R d e`, which is precisely our goal, so we're done.
 qed
 
 // The above proof is desugared as follows, where `trans` is

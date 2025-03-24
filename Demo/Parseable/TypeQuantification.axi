@@ -10,7 +10,7 @@
 // programming layer.
 theorem forall-type-intro-example :
   forall {A}, forall x : A, x === x
-proof
+proof                                // |- forall {A}, forall x : A, x === x
   pick-any A                         // A : Type |- forall x : A, x === x
   pick-any x                         // A : Type, x : A |- x === x
   refl                               // Theorem proved!
@@ -24,6 +24,11 @@ proof
   refl
 qed
 
+// In proofterm style, the above proof looks as follows.
+theorem forall-type-intro-example-term-style :
+  (forall {A} (x : A), x === x) =
+    pick-any A x in refl
+
 // We eliminate the universal quantifier using `instantiate`, just like for
 // the first-order universal quantifier.
 // `instantiate e with T` proves `P T` provided that
@@ -31,7 +36,7 @@ qed
 theorem forall-type-elim-example :
   (forall {A} (x : A), x === x) -->
     forall n : Nat, n === n
-proof
+proof                                // |- (forall {A} (x : A), x === x) --> forall n : Nat, n === n
   assume all                         // all : (forall {A} (x : A), x === x) |- forall n : Nat, n === n
   instantiate all with Nat           // Theorem proved!
 qed
@@ -41,7 +46,7 @@ qed
 // `e` proves `P T`.
 theorem exists-type-intro-example :
   exists {A}, forall x : A, x === x
-proof
+proof                                // |- exists {A}, forall x : A, x === x
   exists Nat                         // |- forall x : Nat, x === x
   pick-any x                         // x : Nat |- x === x
   refl                               // Theorem proved!
@@ -57,7 +62,7 @@ declaration R : Prop
 // some type, then it just holds.
 theorem exists-type-elim-example :
   (exists {A}, R) --> R
-proof
+proof                                // |- (exists {A}, R) --> R
   assume ex                          // ex : (exists {A}, R) |- R
   pick-witness A r for ex            // ex : (exists {A}, R), A : Type, r : R |- R
   assumption                         // Theorem proved!
@@ -66,7 +71,7 @@ qed
 // Of course we can also fuse the `pick-witness` with the preceding `assume`.
 theorem exists-type-elim-example :
   (exists {A}, R) --> R
-proof
+proof                                // |- (exists {A}, R) --> R
   assume (exists A such-that r)      // A : Type, r : R |- R
   assumption                         // Theorem proved!
 qed
