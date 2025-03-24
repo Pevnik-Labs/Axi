@@ -1,5 +1,5 @@
 {
-  "name": "axi-syntax",
+  "name": "axi-syntax-highlighting",
   "displayName": "T-Axi Syntax Highlighting",
   "description": "Syntax highlighting for T-Axi",
   "version": "0.1.0",
@@ -26,7 +26,7 @@
     [{
       "language": "axi",
       "scopeName": "source.axi",
-      "path": "syntaxes/axi.tmLanguage.json"
+      "path": "grammars/axi.tmLanguage.json"
     }],
     "themes":
     [

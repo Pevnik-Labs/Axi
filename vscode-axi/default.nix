@@ -2,12 +2,10 @@
 
 vscode-utils.buildVscodeExtension
 {
-  name = "axi-syntax";
+  name = "axi-syntax-highlighting";
   version = "0.1.0";
-  #src = ./.;
-  src = ./axi-syntax-0.1.0.vsix;
+  src = ./axi-syntax-highlighting-0.1.0.vsix;
   sourceRoot = ".";
-  #vsix = ./axi-syntax-0.1.0.vsix;
 
   # Explicitly unpack the .vsix file:
   unpackPhase = ''
@@ -16,8 +14,8 @@ vscode-utils.buildVscodeExtension
   '';
 
   vscodeExtPublisher = "khalani";
-  vscodeExtName = "axi-syntax";
-  vscodeExtUniqueId = "khalani.axi-syntax";
+  vscodeExtName = "axi-syntax-highlighting";
+  vscodeExtUniqueId = "khalani.axi-syntax-highlighting";
 
   meta = with lib;
   {
