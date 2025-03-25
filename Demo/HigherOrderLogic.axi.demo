@@ -1,6 +1,6 @@
 // The syntax of higher-order quantifiers is as follows.
 // Note that `L` stands for a logical kind.
-// P, Q ::= ... | forall P : L, Q | exists P : L, Q
+// P, Q ::= ... | forall R : L, P | exists R : L, P
 
 theorem forall-prop-intro-example :
   forall P : Prop, P --> P

@@ -22,7 +22,7 @@
     },
     {
       "name": "variable.other.proofterm.axi",
-      "match": "(?<![-_])\\b(apply|both|and-left|and-right|or-left|or-right|cases|lemma|suffices|proving|instantiate|such-that|for|rewrite|symmetry|transitivity|unfold|simpl|induction)\\b(?![-_])"
+      "match": "(?<![-_])\\b(apply|both|and-left|and-right|or-left|or-right|cases|lemma|suffices|proving|instantiate|witness|such-that|for|rewrite|symmetry|transitivity|unfold|simpl|induction)\\b(?![-_])"
     },
     {
       "name": "variable.other.proofterm.absurd.axi",
@@ -42,7 +42,7 @@
     },
     {
       "name": "keyword.other.axi",
-      "match": "(?<![-_])(\\b(by|in|of|chaining|fun|let|update|if|is|then|else|match|with)\\b)(?![-_])"
+      "match": "(?<![-_])(\\b(by|in|of|chaining|fun|let|update|if|is|then|else|match|with|noncomputational)\\b)(?![-_])"
     },
     {
       "name": "string.axi",

@@ -84,13 +84,6 @@ data type Expr a where
 // Relation declaration (kinding)
 declaration R : Nat -> Nat -> Prop
 
-// Proposition definition
-proposition and P Q = P /\ Q
-proposition or P Q = P \/ Q
-proposition impl P Q = P --> Q
-proposition iff P Q = P <--> Q
-proposition not P = ~ P
-
 // Recursive functions
 map (f : a -> b) : List a -> List b
 _ nil = nil

@@ -1,83 +1,149 @@
-// Higher-order classical logic.
+// In T-Axi, classical higher-order logic (and really, any classical logic
+// above the propositional level) is realized using a simple idea: we can
+// use eliminators of propositions to define a program, but only if that
+// program's sole purpose is logical, i.e. if it's only going to be used
+// for the purposes of proving the existence of something.
 
+// To make things simpler, let's start by recalling what's forbidden.
+// First, let's declare a predicate on naturals which holds for some
+// number.
+
+declaration P : Nat -> Prop
+axiom ex : exists n : Nat, P n
+
+// If we try to "unpack" the above declared proof inside a program,
+// we will fail. The error goes something like this:
+// "Cannot eliminate propositions when defining programs!"
+find-the-magic-number : Nat =
+  pick-witness n _ for ex in n
+
+// Now, first-order and higher-order classical logic boils down to
+// this principle: we can eliminate propositions in order to define
+// programs that prove the existence of something. We can define
+// these kinds of programs only inside proofs using a `let` binding,
+// and a special keyword `noncomputational` is required to mark this
+// situation.
+
+// Note that this example is a bit silly, because we could just use the
+// axiom `ex` that we already have.
+theorem essence-of-classical-logic :
+  exists n : Nat, P n
+proof                                        // |- exists n : Nat, P n
+  let noncomputational magic-number : Nat =  // We are defining `magic-number` of type `Nat` right now...
+    pick-witness n _ for ex in n             // ... and we're defining it by picking a witness for the axiom `ex` and returning it.
+                                             // After `magic-number` is defined, it appears in the context. We can use it as our witness.
+                                             // magic-number = pick-witness n _ for ex in n |- exists n : Nat, P n
+  witness magic-number                       // magic-number = pick-witness n _ for ex in n |- P magic-number
+  unfold magic-number                        // magic-number = pick-witness n _ for ex in n |- P (pick-witness n _ for ex in n)
+                                             // Now we use `pick-witness` as an ordinary proof step.
+  pick-witness n pn for ex                   // magic-number = pick-witness n _ for ex in n, n : Nat, pn : P n |- P n
+  assumption
+qed
+
+// Let's see how we can "prove" the Axiom of Choice.
+// Recall that the Axiom of Choice (well, one out of a myriad of its flavours)
+// says that, if for all `a : A` there exists `b : B` such that they are in a
+// relation `R`, then there exists a function `f : A -> B` such that every `a : A`
+// is in relation `R` with `f a`.
+// To paraphrase: given a relation `R` that is total, we can find a function
+// whose graph is a subrelation of `R`.
+theorem choice :
+  forall {A B} (R : A -> B -> Prop),
+    (forall a : A, exists b : B, R a b) -->
+      exists f : A -> B, forall a : A, R a (f a)
+proof                                                // |- forall {A B} (R : A -> B -> Prop), (forall a : A, exists b : B, R a b) --> exists f : A -> B, forall a : A, R a (f a)
+  pick-any A B R                                     // A B : Type, R : A -> B -> Prop |- (forall a : A, exists b : B, R a b) --> exists f : A -> B, forall a : A, R a (f a)
+  assume allex                                       // A B : Type, R : A -> B -> Prop, allex : (forall a : A, exists b : B, R a b) |- exists f : A -> B, forall a : A, R a (f a)
+  let noncomputational f (a : A) : B =
+    pick-witness b _ for (instantiate allex with a) in b
+  // Let Γ = A B : Type, R : A -> B -> Prop, allex : (forall a : A, exists b : B, R a b), f : A -> B = fun a : A => pick-witness b _ for (instantiate allex with a) in b
+                                                     // Γ |- exists f : A -> B, forall a : A, R a (f a)
+  witness f                                          // Γ |- forall a : A, R a (f a)
+  pick-any a : A                                     // Γ, a : A |- R a (f a)
+  unfold f                                           // Γ, a : A |- R a ((\ (a : A) -> pick-witness b _ for (instantiate allex with a) in b) a)
+  simpl                                              // Γ, a : A |- R a (pick-witness b _ for (instantiate allex with a) in b)
+  pick-witness b rab for (instantiate allex with a)  // Γ, a : A, b : B, rab : R a b |- R a b
+  assumption
+qed
+
+// Let's see some manifestations of classical logic.
+// We will prove that being a bijection and having
+// an inverse are logically equivalent notions.
+
+// A function is injective when equal outputs must come from equal inputs.
+// In other words, if the inputs are different, the outputs are also different.
 injective {A B} (f : A -> B) : Prop =
   forall x y : A, f x === f y --> x === y
 
+// A function is surjective when every element of the codomain is an output
+// for some input.
 surjective {A B} (f : A -> B) : Prop =
   forall y : B, exists x : A, f x === y
 
+// A function is bijective when it's both injective and surjective.
 bijective {A B} (f : A -> B) : Prop =
-  surjective A B f /\ injective A B f
+  surjective f /\ injective f
 
+// A function `f` has inverse when there exists a function `g`
+// whose composition with `f` gives the identity.
 has-inverse {A B} (f : A -> B) : Prop =
   exists g : B -> A,
     (forall a : A, g (f a) === a)
       /\
     (forall b : B, f (g b) === b)
 
+// If a function has an inverse, then it's bijective.
+// This theorem is constructively valid, so no classical
+// logic going on here.
 theorem bijective-from-has-inverse :
   forall {A B} (f : A -> B),
-    has-inverse A B f --> bijective A B f
-proof
-  pick-any A B f
-  assume (witness g : B -> A such-that (both gf fg))
+    has-inverse f --> bijective f
+proof                                                 // |- forall {A B} (f : A -> B), has-inverse f --> bijective f
+  pick-any A B f                                      // A B : Type, f : A -> B |- has-inverse f --> bijective f
+  // Let Γ = A B : Type, f : A -> B, g : B -> A, gf : (forall a : A, g (f a) === a), fg : (forall b : B, f (g b) === b)
+  assume (witness g : B -> A such-that (both gf fg))  // Γ |- bijective f
   both
-  . unfold surjective             // `unfold` replaces a definition with its body in the goal
-    pick-any b : B
-    witness (g b)
-    instantiate fg with b
-  . unfold injective
-    pick-any (x y : A)
-    assume (eq : f x === f y)
+                                                      // Γ |- surjective f
+  . unfold surjective                                 // Γ |- forall y : B, exists x : A, f x === y
+    pick-any b : B                                    // Γ, b : B |- exists x : A, f x === b
+    witness (g b)                                     // Γ, b : B |- f (g b) === b
+    instantiate fg with b                             // Goal solved!
+                                                      // Γ |- injective f
+  . unfold injective                                  // Γ |- forall x y : A, f x === f y --> x === y
+    pick-any x y : A                                  // Γ, x y : A |- f x === f y --> x === y
+    assume eq : f x === f y                           // Γ, x y : A, eq : f x === f y |- x === y
     chaining
       === x
-      === g (f x)   by (rewrite <-(instantiate gf with x) in refl) // Note that we need `x === g (f x)` whereas `gf` gives `g (f x) === x`.
-      === g (f y)   by eq
+      === g (f x)   by rewrite <-(instantiate gf with x)  // Note that we need `x === g (f x)` whereas `gf` gives `g (f x) === x`.
+      === g (f y)   by rewrite eq
       === y         by rewrite (instantiate gf with y)
 qed
 
-// Let's allow eliminating propositions into types... as our way of supporting classical reasoning.
+// If a function is bijective, then it has an inverse.
+// This direction of the theorem is classical.
 theorem has-inverse-from-bijective :
   forall {A B} (f : A -> B),
-    bijective A B f --> has-inverse A B f
-proof
-  pick-any A B f
+    bijective f --> has-inverse f
+proof                                                    // |- forall {A B} (f : A -> B), bijective f --> has-inverse f
+  pick-any A B f                                         // A B : Type, f : A -> B |- bijective f --> has-inverse f
   assume (both sur inj)
-  witness
-  . // g : B -> A
-    pick-any b : B
-    pick-witness a for (instantiate sur with b)
-    a
-  . both
-    . pick-any a' : A                                   // g (f a') === a'
-      unfold g                                          // (\ b -> pick-witness a for (instantiate sur with b) in a) (f a') === a'
-      simpl                                             // pick-witness a for (instantiate sur with (f a')) in a === a'
-      pick-witness a for (instantiate sur with (f a'))  // a === a', but we now have a hypothesis f a === f a'
-      apply (instantiate inj with a a')                 // f a === f a'
-      assumption
-    . pick-any b : B                                    // f (g b) === b
-      unfold g                                          // f ((\ (b : B) -> pick-witness a for (instantiate sur with b) in a) b) === b
-      simpl                                             // f (pick-witness a for (instantiate sur with b) in a) === b
-      pick-witness a for (instantiate sur with b)       // f a === b, but we now have a hypothesis f a === b
-      assumption
-qed
-
-// We can now prove the Axiom of Choice.
-// Let Γ = A B : Type, R : A -> B -> Prop, allex : (forall a : A, exists b : B, R a b)
-theorem choice :
-  forall {A B} (R : A -> B -> Prop),
-    (forall a : A, exists b : B, R a b) -->
-      exists f : A -> B, forall a : A, R a (f a)
-proof
-  pick-any A B R                                   // A B : Type, R : A -> B -> Prop |- (forall a : A, exists b : B, R a b) --> exists f : A -> B, forall a : A, R a (f a)
-  assume allex                                     // A B : Type, R : A -> B -> Prop, allex = (forall a : A, exists b : B, R a b) |- exists f : A -> B, forall a : A, R a (f a)
-  witness                                          // 1. Γ |- ?f : A -> B        2. Γ |- forall a : A, R a (?f a)
-  . pick-any a : A                                 // Γ, a : A |- B
-    pick-witness b for (instantiate allex with a)  // Γ, a : A, b : B, R a b |- B
-    b
-  . pick-any a : A                                 // Γ, a : A |- R a (f a)
-    unfold f                                       // Γ, a : A |- R a ((\ (a : A) -> pick-witness b for (instantiate allex with a) in b) a)
-    simpl                                          // Γ, a : A |- R a (pick-witness b for (instantiate allex with a) in b)
-    pick-witness b for (instantiate allex with a)  // Γ, a : A, b : B, R a b |- R a b
-    assumption
+  let g (b : B) :  A =
+    pick-witness a _ for (instantiate sur with b) in a
+  // Let Γ = A B : Type, f : A -> B, sur : (forall y : B, exists x : A, f x === y), inj : (forall x y : A, f x === f y --> x === y), g = fun b : B => pick-witness a _ for (instantiate sur with b) in a
+                                                         // Γ |- has-inverse f
+  witness g                                              // Γ |- (forall a : A, g (f a) === a) /\ (forall b : B, f (g b) === b)
+  both
+                                                         // Γ |- (forall a : A, g (f a) === a)
+  . pick-any a' : A                                      // Γ, a' : A |- g (f a') === a'
+    unfold g                                             // Γ, a' : A |- (\ (b : B) -> pick-witness a _ for (instantiate sur with b) in a) (f a') === a'
+    simpl                                                // Γ, a' : A |- pick-witness a _ for (instantiate sur with (f a')) in a === a'
+    pick-witness a eq for (instantiate sur with (f a'))  // Γ, a' : A, eq : f a === f a' |- a === a'
+    apply (instantiate inj with a a')                    // Γ, a' : A, eq : f a === f a' |- f a === f a'
+    assumption                                           // Goal solved!
+                                                         // Γ |- (forall b : B, f (g b) === b)
+  . pick-any b : B                                       // Γ, b : B |- f (g b) === b
+    unfold g                                             // Γ, b : B |- f ((\ (b : B) -> pick-witness a _ for (instantiate sur with b) in a) b) === b
+    simpl                                                // Γ, b : B |- f (pick-witness a _ for (instantiate sur with b) in a) === b
+    pick-witness a eq for (instantiate sur with b)       // Γ, b : B, eq : f a === b |- f a === b
+    assumption                                           // Theorem proved!
 qed

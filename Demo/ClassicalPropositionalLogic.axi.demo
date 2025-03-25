@@ -11,14 +11,14 @@ theorem double-negation :
 proof                                  // |- ~ ~ P --> P
   assume nnp : ~ ~ P                   // nnp : ~ ~ P |- P
   by-contradiction np : ~ P            // nnp : ~ ~ P, np : ~ P |- False
-  apply nnp np                         // Theorem proved!
+  contradiction nnp np                 // Theorem proved!
 qed
 
 // In proofterm style, the above proof looks as follows.
 theorem double-negation-term-style : ~ ~ P --> P =
   assume nnp : ~ ~ P in
     by-contradiction np : ~ P in
-      apply nnp np
+      contradiction nnp np
 
 // Note that just like for assume, we can omit the annotation.
 theorem double-negation-no-annotation :
@@ -26,7 +26,7 @@ theorem double-negation-no-annotation :
 proof
   assume nnp
   by-contradiction np
-  apply nnp np
+  contradiction nnp np
 qed
 
 // Law of Excluded Middle.
@@ -61,8 +61,8 @@ proof                                  // |- ((P --> Q) --> P) --> P
   by-contradiction np : ~ P            // pqp : ((P --> Q) --> P), np : ~ P |- False
   apply np, pqp                        // pqp : ((P --> Q) --> P), np : ~ P |- P --> Q
   assume p                             // pqp : ((P --> Q) --> P), np : ~ P, p : P |- Q
-  absurd                               // pqp : ((P --> Q) --> P), np : ~ P, p : P |- Q
-  apply contradiction np p
+  absurd                               // pqp : ((P --> Q) --> P), np : ~ P, p : P |- False
+  contradiction np p                   // Theorem proved!
 qed
 
 // Of the two laws of contraposition, this one is only valid classically.
@@ -156,8 +156,8 @@ qed
 theorem xor-not-iff :
   ~ (P <--> Q) --> (P /\ ~ Q) \/ (~ P /\ Q)
 proof                                  // |- ~ (P <--> Q) --> (P /\ ~ Q) \/ (~ P /\ Q)
-  apply funny-contraposition           // |- ~ ((P /\ ~ Q) \/ (~ P /\ Q)) --> P <--> Q
-  apply xor-not-iff-conv               // Theorem proved!
+  funny-contraposition                 // |- ~ ((P /\ ~ Q) \/ (~ P /\ Q)) --> P <--> Q
+  xor-not-iff-conv                     // Theorem proved!
 qed
 
 // In classical logic, propositions are linearly ordered by implication.

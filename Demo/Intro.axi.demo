@@ -1,9 +1,5 @@
 // This is a comment.
 
-/*
-  This is a multiline comment.
-*/
-
 // The basic objects in the language are types, terms, propositions and proofs.
 // Top-level commands can be used to either define or declare these.
 // Definitions assign names to expressions.
@@ -73,7 +69,7 @@ declaration NameOfLogicalEntity : SomeLogicalKind
 // Theorem, i.e. a "proof definition".
 theorem someFunction-satisfies-SomePredicate : SomeProposition
 proof
-  the actual proof goes here
+  // the actual proof goes here
 qed
 
 // `theorem`, `proof` and `qed` are keywords.

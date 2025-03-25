@@ -96,8 +96,10 @@ proof                                  // |- P --> Q --> P
   assumption                           // Theorem proved!
 qed
 
-// `apply f e` proves `Q` provided that `f` proves `P --> Q` and `e` proves `P`.
-// In other words, `apply` is implication elimination, also known as modus ponens.
+// `apply` is implication elimination, also known as modus ponens.
+// `apply f e` proves `Q` provided that
+// `f` proves `P --> Q` and that
+// `e` proves `P`.
 theorem impl-elim :
   (P --> Q) --> P --> Q
 proof                                  // |- (P --> Q) --> P --> Q
@@ -210,29 +212,6 @@ proof                                  // |- P --> Q --> P /\ Q
   . p                                  // Goal solved!          // This message appears when we solved a goal, but not the entire theorem.
                                        // p : P, q : Q |- Q
   . q                                  // Theorem proved!
-qed
-
-// Missing arguments can also be named and then they are provided as blocks
-// labeled with the corresponding names.
-theorem named-blocks-example :
-  P --> Q --> P /\ Q
-proof                                  // |- P --> Q --> P /\ Q
-  assume p q                           // p : P, q : Q |- P /\ Q
-  both ?x ?y                           // Lemmas remaining: ?x : P, ?y : Q  // The goal has been "solved", but now we must fill in ?x and ?y.
-  lemma x by p                         // Lemmas remaining: ?y : Q          // We got ?x, so only ?y remains.
-  lemma y by q                         // Theorem proved!
-qed
-
-// Note that these named blocks don't need to be proved in the order they
-// were introduced in the proof. Below, we prove ?q first, even though we
-// first introduced ?p.
-theorem named-blocks-not-in-order-example :
-  P --> Q --> P /\ Q
-proof                                  // |- P --> Q --> P /\ Q
-  assume p q                           // p : P, q : Q |- P /\ Q
-  both ?x ?y                           // Lemmas remaining: ?x : P, ?y : Q
-  lemma y by q                         // Lemmas remaining: ?x : P          // This time, only ?x remains.
-  lemma x by p                         // Theorem proved!
 qed
 
 // Conjunction elimination is `and-left` and `and-right`.
@@ -363,10 +342,10 @@ theorem lemma-example :
   P \/ P --> P
 proof                                  // |- P \/ P --> P
   assume orpp                          // orpp : P \/ P |- P
-  lemma implpp : P --> P by            // orpp : P \/ P |- P --> P
+  lemma implpp : P --> P by            // orpp : P \/ P |- P --> P     // When we start proving a lemma, the goal becomes the lemma statement.
     assume p                           // orpp : P \/ P, p : P |- P
-    p                                  // Lemma proved!                // When we prove a lemma, the final message reflects it.
-                                       // orpp : P \/ P, implpp : P --> P |- P
+    p                                  // Lemma proved!                // When we prove the lemma, the final message reflects it.
+                                       // orpp : P \/ P, implpp : P --> P |- P  // After the lemma is proved, it gets added to the context.
   cases orpp implpp implpp             // Theorem proved!
 qed
 
@@ -378,9 +357,10 @@ theorem lemma-term-style : P \/ P --> P =
     in
       cases orpp implpp implpp
 
-// Lemmas can also be proved after they were used. In such a case, when
+// Lemmas can also be proved after they were used. In such a case, when first
 // referring to the lemma name, we need to precede it with a question mark `?`.
-// However, note that reverse lemmas don't have a term style!
+// This usage is called a "reverse lemma". Note that reverse lemmas cannot be
+// used in term style!
 theorem reverse-lemma :
   P \/ P --> P
 proof                                  // |- P \/ P --> P
@@ -402,8 +382,8 @@ proof                                  // |- P --> Q --> P /\ Q
 qed
 
 // Note that these lemmas don't need to be proved in the order they
-// were introduced in the proof. Below, we prove ?y first, even though we
-// first introduced ?x.
+// were introduced in the proof. Below, we prove `?y` first, even though we
+// first introduced `?x`.
 theorem term-style-lemma-not-in-order-example :
   P --> Q --> P /\ Q
 proof                                  // |- P --> Q --> P /\ Q
@@ -413,48 +393,49 @@ proof                                  // |- P --> Q --> P /\ Q
   lemma x : P = p                      // Theorem proved!
 qed
 
-// Term style lemmas don't need annotations.
+// Reverse lemmas don't need annotations, neither in term style nor in tactic
+// style. This is because the lemma statement gets inferred from its usage.
 theorem term-style-lemma-no-annotation :
   P --> Q --> P /\ Q
 proof                                  // |- P --> Q --> P /\ Q
   assume p q                           // p : P, q : Q |- P /\ Q
   both ?x ?y                           // Lemmas remaining: ?x : P, ?y : Q
   lemma x = p                          // Lemmas remaining: ?y : Q
-  lemma y = q                          // Theorem proved!
+  lemma y by q                         // Theorem proved!
 qed
 
 // When using `lemma`, we first prove the lemma and then the main goal.
 // But we can also do this in the opposite order: we first prove the
 // main goal and then the lemma.
-// `suffices P by e in e'` proves `Q` provided that `e` proves
-// `P --> Q` and that `e'` proves `P`.
+// `suffices P by e in e'` proves `Q` provided that
+// `e` proves `P --> Q` and that `e'` proves `P`.
 theorem suffices-example :
   (P --> Q) --> (Q --> R) --> P --> R
 proof                                  // |- (P --> Q) --> (Q --> R) --> P --> R
   assume pq qr p                       // pq : P --> Q, qr : Q --> R, p : P |- R
-  suffices Q by qr                     // pq : P --> Q, qr : Q --> R, p : P |- Q
-  suffices P by pq                     // pq : P --> Q, qr : Q --> R, p : P |- P
+  suffices Q by                        // pq : P --> Q, qr : Q --> R, p : P |- Q --> R  // `Q` suffices to prove `R`, so the goal is `Q --> R`.
+    qr                                 // Goal solved!
+                                       // pq : P --> Q, qr : Q --> R, p : P |- Q  // We're now left to prove `Q`.
+  suffices P by                        // pq : P --> Q, qr : Q --> R, p : P |- P --> Q
+    pq                                 // Goal solved!
+                                       // pq : P --> Q, qr : Q --> R, p : P |- P
   assumption                           // Theorem proved!
 qed
 
 // In proofterm style, the above proof looks as follows.
 theorem suffices-example-term-style : (P --> Q) --> (Q --> R) --> P --> R =
   assume pq qr p in
-    suffices Q by apply qr in
-    suffices P by apply pq in
+    suffices Q by qr in
+    suffices P by pq in
       assumption
 
-// We don't need to prove the goal inline.
+// We can prove the goals generated by `suffices` inline to reduce hassle.
 theorem suffices-example-no-inline :
   (P --> Q) --> (Q --> R) --> P --> R
 proof                                  // |- (P --> Q) --> (Q --> R) --> P --> R
   assume pq qr p                       // pq : P --> Q, qr : Q --> R, p : P |- R
-  suffices Q by                        // pq : P --> Q, qr : Q --> R, p : P |- Q --> R
-    qr                                 // Goal solved!
-                                       // pq : P --> Q, qr : Q --> R, p : P |- Q
-  suffices P by                        // pq : P --> Q, qr : Q --> R, p : P |- P --> Q
-    pq                                 // Goal solved!
-                                       // pq : P --> Q, qr : Q --> R, p : P |- P
+  suffices Q by qr                     // pq : P --> Q, qr : Q --> R, p : P |- Q
+  suffices P by pq                     // pq : P --> Q, qr : Q --> R, p : P |- P
   assumption                           // Theorem proved!
 qed
 
@@ -559,7 +540,7 @@ proof                                  // |- ~ P \/ Q --> (P --> Q)
                                        // npq : ~ P \/ Q, p : P |- ~ P --> Q
   . assume np : ~ P                    // npq : ~ P \/ Q, p : P, np : ~ P |- Q
     absurd                             // npq : ~ P \/ Q, p : P, np : ~ P |- False
-    apply contradiction np p           // Goal solved!
+    contradiction np p                 // Goal solved!
                                        // npq : ~ P \/ Q, p : P |- Q --> Q
   . assume q : Q                       // npq : ~ P \/ Q, p : P, q : Q |- Q
     assumption                         // Theorem proved!
@@ -569,7 +550,7 @@ theorem noncontradiction :
   ~ (P /\ ~ P)
 proof                                  // |- ~ (P /\ ~ P)
   assume (both p np)                   // p : P, np : ~ P |- False
-  apply contradiction np p             // Theorem proved!
+  contradiction np p                   // Theorem proved!
 qed
 
 theorem contraposition :
@@ -600,9 +581,9 @@ proof                                  // |- (P <--> Q) --> (~ P <--> ~ Q)
   assume (both pq qp)                  // pq : P --> Q, qp : Q --> P |- ~ P <--> ~ Q
   both
                                        // pq : P --> Q, qp : Q --> P |- ~ P --> ~ Q
-  . apply contraposition qp            // Goal solved!
+  . contraposition qp                  // Goal solved!
                                        // pq : P --> Q, qp : Q --> P |- ~ Q --> ~ P
-  . apply contraposition pq            // Theorem proved!
+  . contraposition pq                  // Theorem proved!
 qed
 
 theorem resolution :
@@ -618,7 +599,7 @@ proof                                  // |- (P \/ Q) /\ (~ P \/ R) --> Q \/ R
                                        // pq : P \/ Q, npr : ~ P \/ R |- ~ P --> P --> Q \/ R
     . assume np p                      // pq : P \/ Q, npr : ~ P \/ R, np : ~ P, p : P |- Q \/ R
       absurd                           // pq : P \/ Q, npr : ~ P \/ R, np : ~ P, p : P |- False
-      apply contradiction np p         // Goal solved!
+      contradiction np p               // Goal solved!
                                        // pq : P \/ Q, npr : ~ P \/ R |- R --> P --> Q \/ R
     . assume r _                       // pq : P \/ Q, npr : ~ P \/ R, r : R |- Q \/ R
       or-right r                       // Theorem proved!
@@ -636,7 +617,7 @@ proof                                           // |- (P \/ Q) /\ (~ P \/ R) -->
                                                 // pq : P \/ Q, npr : ~ P \/ R, p : P |- ~ P --> Q \/ R
     . assume np                                 // pq : P \/ Q, npr : ~ P \/ R, p : P, np : ~ P |- Q \/ R
       absurd                                    // pq : P \/ Q, npr : ~ P \/ R, p : P, np : ~ P |- False
-      apply contradiction np p                  // Goal solved!
+      contradiction np p                        // Goal solved!
                                                 // pq : P \/ Q, npr : ~ P \/ R, p : P |- R --> Q \/ R
     . assume r                                  // pq : P \/ Q, npr : ~ P \/ R, p : P, r : R |- Q \/ R
       or-right r                                // Theorem proved!
@@ -649,10 +630,10 @@ proof                                  // |- ~ P /\ ~ Q --> ~ (P \/ Q)
   cases npq
                                        // np : ~ P, nq : ~ Q, npq : P \/ Q |- P --> False
   . assume p                           // np : ~ P, nq : ~ Q, npq : P \/ Q, p : P |- False
-    apply contradiction np p           // Goal solved!
+    contradiction np p                 // Goal solved!
                                        // np : ~ P, nq : ~ Q, npq : P \/ Q |- Q --> False
   . assume q                           // np : ~ P, nq : ~ Q, npq : P \/ Q, q : Q |- False
-    apply contradiction nq q           // Theorem proved!
+    contradiction nq q                 // Theorem proved!
 qed
 
 theorem not-or-elim :
