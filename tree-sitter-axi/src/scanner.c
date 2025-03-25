@@ -9,6 +9,7 @@
 
 typedef enum TokenType
 {
+    ERROR_RECOVERY,
     BEGIN,
     SEPARATOR,
     END
@@ -194,9 +195,8 @@ static inline bool parse_space(TSLexer *lexer)
 bool tree_sitter_axi_external_scanner_scan(Scanner *const self, TSLexer *const lexer, const bool valid[])
 {
     assert(is_valid(self));
-    const bool error_recovery = valid[BEGIN] && valid[SEPARATOR] && valid[END];
-    if (error_recovery)
-        return try_emit_end(self, lexer);
+    if (valid[ERROR_RECOVERY])
+        return false;
     const bool line_break = parse_space(lexer);
     const uint32_t column = lexer->get_column(lexer);
     if (column >= TENTATIVE)
@@ -205,7 +205,7 @@ bool tree_sitter_axi_external_scanner_scan(Scanner *const self, TSLexer *const l
         return try_emit_begin(self, line_break, column, lexer);
     confirm_ruler(self, line_break);
     const uint32_t ruler = get_ruler_at(self, self->top);
-    if (valid[END] && column < ruler)
+    if (valid[END] && (column < ruler || lexer->lookahead == ')'))
         return try_emit_end(self, lexer);
     return valid[SEPARATOR] && column == ruler && emit_separator(lexer);
 }

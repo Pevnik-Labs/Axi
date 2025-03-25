@@ -30,7 +30,7 @@ type NameOfType
 // Record type definition.
 record type NameOfType where
   fieldName1 : TypeOfField1
-    ⋮
+  // ⋮
   fieldNameN : TypeOfFieldN
 
 // `record type` and `where` are keywords.
@@ -40,9 +40,9 @@ record type NameOfType where
 
 // Data type (i.e. inductive type/algebraic type) definition.
 data type NameOfType where
-  ConstructorName1 : ArgType1_1 -> ... -> ArgType1_M1 -> NameOfType
-    ⋮
-  ConstructorNameN : ArgTypeN_1 -> ... -> ArgTypeN1_MN -> NameOfType
+  ConstructorName1 : ArgType1_1 -> /* ... -> */ ArgType1_M1 -> NameOfType
+  // ⋮
+  ConstructorNameN : ArgTypeN_1 -> /* ... -> */ ArgTypeN1_MN -> NameOfType
 
 // `data type` is a keyword.
 // By convention, names of constructors must start with an upper case letter

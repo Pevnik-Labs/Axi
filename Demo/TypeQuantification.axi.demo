@@ -47,7 +47,7 @@ qed
 theorem exists-type-intro-example :
   exists {A}, forall x : A, x === x
 proof                                // |- exists {A}, forall x : A, x === x
-  exists Nat                         // |- forall x : Nat, x === x
+  witness Nat                        // |- forall x : Nat, x === x
   pick-any x                         // x : Nat |- x === x
   refl                               // Theorem proved!
 qed
@@ -72,6 +72,6 @@ qed
 theorem exists-type-elim-example :
   (exists {A}, R) --> R
 proof                                // |- (exists {A}, R) --> R
-  assume (exists A such-that r)      // A : Type, r : R |- R
+  assume (witness A such-that r)     // A : Type, r : R |- R
   assumption                         // Theorem proved!
 qed

@@ -140,10 +140,10 @@ proof                                                // |- forall {A} (P : A -> 
     apply (instantiate mx with (exists x : A, P x))  // A : Type, P : A -> Prop, ex : (forall R : Prop, (forall x : A, P x --> R) --> R) |- forall x : A, P x --> exists x : A, P x
     pick-any x : A                                   // A : Type, P : A -> Prop, ex : (forall R : Prop, (forall x : A, P x --> R) --> R), x : A |- P x --> exists x : A, P x
     assume px : P x                                  // A : Type, P : A -> Prop, ex : (forall R : Prop, (forall x : A, P x --> R) --> R), x : A, px : P x |- exists x : A, P x
-    exists x                                         // A : Type, P : A -> Prop, ex : (forall R : Prop, (forall x : A, P x --> R) --> R), x : A, px : P x |- P x
+    witness x                                        // A : Type, P : A -> Prop, ex : (forall R : Prop, (forall x : A, P x --> R) --> R), x : A, px : P x |- P x
     assumption                                       // Goal solved!
                                                      // A : Type, P : A -> Prop |- (exists x : A, P x) --> forall R : Prop, (forall x : A, P x --> R) --> R
-  . assume (exists x such-that px)                   // A : Type, P : A -> Prop, x : A px : P x |- forall R : Prop, (forall x : A, P x --> R) --> R
+  . assume (witness x such-that px)                  // A : Type, P : A -> Prop, x : A px : P x |- forall R : Prop, (forall x : A, P x --> R) --> R
     pick-any R                                       // A : Type, P : A -> Prop, x : A px : P x, R : Prop |- (forall x : A, P x --> R) --> R
     assume all                                       // A : Type, P : A -> Prop, x : A px : P x, R : Prop, all : (forall x : A, P x --> R) |- R
     apply (instantiate all with x)                   // A : Type, P : A -> Prop, x : A px : P x, R : Prop, all : (forall x : A, P x --> R) |- P x
@@ -163,7 +163,7 @@ proof                                                      // |- forall {A} (x y
   both
                                                            // A : Type, x y : A |- (forall P : A -> Prop, P x --> P y) --> x === y
   . assume all                                             // A : Type, x y : A, all : (forall P : A -> Prop, P x --> P y) |- x === y
-    apply (instantiate all with (fun (a : A) => x === a))  // A : Type, x y : A, all : (forall P : A -> Prop, P x --> P y) |- x === x
+    apply (instantiate all with (\ (a : A) -> x === a))    // A : Type, x y : A, all : (forall P : A -> Prop, P x --> P y) |- x === x
     refl                                                   // Goal solved!
                                                            // A : Type, x y : A |- x === y --> forall P : A -> Prop, P x --> P y
   . assume ===>                                            // A : Type, x y : A, _ : x === y |- forall P : A -> Prop, P y --> P y

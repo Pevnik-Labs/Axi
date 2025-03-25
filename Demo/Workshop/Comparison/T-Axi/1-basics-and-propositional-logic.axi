@@ -152,7 +152,7 @@ proof
   . assume p
     or-right
     assumption
-  - assume q
+  . assume q
     or-left
     assumption
 qed

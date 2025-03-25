@@ -48,7 +48,7 @@ qed
 // In proofterm style, it doesn't make much sense to use `unfold`,
 // because its results are only visible in the goal, which is only
 // visible in tactic mode.
-theorem unfold-example-term-style : answer === 42 =
+theorem unfold-example-term-style : (answer === 42) =
   unfold answer in
     refl
 
@@ -80,7 +80,7 @@ qed
 int8Example  : Int8  = -100
 int16Example : Int16 = 0
 int32Example : Int32 = 42
-int64Example : Int64 = 2^32
+int64Example : Int64 = 4294967296
 
 // `Uint`s of various sizes.
 uint8Example :  Uint8  = 42
@@ -108,21 +108,21 @@ stringExample : String = "where lambo?"
 annotationExample : Float32 =
   1 : Float32
 
-// The syntax for anonymous functions is `fun x : A => e`.
+// The syntax for anonymous functions is `\ x : A -> e`.
 idNat : Nat -> Nat =
-  fun n : Nat => n
+  \ n : Nat -> n
 
 // To simplify an expression to its result, use the `simpl` tactic.
 theorem simpl-example : idNat 42 === 42
 proof             // |- idNat 42 === 42
-  unfold idNat    // |- (fun n : Nat => n) 42 === 42
+  unfold idNat    // |- (\ n : Nat -> n) 42 === 42
   simpl           // |- 42 === 42
   refl
 qed
 
 // `simpl` doesn't make much sense in proofterm style,
 // because it only affects the goal.
-theorem simpl-exampl-term-style : idNat 42 === 42 =
+theorem simpl-exampl-term-style : (idNat 42 === 42) =
   unfold idNat in
     simpl in
       refl
@@ -144,13 +144,13 @@ qed
 
 // We don't need to put a type annotation on the variable if it can be inferred.
 idNat' : Nat -> Nat =
-  fun n => n
+  \ n -> n
 
 // Even though we did not write the annotation on the variable,
 // it will be present when the definition is unfolded.
-theorem no-annotation-desugared : idNat' === (fun n : Nat => n)
-proof                       // |- idNat' === (fun n : Nat => n)
-  unfold idNat'             // |- (fun n : Nat => n) === (fun n : Nat => n)
+theorem no-annotation-desugared : idNat' === (\ n : Nat -> n)
+proof                       // |- idNat' === (\ n : Nat -> n)
+  unfold idNat'             // |- (\ n : Nat -> n) === (\ n : Nat -> n)
   refl
 qed
 
@@ -159,27 +159,27 @@ qed
 idNat'' (n : Nat) : Nat = n
 
 // The short definition produces the same term as the other two definitions.
-theorem short-definition-desugared : idNat'' === (fun n : Nat => n)
-proof                          // |- idNat'' === (fun n : Nat => n)
-  unfold idNat''               // |- (fun n : Nat => n) === (fun n : Nat => n)
+theorem short-definition-desugared : idNat'' === (\ n : Nat -> n)
+proof                          // |- idNat'' === (\ n : Nat -> n)
+  unfold idNat''               // |- (\ n : Nat -> n) === (\ n : Nat -> n)
   refl
 qed
 
 // When a function has more than one argument, they are surrounded
 // with parentheses.
 const {A B} : A -> B -> A =
-  fun (a : A) (b : B) => a
+  \ (a : A) (b : B) -> a
 
 // When there are multiple arguments of the same type, they can be
 // put together in a single pair of parentheses.
 const' {A} : A -> A -> A =
-  fun (x y : A) => x
+  \ (x y : A) -> x
 
 // Functions enjoy definitional extensionality, i.e. a function
-// `f` is equal to `fun x => f x` and this can be proved with `refl`.
+// `f` is equal to `\ x -> f x` and this can be proved with `refl`.
 theorem definitional-funext-example :
   forall {A B} (f : A -> B),
-    f === fun x : A => f x
+    f === \ x : A -> f x
 proof
   pick-any A B f
   refl
@@ -187,9 +187,9 @@ qed
 
 // To define a polymorphic function, we use the quantifier `forall {A}`
 // in the function's type. Note that in the term, we don't need to bind the
-// type with `fun` - type abstractions are implicit by default.
+// type with `\` - type abstractions are implicit by default.
 id : forall {A}, A -> A =
-  fun x : A => x
+  \ x : A -> x
 
 // To state a theorem about a polymorphic function, we can use `forall` as
 // a quantifier in the logic. Note that we write `id x`, without mentioning
@@ -246,10 +246,10 @@ annotatedLetExample (a b : Float32) : Float32 =
 // with `simpl`.
 theorem let-computation-example :
   forall {A} (e1 e2 : A),
-    (let x = e1 in e2) === (fun x => e2) e1
+    (let x = e1 in e2) === (\ x -> e2) e1
 proof
-  pick-any A e1 e2  // A : Type, e1 e2 : A |- (let x = e1 in e2) === (fun x => e2) e1
-  simpl             // A : Type, e1 e2 : A |- (fun x => e2) e1 === (fun x => e2) e1
+  pick-any A e1 e2  // A : Type, e1 e2 : A |- (let x = e1 in e2) === (\ x -> e2) e1
+  simpl             // A : Type, e1 e2 : A |- (\ x -> e2) e1 === (\ x -> e2) e1
   refl
 qed
 
@@ -612,20 +612,20 @@ map {A B} (f : A -> B) : List A -> List B
 // `e_1` proves `P (c_1 ...)`, ..., and that
 // `e_n` proves `P (c_n ...)`.
 // However, note one special thing: for recursive arguments (like `t` below),
-// the pattern becomes `(t & IH)`, which means that we name not only `t`, but
+// the pattern becomes `(t & ind IH)`, which means that we name not only `t`, but
 // also the corresponding induction hypothesis.
 theorem map-id :
   forall {A} (l : List A),
     map id l === l
-proof                   // |- forall {A} (l : List A), map id l === l
-  pick-any A l          // A : Type, l : List A |- map id l === l
+proof                      // |- forall {A} (l : List A), map id l === l
+  pick-any A l             // A : Type, l : List A |- map id l === l
   induction l with
-  | nil =>              // A : Type, l : List A |- map id nil === nil
-    simpl               // A : Type, l : List A |- nil === nil
+  | nil =>                 // A : Type, l : List A |- map id nil === nil
+    simpl                  // A : Type, l : List A |- nil === nil
     refl
-  | cons h (t & IH) =>  // A : Type, l : List A, h : A, t : List A, IH : map id t === t |- map id (cons h t) === cons h t
-    simpl               // A : Type, l : List A, h : A, t : List A, IH : map id t === t |- cons h (map id t) === cons h t
-    rewrite IH          // A : Type, l : List A, h : A, t : List A, IH : map id t === t |- cons h t === cons h t
+  | cons h (t & ind IH) => // A : Type, l : List A, h : A, t : List A, IH : map id t === t |- map id (cons h t) === cons h t
+    simpl                  // A : Type, l : List A, h : A, t : List A, IH : map id t === t |- cons h (map id t) === cons h t
+    rewrite IH             // A : Type, l : List A, h : A, t : List A, IH : map id t === t |- cons h t === cons h t
     refl
 qed
 
@@ -636,7 +636,7 @@ theorem map-id-term-style :
       pick-any A l in
       induction l with
       | nil => refl
-      | cons h (t & IH) => rewrite IH in refl
+      | cons h (t & ind IH) => rewrite IH in refl
 
 // If you think the first proof was ugly, we can also use chaining.
 // Proofs that use chaining are harder to write, as there's much
@@ -655,7 +655,7 @@ proof
     chaining
       === map id nil
       === nil                by simpl
-  | cons h (t & IH) =>
+  | cons h (t & ind IH) =>
     chaining
       === map id (cons h t)
       === cons h (map id t)  by simpl
@@ -665,20 +665,20 @@ qed
 // Let's see some more proofs by induction for the sake of examples.
 theorem map-comp :
   forall {A B C} (f : A -> B) (g : B -> C) (l : List A),
-    map (fun a => g (f a)) l === map g (map f l)
+    map (\ a -> g (f a)) l === map g (map f l)
 proof
   pick-any A B C f g l
   induction l with
   | nil =>
     chaining
-      === map (fun a => g (f a)) nil
-      === nil                                        by simpl
-  | cons h (t & IH) =>
+      === map (\ a -> g (f a)) nil
+      === nil                                      by simpl
+  | cons h (t & ind IH) =>
     chaining
-      === map (fun a => g (f a)) (cons h t)
-      === cons (g (f h)) (map (fun a => g (f a)) t)  by simpl
-      === cons (g (f h)) (map g (map f t))           by rewrite IH
-      === map g (map f (cons h t))                   by refl
+      === map (\ a -> g (f a)) (cons h t)
+      === cons (g (f h)) (map (\ a -> g (f a)) t)  by simpl
+      === cons (g (f h)) (map g (map f t))         by rewrite IH
+      === map g (map f (cons h t))                 by refl
 qed
 
 // Often, we will want another name for a variant of an already existing theorem.
@@ -686,7 +686,7 @@ qed
 // is `map-map`.
 theorem map-map :
   forall {A B C} (f : A -> B) (g : B -> C) (l : List A),
-    map g (map f l) === map (fun a => g (f a)) l
+    map g (map f l) === map (\ a -> g (f a)) l
 proof
   pick-any A B C f g l
   rewrite (instantiate map-comp with f g l)
@@ -712,7 +712,7 @@ proof
     chaining
       === app (app nil l2) l3
       === app nil (app l2 l3)  by refl
-  | cons h (t & IH) =>
+  | cons h (t & ind IH) =>
     chaining
       === app (app (cons h t) l2) l3
       === cons h (app (app t l2) l3)  by simpl
@@ -738,7 +738,7 @@ proof
       === rev (app nil l2)
       === rev l2            by refl
       === app (rev l2) nil  by rewrite <-app-nil-r
-  | cons h (t & IH) =>
+  | cons h (t & ind IH) =>
     chaining
       === rev (app (cons h t) l2)
       === rev (cons h (app t l2))                        by simpl
@@ -806,7 +806,7 @@ neqb {A} [Eq A] (x y : A) : Bool =
 // When not on the left-hand side of the colon, class instances are put in
 // a `forall`, also with square brackets.
 neqb : forall {A} [Eq A], A -> A -> Bool =
-  fun x y : A => notb (eqb x y)
+  \ x y : A -> notb (eqb x y)
 
 // Now, a question arises: what can we prove about functions that make
 // use of type classes? Not much, it turns out. We might think `eqb` is
@@ -836,7 +836,7 @@ proof
   induction l with
   | nil =>
     refl
-  | cons h (t & IH) =>
+  | cons h (t & ind IH) =>
     chaining
       === eqb (cons h t) (cons h t)
       === andb (eqb h h) (eqb t t)   by simpl

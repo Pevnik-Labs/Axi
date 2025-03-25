@@ -20,11 +20,11 @@ theorem bijective-from-has-inverse :
     has-inverse A B f --> bijective A B f
 proof
   pick-any A B f
-  assume (exists g : B -> A such-that (both gf fg))
+  assume (witness g : B -> A such-that (both gf fg))
   both
   . unfold surjective             // `unfold` replaces a definition with its body in the goal
     pick-any b : B
-    exists (g b)
+    witness (g b)
     instantiate fg with b
   . unfold injective
     pick-any (x y : A)
@@ -43,7 +43,7 @@ theorem has-inverse-from-bijective :
 proof
   pick-any A B f
   assume (both sur inj)
-  exists
+  witness
   . // g : B -> A
     pick-any b : B
     pick-witness a for (instantiate sur with b)
@@ -71,7 +71,7 @@ theorem choice :
 proof
   pick-any A B R                                   // A B : Type, R : A -> B -> Prop |- (forall a : A, exists b : B, R a b) --> exists f : A -> B, forall a : A, R a (f a)
   assume allex                                     // A B : Type, R : A -> B -> Prop, allex = (forall a : A, exists b : B, R a b) |- exists f : A -> B, forall a : A, R a (f a)
-  exists                                           // 1. Γ |- ?f : A -> B        2. Γ |- forall a : A, R a (?f a)
+  witness                                          // 1. Γ |- ?f : A -> B        2. Γ |- forall a : A, R a (?f a)
   . pick-any a : A                                 // Γ, a : A |- B
     pick-witness b for (instantiate allex with a)  // Γ, a : A, b : B, R a b |- B
     b

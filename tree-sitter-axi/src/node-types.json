@@ -35,13 +35,17 @@
     }
   },
   {
-    "type": "apply",
+    "type": "ann_term",
     "named": true,
     "fields": {},
     "children": {
       "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "ann_term",
+          "named": true
+        },
         {
           "type": "apply",
           "named": true
@@ -56,6 +60,10 @@
         },
         {
           "type": "call",
+          "named": true
+        },
+        {
+          "type": "char",
           "named": true
         },
         {
@@ -107,6 +115,10 @@
           "named": true
         },
         {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -120,6 +132,125 @@
         },
         {
           "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "string",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "apply",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "ann_term",
+          "named": true
+        },
+        {
+          "type": "apply",
+          "named": true
+        },
+        {
+          "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "call",
+          "named": true
+        },
+        {
+          "type": "char",
+          "named": true
+        },
+        {
+          "type": "clauses",
+          "named": true
+        },
+        {
+          "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
+          "named": true
+        },
+        {
+          "type": "disjunction",
+          "named": true
+        },
+        {
+          "type": "equality",
+          "named": true
+        },
+        {
+          "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
+          "named": true
+        },
+        {
+          "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "implication",
+          "named": true
+        },
+        {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
+          "type": "lambda",
+          "named": true
+        },
+        {
+          "type": "negation",
+          "named": true
+        },
+        {
+          "type": "number",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "string",
           "named": true
         },
         {
@@ -142,6 +273,10 @@
       "required": true,
       "types": [
         {
+          "type": "ann_term",
+          "named": true
+        },
+        {
           "type": "apply",
           "named": true
         },
@@ -155,6 +290,10 @@
         },
         {
           "type": "call",
+          "named": true
+        },
+        {
+          "type": "char",
           "named": true
         },
         {
@@ -206,6 +345,10 @@
           "named": true
         },
         {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -219,6 +362,10 @@
         },
         {
           "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "string",
           "named": true
         },
         {
@@ -279,6 +426,10 @@
       "required": true,
       "types": [
         {
+          "type": "ann_term",
+          "named": true
+        },
+        {
           "type": "apply",
           "named": true
         },
@@ -312,6 +463,10 @@
         },
         {
           "type": "chaining",
+          "named": true
+        },
+        {
+          "type": "char",
           "named": true
         },
         {
@@ -367,6 +522,14 @@
           "named": true
         },
         {
+          "type": "instantiate",
+          "named": true
+        },
+        {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -404,6 +567,10 @@
         },
         {
           "type": "separator",
+          "named": true
+        },
+        {
+          "type": "string",
           "named": true
         },
         {
@@ -434,6 +601,10 @@
       "required": true,
       "types": [
         {
+          "type": "ann_term",
+          "named": true
+        },
+        {
           "type": "apply",
           "named": true
         },
@@ -467,6 +638,10 @@
         },
         {
           "type": "chaining",
+          "named": true
+        },
+        {
+          "type": "char",
           "named": true
         },
         {
@@ -522,6 +697,14 @@
           "named": true
         },
         {
+          "type": "instantiate",
+          "named": true
+        },
+        {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -559,6 +742,10 @@
         },
         {
           "type": "separator",
+          "named": true
+        },
+        {
+          "type": "string",
           "named": true
         },
         {
@@ -624,6 +811,10 @@
       "required": true,
       "types": [
         {
+          "type": "ann_term",
+          "named": true
+        },
+        {
           "type": "apply",
           "named": true
         },
@@ -637,6 +828,10 @@
         },
         {
           "type": "call",
+          "named": true
+        },
+        {
+          "type": "char",
           "named": true
         },
         {
@@ -688,6 +883,10 @@
           "named": true
         },
         {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -701,6 +900,10 @@
         },
         {
           "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "string",
           "named": true
         },
         {
@@ -723,6 +926,10 @@
       "required": true,
       "types": [
         {
+          "type": "ann_term",
+          "named": true
+        },
+        {
           "type": "apply",
           "named": true
         },
@@ -740,6 +947,10 @@
         },
         {
           "type": "call",
+          "named": true
+        },
+        {
+          "type": "char",
           "named": true
         },
         {
@@ -791,6 +1002,10 @@
           "named": true
         },
         {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -804,6 +1019,10 @@
         },
         {
           "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "string",
           "named": true
         },
         {
@@ -849,6 +1068,10 @@
       "required": true,
       "types": [
         {
+          "type": "ann_term",
+          "named": true
+        },
+        {
           "type": "apply",
           "named": true
         },
@@ -862,6 +1085,10 @@
         },
         {
           "type": "call",
+          "named": true
+        },
+        {
+          "type": "char",
           "named": true
         },
         {
@@ -913,6 +1140,10 @@
           "named": true
         },
         {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -930,6 +1161,10 @@
         },
         {
           "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "string",
           "named": true
         },
         {
@@ -975,105 +1210,6 @@
     }
   },
   {
-    "type": "con_ann",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "apply",
-          "named": true
-        },
-        {
-          "type": "arrow",
-          "named": true
-        },
-        {
-          "type": "assumption",
-          "named": true
-        },
-        {
-          "type": "call",
-          "named": true
-        },
-        {
-          "type": "clauses",
-          "named": true
-        },
-        {
-          "type": "conjunction",
-          "named": true
-        },
-        {
-          "type": "decl_in",
-          "named": true
-        },
-        {
-          "type": "disjunction",
-          "named": true
-        },
-        {
-          "type": "equality",
-          "named": true
-        },
-        {
-          "type": "equivalence",
-          "named": true
-        },
-        {
-          "type": "exists",
-          "named": true
-        },
-        {
-          "type": "forall",
-          "named": true
-        },
-        {
-          "type": "hole_identifier",
-          "named": true
-        },
-        {
-          "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "implication",
-          "named": true
-        },
-        {
-          "type": "implicit_call",
-          "named": true
-        },
-        {
-          "type": "lambda",
-          "named": true
-        },
-        {
-          "type": "negation",
-          "named": true
-        },
-        {
-          "type": "number",
-          "named": true
-        },
-        {
-          "type": "proving_by",
-          "named": true
-        },
-        {
-          "type": "suffices_by",
-          "named": true
-        },
-        {
-          "type": "witness_such_that",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "conjunction",
     "named": true,
     "fields": {},
@@ -1082,6 +1218,10 @@
       "required": true,
       "types": [
         {
+          "type": "ann_term",
+          "named": true
+        },
+        {
           "type": "apply",
           "named": true
         },
@@ -1095,6 +1235,10 @@
         },
         {
           "type": "call",
+          "named": true
+        },
+        {
+          "type": "char",
           "named": true
         },
         {
@@ -1146,6 +1290,10 @@
           "named": true
         },
         {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -1159,6 +1307,10 @@
         },
         {
           "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "string",
           "named": true
         },
         {
@@ -1181,7 +1333,7 @@
       "required": true,
       "types": [
         {
-          "type": "con_ann",
+          "type": "ctor_ann",
           "named": true
         },
         {
@@ -1206,6 +1358,121 @@
         },
         {
           "type": "value",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "ctor_ann",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "ann_term",
+          "named": true
+        },
+        {
+          "type": "apply",
+          "named": true
+        },
+        {
+          "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "call",
+          "named": true
+        },
+        {
+          "type": "char",
+          "named": true
+        },
+        {
+          "type": "clauses",
+          "named": true
+        },
+        {
+          "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
+          "named": true
+        },
+        {
+          "type": "disjunction",
+          "named": true
+        },
+        {
+          "type": "equality",
+          "named": true
+        },
+        {
+          "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
+          "named": true
+        },
+        {
+          "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "implication",
+          "named": true
+        },
+        {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
+          "type": "lambda",
+          "named": true
+        },
+        {
+          "type": "negation",
+          "named": true
+        },
+        {
+          "type": "number",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "string",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
           "named": true
         }
       ]
@@ -1251,6 +1518,10 @@
       "required": true,
       "types": [
         {
+          "type": "ann_term",
+          "named": true
+        },
+        {
           "type": "apply",
           "named": true
         },
@@ -1276,6 +1547,10 @@
         },
         {
           "type": "chaining",
+          "named": true
+        },
+        {
+          "type": "char",
           "named": true
         },
         {
@@ -1327,6 +1602,10 @@
           "named": true
         },
         {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -1356,6 +1635,10 @@
         },
         {
           "type": "rewrite",
+          "named": true
+        },
+        {
+          "type": "string",
           "named": true
         },
         {
@@ -1401,6 +1684,10 @@
       "required": true,
       "types": [
         {
+          "type": "ann_term",
+          "named": true
+        },
+        {
           "type": "apply",
           "named": true
         },
@@ -1414,6 +1701,10 @@
         },
         {
           "type": "call",
+          "named": true
+        },
+        {
+          "type": "char",
           "named": true
         },
         {
@@ -1465,6 +1756,10 @@
           "named": true
         },
         {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -1478,6 +1773,10 @@
         },
         {
           "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "string",
           "named": true
         },
         {
@@ -1500,6 +1799,10 @@
       "required": true,
       "types": [
         {
+          "type": "ann_term",
+          "named": true
+        },
+        {
           "type": "apply",
           "named": true
         },
@@ -1513,6 +1816,10 @@
         },
         {
           "type": "call",
+          "named": true
+        },
+        {
+          "type": "char",
           "named": true
         },
         {
@@ -1564,6 +1871,10 @@
           "named": true
         },
         {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -1577,6 +1888,10 @@
         },
         {
           "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "string",
           "named": true
         },
         {
@@ -1599,6 +1914,10 @@
       "required": true,
       "types": [
         {
+          "type": "ann_term",
+          "named": true
+        },
+        {
           "type": "apply",
           "named": true
         },
@@ -1612,6 +1931,10 @@
         },
         {
           "type": "call",
+          "named": true
+        },
+        {
+          "type": "char",
           "named": true
         },
         {
@@ -1663,6 +1986,10 @@
           "named": true
         },
         {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -1676,6 +2003,10 @@
         },
         {
           "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "string",
           "named": true
         },
         {
@@ -1698,6 +2029,10 @@
       "required": true,
       "types": [
         {
+          "type": "ann_term",
+          "named": true
+        },
+        {
           "type": "apply",
           "named": true
         },
@@ -1711,6 +2046,10 @@
         },
         {
           "type": "call",
+          "named": true
+        },
+        {
+          "type": "char",
           "named": true
         },
         {
@@ -1762,6 +2101,10 @@
           "named": true
         },
         {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -1779,6 +2122,10 @@
         },
         {
           "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "string",
           "named": true
         },
         {
@@ -1805,11 +2152,27 @@
       "required": true,
       "types": [
         {
+          "type": "ann_pattern",
+          "named": true
+        },
+        {
+          "type": "ctor_pattern",
+          "named": true
+        },
+        {
+          "type": "direction",
+          "named": true
+        },
+        {
           "type": "identifier",
           "named": true
         },
         {
           "type": "type_ann",
+          "named": true
+        },
+        {
+          "type": "witness_pattern",
           "named": true
         }
       ]
@@ -1824,6 +2187,10 @@
       "required": true,
       "types": [
         {
+          "type": "ann_term",
+          "named": true
+        },
+        {
           "type": "apply",
           "named": true
         },
@@ -1837,6 +2204,10 @@
         },
         {
           "type": "call",
+          "named": true
+        },
+        {
+          "type": "char",
           "named": true
         },
         {
@@ -1888,6 +2259,10 @@
           "named": true
         },
         {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -1905,6 +2280,10 @@
         },
         {
           "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "string",
           "named": true
         },
         {
@@ -1931,6 +2310,10 @@
       "required": true,
       "types": [
         {
+          "type": "ann_term",
+          "named": true
+        },
+        {
           "type": "apply",
           "named": true
         },
@@ -1944,6 +2327,10 @@
         },
         {
           "type": "call",
+          "named": true
+        },
+        {
+          "type": "char",
           "named": true
         },
         {
@@ -1995,6 +2382,10 @@
           "named": true
         },
         {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -2008,6 +2399,10 @@
         },
         {
           "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "string",
           "named": true
         },
         {
@@ -2030,6 +2425,10 @@
       "required": true,
       "types": [
         {
+          "type": "ann_term",
+          "named": true
+        },
+        {
           "type": "apply",
           "named": true
         },
@@ -2043,6 +2442,10 @@
         },
         {
           "type": "call",
+          "named": true
+        },
+        {
+          "type": "char",
           "named": true
         },
         {
@@ -2094,6 +2497,10 @@
           "named": true
         },
         {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -2107,6 +2514,10 @@
         },
         {
           "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "string",
           "named": true
         },
         {
@@ -2129,24 +2540,44 @@
       "required": true,
       "types": [
         {
+          "type": "ann_pattern",
+          "named": true
+        },
+        {
+          "type": "ctor_pattern",
+          "named": true
+        },
+        {
+          "type": "direction",
+          "named": true
+        },
+        {
           "type": "identifier",
           "named": true
         },
         {
           "type": "type_ann",
           "named": true
+        },
+        {
+          "type": "witness_pattern",
+          "named": true
         }
       ]
     }
   },
   {
-    "type": "lambda",
+    "type": "instantiate",
     "named": true,
     "fields": {},
     "children": {
-      "multiple": true,
+      "multiple": false,
       "required": true,
       "types": [
+        {
+          "type": "ann_term",
+          "named": true
+        },
         {
           "type": "apply",
           "named": true
@@ -2161,6 +2592,10 @@
         },
         {
           "type": "call",
+          "named": true
+        },
+        {
+          "type": "char",
           "named": true
         },
         {
@@ -2212,6 +2647,240 @@
           "named": true
         },
         {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
+          "type": "lambda",
+          "named": true
+        },
+        {
+          "type": "negation",
+          "named": true
+        },
+        {
+          "type": "number",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "string",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "instantiate_with",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "ann_term",
+          "named": true
+        },
+        {
+          "type": "apply",
+          "named": true
+        },
+        {
+          "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "call",
+          "named": true
+        },
+        {
+          "type": "char",
+          "named": true
+        },
+        {
+          "type": "clauses",
+          "named": true
+        },
+        {
+          "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
+          "named": true
+        },
+        {
+          "type": "disjunction",
+          "named": true
+        },
+        {
+          "type": "equality",
+          "named": true
+        },
+        {
+          "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
+          "named": true
+        },
+        {
+          "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "implication",
+          "named": true
+        },
+        {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
+          "type": "lambda",
+          "named": true
+        },
+        {
+          "type": "negation",
+          "named": true
+        },
+        {
+          "type": "number",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "string",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "lambda",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "ann_term",
+          "named": true
+        },
+        {
+          "type": "apply",
+          "named": true
+        },
+        {
+          "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "call",
+          "named": true
+        },
+        {
+          "type": "char",
+          "named": true
+        },
+        {
+          "type": "clauses",
+          "named": true
+        },
+        {
+          "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "decl_in",
+          "named": true
+        },
+        {
+          "type": "disjunction",
+          "named": true
+        },
+        {
+          "type": "equality",
+          "named": true
+        },
+        {
+          "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
+          "named": true
+        },
+        {
+          "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "implication",
+          "named": true
+        },
+        {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -2229,6 +2898,10 @@
         },
         {
           "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "string",
           "named": true
         },
         {
@@ -2286,6 +2959,10 @@
       "required": true,
       "types": [
         {
+          "type": "ann_term",
+          "named": true
+        },
+        {
           "type": "apply",
           "named": true
         },
@@ -2299,6 +2976,10 @@
         },
         {
           "type": "call",
+          "named": true
+        },
+        {
+          "type": "char",
           "named": true
         },
         {
@@ -2350,6 +3031,10 @@
           "named": true
         },
         {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -2363,6 +3048,10 @@
         },
         {
           "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "string",
           "named": true
         },
         {
@@ -2384,6 +3073,10 @@
       "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "ctor_pattern",
+          "named": true
+        },
         {
           "type": "explicit_parameters",
           "named": true
@@ -2458,6 +3151,10 @@
       "required": true,
       "types": [
         {
+          "type": "ann_term",
+          "named": true
+        },
+        {
           "type": "apply",
           "named": true
         },
@@ -2471,6 +3168,10 @@
         },
         {
           "type": "call",
+          "named": true
+        },
+        {
+          "type": "char",
           "named": true
         },
         {
@@ -2522,6 +3223,10 @@
           "named": true
         },
         {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -2539,6 +3244,10 @@
         },
         {
           "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "string",
           "named": true
         },
         {
@@ -2560,6 +3269,10 @@
       "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "ann_term",
+          "named": true
+        },
         {
           "type": "apply",
           "named": true
@@ -2594,6 +3307,10 @@
         },
         {
           "type": "chaining",
+          "named": true
+        },
+        {
+          "type": "char",
           "named": true
         },
         {
@@ -2649,6 +3366,14 @@
           "named": true
         },
         {
+          "type": "instantiate",
+          "named": true
+        },
+        {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -2689,6 +3414,10 @@
           "named": true
         },
         {
+          "type": "string",
+          "named": true
+        },
+        {
           "type": "suffices_by",
           "named": true
         },
@@ -2716,6 +3445,10 @@
       "required": true,
       "types": [
         {
+          "type": "ann_term",
+          "named": true
+        },
+        {
           "type": "apply",
           "named": true
         },
@@ -2729,6 +3462,10 @@
         },
         {
           "type": "call",
+          "named": true
+        },
+        {
+          "type": "char",
           "named": true
         },
         {
@@ -2780,6 +3517,10 @@
           "named": true
         },
         {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -2793,6 +3534,10 @@
         },
         {
           "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "string",
           "named": true
         },
         {
@@ -2815,6 +3560,10 @@
       "required": true,
       "types": [
         {
+          "type": "ann_term",
+          "named": true
+        },
+        {
           "type": "apply",
           "named": true
         },
@@ -2832,6 +3581,10 @@
         },
         {
           "type": "call",
+          "named": true
+        },
+        {
+          "type": "char",
           "named": true
         },
         {
@@ -2883,6 +3636,10 @@
           "named": true
         },
         {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -2896,6 +3653,10 @@
         },
         {
           "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "string",
           "named": true
         },
         {
@@ -2918,6 +3679,10 @@
       "required": true,
       "types": [
         {
+          "type": "ann_term",
+          "named": true
+        },
+        {
           "type": "apply",
           "named": true
         },
@@ -2931,6 +3696,10 @@
         },
         {
           "type": "call",
+          "named": true
+        },
+        {
+          "type": "char",
           "named": true
         },
         {
@@ -2982,6 +3751,10 @@
           "named": true
         },
         {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -2995,6 +3768,10 @@
         },
         {
           "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "string",
           "named": true
         },
         {
@@ -3100,6 +3877,10 @@
       "required": true,
       "types": [
         {
+          "type": "ann_term",
+          "named": true
+        },
+        {
           "type": "apply",
           "named": true
         },
@@ -3117,6 +3898,10 @@
         },
         {
           "type": "call",
+          "named": true
+        },
+        {
+          "type": "char",
           "named": true
         },
         {
@@ -3168,6 +3953,10 @@
           "named": true
         },
         {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -3181,6 +3970,10 @@
         },
         {
           "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "string",
           "named": true
         },
         {
@@ -3238,6 +4031,10 @@
       "required": true,
       "types": [
         {
+          "type": "ann_term",
+          "named": true
+        },
+        {
           "type": "apply",
           "named": true
         },
@@ -3251,6 +4048,10 @@
         },
         {
           "type": "call",
+          "named": true
+        },
+        {
+          "type": "char",
           "named": true
         },
         {
@@ -3302,6 +4103,10 @@
           "named": true
         },
         {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -3315,6 +4120,10 @@
         },
         {
           "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "string",
           "named": true
         },
         {
@@ -3368,6 +4177,10 @@
       "required": true,
       "types": [
         {
+          "type": "ann_term",
+          "named": true
+        },
+        {
           "type": "apply",
           "named": true
         },
@@ -3381,6 +4194,10 @@
         },
         {
           "type": "call",
+          "named": true
+        },
+        {
+          "type": "char",
           "named": true
         },
         {
@@ -3432,6 +4249,10 @@
           "named": true
         },
         {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -3445,6 +4266,10 @@
         },
         {
           "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "string",
           "named": true
         },
         {
@@ -3506,9 +4331,13 @@
     "named": true,
     "fields": {},
     "children": {
-      "multiple": true,
+      "multiple": false,
       "required": false,
       "types": [
+        {
+          "type": "ann_term",
+          "named": true
+        },
         {
           "type": "apply",
           "named": true
@@ -3523,6 +4352,10 @@
         },
         {
           "type": "call",
+          "named": true
+        },
+        {
+          "type": "char",
           "named": true
         },
         {
@@ -3574,6 +4407,10 @@
           "named": true
         },
         {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -3590,11 +4427,11 @@
           "named": true
         },
         {
-          "type": "suffices_by",
+          "type": "string",
           "named": true
         },
         {
-          "type": "type_ann",
+          "type": "suffices_by",
           "named": true
         },
         {
@@ -3644,6 +4481,10 @@
       "required": true,
       "types": [
         {
+          "type": "ann_term",
+          "named": true
+        },
+        {
           "type": "apply",
           "named": true
         },
@@ -3657,6 +4498,10 @@
         },
         {
           "type": "call",
+          "named": true
+        },
+        {
+          "type": "char",
           "named": true
         },
         {
@@ -3708,6 +4553,10 @@
           "named": true
         },
         {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
           "type": "lambda",
           "named": true
         },
@@ -3724,11 +4573,11 @@
           "named": true
         },
         {
-          "type": "suffices_by",
+          "type": "string",
           "named": true
         },
         {
-          "type": "type_ann",
+          "type": "suffices_by",
           "named": true
         },
         {
@@ -3737,10 +4586,6 @@
         }
       ]
     }
-  },
-  {
-    "type": "&",
-    "named": false
   },
   {
     "type": "(",
@@ -3840,6 +4685,10 @@
     "named": false
   },
   {
+    "type": "char",
+    "named": true
+  },
+  {
     "type": "data",
     "named": true
   },
@@ -3877,6 +4726,10 @@
   },
   {
     "type": "in",
+    "named": false
+  },
+  {
+    "type": "instantiate",
     "named": false
   },
   {
@@ -3941,6 +4794,10 @@
     "named": true
   },
   {
+    "type": "string",
+    "named": true
+  },
+  {
     "type": "such-that",
     "named": false
   },
@@ -3962,6 +4819,14 @@
   },
   {
     "type": "where",
+    "named": false
+  },
+  {
+    "type": "with",
+    "named": false
+  },
+  {
+    "type": "witness",
     "named": false
   },
   {

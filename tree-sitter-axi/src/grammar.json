@@ -83,7 +83,68 @@
     },
     "number": {
       "type": "PATTERN",
-      "value": "\\d+"
+      "value": "-?\\d+(\\.\\d*)?(e-?\\d+)?"
+    },
+    "char": {
+      "type": "TOKEN",
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "'"
+          },
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "PATTERN",
+                "value": "[^'\"\\\\]|\\\\([abefnrtv\\\\'\"?]|[0-7]{1,3}|x[0-9a-fA-F]+|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8})"
+              },
+              {
+                "type": "STRING",
+                "value": "\""
+              }
+            ]
+          },
+          {
+            "type": "STRING",
+            "value": "'"
+          }
+        ]
+      }
+    },
+    "string": {
+      "type": "TOKEN",
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "\""
+          },
+          {
+            "type": "REPEAT",
+            "content": {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "PATTERN",
+                  "value": "[^'\"\\\\]|\\\\([abefnrtv\\\\'\"?]|[0-7]{1,3}|x[0-9a-fA-F]+|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8})"
+                },
+                {
+                  "type": "STRING",
+                  "value": "'"
+                }
+              ]
+            }
+          },
+          {
+            "type": "STRING",
+            "value": "\""
+          }
+        ]
+      }
     },
     "_declaration": {
       "type": "CHOICE",
@@ -402,11 +463,32 @@
         },
         {
           "type": "SYMBOL",
+          "name": "_ctor_parameter"
+        },
+        {
+          "type": "SYMBOL",
           "name": "explicit_parameters"
         },
         {
           "type": "SYMBOL",
           "name": "implicit_parameters"
+        }
+      ]
+    },
+    "_ctor_parameter": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "("
+        },
+        {
+          "type": "SYMBOL",
+          "name": "ctor_pattern"
+        },
+        {
+          "type": "STRING",
+          "value": ")"
         }
       ]
     },
@@ -421,7 +503,7 @@
           "type": "REPEAT1",
           "content": {
             "type": "SYMBOL",
-            "name": "identifier"
+            "name": "_atomic_pattern"
           }
         },
         {
@@ -445,7 +527,7 @@
           "type": "REPEAT1",
           "content": {
             "type": "SYMBOL",
-            "name": "identifier"
+            "name": "_atomic_pattern"
           }
         },
         {
@@ -633,6 +715,10 @@
         {
           "type": "SYMBOL",
           "name": "proving"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "instantiate"
         },
         {
           "type": "SYMBOL",
@@ -829,7 +915,7 @@
       "members": [
         {
           "type": "STRING",
-          "value": "exists"
+          "value": "witness"
         },
         {
           "type": "SYMBOL",
@@ -866,15 +952,15 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "SYMBOL",
-          "name": "identifier"
-        },
-        {
           "type": "REPEAT1",
           "content": {
             "type": "SYMBOL",
             "name": "_atomic_pattern"
           }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_atomic_pattern"
         }
       ]
     },
@@ -896,7 +982,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "con_ann"
+          "name": "ctor_ann"
         },
         {
           "type": "SYMBOL",
@@ -904,7 +990,7 @@
         }
       ]
     },
-    "con_ann": {
+    "ctor_ann": {
       "type": "PREC",
       "value": 1,
       "content": {
@@ -925,7 +1011,7 @@
               "members": [
                 {
                   "type": "STRING",
-                  "value": "&"
+                  "value": ","
                 },
                 {
                   "type": "PREC",
@@ -949,7 +1035,7 @@
           "value": ":"
         },
         {
-          "type": "PREC",
+          "type": "PREC_LEFT",
           "value": 2,
           "content": {
             "type": "SYMBOL",
@@ -1156,12 +1242,25 @@
         }
       ]
     },
+    "instantiate": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "instantiate"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_term"
+        }
+      ]
+    },
     "witness": {
       "type": "SEQ",
       "members": [
         {
           "type": "STRING",
-          "value": "exists"
+          "value": "witness"
         },
         {
           "type": "CHOICE",
@@ -1172,18 +1271,6 @@
                 {
                   "type": "SYMBOL",
                   "name": "_term"
-                },
-                {
-                  "type": "CHOICE",
-                  "members": [
-                    {
-                      "type": "SYMBOL",
-                      "name": "type_ann"
-                    },
-                    {
-                      "type": "BLANK"
-                    }
-                  ]
                 }
               ]
             },
@@ -1210,6 +1297,10 @@
     "_term": {
       "type": "CHOICE",
       "members": [
+        {
+          "type": "SYMBOL",
+          "name": "ann_term"
+        },
         {
           "type": "SYMBOL",
           "name": "decl_in"
@@ -1284,11 +1375,23 @@
         },
         {
           "type": "SYMBOL",
+          "name": "instantiate_with"
+        },
+        {
+          "type": "SYMBOL",
           "name": "assumption"
         },
         {
           "type": "SYMBOL",
           "name": "number"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "char"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "string"
         },
         {
           "type": "SYMBOL",
@@ -1440,6 +1543,27 @@
         }
       ]
     },
+    "ann_term": {
+      "type": "PREC_LEFT",
+      "value": 1,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "SYMBOL",
+            "name": "_term"
+          },
+          {
+            "type": "STRING",
+            "value": ":"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "_term"
+          }
+        ]
+      }
+    },
     "decl_in": {
       "type": "PREC_RIGHT",
       "value": 0,
@@ -1469,36 +1593,19 @@
         "members": [
           {
             "type": "STRING",
-            "value": "exists"
+            "value": "witness"
           },
           {
             "type": "SYMBOL",
             "name": "_term"
           },
           {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "SYMBOL",
-                "name": "type_ann"
-              },
-              {
-                "type": "BLANK"
-              }
-            ]
+            "type": "STRING",
+            "value": "such-that"
           },
           {
-            "type": "SEQ",
-            "members": [
-              {
-                "type": "STRING",
-                "value": "such-that"
-              },
-              {
-                "type": "SYMBOL",
-                "name": "_term"
-              }
-            ]
+            "type": "SYMBOL",
+            "name": "_term"
           }
         ]
       }
@@ -1548,8 +1655,16 @@
           "value": "proving"
         },
         {
-          "type": "SYMBOL",
-          "name": "_term"
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_term"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
         },
         {
           "type": "SYMBOL",
@@ -1858,6 +1973,23 @@
         ]
       }
     },
+    "instantiate_with": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "instantiate"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_term"
+        },
+        {
+          "type": "STRING",
+          "value": "with"
+        }
+      ]
+    },
     "assumption": {
       "type": "STRING",
       "value": "assumption"
@@ -1877,18 +2009,13 @@
       "name": "line_comment"
     }
   ],
-  "conflicts": [
-    [
-      "_parameter_group",
-      "_term"
-    ],
-    [
-      "explicit_parameters",
-      "_term"
-    ]
-  ],
+  "conflicts": [],
   "precedences": [],
   "externals": [
+    {
+      "type": "SYMBOL",
+      "name": "error_recovery"
+    },
     {
       "type": "SYMBOL",
       "name": "begin"

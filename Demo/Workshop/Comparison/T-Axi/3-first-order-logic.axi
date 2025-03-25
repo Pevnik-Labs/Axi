@@ -37,15 +37,15 @@ theorem rename-exists :
 proof
   assume ex
   pick-witness a pa for ex
-  exists a
+  witness a
   assumption
 qed
 
 theorem rename-exists-pattern :
   (exists x : N, P x) --> (exists y : N, P y)
 proof
-  assume (exists a such-that pa)
-  exists a
+  assume (witness a such-that pa)
+  witness a
   assumption
 qed
 

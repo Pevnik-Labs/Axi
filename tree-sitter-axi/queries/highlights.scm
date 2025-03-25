@@ -31,7 +31,7 @@
  (#match? @typevar "^[A-Z]$"))
 
 ((identifier) @proofterm
- (#match? @proofterm "^absurd|and-left|and-right|both|cases|instantiate|or-left|or-right|refl|simpl|symmetry|transitivity|trivial|with$"))
+ (#match? @proofterm "^absurd|and-left|and-right|both|cases|or-left|or-right|refl|simpl|symmetry|transitivity|trivial$"))
 
 [
   "assume"
@@ -78,7 +78,6 @@
 ] @punctuation.delimiter
 
 [
-  "&"
   "="
 ] @operator
 
@@ -87,6 +86,7 @@
   "by-contradiction"
   "chaining"
   "in"
+  "instantiate"
   "for"
   "lemma"
   "of"
@@ -97,6 +97,8 @@
   "such-that"
   "suffices"
   "unfold"
+  "with"
+  "witness"
 ] @keyword
 
 [

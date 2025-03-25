@@ -21,7 +21,6 @@ const lambda = "\\";
 const pipe = "|";
 
 // operators
-const amp = "&";
 const and = "/\\";
 const eq = "=";
 const equality = "===";
@@ -45,6 +44,7 @@ const exists = "exists";
 const for_ = "for";
 const forall = "forall";
 const in_ = "in";
+const instantiate = "instantiate";
 const lemma = "lemma";
 const of = "of";
 const pick_any = "pick-any";
@@ -58,6 +58,8 @@ const qed = "qed";
 const theorem = "theorem";
 const unfold = "unfold";
 const where = "where";
+const with_ = "with";
+const witness = "witness";
 
 // named keyword nodes
 const assumption = "assumption";
@@ -67,12 +69,16 @@ const proposition = "proposition";
 const record = "record";
 const type = "type";
 
+// subtokens
+const char = /[^'"\\]|\\([abefnrtv\\'"?]|[0-7]{1,3}|x[0-9a-fA-F]+|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8})/;
+
 module.exports = grammar({
   name: "axi",
 
   word: $ => $.identifier,
 
   externals: $ => [
+    $.error_recovery,
     $.begin,
     $.separator,
     $.end
@@ -84,10 +90,7 @@ module.exports = grammar({
     $.line_comment,
   ],
 
-  conflicts: $ => [
-    [$._parameter_group, $._term],
-    [$.explicit_parameters, $._term]
-  ],
+  conflicts: $ => [],
 
   rules: {
     // start rule
@@ -112,7 +115,9 @@ module.exports = grammar({
     identifier: $ => /[a-zA-Z_][-a-zA-Z0-9_']*/,
     direction: $ => /<===|===>/,
     hole_identifier: $ => /[?][a-zA-Z_][-a-zA-Z0-9_']*/,
-    number: $ => /\d+/,
+    number: $ => /-?\d+(\.\d*)?(e-?\d+)?/,
+    char: $ => token(seq("'", choice(char, "\""), "'")),
+    string: $ => token(seq("\"", repeat(choice(char, "'")), "\"")),
 
     _declaration: $ => choice(
       $.structure_declaration,
@@ -192,12 +197,14 @@ module.exports = grammar({
 
     _parameter_group: $ => choice(
       $.identifier,
+      $._ctor_parameter,
       $.explicit_parameters,
       $.implicit_parameters
     ),
 
-    explicit_parameters: $ => seq(lparen, repeat1($.identifier), $.type_ann, rparen),
-    implicit_parameters: $ => seq(lbrace, repeat1($.identifier), optional($.type_ann), rbrace),
+    _ctor_parameter: $ => seq(lparen, $.ctor_pattern, rparen),
+    explicit_parameters: $ => seq(lparen, repeat1($._atomic_pattern), $.type_ann, rparen),
+    implicit_parameters: $ => seq(lbrace, repeat1($._atomic_pattern), optional($.type_ann), rbrace),
 
     where_block: $ => seq(
       where,
@@ -250,6 +257,7 @@ module.exports = grammar({
       $._proof_decl,
       $.bullet_block,
       $.proving,
+      $.instantiate,
       $.witness,
       $._term,
     ),
@@ -286,7 +294,7 @@ module.exports = grammar({
     ),
 
     witness_pattern: $ => seq(
-      exists,
+      witness,
       $._nested_pattern,
       such_that,
       $._nested_pattern
@@ -299,8 +307,8 @@ module.exports = grammar({
     ),
 
     ctor_pattern: $ => seq(
-      $.identifier,
       repeat1($._atomic_pattern),
+      $._atomic_pattern,
     ),
 
     ann_pattern: $ => seq(
@@ -309,13 +317,13 @@ module.exports = grammar({
     ),
 
     _ann: $ => choice(
-      $.con_ann,
+      $.ctor_ann,
       $.type_ann
     ),
 
-    con_ann: $ => prec(1, seq(of, $._term, repeat(seq(amp, prec(1, $._term))))),
+    ctor_ann: $ => prec(1, seq(of, $._term, repeat(seq(comma, prec(1, $._term))))),
 
-    type_ann: $ => seq(colon, prec(2, $._term)),
+    type_ann: $ => seq(colon, prec.left(2, $._term)),
 
     chaining: $ => seq(chaining, $.begin, repeat($.chain_link), $.end),
 
@@ -338,11 +346,14 @@ module.exports = grammar({
 
     proving: $ => seq(proving, $._term),
 
-    witness: $ => seq(exists, optional(seq($._term, optional($.type_ann)))),
+    instantiate: $ => seq(instantiate, $._term),
+
+    witness: $ => seq(witness, optional(seq($._term))),
 
     value: $ => seq(eq, $._term),
 
     _term: $ => choice(
+      $.ann_term,
       $.decl_in,
       $.witness_such_that,
       $.lambda,
@@ -361,8 +372,11 @@ module.exports = grammar({
       $.equality,
       $.call,
       $.implicit_call,
+      $.instantiate_with,
       $.assumption,
       $.number,
+      $.char,
+      $.string,
       $.identifier,
       $.hole_identifier,
       prec(11, seq(lparen, prec(0, $._term), rparen)),
@@ -389,13 +403,15 @@ module.exports = grammar({
 
     clause: $ => seq(optional(pipe), $.patterns, rarrow, $._term),
 
+    ann_term: $ => prec.left(1, seq($._term, colon, $._term)),
+
     decl_in: $ => prec.right(seq($._proof_decl, in_, $._term)),
 
-    witness_such_that: $ => prec.right(seq(exists, $._term, optional($.type_ann), seq(such_that, $._term))),
+    witness_such_that: $ => prec.right(seq(witness, $._term, such_that, $._term)),
 
     apply: $ => prec.left(seq(apply, $._term, repeat(seq(comma, prec.left($._term))))),
 
-    proving_by: $ => seq(proving, $._term, $.by_block),
+    proving_by: $ => seq(proving, optional($._term), $.by_block),
 
     suffices_by: $ => seq(suffices, $._term, $.by_block),
 
@@ -420,6 +436,8 @@ module.exports = grammar({
     call: $ => prec.left(10, seq($._term, $._term)),
 
     implicit_call: $ => prec.left(10, seq($._term, lbrace, $._term, rbrace)),
+
+    instantiate_with: $ => seq(instantiate, $._term, with_),
 
     assumption: $ => assumption,
   }

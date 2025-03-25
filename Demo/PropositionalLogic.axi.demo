@@ -212,18 +212,27 @@ proof                                  // |- P --> Q --> P /\ Q
   . q                                  // Theorem proved!
 qed
 
-// Alternatively, the tactics for each subgoal can be enclosed in curly braces.
-theorem tactic-style-braces-example :
+// Missing arguments can also be named and then they are provided as blocks
+// labeled with the corresponding names.
+theorem named-blocks-example :
   P --> Q --> P /\ Q
 proof                                  // |- P --> Q --> P /\ Q
   assume p q                           // p : P, q : Q |- P /\ Q
-  both
-  {                                    // p : P, q : Q |- P
-    p                                  // Goal solved!
-  }
-  {                                    // p : P, q : Q |- Q
-    q                                  // Theorem proved!
-  }
+  both ?x ?y                           // Lemmas remaining: ?x : P, ?y : Q  // The goal has been "solved", but now we must fill in ?x and ?y.
+  lemma x by p                         // Lemmas remaining: ?y : Q          // We got ?x, so only ?y remains.
+  lemma y by q                         // Theorem proved!
+qed
+
+// Note that these named blocks don't need to be proved in the order they
+// were introduced in the proof. Below, we prove ?q first, even though we
+// first introduced ?p.
+theorem named-blocks-not-in-order-example :
+  P --> Q --> P /\ Q
+proof                                  // |- P --> Q --> P /\ Q
+  assume p q                           // p : P, q : Q |- P /\ Q
+  both ?x ?y                           // Lemmas remaining: ?x : P, ?y : Q
+  lemma y by q                         // Lemmas remaining: ?x : P          // This time, only ?x remains.
+  lemma x by p                         // Theorem proved!
 qed
 
 // Conjunction elimination is `and-left` and `and-right`.
@@ -346,7 +355,6 @@ theorem or-comm-term-style : P \/ Q --> Q \/ P =
 theorem or-comm-term-style' : P \/ Q --> Q \/ P =
   assume pq in
     cases pp or-right or-left
-qed
 
 // We can prove a lemma inline with the construct `lemma x : P by p in q`,
 // where `x` is the lemma name, `P` is a proposition, `p` is its proof
@@ -384,7 +392,7 @@ proof                                  // |- P \/ P --> P
 qed
 
 // Lemmas can be proved in term style, even inside tactic-style proofs.
-theorem term-style-lemma-example
+theorem term-style-lemma-example :
   P --> Q --> P /\ Q
 proof                                  // |- P --> Q --> P /\ Q
   assume p q                           // p : P, q : Q |- P /\ Q
@@ -602,10 +610,10 @@ theorem resolution :
 proof                                  // |- (P \/ Q) /\ (~ P \/ R) --> Q \/ R
   assume (both pq npr)                 // pq : P \/ Q, npr : ~ P \/ R |- Q \/ R
   cases pq ?pr ?qq                     // Lemmas remaining: ?pr : P --> Q \/ R, ?qq : Q --> Q \/ R
-  ?qq =                                // pq : P \/ Q, npr : ~ P \/ R |- Q --> Q \/ R
+  lemma qq by                          // pq : P \/ Q, npr : ~ P \/ R |- Q --> Q \/ R
     assume q                           // pq : P \/ Q, npr : ~ P \/ R, q : Q |- Q \/ R
     or-left q                          // Lemma proved!
-  ?pr =                                // pq : P \/ Q, npr : ~ P \/ R |- P --> Q \/ R
+  lemma pr by                          // pq : P \/ Q, npr : ~ P \/ R |- P --> Q \/ R
     cases npr
                                        // pq : P \/ Q, npr : ~ P \/ R |- ~ P --> P --> Q \/ R
     . assume np p                      // pq : P \/ Q, npr : ~ P \/ R, np : ~ P, p : P |- Q \/ R
@@ -621,9 +629,9 @@ theorem resolution' :
 proof                                           // |- (P \/ Q) /\ (~ P \/ R) --> Q \/ R
   assume (both pq npr)                          // pq : P \/ Q, npr : ~ P \/ R |- Q \/ R
   cases pq (assume p in ?pr) (assume q in ?qq)  // Lemmas remaining: ?pr : Q \/ R, ?qq : Q \/ R
-  ?qq =                                         // pq : P \/ Q, npr : ~ P \/ R, q : Q |- Q \/ R
+  lemma qq by                                   // pq : P \/ Q, npr : ~ P \/ R, q : Q |- Q \/ R
     or-left q                                   // Lemma proved!
-  ?pr =                                         // pq : P \/ Q, npr : ~ P \/ R, p : P |- Q \/ R
+  lemma pr by                                   // pq : P \/ Q, npr : ~ P \/ R, p : P |- Q \/ R
     cases npr
                                                 // pq : P \/ Q, npr : ~ P \/ R, p : P |- ~ P --> Q \/ R
     . assume np                                 // pq : P \/ Q, npr : ~ P \/ R, p : P, np : ~ P |- Q \/ R

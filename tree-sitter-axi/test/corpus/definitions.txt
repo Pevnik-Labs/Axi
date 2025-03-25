@@ -62,6 +62,63 @@ my_function (x : Nat) : Nat = plus x x
       (separator))
 
 =======================
+Equational declaration
+=======================
+map (f : a -> b) : List a -> List b
+_ nil = nil
+_ (cons h t) = cons (f h) (map f t)
+
+---
+
+    (source_file
+      (separator)
+      (constant_declaration
+        (identifier)
+        (parameters
+          (explicit_parameters
+            (identifier)
+            (type_ann
+              (arrow
+                (identifier)
+                (identifier)))))
+        (type_ann
+          (arrow
+            (call
+              (identifier)
+              (identifier))
+            (call
+              (identifier)
+              (identifier)))))
+      (separator)
+      (constant_declaration
+        (identifier)
+        (parameters
+          (identifier))
+        (value
+          (identifier)))
+      (separator)
+      (constant_declaration
+        (identifier)
+        (parameters
+          (ctor_pattern
+            (identifier)
+            (identifier)
+            (identifier)))
+        (value
+          (call
+            (call
+              (identifier)
+              (call
+                (identifier)
+                (identifier)))
+            (call
+              (call
+                (identifier)
+                (identifier))
+              (identifier)))))
+      (separator))
+
+=======================
 Record type declaration
 =======================
 record type Vector a where
