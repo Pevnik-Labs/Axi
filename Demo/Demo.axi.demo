@@ -93,15 +93,15 @@ app : List a -> List a -> List a
 _ nil l = l
 _ (cons h t) l = cons h (app t l)
 
-app (l1 l2 : List a) : List a = case l1 \ where
+app (l1 l2 : List a) : List a = case l1 where
   nil -> l2
   cons h t -> cons h (app t l2)
 
 // Proof by induction
-theorem map_id : forall a l, map id l = l by
+theorem map_id : (forall a l, map id l = l) by
   assume a l
-  induction l \ where
-    nil -> refl
-    cons h t -> proving by
-      rewrite (ind t)
+  induction l with
+  | nil => refl
+  | cons h (t & ind iht) =>
+      rewrite iht
       refl

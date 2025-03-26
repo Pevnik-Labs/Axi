@@ -70,6 +70,7 @@ declaration NameOfLogicalEntity : SomeLogicalKind
 theorem someFunction-satisfies-SomePredicate : SomeProposition
 proof
   // the actual proof goes here
+  simpl
 qed
 
 // `theorem`, `proof` and `qed` are keywords.
