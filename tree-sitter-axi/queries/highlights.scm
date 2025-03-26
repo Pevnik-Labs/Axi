@@ -70,6 +70,7 @@
 ] @punctuation.bracket
 
 [
+  "&"
   ":"
   ","
   "."
@@ -84,11 +85,18 @@
 [
   "by"
   "by-contradiction"
+  "case"
+  "cases"
   "chaining"
   "in"
+  "ind"
+  "induction"
   "instantiate"
   "for"
   "lemma"
+  "let"
+  "match"
+  "noncomputational"
   "of"
   "pick-any"
   "pick-witness"

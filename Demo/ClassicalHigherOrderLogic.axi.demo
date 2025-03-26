@@ -127,7 +127,7 @@ theorem has-inverse-from-bijective :
 proof                                                    // |- forall {A B} (f : A -> B), bijective f --> has-inverse f
   pick-any A B f                                         // A B : Type, f : A -> B |- bijective f --> has-inverse f
   assume (both sur inj)
-  let g (b : B) :  A =
+  let noncomputational g (b : B) :  A =
     pick-witness a _ for (instantiate sur with b) in a
   // Let Γ = A B : Type, f : A -> B, sur : (forall y : B, exists x : A, f x === y), inj : (forall x y : A, f x === f y --> x === y), g = fun b : B => pick-witness a _ for (instantiate sur with b) in a
                                                          // Γ |- has-inverse f

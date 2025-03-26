@@ -1,4 +1,4 @@
-data type Nat
+data type Nat where
   Zero
   Succ : Nat -> Nat
 
@@ -29,7 +29,7 @@ proof
   pick-any y
   induction y with
   | Zero => refl
-  | Succ (y' & IH) =>
+  | Succ (y' & ind IH) =>
     chaining
       === add Zero (Succ y')
       === Succ (add Zero y')  by refl

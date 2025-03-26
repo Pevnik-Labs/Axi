@@ -21,6 +21,7 @@ const lambda = "\\";
 const pipe = "|";
 
 // operators
+const amp = "&";
 const and = "/\\";
 const eq = "=";
 const equality = "===";
@@ -38,14 +39,21 @@ const assume = "assume";
 const axiom = "axiom";
 const by = "by";
 const by_contradiction = "by-contradiction";
+const case_ = "case";
+const cases = "cases";
 const chaining = "chaining";
 const declaration = "declaration";
 const exists = "exists";
 const for_ = "for";
 const forall = "forall";
 const in_ = "in";
+const ind = "ind";
+const induction = "induction";
 const instantiate = "instantiate";
 const lemma = "lemma";
+const let_ = "let";
+const match = "match";
+const noncomputational = "noncomputational";
 const of = "of";
 const pick_any = "pick-any";
 const pick_witness = "pick-witness";
@@ -124,7 +132,8 @@ module.exports = grammar({
       $.constant_declaration,
       $.theorem_declaration,
       $.axiom_declaration,
-      $.declaration
+      $.declaration,
+      $.pipe_clause,
     ),
 
     structure_declaration: $ => seq(
@@ -256,8 +265,12 @@ module.exports = grammar({
     _proof_step: $ => choice(
       $._proof_decl,
       $.bullet_block,
+      $.cases,
+      $.induction,
+      $.pipe_clause,
       $.proving,
       $.instantiate,
+      $.intro,
       $.witness,
       $._term,
     ),
@@ -265,6 +278,7 @@ module.exports = grammar({
     _proof_decl: $ => choice(
       $.assume,
       $.by_contradiction,
+      seq(let_, optional(noncomputational), $._declaration),
       $.lemma_declaration,
       $.pick_any,
       $.pick_witness,
@@ -303,6 +317,8 @@ module.exports = grammar({
     _nested_pattern: $ => choice(
       $._atomic_pattern,
       $.ctor_pattern,
+      $.and_pattern,
+      $.ind_pattern,
       $.ann_pattern,
     ),
 
@@ -310,6 +326,14 @@ module.exports = grammar({
       repeat1($._atomic_pattern),
       $._atomic_pattern,
     ),
+
+    and_pattern: $ => prec.right(seq(
+      $._nested_pattern,
+      amp,
+      $._nested_pattern
+    )),
+
+    ind_pattern: $ => prec.right(seq(ind, $._nested_pattern)),
 
     ann_pattern: $ => seq(
       $._nested_pattern,
@@ -344,9 +368,15 @@ module.exports = grammar({
 
     _direction: $ => choice(larrow, rarrow),
 
+    cases: $ => seq(cases, $._term, optional(with_)),
+
+    induction: $ => seq(induction, $._term, optional(with_)),
+
     proving: $ => seq(proving, $._term),
 
     instantiate: $ => seq(instantiate, $._term),
+
+    intro: $ => seq(lambda, optional($.patterns)),
 
     witness: $ => seq(witness, optional(seq($._term))),
 
@@ -357,7 +387,9 @@ module.exports = grammar({
       $.decl_in,
       $.witness_such_that,
       $.lambda,
+      $.case,
       $.clauses,
+      $.match_with,
       $.apply,
       $.proving_by,
       $.suffices_by,
@@ -389,6 +421,18 @@ module.exports = grammar({
       $._term
     )),
 
+    case: $ => prec.right(seq(
+      case_,
+      $._term,
+      where,  
+      $.begin,
+      repeat(seq(
+        $.separator,
+        $.clause
+      )),
+      $.end
+    )),
+
     clauses: $ => prec.right(seq(
       lambda,
       optional($.patterns),
@@ -401,7 +445,11 @@ module.exports = grammar({
       $.end
     )),
 
-    clause: $ => seq(optional(pipe), $.patterns, rarrow, $._term),
+    clause: $ => seq($.patterns, rarrow, $._term),
+
+    match_with: $ => prec.right(seq(match, $._term, with_, repeat($.pipe_clause))),
+
+    pipe_clause: $ => seq(pipe, $._nested_pattern, repeat(seq(comma, $._nested_pattern)), "=>", $.begin, repeat(seq($.separator, $._proof_step)), $.end),
 
     ann_term: $ => prec.left(1, seq($._term, colon, $._term)),
 
