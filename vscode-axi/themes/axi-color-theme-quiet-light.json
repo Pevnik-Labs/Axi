@@ -44,14 +44,14 @@
       "scope": "variable.other.proofterm.axi",
       "settings":
       {
-        "foreground": "#333333"
+        "foreground": "#0000aa"
       }
     },
     {
       "scope": "variable.other.proofterm.absurd.axi",
       "settings":
       {
-        "foreground": "#000000",
+        "foreground": "#0000aa",
         "fontStyle": "bold"
       }
     },
@@ -59,7 +59,7 @@
       "scope": "variable.other.proofterm.finisher.axi",
       "settings":
       {
-        "foreground": "#333333",
+        "foreground": "#0000aa",
         "fontStyle": "underline"
       }
     },
@@ -67,7 +67,7 @@
       "scope": "variable.other.proofterm.binder.axi",
       "settings":
       {
-        "foreground": "#333333"
+        "foreground": "#0000aa"
       }
     },
     {
@@ -102,8 +102,7 @@
       "scope": "comment.line.axi",
       "settings":
       {
-        "foreground": "#888888",
-        "fontStyle": "italic"
+        "foreground": "#888888"
       }
     },
     {

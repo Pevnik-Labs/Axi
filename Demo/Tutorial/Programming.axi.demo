@@ -303,10 +303,10 @@ proof
   assume (eqx : p1.x === p2.x) (eqy : p1.y === p2.y)
   chaining
     === p1
-    === {x = p1.x; y = p1.y}  by refl
-    === {x = p2.x; y = p1.y}  by eqx
-    === {x = p2.x; y = p2.y}  by eqy
-    === p2                    by refl
+    === {x = p1.x; y = p1.y}
+    === {x = p2.x; y = p1.y}  by rewrite eqx
+    === {x = p2.x; y = p2.y}  by rewrite eqy
+    === p2
 qed
 
 // When we need to update a record, we can use the syntax
@@ -323,6 +323,7 @@ proof
   . simpl
     refl
   . refl
+qed
 
 // We can define another record type, `Point3D`, whose field names overlap
 // with fields names of `Point`. At the top level this causes some ambiguity,
@@ -614,6 +615,7 @@ map {A B} (f : A -> B) : List A -> List B
 // However, note one special thing: for recursive arguments (like `t` below),
 // the pattern becomes `(t & ind IH)`, which means that we name not only `t`, but
 // also the corresponding induction hypothesis.
+
 theorem map-id :
   forall {A} (l : List A),
     map id l === l
@@ -654,11 +656,11 @@ proof
   | nil =>
     chaining
       === map id nil
-      === nil                by simpl
+      === nil
   | cons h (t & ind IH) =>
     chaining
       === map id (cons h t)
-      === cons h (map id t)  by simpl
+      === cons h (map id t)
       === cons h t           by rewrite IH
 qed
 
@@ -672,13 +674,13 @@ proof
   | nil =>
     chaining
       === map (\ a -> g (f a)) nil
-      === nil                                      by simpl
+      === nil
   | cons h (t & ind IH) =>
     chaining
       === map (\ a -> g (f a)) (cons h t)
-      === cons (g (f h)) (map (\ a -> g (f a)) t)  by simpl
+      === cons (g (f h)) (map (\ a -> g (f a)) t)
       === cons (g (f h)) (map g (map f t))         by rewrite IH
-      === map g (map f (cons h t))                 by refl
+      === map g (map f (cons h t))
 qed
 
 // Often, we will want another name for a variant of an already existing theorem.
@@ -711,13 +713,13 @@ proof
   | nil =>
     chaining
       === app (app nil l2) l3
-      === app nil (app l2 l3)  by refl
+      === app nil (app l2 l3)
   | cons h (t & ind IH) =>
     chaining
       === app (app (cons h t) l2) l3
-      === cons h (app (app t l2) l3)  by simpl
+      === cons h (app (app t l2) l3)
       === cons h (app t (app l2 l3))  by rewrite IH
-      === app (cons h t) (app l2 l3)  by refl
+      === app (cons h t) (app l2 l3)
 qed
 
 // Reversing a list.
@@ -736,16 +738,16 @@ proof
   | nil =>
     chaining
       === rev (app nil l2)
-      === rev l2            by refl
+      === rev l2
       === app (rev l2) nil  by rewrite <-app-nil-r
   | cons h (t & ind IH) =>
     chaining
       === rev (app (cons h t) l2)
-      === rev (cons h (app t l2))                        by simpl
-      === app (rev (app t l2)) (cons h nil)              by simpl
+      === rev (cons h (app t l2))
+      === app (rev (app t l2)) (cons h nil)
       === app (app (rev l2) (rev t)) (cons h nil)        by rewrite IH
       === app (app (rev l2) (app (rev t) (cons h nil)))  by rewrite app-assoc
-      === app (app (rev l2) (rev (cons h t)))            by simpl
+      === app (app (rev l2) (rev (cons h t)))
 qed
 
 // The core language also has a simple type class mechanism.
@@ -839,10 +841,10 @@ proof
   | cons h (t & ind IH) =>
     chaining
       === eqb (cons h t) (cons h t)
-      === andb (eqb h h) (eqb t t)   by simpl
+      === andb (eqb h h) (eqb t t)
       === andb true (eqb t t)        by rewrite (apply (instantiate eqb-spec2 with h h) refl)
       === andb true true             by rewrite IH
-      === true                       by refl
+      === true
 qed
 
 instance LawfulEq (List A) <= LawfulEq A where
