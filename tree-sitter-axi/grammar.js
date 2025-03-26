@@ -27,10 +27,12 @@ const eq = "=";
 const equality = "===";
 const equivalence = "<-->";
 const laarrow = "<--";
+const Larrow = "<=";
 const larrow = "<-";
 const negation = "~";
 const or = "\\/";
 const raarrow = "-->";
+const Rarrow = "=>";
 const rarrow = "->";
 
 // anonymous keyword nodes
@@ -49,6 +51,7 @@ const forall = "forall";
 const in_ = "in";
 const ind = "ind";
 const induction = "induction";
+const instance = "instance";
 const instantiate = "instantiate";
 const lemma = "lemma";
 const let_ = "let";
@@ -71,6 +74,7 @@ const witness = "witness";
 
 // named keyword nodes
 const assumption = "assumption";
+const class_ = "class";
 const data = "data";
 const module_ = "module";
 const proposition = "proposition";
@@ -129,6 +133,7 @@ module.exports = grammar({
 
     _declaration: $ => choice(
       $.structure_declaration,
+      $.instance_declaration,
       $.constant_declaration,
       $.theorem_declaration,
       $.axiom_declaration,
@@ -142,6 +147,13 @@ module.exports = grammar({
       $.identifier,
       optional($.parameters),
       $.where_block
+    ),
+
+    instance_declaration: $ => seq(
+      instance,
+      $._nested_pattern,
+      optional(seq(Larrow, $._term, repeat(seq(comma, $._term)))),
+      $.where_block,
     ),
 
     constant_declaration: $ => seq(
@@ -182,16 +194,19 @@ module.exports = grammar({
     ),
 
     _structure_specifier: $ => choice(
+      $.class,
       $.data,
+      $.module,
       $.record,
-      $.module
     ),
+
+    class: $ => class_,
 
     data: $ => data,
 
-    record: $ => record,
-
     module: $ => module_,
+
+    record: $ => record,
 
     _sort_specifier: $ => choice(
       $.type,
@@ -449,7 +464,7 @@ module.exports = grammar({
 
     match_with: $ => prec.right(seq(match, $._term, with_, repeat($.pipe_clause))),
 
-    pipe_clause: $ => seq(pipe, $._nested_pattern, repeat(seq(comma, $._nested_pattern)), "=>", $.begin, repeat(seq($.separator, $._proof_step)), $.end),
+    pipe_clause: $ => seq(pipe, $._nested_pattern, repeat(seq(comma, $._nested_pattern)), Rarrow, $.begin, repeat(seq($.separator, $._proof_step)), $.end),
 
     ann_term: $ => prec.left(1, seq($._term, colon, $._term)),
 

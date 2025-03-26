@@ -617,6 +617,10 @@
           "named": true
         },
         {
+          "type": "instance_declaration",
+          "named": true
+        },
+        {
           "type": "instantiate",
           "named": true
         },
@@ -833,6 +837,10 @@
         },
         {
           "type": "induction",
+          "named": true
+        },
+        {
+          "type": "instance_declaration",
           "named": true
         },
         {
@@ -2095,6 +2103,10 @@
           "named": true
         },
         {
+          "type": "instance_declaration",
+          "named": true
+        },
+        {
           "type": "instantiate_with",
           "named": true
         },
@@ -3310,6 +3322,157 @@
     }
   },
   {
+    "type": "instance_declaration",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "and_pattern",
+          "named": true
+        },
+        {
+          "type": "ann_pattern",
+          "named": true
+        },
+        {
+          "type": "ann_term",
+          "named": true
+        },
+        {
+          "type": "apply",
+          "named": true
+        },
+        {
+          "type": "arrow",
+          "named": true
+        },
+        {
+          "type": "assumption",
+          "named": true
+        },
+        {
+          "type": "call",
+          "named": true
+        },
+        {
+          "type": "case",
+          "named": true
+        },
+        {
+          "type": "char",
+          "named": true
+        },
+        {
+          "type": "clauses",
+          "named": true
+        },
+        {
+          "type": "conjunction",
+          "named": true
+        },
+        {
+          "type": "ctor_pattern",
+          "named": true
+        },
+        {
+          "type": "decl_in",
+          "named": true
+        },
+        {
+          "type": "direction",
+          "named": true
+        },
+        {
+          "type": "disjunction",
+          "named": true
+        },
+        {
+          "type": "equality",
+          "named": true
+        },
+        {
+          "type": "equivalence",
+          "named": true
+        },
+        {
+          "type": "exists",
+          "named": true
+        },
+        {
+          "type": "forall",
+          "named": true
+        },
+        {
+          "type": "hole_identifier",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "implication",
+          "named": true
+        },
+        {
+          "type": "implicit_call",
+          "named": true
+        },
+        {
+          "type": "ind_pattern",
+          "named": true
+        },
+        {
+          "type": "instantiate_with",
+          "named": true
+        },
+        {
+          "type": "lambda",
+          "named": true
+        },
+        {
+          "type": "match_with",
+          "named": true
+        },
+        {
+          "type": "negation",
+          "named": true
+        },
+        {
+          "type": "number",
+          "named": true
+        },
+        {
+          "type": "proving_by",
+          "named": true
+        },
+        {
+          "type": "string",
+          "named": true
+        },
+        {
+          "type": "suffices_by",
+          "named": true
+        },
+        {
+          "type": "where_block",
+          "named": true
+        },
+        {
+          "type": "witness_pattern",
+          "named": true
+        },
+        {
+          "type": "witness_such_that",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "instantiate",
     "named": true,
     "fields": {},
@@ -4343,6 +4506,10 @@
           "named": true
         },
         {
+          "type": "instance_declaration",
+          "named": true
+        },
+        {
           "type": "instantiate",
           "named": true
         },
@@ -4563,6 +4730,10 @@
         },
         {
           "type": "induction",
+          "named": true
+        },
+        {
+          "type": "instance_declaration",
           "named": true
         },
         {
@@ -5051,6 +5222,10 @@
           "named": true
         },
         {
+          "type": "instance_declaration",
+          "named": true
+        },
+        {
           "type": "pipe_clause",
           "named": true
         },
@@ -5081,6 +5256,10 @@
       "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "class",
+          "named": true
+        },
         {
           "type": "data",
           "named": true
@@ -5592,6 +5771,10 @@
           "named": true
         },
         {
+          "type": "instance_declaration",
+          "named": true
+        },
+        {
           "type": "pipe_clause",
           "named": true
         },
@@ -5944,6 +6127,10 @@
     "named": false
   },
   {
+    "type": "<=",
+    "named": false
+  },
+  {
     "type": "=",
     "named": false
   },
@@ -6013,6 +6200,10 @@
     "named": true
   },
   {
+    "type": "class",
+    "named": true
+  },
+  {
     "type": "data",
     "named": true
   },
@@ -6058,6 +6249,10 @@
   },
   {
     "type": "induction",
+    "named": false
+  },
+  {
+    "type": "instance",
     "named": false
   },
   {

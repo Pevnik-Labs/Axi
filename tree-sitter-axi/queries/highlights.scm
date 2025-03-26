@@ -1,8 +1,11 @@
 [
-  (type)
-  (record)
+  (class)
   (data)
+  "instance"
+  (module)
   (proposition)
+  (record)
+  (type)
   "where"
 ] @typedefinition
 

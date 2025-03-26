@@ -150,3 +150,118 @@ record type Vector a where
           (end)))
       (separator))
 
+==================
+Class declaration
+==================
+class Eq A where
+  eqb : A -> A -> Bool
+
+---
+
+    (source_file
+      (separator)
+      (structure_declaration
+        (class)
+        (identifier)
+        (parameters
+          (identifier))
+        (where_block
+          (begin)
+          (separator)
+          (constant_declaration
+            (identifier)
+            (type_ann
+              (arrow
+                (identifier)
+                (arrow
+                  (identifier)
+                  (identifier)))))
+          (end)))
+      (separator))
+
+=====================
+Instance declaration
+=====================
+instance Eq (Sum A B) <= Eq A, Eq B where
+  eqb (inl x) (inl y) = eqb x y
+  eqb (inl _) (inr _) = no
+  eqb (inr _) (inl _) = no
+  eqb (inr x) (inr y) = eqb x y
+
+---
+
+    (source_file
+      (separator)
+      (instance_declaration
+        (ctor_pattern
+          (identifier)
+          (ctor_pattern
+            (identifier)
+            (identifier)
+            (identifier)))
+        (call
+          (identifier)
+          (identifier))
+        (call
+          (identifier)
+          (identifier))
+        (where_block
+          (begin)
+          (separator)
+          (constant_declaration
+            (identifier)
+            (parameters
+              (ctor_pattern
+                (identifier)
+                (identifier))
+              (ctor_pattern
+                (identifier)
+                (identifier)))
+            (value
+              (call
+                (call
+                  (identifier)
+                  (identifier))
+                (identifier))))
+          (separator)
+          (constant_declaration
+            (identifier)
+            (parameters
+              (ctor_pattern
+                (identifier)
+                (identifier))
+              (ctor_pattern
+                (identifier)
+                (identifier)))
+            (value
+              (identifier)))
+          (separator)
+          (constant_declaration
+            (identifier)
+            (parameters
+              (ctor_pattern
+                (identifier)
+                (identifier))
+              (ctor_pattern
+                (identifier)
+                (identifier)))
+            (value
+              (identifier)))
+          (separator)
+          (constant_declaration
+            (identifier)
+            (parameters
+              (ctor_pattern
+                (identifier)
+                (identifier))
+              (ctor_pattern
+                (identifier)
+                (identifier)))
+            (value
+              (call
+                (call
+                  (identifier)
+                  (identifier))
+                (identifier))))
+          (end)))
+      (separator))
