@@ -653,6 +653,10 @@
           "named": true
         },
         {
+          "type": "open",
+          "named": true
+        },
+        {
           "type": "pick_any",
           "named": true
         },
@@ -873,6 +877,10 @@
         },
         {
           "type": "number",
+          "named": true
+        },
+        {
+          "type": "open",
           "named": true
         },
         {
@@ -2128,6 +2136,10 @@
         },
         {
           "type": "number",
+          "named": true
+        },
+        {
+          "type": "open",
           "named": true
         },
         {
@@ -4146,6 +4158,21 @@
     }
   },
   {
+    "type": "open",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "parameters",
     "named": true,
     "fields": {},
@@ -4542,6 +4569,10 @@
           "named": true
         },
         {
+          "type": "open",
+          "named": true
+        },
+        {
           "type": "pick_any",
           "named": true
         },
@@ -4766,6 +4797,10 @@
         },
         {
           "type": "number",
+          "named": true
+        },
+        {
+          "type": "open",
           "named": true
         },
         {
@@ -6290,6 +6325,10 @@
   },
   {
     "type": "of",
+    "named": false
+  },
+  {
+    "type": "open",
     "named": false
   },
   {

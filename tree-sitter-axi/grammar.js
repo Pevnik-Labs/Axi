@@ -58,6 +58,7 @@ const let_ = "let";
 const match = "match";
 const noncomputational = "noncomputational";
 const of = "of";
+const open = "open";
 const pick_any = "pick-any";
 const pick_witness = "pick-witness";
 const proof = "proof";
@@ -83,6 +84,7 @@ const type = "type";
 
 // subtokens
 const char = /[^'"\\]|\\([abefnrtv\\'"?]|[0-7]{1,3}|x[0-9a-fA-F]+|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8})/;
+const word = /[a-zA-Z_][-a-zA-Z0-9_']*/;
 
 module.exports = grammar({
   name: "axi",
@@ -124,9 +126,9 @@ module.exports = grammar({
 
     // tokens
     shebang: $ => /#!.*/,
-    identifier: $ => /[a-zA-Z_][-a-zA-Z0-9_']*/,
+    identifier: $ => token(seq(repeat(seq(word, ".")), choice(word, /[-+/*^]/))),
     direction: $ => /<===|===>/,
-    hole_identifier: $ => /[?][a-zA-Z_][-a-zA-Z0-9_']*/,
+    hole_identifier: $ => token(seq("?", word)),
     number: $ => /-?\d+(\.\d*)?(e-?\d+)?/,
     char: $ => token(seq("'", choice(char, "\""), "'")),
     string: $ => token(seq("\"", repeat(choice(char, "'")), "\"")),
@@ -295,6 +297,7 @@ module.exports = grammar({
       $.by_contradiction,
       seq(let_, optional(noncomputational), $._declaration),
       $.lemma_declaration,
+      $.open,
       $.pick_any,
       $.pick_witness,
       $.chaining,
@@ -305,6 +308,8 @@ module.exports = grammar({
     assume: $ => seq(assume, $.patterns),
 
     by_contradiction: $ => seq(by_contradiction, $._atomic_pattern, optional($.type_ann)),
+
+    open: $ => seq(open, $.identifier),
 
     pick_any: $ => seq(pick_any, $.patterns),
 

@@ -80,7 +80,7 @@ qed
 int8Example  : Int8  = -100
 int16Example : Int16 = 0
 int32Example : Int32 = 42
-int64Example : Int64 = 4294967296
+int64Example : Int64 = 2 ^ 32
 
 // `Uint`s of various sizes.
 uint8Example :  Uint8  = 42

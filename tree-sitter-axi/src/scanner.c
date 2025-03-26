@@ -142,7 +142,7 @@ static inline bool emit_separator(TSLexer *lexer)
 static inline bool parse_space(TSLexer *lexer)
 {
     bool line_break = false;
-    for (; !lexer->eof(lexer); lexer->advance(lexer, false), lexer->mark_end(lexer))
+    for (; !lexer->eof(lexer); lexer->advance(lexer, false))
     {
         if (lexer->lookahead == '/')
         {
@@ -192,12 +192,18 @@ static inline bool parse_space(TSLexer *lexer)
     return line_break;
 }
 
+static inline bool is_layout_stop_token(TSLexer *const lexer)
+{
+    return lexer->lookahead == ')' || lexer->lookahead == ']' || lexer->lookahead == '}';
+}
+
 bool tree_sitter_axi_external_scanner_scan(Scanner *const self, TSLexer *const lexer, const bool valid[])
 {
     assert(is_valid(self));
     if (valid[ERROR_RECOVERY])
         return false;
     const bool line_break = parse_space(lexer);
+    lexer->mark_end(lexer);
     const uint32_t column = lexer->get_column(lexer);
     if (column >= TENTATIVE)
         return false;
@@ -205,7 +211,7 @@ bool tree_sitter_axi_external_scanner_scan(Scanner *const self, TSLexer *const l
         return try_emit_begin(self, line_break, column, lexer);
     confirm_ruler(self, line_break);
     const uint32_t ruler = get_ruler_at(self, self->top);
-    if (valid[END] && (column < ruler || lexer->lookahead == ')'))
+    if (valid[END] && (column < ruler || is_layout_stop_token(lexer)))
         return try_emit_end(self, lexer);
     return valid[SEPARATOR] && column == ruler && emit_separator(lexer);
 }

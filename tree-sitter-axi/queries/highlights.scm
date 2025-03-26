@@ -101,6 +101,7 @@
   "match"
   "noncomputational"
   "of"
+  "open"
   "pick-any"
   "pick-witness"
   "proving"
