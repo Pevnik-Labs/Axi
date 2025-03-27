@@ -1,104 +1,66 @@
-[
-  (class)
-  (data)
-  "instance"
-  (module)
-  (proposition)
-  (record)
-  (type)
-  "where"
-] @typedefinition
+(hole_identifier) @function
 
-[
-  "theorem"
-  "declaration"
-  "axiom"
-] @toplevel
+(identifier) @function
 
-[
-  "proof"
-  "qed"
-] @proofblock
+((identifier) @type
+ (#match? @type "^[A-Z]"))
 
-(hole_identifier) @variable
-
-(identifier) @variable
-
-((identifier) @kind
- (#match? @kind "^Type|Prop$"))
-
-((identifier) @typeoperator
- (#match? @typeoperator "^[A-Z]"))
-
-((identifier) @typevar
- (#match? @typevar "^[A-Z]$"))
-
-((identifier) @proofterm
- (#match? @proofterm "^absurd|and-left|and-right|both|cases|or-left|or-right|refl|simpl|symmetry|transitivity|trivial$"))
-
-[
-  "assume"
-  "apply"
-  (assumption)
-] @proofterm
-
-((identifier) @absurd
- (#match? @absurd "^absurd$"))
-
-((identifier) @typepropformer
- (#match? @typepropformer "^True|False$"))
-
-[
-  "/\\"
-  "==="
-  "<-->"
-  "-->"
-  "->"
-  "<-"
-  "~"
-  "\\/"
-  "<--"
-  "<-"
-  "forall"
-] @typepropformer
-
-((identifier) @typepropformer
- (#match? @typepropformer "^exists$"))
+((identifier) @keyword
+ (#match? @keyword "^absurd|and-left|and-right|both|cases|or-left|or-right|refl|simpl|symmetry|transitivity|trivial$"))
 
 [
   "("
   ")"
+  "["
+  "]"
   "{"
   "}"
 ] @punctuation.bracket
 
 [
-  "&"
   ":"
   ","
   "."
   "\\"
-  "<="
   "|"
-  "=>"
-  "<:"
+  ";"
 ] @punctuation.delimiter
 
 [
+  "&"
+  "/\\"
   "="
+  "==="
+  "<-->"
+  "<--"
+  "<="
+  "<-"
+  "~"
+  "\\/"
+  "-->"
+  "=>"
+  "->"
+  "<:"
 ] @operator
 
 [
-  "by"
+  "apply"
+  "assume"
+  "axiom"
   "by-contradiction"
+  "by"
   "case"
   "cases"
   "chaining"
+  "declaration"
+  "exists"
+  "for"
+  "forall"
   "in"
   "ind"
   "induction"
+  "instance"
   "instantiate"
-  "for"
   "lemma"
   "let"
   "match"
@@ -107,13 +69,27 @@
   "open"
   "pick-any"
   "pick-witness"
+  "proof"
   "proving"
+  "qed"
   "rewrite"
   "such-that"
   "suffices"
+  "theorem"
   "unfold"
+  "where"
   "with"
   "witness"
+] @keyword
+
+[
+  (assumption)
+  (class)
+  (data)
+  (module)
+  (proposition)
+  (record)
+  (type)
 ] @keyword
 
 [
@@ -121,3 +97,9 @@
   (line_comment)
   (shebang)
 ] @comment
+
+(number) @number
+
+(char) @string
+
+(string) @string
