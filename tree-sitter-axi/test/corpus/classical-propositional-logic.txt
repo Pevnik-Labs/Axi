@@ -18,72 +18,71 @@ qed
 
 ---
 
-    (source_file
+(source_file
+  (separator)
+  (theorem_declaration
+    (identifier)
+    (type_ann
+      (implication
+        (negation
+          (disjunction
+            (negation
+              (identifier))
+            (negation
+              (identifier))))
+        (conjunction
+          (identifier)
+          (identifier))))
+    (proof_block
+      (begin)
       (separator)
-      (theorem_declaration
-        (identifier)
-        (type_ann
-          (implication
+      (assume
+        (patterns
+          (identifier)
+          (type_ann
             (negation
               (disjunction
                 (negation
                   (identifier))
                 (negation
-                  (identifier))))
+                  (identifier)))))))
+      (separator)
+      (by_contradiction
+        (identifier)
+        (type_ann
+          (negation
             (conjunction
               (identifier)
-              (identifier))))
-        (proof_block
-          (begin)
-          (separator)
-          (assume
-            (patterns
-              (identifier)
-              (type_ann
-                (negation
-                  (disjunction
-                    (negation
-                      (identifier))
-                    (negation
-                      (identifier)))))))
-          (separator)
-          (by_contradiction
-            (identifier)
-            (type_ann
-              (negation
-                (conjunction
-                  (identifier)
-                  (identifier)))))
-          (separator)
-          (apply
-            (identifier))
-          (separator)
+              (identifier)))))
+      (separator)
+      (apply
+        (identifier))
+      (separator)
+      (identifier)
+      (separator)
+      (assume
+        (patterns
           (identifier)
-          (separator)
-          (assume
-            (patterns
-              (identifier)
-              (type_ann
-                (identifier))))
-          (separator)
-          (apply
-            (identifier))
-          (separator)
+          (type_ann
+            (identifier))))
+      (separator)
+      (apply
+        (identifier))
+      (separator)
+      (identifier)
+      (separator)
+      (assume
+        (patterns
           (identifier)
-          (separator)
-          (assume
-            (patterns
-              (identifier)
-              (type_ann
-                (identifier))))
-          (separator)
-          (apply
-            (identifier))
-          (separator)
-          (call
-            (call
-              (identifier)
-              (identifier))
-            (identifier))
-          (end)))
-      (separator))
+          (type_ann
+            (identifier))))
+      (separator)
+      (apply
+        (identifier))
+      (separator)
+      (call
+        (identifier)
+        (identifier)
+        (identifier))
+      (end)))
+  (separator))

@@ -10,41 +10,41 @@ qed
 
 ---
 
-    (source_file
-      (separator)
-      (theorem_declaration
-        (identifier)
-        (type_ann
-          (forall
-            (parameters
-              (implicit_parameters
-                (identifier))
-              (explicit_parameters
-                (identifier)
-                (type_ann
-                  (identifier))))
-            (equality
-              (identifier)
+(source_file
+  (separator)
+  (theorem_declaration
+    (identifier)
+    (type_ann
+      (forall
+        (parameters
+          (implicit_parameters
+            (identifier))
+          (explicit_parameters
+            (identifier)
+            (type_ann
               (identifier))))
-        (proof_block
+        (equality
+          (identifier)
+          (identifier))))
+    (proof_block
+      (begin)
+      (separator)
+      (pick_any
+        (patterns
+          (identifier)
+          (identifier)))
+      (separator)
+      (proving_by
+        (equality
+          (identifier)
+          (identifier))
+        (by_block
           (begin)
           (separator)
-          (pick_any
-            (patterns
-              (identifier)
-              (identifier)))
-          (separator)
-          (proving_by
-            (equality
-                (identifier)
-                (identifier))
-            (by_block
-              (begin)
-              (separator)
-              (identifier)
-              (end)))
+          (identifier)
           (end)))
-      (separator))
+      (end)))
+  (separator))
 
 =================================
 Universal quantifier elimination
@@ -59,35 +59,34 @@ qed
 
 ---
 
-    (source_file
-      (separator)
-      (constant_declaration
-        (type)
-        (identifier))
-      (separator)
-      (declaration
-        (parameters
-          (identifier))
-        (type_ann
-          (identifier)))
-      (separator)
-      (theorem_declaration
+(source_file
+  (separator)
+  (constant_declaration
+    (type)
+    (identifier))
+  (separator)
+  (declaration
+    (parameters
+      (identifier))
+    (type_ann
+      (identifier)))
+  (separator)
+  (theorem_declaration
+    (identifier)
+    (type_ann
+      (equality
         (identifier)
-        (type_ann
-          (equality
-            (identifier)
-            (identifier)))
-        (proof_block
-          (begin)
-          (separator)
-          (call
-            (implicit_call
-              (instantiate_with
-                  (identifier))
-              (identifier))
-            (identifier))
-          (end)))
-      (separator))
+        (identifier)))
+    (proof_block
+      (begin)
+      (separator)
+      (call
+        (instantiate_with
+          (identifier))
+        (identifier)
+        (identifier))
+      (end)))
+  (separator))
 
 ====================================
 Existential quantifier introduction
@@ -104,36 +103,36 @@ qed
 
 ---
 
-    (source_file
+(source_file
+  (separator)
+  (constant_declaration
+    (type)
+    (identifier))
+  (separator)
+  (theorem_declaration
+    (identifier)
+    (type_ann
+      (exists
+        (parameters
+          (identifier))
+        (type_ann
+          (identifier))
+        (disjunction
+          (call
+            (identifier)
+            (identifier))
+          (identifier))))
+    (proof_block
+      (begin)
       (separator)
-      (constant_declaration
-        (type)
+      (witness
         (identifier))
       (separator)
-      (theorem_declaration
-        (identifier)
-        (type_ann
-          (exists
-            (parameters
-              (identifier))
-            (type_ann
-              (identifier))
-            (disjunction
-              (call
-                (identifier)
-                (identifier))
-              (identifier))))
-        (proof_block
-          (begin)
-          (separator)
-          (witness
-            (identifier))
-          (separator)
-          (identifier)
-          (separator)
-          (identifier)
-          (end)))
-      (separator))
+      (identifier)
+      (separator)
+      (identifier)
+      (end)))
+  (separator))
 
 ===================================
 Existential quantifier elimination
@@ -156,70 +155,39 @@ qed
 
 ---
 
-    (source_file
-      (separator)
-      (theorem_declaration
-        (identifier)
-        (type_ann
-          (implication
-            (exists
-              (parameters
-                (identifier))
-              (type_ann
-                (identifier))
-              (conjunction
-                (call
-                  (identifier)
-                  (identifier))
-                (call
-                  (identifier)
-                  (identifier))))
-            (exists
-              (parameters
-                (identifier))
-              (type_ann
-                (identifier))
-              (call
-                (identifier)
-                (identifier)))))
-        (proof_block
-          (begin)
-          (separator)
-          (assume
-            (patterns
-              (identifier)
-              (type_ann
-                (exists
-                  (parameters
-                    (identifier))
-                  (type_ann
-                    (identifier))
-                  (conjunction
-                    (call
-                      (identifier)
-                      (identifier))
-                    (call
-                      (identifier)
-                      (identifier)))))))
-          (separator)
-          (pick_witness
-            (patterns
+(source_file
+  (separator)
+  (theorem_declaration
+    (identifier)
+    (type_ann
+      (implication
+        (exists
+          (parameters
+            (identifier))
+          (type_ann
+            (identifier))
+          (conjunction
+            (call
               (identifier)
               (identifier))
+            (call
+              (identifier)
+              (identifier))))
+        (exists
+          (parameters
             (identifier))
-          (separator)
-          (witness
+          (type_ann
             (identifier))
-          (separator)
           (call
             (identifier)
-            (identifier))
-          (end)))
+            (identifier)))))
+    (proof_block
+      (begin)
       (separator)
-      (theorem_declaration
-        (identifier)
-        (type_ann
-          (implication
+      (assume
+        (patterns
+          (identifier)
+          (type_ann
             (exists
               (parameters
                 (identifier))
@@ -231,32 +199,63 @@ qed
                   (identifier))
                 (call
                   (identifier)
-                  (identifier))))
-            (exists
-              (parameters
-                (identifier))
-              (type_ann
-                (identifier))
-              (call
-                (identifier)
-                (identifier)))))
-        (proof_block
-          (begin)
-          (separator)
-          (assume
-            (patterns
-              (witness_pattern
-                (identifier)
-                (ctor_pattern
-                  (identifier)
-                  (identifier)
-                  (identifier)))))
-          (separator)
-          (witness_such_that
-            (identifier)
+                  (identifier)))))))
+      (separator)
+      (pick_witness
+        (patterns
+          (identifier)
+          (identifier))
+        (identifier))
+      (separator)
+      (witness
+        (identifier))
+      (separator)
+      (call
+        (identifier)
+        (identifier))
+      (end)))
+  (separator)
+  (theorem_declaration
+    (identifier)
+    (type_ann
+      (implication
+        (exists
+          (parameters
             (identifier))
-          (end)))
-      (separator))
+          (type_ann
+            (identifier))
+          (conjunction
+            (call
+              (identifier)
+              (identifier))
+            (call
+              (identifier)
+              (identifier))))
+        (exists
+          (parameters
+            (identifier))
+          (type_ann
+            (identifier))
+          (call
+            (identifier)
+            (identifier)))))
+    (proof_block
+      (begin)
+      (separator)
+      (assume
+        (patterns
+          (witness_pattern
+            (identifier)
+            (ctor_pattern
+              (identifier)
+              (identifier)
+              (identifier)))))
+      (separator)
+      (witness_such_that
+        (identifier)
+        (identifier))
+      (end)))
+  (separator))
 
 ==========
 Rewriting
@@ -317,32 +316,69 @@ qed
 
 ---
 
-    (source_file
-      (separator)
-      (theorem_declaration
-        (identifier)
+(source_file
+  (separator)
+  (theorem_declaration
+    (identifier)
+    (type_ann
+      (forall
+        (parameters
+          (identifier)
+          (identifier))
         (type_ann
-          (forall
-            (parameters
+          (identifier))
+        (equality
+          (identifier)
+          (equality
+            (implication
               (identifier)
               (identifier))
-            (type_ann
-              (identifier))
+            (identifier)))))
+    (proof_block
+      (begin)
+      (separator)
+      (pick_any
+        (patterns
+          (identifier)
+          (identifier)))
+      (separator)
+      (assume
+        (patterns
+          (identifier)
+          (type_ann
             (equality
               (identifier)
-              (equality
-                (implication
-                  (identifier)
-                  (identifier))
-                (identifier)))))
-        (proof_block
-          (begin)
-          (separator)
-          (pick_any
-            (patterns
+              (identifier)))))
+      (separator)
+      (rewrite
+        (identifier))
+      (separator)
+      (identifier)
+      (end)))
+  (separator)
+  (theorem_declaration
+    (identifier)
+    (type_ann
+      (forall
+        (parameters
+          (identifier)
+          (identifier))
+        (type_ann
+          (identifier))
+        (equality
+          (identifier)
+          (equality
+            (implication
               (identifier)
-              (identifier)))
-          (separator)
+              (identifier))
+            (identifier)))))
+    (value
+      (decl_in
+        (pick_any
+          (patterns
+            (identifier)
+            (identifier)))
+        (decl_in
           (assume
             (patterns
               (identifier)
@@ -350,225 +386,188 @@ qed
                 (equality
                   (identifier)
                   (identifier)))))
-          (separator)
-          (rewrite
-            (identifier))
-          (separator)
+          (decl_in
+            (rewrite
+              (identifier))
+            (identifier))))))
+  (separator)
+  (theorem_declaration
+    (identifier)
+    (type_ann
+      (forall
+        (parameters
           (identifier)
-          (end)))
-      (separator)
-      (theorem_declaration
-        (identifier)
+          (identifier))
         (type_ann
-          (forall
-            (parameters
+          (identifier))
+        (equality
+          (identifier)
+          (equality
+            (implication
               (identifier)
               (identifier))
-            (type_ann
-              (identifier))
+            (identifier)))))
+    (proof_block
+      (begin)
+      (separator)
+      (pick_any
+        (patterns
+          (identifier)
+          (identifier)))
+      (separator)
+      (assume
+        (patterns
+          (identifier)
+          (type_ann
             (equality
               (identifier)
-              (equality
-                (implication
-                  (identifier)
-                  (identifier))
-                (identifier)))))
-        (value
-          (decl_in
-            (pick_any
-              (patterns
+              (identifier)))))
+      (separator)
+      (rewrite
+        (identifier))
+      (separator)
+      (identifier)
+      (end)))
+  (separator)
+  (theorem_declaration
+    (identifier)
+    (type_ann
+      (forall
+        (parameters
+          (identifier)
+          (identifier))
+        (type_ann
+          (identifier))
+        (equality
+          (identifier)
+          (equality
+            (implication
+              (identifier)
+              (identifier))
+            (identifier)))))
+    (proof_block
+      (begin)
+      (separator)
+      (pick_any
+        (patterns
+          (identifier)
+          (identifier)))
+      (separator)
+      (assume
+        (patterns
+          (identifier)
+          (type_ann
+            (equality
+              (identifier)
+              (identifier)))))
+      (separator)
+      (rewrite
+        (identifier))
+      (separator)
+      (identifier)
+      (end)))
+  (separator)
+  (theorem_declaration
+    (identifier)
+    (type_ann
+      (forall
+        (parameters
+          (identifier)
+          (identifier)
+          (identifier))
+        (type_ann
+          (identifier))
+        (equality
+          (identifier)
+          (equality
+            (implication
+              (identifier)
+              (identifier))
+            (equality
+              (implication
                 (identifier)
-                (identifier)))
-            (decl_in
-              (assume
-                (patterns
-                  (identifier)
-                  (type_ann
-                    (equality
-                      (identifier)
-                      (identifier)))))
-              (decl_in
-                (rewrite
-                  (identifier))
+                (identifier))
+              (identifier))))))
+    (proof_block
+      (begin)
+      (separator)
+      (pick_any
+        (patterns
+          (identifier)
+          (identifier)
+          (identifier)))
+      (separator)
+      (assume
+        (patterns
+          (ann_pattern
+            (identifier)
+            (type_ann
+              (equality
+                (identifier)
+                (identifier))))
+          (ann_pattern
+            (identifier)
+            (type_ann
+              (equality
+                (identifier)
                 (identifier))))))
       (separator)
-      (theorem_declaration
+      (rewrite
         (identifier)
-        (type_ann
-          (forall
-            (parameters
-              (identifier)
-              (identifier))
-            (type_ann
-              (identifier))
-            (equality
-              (identifier)
-              (equality
-                (implication
-                  (identifier)
-                  (identifier))
-                (identifier)))))
-        (proof_block
-          (begin)
-          (separator)
-          (pick_any
-            (patterns
-              (identifier)
-              (identifier)))
-          (separator)
-          (assume
-            (patterns
-              (identifier)
-              (type_ann
-                (equality
-                  (identifier)
-                  (identifier)))))
-          (separator)
-          (rewrite
-            (identifier))
-          (separator)
-          (identifier)
-          (end)))
+        (identifier))
       (separator)
-      (theorem_declaration
-        (identifier)
-        (type_ann
-          (forall
-            (parameters
-              (identifier)
-              (identifier))
-            (type_ann
-              (identifier))
-            (equality
-              (identifier)
-              (equality
-                (implication
-                  (identifier)
-                  (identifier))
-                (identifier)))))
-        (proof_block
-          (begin)
-          (separator)
-          (pick_any
-            (patterns
-              (identifier)
-              (identifier)))
-          (separator)
-          (assume
-            (patterns
-              (identifier)
-              (type_ann
-                (equality
-                  (identifier)
-                  (identifier)))))
-          (separator)
-          (rewrite
-            (identifier))
-          (separator)
+      (identifier)
+      (end)))
+  (separator)
+  (theorem_declaration
+    (identifier)
+    (type_ann
+      (forall
+        (parameters
           (identifier)
-          (end)))
-      (separator)
-      (theorem_declaration
-        (identifier)
+          (identifier)
+          (identifier))
         (type_ann
-          (forall
-            (parameters
+          (identifier))
+        (equality
+          (identifier)
+          (equality
+            (implication
               (identifier)
-              (identifier)
-              (identifier))
-            (type_ann
               (identifier))
             (equality
-              (identifier)
-              (equality
-                (implication
-                  (identifier)
-                  (identifier))
-                (equality
-                  (implication
-                    (identifier)
-                    (identifier))
-                  (identifier))))))
-        (proof_block
-          (begin)
-          (separator)
-          (pick_any
-            (patterns
-              (identifier)
-              (identifier)
-              (identifier)))
-          (separator)
-          (assume
-            (patterns
-              (ann_pattern
+              (implication
                 (identifier)
-                (type_ann
-                  (equality
-                    (identifier)
-                    (identifier))))
-              (ann_pattern
-                (identifier)
-                (type_ann
-                  (equality
-                    (identifier)
-                    (identifier))))))
-          (separator)
-          (rewrite
+                (identifier))
+              (identifier))))))
+    (proof_block
+      (begin)
+      (separator)
+      (pick_any
+        (patterns
+          (identifier)
+          (identifier)
+          (identifier)))
+      (separator)
+      (assume
+        (patterns
+          (ann_pattern
             (identifier)
-            (identifier))
-          (separator)
-          (identifier)
-          (end)))
-      (separator)
-      (theorem_declaration
-        (identifier)
-        (type_ann
-          (forall
-            (parameters
-              (identifier)
-              (identifier)
-              (identifier))
             (type_ann
-              (identifier))
-            (equality
-              (identifier)
               (equality
-                (implication
-                  (identifier)
-                  (identifier))
-                (equality
-                  (implication
-                    (identifier)
-                    (identifier))
-                  (identifier))))))
-        (proof_block
-          (begin)
-          (separator)
-          (pick_any
-            (patterns
-              (identifier)
-              (identifier)
-              (identifier)))
-          (separator)
-          (assume
-            (patterns
-              (ann_pattern
                 (identifier)
-                (type_ann
-                  (equality
-                    (identifier)
-                    (identifier))))
-              (ann_pattern
-                (identifier)
-                (type_ann
-                  (equality
-                    (identifier)
-                    (identifier))))))
-          (separator)
-          (rewrite
+                (identifier))))
+          (ann_pattern
             (identifier)
-            (identifier))
-          (separator)
-          (identifier)
-          (end)))
-      (separator))
+            (type_ann
+              (equality
+                (identifier)
+                (identifier))))))
+      (separator)
+      (rewrite
+        (identifier)
+        (identifier))
+      (separator)
+      (identifier)
+      (end)))
+  (separator))

@@ -276,19 +276,17 @@ recordOpeningExample (p : Point) : Float32 =
   open p in x
 
 // We can build records with record literal syntax.
-recordLiteralSyntaxExample : Point =
-{
+recordLiteralSyntaxExample : Point = record where
   x = 1.0
   y = 1e10
-}
 
 // We can also write record literals inline.
-inlineRecordLiteralExample : Point = {x = 1.0; y = 1e10}
+inlineRecordLiteralExample : Point = record {x = 1.0; y = 1e10}
 
 // Records, similarly to functions, enjoy definitional extensionality.
 theorem definitional-record-extensionality-example :
   forall p : Point,
-    p === {x = p.x; y = p.y}
+    p === record {x = p.x; y = p.y}
 proof
   pick-any p
   refl
@@ -303,20 +301,20 @@ proof
   assume (eqx : p1.x === p2.x) (eqy : p1.y === p2.y)
   chaining
     === p1
-    === {x = p1.x; y = p1.y}
-    === {x = p2.x; y = p1.y}  by rewrite eqx
-    === {x = p2.x; y = p2.y}  by rewrite eqy
+    === record {x = p1.x; y = p1.y}
+    === record {x = p2.x; y = p1.y}  by rewrite eqx
+    === record {x = p2.x; y = p2.y}  by rewrite eqy
     === p2
 qed
 
 // When we need to update a record, we can use the syntax
-// `update r with {x1 = e1; ...; xN = eN}`.
+// `record r with {x1 = e1; ...; xN = eN}`.
 move-x (dist : Float32) (p : Point) : Point =
-  update p with {x = p.x + dist}
+  record p with {x = p.x + dist}
 
 theorem move-x-spec :
   forall (dist : Float32) (p : Point),
-    move-x dist p === {x = p.x + dist; y = p.y}
+    move-x dist p === record {x = p.x + dist; y = p.y}
 proof
   pick-any dist p
   apply (instantiate record-equality with _ _)
@@ -344,10 +342,10 @@ implicitDisambiguationExample : Point3D -> Float32 = x
 // Any kind of conversion between these two records must be performed
 // manually.
 projectToXY (p : Point3D) : Point =
-  {x = p.x; y = p.y}
+  record {x = p.x; y = p.y}
 
 embedInXYZ (p : Point) : Point3D =
-  {x = p.x; y = p.y; z = 0.0}
+  record {x = p.x; y = p.y; z = 0.0}
 
 // Records can be polymorphic, just like functions.
 // We can implement pairs as polymorphic records.
@@ -363,16 +361,16 @@ tupleSyntaxExample : Prod Int32 Float32 = (42, 3.14)
 // As an alternative way of eliminating records, we can
 // pattern match on them (using record literal syntax).
 swapRecord {A B} : Prod A B -> Prod B A
-| {fst = x; snd = y} => {fst = y; snd = x}
+| record {fst = x; snd = y} => record {fst = y; snd = x}
 
 // Since a typical record pattern repeats all the field names twice,
-// like in `{x1 = x1; ...; xn = xn}`, it makes sense to have some
-// special syntax to avoid this.
-swapRecord' {A B} (p : Prod A B) : Prod B A =
-| {fst; snd} => {fst = snd; snd = fst}
+// like in `record {x1 = x1; ...; xn = xn}`, it makes sense to have some
+// special syntax to avoid this (it is a feature known as "record puns").
+swapRecord' {A B} (p : Prod A B) : Prod B A
+| record {fst; snd} => record {fst = snd; snd = fst}
 
 // Pattern matching is also allowed using the tuple syntax.
-swapTuple {A B} (p : Prod A B) : Prod B A =
+swapTuple {A B} (p : Prod A B) : Prod B A
 | (x, y) => (y, x)
 
 // We can also pattern match on a record in a `let` binding.
@@ -381,7 +379,7 @@ swapLet {A B} (p : Prod A B) : Prod B A =
 
 // `let`s support all pattern matching syntaxes for records.
 swapLet' {A B} (p : Prod A B) : Prod B A =
-  let {x; y} = p in (y, x)
+  let record {x; y} = p in (y, x)
 
 // We can define data types using the keyword `data type`.
 // Note that we use `yes` and `no` as names of the booleans, to make it easier
@@ -436,10 +434,10 @@ qed
 
 // In proofterm style, the above proof looks as follows.
 theorem notb-notb-term-style :
-  forall b : Bool,
-    notb (notb b) === b =
+  (forall b : Bool,
+    notb (notb b) === b) =
       pick-any b in
-        cases b with
+        match b with
         | no  => simpl in refl
         | yes => simpl in refl
 
@@ -633,10 +631,10 @@ qed
 
 // In proofterm style, the above proof looks as follows.
 theorem map-id-term-style :
-  forall {A} (l : List A),
-    map id l === l =
+  (forall {A} (l : List A),
+    map id l === l) =
       pick-any A l in
-      induction l with
+      match l with
       | nil => refl
       | cons h (t & ind IH) => rewrite IH in refl
 
@@ -826,7 +824,7 @@ instance Eq Uint8 where
 // member functions to satisfy various properties, which we'll make good use of.
 // By the way, just as we can define conditional class instances, we can define
 // classes that can require their arguments to belong to some other class.
-class LawfulEq A <= Eq A where
+class LawfulEq A <: Eq A where
   eqb-spec1 : forall x y : A, eqb x y === true --> x === y
   eqb-spec2 : forall x y : A, x === y --> eqb x y === true
 
@@ -860,12 +858,15 @@ instance LawfulEq (List A) <= LawfulEq A where
       | nil =>
         refl
       | cons _ _ =>
-        ...
+        simpl
+        // ...
     | cons h1 t1 =>
       cases l2 with
       | nil =>
-        ...
+        simpl
+        // ...
       | cons h2 t2 =>
+        simpl
         // h : andb (eqb h1 h2) (eqb t1 t2) === true
   qed
 
@@ -878,7 +879,7 @@ instance LawfulEq (List A) <= LawfulEq A where
     chaining
       === eqb l1 l2
       === eqb l2 l2  by rewrite h
-      === true       by rewrite (instantiate eqb-diag with A ? l2)
+      === true       by rewrite (instantiate eqb-diag with A _ l2)
   qed
 
 // With lawful classes, we can indeed do some proving. As an example, let's prove

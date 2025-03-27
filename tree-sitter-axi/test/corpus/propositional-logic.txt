@@ -325,9 +325,8 @@ qed
       (separator)
       (apply
         (call
-          (call
-            (identifier)
-            (identifier))
+          (identifier)
+          (identifier)
           (identifier)))
       (end)))
   (separator)
@@ -665,9 +664,8 @@ qed
           (identifier)))
       (separator)
       (call
-        (call
-          (identifier)
-          (identifier))
+        (identifier)
+        (identifier)
         (identifier))
       (end)))
   (separator)
@@ -723,9 +721,8 @@ qed
           (identifier)))
       (separator)
       (call
-        (call
-          (identifier)
-          (hole_identifier))
+        (identifier)
+        (hole_identifier)
         (hole_identifier))
       (separator)
       (lemma_declaration
@@ -764,9 +761,8 @@ qed
           (identifier)))
       (separator)
       (call
-        (call
-          (identifier)
-          (hole_identifier))
+        (identifier)
+        (hole_identifier)
         (hole_identifier))
       (separator)
       (lemma_declaration
@@ -912,9 +908,8 @@ qed
         (identifier))
       (separator)
       (call
-        (call
-          (identifier)
-          (identifier))
+        (identifier)
+        (identifier)
         (identifier))
       (end)))
   (separator))
@@ -977,9 +972,8 @@ qed
                 (identifier))))))
       (separator)
       (call
-        (call
-          (identifier)
-          (identifier))
+        (identifier)
+        (identifier)
         (identifier))
       (end)))
   (separator)
@@ -1099,9 +1093,8 @@ qed
       (separator)
       (cases
         (call
-          (call
-            (identifier)
-            (identifier))
+          (identifier)
+          (identifier)
           (identifier)))
       (end)))
   (separator)
@@ -1209,9 +1202,8 @@ qed
       (separator)
       (cases
         (call
-          (call
-            (identifier)
-            (identifier))
+          (identifier)
+          (identifier)
           (identifier)))
       (end)))
   (separator)
@@ -1232,9 +1224,8 @@ qed
       (separator)
       (cases
         (call
-          (call
-            (identifier)
-            (hole_identifier))
+          (identifier)
+          (hole_identifier)
           (hole_identifier)))
       (separator)
       (lemma_declaration
@@ -1546,9 +1537,8 @@ qed
         (identifier))
       (separator)
       (call
-        (call
-          (identifier)
-          (identifier))
+        (identifier)
+        (identifier)
         (identifier))
       (end)))
   (separator)
@@ -1579,9 +1569,8 @@ qed
       (separator)
       (apply
         (call
-          (call
-            (identifier)
-            (identifier))
+          (identifier)
+          (identifier)
           (identifier)))
       (end)))
   (separator)
@@ -1649,9 +1638,8 @@ qed
       (separator)
       (cases
         (call
-          (call
-            (identifier)
-            (identifier))
+          (identifier)
+          (identifier)
           (identifier)))
       (end)))
   (separator)
@@ -1712,9 +1700,8 @@ qed
             (identifier))))
       (separator)
       (call
-        (call
-          (identifier)
-          (identifier))
+        (identifier)
+        (identifier)
         (identifier))
       (end)))
   (separator)
@@ -1763,9 +1750,8 @@ qed
         (separator)
         (apply
           (call
-            (call
-              (identifier)
-              (identifier))
+            (identifier)
+            (identifier)
             (identifier)))
         (end))
       (separator)
@@ -1804,9 +1790,8 @@ qed
       (separator)
       (apply
         (call
-          (call
-            (identifier)
-            (identifier))
+          (identifier)
+          (identifier)
           (identifier)))
       (end)))
   (separator)
@@ -1861,9 +1846,8 @@ qed
       (separator)
       (apply
         (call
-          (call
-            (identifier)
-            (identifier))
+          (identifier)
+          (identifier)
           (identifier)))
       (end)))
   (separator)
@@ -1898,9 +1882,8 @@ qed
       (separator)
       (apply
         (call
-          (call
-            (identifier)
-            (identifier))
+          (identifier)
+          (identifier)
           (identifier)))
       (end)))
   (separator)
@@ -1974,9 +1957,8 @@ qed
       (separator)
       (cases
         (call
-          (call
-            (identifier)
-            (hole_identifier))
+          (identifier)
+          (hole_identifier)
           (hole_identifier)))
       (separator)
       (lemma_declaration
@@ -2012,9 +1994,8 @@ qed
             (separator)
             (apply
               (call
-                (call
-                  (identifier)
-                  (identifier))
+                (identifier)
+                (identifier)
                 (identifier)))
             (end))
           (separator)
@@ -2059,13 +2040,12 @@ qed
       (separator)
       (cases
         (call
-          (call
-            (identifier)
-            (decl_in
-              (assume
-                (patterns
-                  (identifier)))
-              (hole_identifier)))
+          (identifier)
+          (decl_in
+            (assume
+              (patterns
+                (identifier)))
+            (hole_identifier))
           (decl_in
             (assume
               (patterns
@@ -2101,9 +2081,8 @@ qed
             (separator)
             (apply
               (call
-                (call
-                  (identifier)
-                  (identifier))
+                (identifier)
+                (identifier)
                 (identifier)))
             (end))
           (separator)
@@ -2159,9 +2138,8 @@ qed
         (separator)
         (apply
           (call
-            (call
-              (identifier)
-              (identifier))
+            (identifier)
+            (identifier)
             (identifier)))
         (end))
       (separator)
@@ -2176,9 +2154,8 @@ qed
         (separator)
         (apply
           (call
-            (call
-              (identifier)
-              (identifier))
+            (identifier)
+            (identifier)
             (identifier)))
         (end))
       (end)))

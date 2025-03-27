@@ -10,6 +10,8 @@
 // brackets
 const lparen = "(";
 const rparen = ")";
+const lbracket = "[";
+const rbracket = "]";
 const lbrace = "{";
 const rbrace = "}";
 
@@ -19,6 +21,7 @@ const comma = ",";
 const dot = ".";
 const lambda = "\\";
 const pipe = "|";
+const semicolon = ";";
 
 // operators
 const amp = "&";
@@ -34,6 +37,7 @@ const or = "\\/";
 const raarrow = "-->";
 const Rarrow = "=>";
 const rarrow = "->";
+const sub = "<:";
 
 // anonymous keyword nodes
 const apply = "apply";
@@ -137,6 +141,7 @@ module.exports = grammar({
       $.structure_declaration,
       $.instance_declaration,
       $.constant_declaration,
+      $.unpack_declaration,
       $.theorem_declaration,
       $.axiom_declaration,
       $.declaration,
@@ -148,6 +153,10 @@ module.exports = grammar({
       optional($._sort_specifier),
       $.identifier,
       optional($.parameters),
+      optional(choice(
+        $.type_ann,
+        seq(sub, $._term, repeat(seq(comma, $._term)))
+      )),
       $.where_block
     ),
 
@@ -164,6 +173,11 @@ module.exports = grammar({
       optional($.parameters),
       optional($._ann),
       optional($.value)
+    ),
+
+    unpack_declaration: $ => seq(
+      choice($.record_pattern, $.tuple_pattern),
+      $.value
     ),
 
     theorem_declaration: $ => seq(
@@ -225,11 +239,13 @@ module.exports = grammar({
       $.identifier,
       $._ctor_parameter,
       $.explicit_parameters,
+      $.instance_parameters,
       $.implicit_parameters
     ),
 
     _ctor_parameter: $ => seq(lparen, $.ctor_pattern, rparen),
     explicit_parameters: $ => seq(lparen, repeat1($._atomic_pattern), $.type_ann, rparen),
+    instance_parameters: $ => seq(lbracket, $._term, repeat(seq(comma, $._term)), rbracket),
     implicit_parameters: $ => seq(lbrace, repeat1($._atomic_pattern), optional($.type_ann), rbrace),
 
     where_block: $ => seq(
@@ -323,9 +339,29 @@ module.exports = grammar({
     _atomic_pattern: $ => choice(
       $.identifier,
       $.direction,
+      $.record_pattern,
+      $.tuple_pattern,
       seq(lparen, $.witness_pattern, rparen),
       seq(lparen, $._nested_pattern, rparen)
     ),
+
+    record_pattern: $ => prec.right(seq(
+      record,
+      lbrace,
+      optional($.record_pattern_entry),
+      repeat(seq(semicolon, optional($.record_pattern_entry))),
+      rbrace
+    )),
+
+    record_pattern_entry: $ => seq($.identifier, optional(seq(eq, $._nested_pattern))),
+
+    tuple_pattern: $ => prec.right(seq(
+      lparen,
+      $._nested_pattern,
+      comma,
+      $._nested_pattern,
+      rparen
+    )),
 
     witness_pattern: $ => seq(
       witness,
@@ -388,9 +424,9 @@ module.exports = grammar({
 
     _direction: $ => choice(larrow, rarrow),
 
-    cases: $ => seq(cases, $._term, optional(with_)),
+    cases: $ => seq(cases, $._term, repeat(seq(comma, $._term)), optional(with_)),
 
-    induction: $ => seq(induction, $._term, optional(with_)),
+    induction: $ => seq(induction, $._term, with_),
 
     proving: $ => seq(proving, $._term),
 
@@ -423,8 +459,9 @@ module.exports = grammar({
       $.negation,
       $.equality,
       $.call,
-      $.implicit_call,
       $.instantiate_with,
+      $.tuple,
+      $.record_term,
       $.assumption,
       $.number,
       $.char,
@@ -501,11 +538,27 @@ module.exports = grammar({
 
     equality: $ => prec.right(seq($._term, choice(eq, equality), $._term)),
 
-    call: $ => prec.left(10, seq($._term, $._term)),
+    call: $ => prec(10, seq($._term, $._args)),
 
-    implicit_call: $ => prec.left(10, seq($._term, lbrace, $._term, rbrace)),
+    _args: $ => prec(11, seq(optional($._args), choice($._term, seq(lbrace, $._term, rbrace)))),
 
-    instantiate_with: $ => seq(instantiate, $._term, with_),
+    instantiate_with: $ => prec(11, seq(instantiate, $._term, with_)),
+
+    tuple: $ => prec(11, seq(lparen, optional(seq($._term, repeat1(seq(comma, $._term)))), rparen)),
+
+    record_term: $ => prec(11, seq(
+      record,
+      optional(seq($._term, with_)),
+      choice(
+        seq(
+          lbrace,
+          optional($._declaration),
+          repeat(seq(semicolon, optional($._declaration))),
+          rbrace
+        ),
+        $.where_block
+      )
+    )),
 
     assumption: $ => assumption,
   }
