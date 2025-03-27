@@ -167,23 +167,13 @@ qed
 
 // When a function has more than one argument, they are surrounded
 // with parentheses.
-const {A B} : A -> B -> A =
-  \ (a : A) (b : B) -> a
+const : Int32 -> String -> Int32 =
+  \ (a : Int32) (b : String) -> a
 
 // When there are multiple arguments of the same type, they can be
 // put together in a single pair of parentheses.
-const' {A} : A -> A -> A =
-  \ (x y : A) -> x
-
-// Functions enjoy definitional extensionality, i.e. a function
-// `f` is equal to `\ x -> f x` and this can be proved with `refl`.
-theorem definitional-funext-example :
-  forall {A B} (f : A -> B),
-    f === \ x : A -> f x
-proof
-  pick-any A B f
-  refl
-qed
+constInt32 : Int32 -> Int32 -> Int32 =
+  \ (x y : Int32) -> x
 
 // To define a polymorphic function, we use the quantifier `forall {A}`
 // in the function's type. Note that in the term, we don't need to bind the
@@ -205,6 +195,16 @@ qed
 // Just as for monomorphic functions, we can put all the arguments on the
 // left-hand side to make the definition much shorter.
 id' {A} (x : A) : A = x
+
+// Functions enjoy definitional extensionality, i.e. a function
+// `f` is equal to `\ x -> f x` and this can be proved with `refl`.
+theorem definitional-funext-example :
+  forall {A B} (f : A -> B),
+    f === \ x : A -> f x
+proof
+  pick-any A B f
+  refl
+qed
 
 // If two functions return the same result for all arguments, they are equal.
 // This principle is called (propositional) function extensionality.
@@ -634,9 +634,9 @@ theorem map-id-term-style :
   (forall {A} (l : List A),
     map id l === l) =
       pick-any A l in
-      match l with
-      | nil => refl
-      | cons h (t & ind IH) => rewrite IH in refl
+        induction l with
+        | nil => refl
+        | cons h (t & ind IH) => rewrite IH in refl
 
 // If you think the first proof was ugly, we can also use chaining.
 // Proofs that use chaining are harder to write, as there's much
@@ -825,12 +825,12 @@ instance Eq Uint8 where
 // By the way, just as we can define conditional class instances, we can define
 // classes that can require their arguments to belong to some other class.
 class LawfulEq A <: Eq A where
-  eqb-spec1 : forall x y : A, eqb x y === true --> x === y
-  eqb-spec2 : forall x y : A, x === y --> eqb x y === true
+  eqb-spec1 : forall x y : A, eqb x y === yes --> x === y
+  eqb-spec2 : forall x y : A, x === y --> eqb x y === yes
 
 theorem eqb-diag :
   forall {A} [LawfulEq A] (l : List A),
-    eqb l l === true
+    eqb l l === yes
 proof
   pick-any A l
   induction l with
@@ -840,57 +840,108 @@ proof
     chaining
       === eqb (cons h t) (cons h t)
       === andb (eqb h h) (eqb t t)
-      === andb true (eqb t t)        by rewrite (apply (instantiate eqb-spec2 with h h) refl)
-      === andb true true             by rewrite IH
-      === true
+      === andb yes (eqb t t)       by rewrite (apply (instantiate eqb-spec2 with h h) refl)
+      === andb yes yes             by rewrite IH
+      === yes
+qed
+
+discriminator : Bool -> Prop
+| yes => True
+| no => False
+
+theorem no-not-yes :
+  no === yes --> False
+proof
+  assume h : no === yes
+  proving False
+  proving discriminator no
+  rewrite h
+  proving discriminator yes
+  proving True
+  trivial
+qed
+
+theorem andb-yes-inv :
+  forall b1 b2 : Bool,
+    andb b1 b2 === yes -> b1 === yes /\ b2 === yes
+proof
+  pick-any b1 b2
+  cases b1, b2 with
+  | yes, yes =>
+    assume _
+    both refl refl
+  | no, _   =>
+    assume h : no === yes
+    absurd
+    no-not-yes
+    assumption
+  | _, no =>
+    assume h : no === yes
+    absurd
+    no-not-yes
+    assumption
 qed
 
 instance LawfulEq (List A) <= LawfulEq A where
   theorem eqb-spec1 :
     forall l1 l2 : List A,
-      eqb l1 l2 === true --> l1 === l2
+      eqb l1 l2 === yes --> l1 === l2
   proof
     pick-any l1 l2
-    assume h : eqb l1 l2 === true
+    assume h : eqb l1 l2 === yes
     induction l1 with
     | nil =>
       cases l2 with
       | nil =>
         refl
-      | cons _ _ =>
-        simpl
-        // ...
-    | cons h1 t1 =>
+      | cons h2 t2 =>
+        absurd
+        no-not-yes
+        assumption
+    | cons h1 (t1 & ind IHt1) =>
       cases l2 with
       | nil =>
-        simpl
-        // ...
+        absurd
+        no-not-yes
+        assumption
       | cons h2 t2 =>
-        simpl
-        // h : andb (eqb h1 h2) (eqb t1 t2) === true
+        // h : andb (eqb h1 h2) (eqb t1 t2) === yes
+        proving cons h1 t1 === cons h2 t2
+        lemma eq-heads : h1 === h2 by
+          apply eqb-spec1
+          proving eqb h1 h2 === yes
+          and-left (andb-yes-inv (eqb h1 h2) (eqb t1 t2) h)
+        lemma eq-tails : t1 === t2 by
+          apply IHt1 t2
+          proving eqb t1 t2 === yes
+          and-right (andb-yes-inv (eqb h1 h2) (eqb t1 t2) h)
+        chaining
+          === cons h1 t1
+          === cons h2 t1  by rewrite eq-heads
+          === cons h2 t2  by rewrite eq-tails
   qed
 
   theorem eqb-spec2 :
     forall l1 l2 : List A,
-      l1 === l2 --> eqb l1 l2 === true
+      l1 === l2 --> eqb l1 l2 === yes
   proof
     pick-any A _ l1 l2
     assume h : l1 === l2
     chaining
       === eqb l1 l2
       === eqb l2 l2  by rewrite h
-      === true       by rewrite (instantiate eqb-diag with A _ l2)
+      === yes        by rewrite (instantiate eqb-diag with A l2)
   qed
 
 // With lawful classes, we can indeed do some proving. As an example, let's prove
 // an obvious specification of `neqb`.
 theorem neqb-spec :
   forall {A} [LawfulEq A] (x y : A),
-    neqb x y === true <--> ~ (x === y)
-proof                 // |- forall {A} [LawfulEq A] (x y : A), neqb x y === true <--> ~ (x === y)
-  pick-any A _ x y    // A : Type, LawfulEq A, x y : A |- neqb x y === true <--> ~ (x === y)
-  unfold neqb         // A : Type, LawfulEq A, x y : A |- notb (eqb x y) === true <--> ~ (x === y)
+    neqb x y === yes <--> ~ (x === y)
+proof                 // |- forall {A} [LawfulEq A] (x y : A), neqb x y === yes <--> ~ (x === y)
+  pick-any A _ x y    // A : Type, LawfulEq A, x y : A |- neqb x y === yes <--> ~ (x === y)
+  unfold neqb         // A : Type, LawfulEq A, x y : A |- notb (eqb x y) === yes <--> ~ (x === y)
   both
-  . assume (hnot : notb (eqb x y) === true) (heq : x === y)
-                      // A : Type, LawfulEq A, x y : A, hnot : notb (eqb x y) === true, heq : x === y |- False
+  . assume (hnot : notb (eqb x y) === yes) (heq : x === y)
+                      // A : Type, LawfulEq A, x y : A, hnot : notb (eqb x y) === yes, heq : x === y |- False
 qed

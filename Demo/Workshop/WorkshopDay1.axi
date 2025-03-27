@@ -93,7 +93,7 @@ proof
 qed
 
 // Proving
-theorem or-assoc : (P \/ Q) \/ R --> P \/ (Q \/ R)
+// theorem or-assoc : (P \/ Q) \/ R --> P \/ (Q \/ R)
 
 
 

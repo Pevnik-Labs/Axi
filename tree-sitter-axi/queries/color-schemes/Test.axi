@@ -1,9 +1,8 @@
 theorem some-lengthy-name :
   P --> Q /\ Q --> R \/ R --> S <--> S --> ~ T --> True --> False --> a === b
-                                       // |- P --> P
 proof
-  assume p : P                         // p : P |- P       // When we make an assumption, it gets moved to the context.
-  assumption                           // Theorem proved!  // When the theorem is proved, the message "Theorem proved!" is displayed.
+  assume p : P
+  assumption
   apply contradiction np p
   both p q
   and-left pq

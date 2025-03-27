@@ -30,7 +30,7 @@
     },
     {
       "name": "variable.other.proofterm.finisher.axi",
-      "match": "(?<![-_])\\b(assumption|trivial|refl|reflexivity)\\b(?![-_])"
+      "match": "(?<![-_])\\b(assumption|trivial|refl|reflexivity|chaining)\\b(?![-_])"
     },
     {
       "name": "variable.other.proofterm.binder.axi",
@@ -42,7 +42,7 @@
     },
     {
       "name": "keyword.other.axi",
-      "match": "(?<![-_])(\\b(by|in|of|chaining|fun|let|update|if|is|then|else|match|with|noncomputational)\\b)(?![-_])"
+      "match": "(?<![-_])(\\b(by|in|of|fun|let|update|if|is|then|else|match|with|ind|noncomputational)\\b)(?![-_])"
     },
     {
       "name": "string.axi",
