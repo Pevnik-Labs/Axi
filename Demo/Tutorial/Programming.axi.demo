@@ -366,11 +366,11 @@ swapRecord {A B} : Prod A B -> Prod B A
 // Since a typical record pattern repeats all the field names twice,
 // like in `record {x1 = x1; ...; xn = xn}`, it makes sense to have some
 // special syntax to avoid this (it is a feature known as "record puns").
-swapRecord' {A B} (p : Prod A B) : Prod B A
+swapRecord' {A B} : Prod A B -> Prod B A
 | record {fst; snd} => record {fst = snd; snd = fst}
 
 // Pattern matching is also allowed using the tuple syntax.
-swapTuple {A B} (p : Prod A B) : Prod B A
+swapTuple {A B} : Prod A B -> Prod B A
 | (x, y) => (y, x)
 
 // We can also pattern match on a record in a `let` binding.
@@ -379,7 +379,7 @@ swapLet {A B} (p : Prod A B) : Prod B A =
 
 // `let`s support all pattern matching syntaxes for records.
 swapLet' {A B} (p : Prod A B) : Prod B A =
-  let record {x; y} = p in (y, x)
+  let record {fst; snd} = p in (snd, fst)
 
 // We can define data types using the keyword `data type`.
 // Note that we use `yes` and `no` as names of the booleans, to make it easier

@@ -13,17 +13,18 @@ theorem add-zero-r :
     add n zero === n
 
 // claude-3.7-sonnet-thinking: one shot using chaining.
-theorem add-assoc :
-  forall a b c : Nat,
-    add (add a b) c === add a (add b c)
-
-// claude-3.7-sonnet-thinking: one shot using chaining.
 theorem add-succ-r :
   forall n m : Nat,
     add n (succ m) === succ (add n m)
 
+// claude-3.7-sonnet-thinking: one shot using chaining.
+theorem add-assoc :
+  forall a b c : Nat,
+    add (add a b) c === add a (add b c)
+
 // claude-3.7-sonnet-thinking: good idea, but inlining the lemma makes it fail.
 // However, he succeeds if you tell him to prove `add-succ-r` first.
+// Forgets to say `rewrite`, but otherwise good.
 theorem add-comm :
   forall n m : Nat,
     add n m === add m n

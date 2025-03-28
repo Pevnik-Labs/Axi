@@ -257,4 +257,3 @@ proof
 qed
 
 // Classes and instances. Example: Eq, LawfulEq.
-

@@ -1,14 +1,10 @@
-
 type N
-
 
 declaration P Q : N -> Prop
 declaration R : N -> N -> Prop
 
-
 // forall x : N, P x
 // exists x : N, Q x /\ R x x
-
 
 theorem rename-forall :
   (forall x : N, P x) --> (forall y : N, P y)
@@ -32,6 +28,21 @@ proof
   . assumption
 qed
 
+theorem irrefl-trans-asym-forward :
+  (forall x : N, ~ R x x) -->
+  (forall x y z : N, R x y --> R y z --> R x z) -->
+    forall x y : N, R x y --> ~ R y x
+proof
+  assume irrefl trans
+  pick-any a b
+  assume rab rba
+  lemma raa : R a a by
+    trans ra rba
+  lemma nraa : ~ R a a by
+    irrefl a
+  contradiction nraa raa
+qed
+
 theorem rename-exists :
   (exists x : N, P x) --> (exists y : N, P y)
 proof
@@ -49,11 +60,8 @@ proof
   assumption
 qed
 
+pq {A} (P Q : A -> Prop) : A -> Prop =
+  \ (x : A) -> P x /\ Q x
 
-pq (x : N) : Prop =
-  P x /\ Q x
-
-declaration f : N -> N
-
-ff (x : N) : N =
+self-comp {A} (f : A -> A) (x : A) : A =
   f (f x)

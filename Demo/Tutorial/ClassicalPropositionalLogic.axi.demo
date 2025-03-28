@@ -75,7 +75,7 @@ proof                                  // |- (~ Q --> ~ P) --> (P --> Q)
 qed
 
 // There's also a funny classic version of contraposition.
-theorem funny-contraposition-classic :
+theorem classic-funny-contraposition :
   (~ P --> Q) --> (~ Q --> P)
 proof                                  // |- (~ P --> Q) --> (~ Q --> P)
   assume (npq : ~ P --> Q) (nq : ~ Q)  // npq : ~ P --> Q, nq : ~ Q |- P
@@ -156,7 +156,7 @@ qed
 theorem xor-not-iff :
   ~ (P <--> Q) --> (P /\ ~ Q) \/ (~ P /\ Q)
 proof                                  // |- ~ (P <--> Q) --> (P /\ ~ Q) \/ (~ P /\ Q)
-  funny-contraposition                 // |- ~ ((P /\ ~ Q) \/ (~ P /\ Q)) --> P <--> Q
+  classic-funny-contraposition         // |- ~ ((P /\ ~ Q) \/ (~ P /\ Q)) --> P <--> Q
   xor-not-iff-conv                     // Theorem proved!
 qed
 

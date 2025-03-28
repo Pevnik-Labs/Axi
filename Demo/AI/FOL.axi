@@ -4,13 +4,6 @@ type A
 declaration R : Prop
 declaration P Q : A -> Prop
 
-// Barber's paradox.
-
-// claude-3.7-sonnet-thinking: good idea, bad realization.
-theorem barbers-paradox :
-  forall {Man} (barber : Man) (shaves : Man -> Man -> Prop),
-      (forall x : Man, shaves barber x <--> ~ shaves x x) --> False
-
 // Universal quantifier.
 
 // claude-3.7-sonnet-thinking: one shot.
@@ -29,8 +22,8 @@ theorem forall-or-nondep-l :
   R \/ (forall x : A, P x) -->
     forall x : A, R \/ P x
 
-// claude-3.7-sonnet-thinking: good idea, but errors in
-// `by-contradiction` and universal quantifier elimination.
+// claude-3.7-sonnet-thinking: he gets it wrong every time,
+// and in the same way.
 theorem forall-or-nondep-l-conv :
   (forall x : A, R \/ P x) -->
     R \/ (forall x : A, P x)
@@ -114,3 +107,10 @@ theorem not-not-exists :
 // claude-3.7-sonnet-thinking: one shot.
 theorem exists-forall-inhabited :
   (forall x : A, P x) --> (exists x : A, True) --> exists x : A, P x
+
+// Barber's paradox.
+
+// claude-3.7-sonnet-thinking: good idea, bad realization.
+theorem barbers-paradox :
+  forall {Man} (barber : Man) (shaves : Man -> Man -> Prop),
+      (forall x : Man, shaves barber x <--> ~ shaves x x) --> False

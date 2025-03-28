@@ -2,9 +2,9 @@ data type Nat where
   Zero
   Succ : Nat -> Nat
 
-add : Nat -> Nat -> Nat
-| x, Zero => x
-| x, Succ y => Succ (add x y)
+add (x : Nat) : Nat -> Nat
+| Zero => x
+| Succ y => Succ (add x y)
 
 theorem add-Zero-r :
   forall x : Nat,
@@ -29,9 +29,9 @@ proof
   pick-any y
   induction y with
   | Zero => refl
-  | Succ (y' & ind IH) =>
+  | Succ (y' & ind (IH : add Zero y' === y')) =>
     chaining
       === add Zero (Succ y')
       === Succ (add Zero y')  by refl
-      === Succ y'             by IH
+      === Succ y'             by rewrite IH
 qed
