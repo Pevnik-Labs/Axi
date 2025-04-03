@@ -132,3 +132,45 @@ proof
       // At this point we can see that it won't go through by structural induction, as expected.
       // The style of quarantine wtih `devour`, `undevour` and `step` seems useful, however.
 qed
+
+
+// RSC
+sub (n : Nat) : Nat -> Nat
+| zero => n
+| succ m => pred (sub n m)
+
+// A modified Hofstadter H function.
+hof : Nat -> Nat
+| zero => zero
+| succ n => sub n (hof (hof n))
+// WARNING: Cannot establish the totality of `hof` with a syntactic check.
+
+totality hof
+proof
+  proving forall n : Nat, exists r : Nat, (| hof |) n r
+  pick-any n
+  devour
+  proving exists r : Nat, (| hof n |) r
+  induction n with // ISC
+  | zero =>
+    witness zero
+    proving (| hof zero |) zero
+    step
+    proving (| zero |) zero
+    dequarantine
+  | succ (n & (IH : exists r : Nat, (| hof n |) r)) =>
+    proving exists r : Nat, (| hof (succ n) |) r
+    step
+    proving exists r : Nat, (| sub n (hof (hof n)) |) r
+    pick-witness res-n (IH' : (| hof n |) res-n) for IH
+    undevour (hof n)
+    proving exists res-n, (| hof n |) res-n /\
+      exists r : Nat, (| sub n (hof res-n) |) r
+    witness res-n
+    both IH
+    proving exists r : Nat, (| sub n (hof res-n) |) r
+    undevour (hof res-n)
+    proving exists rr : Nat, (| hof resn |) rr /\
+      exists r : Nat, (| sub n rr |) r
+    // Now we're stuck.
+qed

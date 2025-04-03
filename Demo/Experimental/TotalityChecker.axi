@@ -240,3 +240,20 @@ interleave' {A} : List A -> List A -> List A
 | nil, l2 => l2
 | l1, nil => l1
 | cons h1 t1, cons h2 t2 => cons h1 (cons h2 (interleave' t1 t2))
+
+data Z where
+  z
+  s : Z -> Z
+  p : Z -> Z
+
+// This is structurally recursive (RSC).
+norm : Z -> Z
+| z => z
+| s k =>
+  match norm k with
+  | p k' => k'
+  | k' => s k'
+| p k =>
+  match norm k with
+  | s k' => k'
+  | k' => p k'
