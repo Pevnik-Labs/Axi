@@ -1,6 +1,6 @@
 // Totality checker steps in when:
 // - Defining a function by pattern matching or recursion.
-// - In a proof by induction.
+// - Proving by induction.
 
 // The totality checker for function definitions has two modes:
 // (RSC) A syntactic check (coverage check for pattern matching, a check for structural recursion).
@@ -75,29 +75,22 @@ theorem weird-id-spec :
 // Now it's legal to state theorems about the graph of `weird-id`.
 theorem weird-id-aux :
   forall n : Nat, (| weird-id |) n n
-proof
-  pick-any n
-  proving (| weird-id |) n n
-  devour // Pull an argument into the quarantine.
-  proving (| weird-id n |) n
-  induction n with // ISC
-  | zero =>
-    proving (| weird-id zero |) zero
-    step // Perform a computation step inside the quarantine.
-    proving (| zero |) zero
-    dequarantine
-    // The goal was solved, because there's a pattern matching branch
-    // in the definition of `weird-id` that says `weird-id zero` computes to `zero`.
-  | succ (n & (IH : (| weird-id n |) n)) =>
-    proving (| weird-id (succ n) |) (succ n)
-    step
-    proving (| succ (weird-id (weird-id n)) |) (succ n)
-    dequarantine // In fact, `dequarantine` is not a finisher, but applies a kind of congruence.
-    proving (| weird-id (weird-id n) |) n
-    undevour (weird-id n) // `undevour` pushes a part of the quarantine into a separate top-level quarantine.
-    proving exists r, (| weird-id n |) r /\ (| weird-id r |) n
-    witness n
-    both IH IH
+proof                                  // |- forall n : Nat, (| weird-id |) n n
+  pick-any n                           // n : Nat |- (| weird-id |) n n
+  devour                               // n : Nat |- (| weird-id n |) n
+  induction n with                     // Termination by syntactic check (ISC).
+  | zero =>                            // n : Nat |- (| weird-id zero |) zero
+    // There's a pattern matching branch in the definition of `weird-id` that says `weird-id zero` computes to `zero`.
+    step                               // n : Nat |- (| zero |) zero
+    dequarantine                       // Goal solved!
+  | succ (n & ind IH) =>               // n : Nat, IH : (| weird-id n |) n |- (| weird-id (succ n) |) (succ n)
+    step                               // n : Nat, IH : (| weird-id n |) n |- (| succ (weird-id (weird-id n)) |) (succ n)
+    // In fact, `dequarantine` is not a finisher, but applies a kind of congruence.
+    dequarantine                       // n : Nat, IH : (| weird-id n |) n |- (| weird-id (weird-id n) |) n
+    // `undevour` pushes a part of the quarantine into a separate top-level quarantine.
+    undevour (weird-id n)              // n : Nat, IH : (| weird-id n |) n |- exists r : Nat, (| weird-id n |) r /\ (| weird-id r |) n
+    witness n                          // n : Nat, IH : (| weird-id n |) n |- (| weird-id n |) n /\ (| weird-id n |) n
+    both IH IH                         // Theorem proved!
 qed
 
 // Proving totality of `weird-id` (RTP).
@@ -105,12 +98,10 @@ qed
 // recursive, its totality was proven using structural induction
 // (in the previous lemma, that is).
 totality weird-id
-proof
-  proving forall n : Nat, exists r : Nat, (| weird-id |) n r
-  pick-any n : Nat
-  witness n
-  proving (| weird-id |) n n
-  instantiate weird-id-aux with n
+proof                                  // |- forall n : Nat, exists r : Nat, (| weird-id |) n r
+  pick-any n : Nat                     // n : Nat |- exists r : Nat, (| weird-id |) n r
+  witness n                            // n : Nat |- (| weird-id |) n n
+  instantiate weird-id-aux with n      // Theorem proved!
 qed
 
 // Now it's legal to state theorems about `weird-id`.
@@ -118,12 +109,10 @@ qed
 // We can use the lemma about the graph that we already proved.
 theorem weird-id-spec :
   forall n : Nat, weird-id n === n
-proof
-  pick-any n
-  proving weird-id n === n
-  quarantine
-  proving (| weird-id |) n n
-  instantiate weird-id-aux with n
+proof                                  // |- forall n : Nat, weird-id n === n
+  pick-any n                           // n : Nat |- weird-id n === n
+  quarantine                           // n : Nat |- (| weird-id |) n n
+  instantiate weird-id-aux with n      // Theorem proved!
 qed
 
 weird-zero : Nat -> Nat
@@ -133,27 +122,26 @@ weird-zero : Nat -> Nat
 
 theorem weird-zero-aux :
   forall n : Nat, (| weird-zero |) n zero
-proof
-  pick-any n
-  induction n with // ISC
-  | zero => dequarantine
-  | succ (n & (IH : (| weird-zero |) n zero)) =>
-    proving (| weird-zero |) (succ n) zero
-    dequarantine
-    proving exists r : Nat, (| weird-zero |) n r /\ (| weird-zero |) r zero
-    witness zero
-    both
-    . proving (| weird-zero |) n zero
-      IH
-    . proving (| weird-zero |) zero zero
-      dequarantine
+proof                                  // |- forall n : Nat, (| weird-zero |) n zero
+  pick-any n                           // n : Nat |- (| weird-zero |) n zero
+  devour                               // n : Nat |- (| weird-zero n |) zero
+  induction n with                     // Termination by syntactic check (ISC).
+  | zero =>                            // n : Nat |- (| weird-zero zero |) zero
+    step                               // n : Nat |- (| zero |) zero
+    dequarantine                       // Goal solved!
+  | succ (n & ind IH) =>               // n : Nat, IH : (| weird-zero |) n zero |- (| weird-zero (succ n) |) zero
+    step                               // n : Nat, IH : (| weird-zero |) n zero |- (| weird-zero (weird-zero n) |) zero
+    undevour (weird-zero n)            // n : Nat, IH : (| weird-zero |) n zero |- exists r : Nat, (| weird-zero n |) r /\ (| weird-zero r |) zero
+    witness zero                       // n : Nat, IH : (| weird-zero |) n zero |- (| weird-zero n |) zero /\ (| weird-zero zero |) zero
+    both IH                            // n : Nat, IH : (| weird-zero |) n zero |- (| weird-zero zero |) zero
+    step                               // n : Nat, IH : (| weird-zero |) n zero |- (| zero |) zero
+    dequarantine                       // Theorem proved!
 qed
 
 totality weird-zero
-proof
-  proving forall n : Nat, exists r : Nat, (| weird-zero |) n r
-  pick-any n : Nat
-  instantiate weird-zero-aux with n
+proof                                  // |- forall n : Nat, exists r : Nat, (| weird-zero |) n r
+  pick-any n : Nat                     // n : Nat |- exists r : Nat, (| weird-zero |) n r
+  instantiate weird-zero-aux with n    // Theorem proved!
 qed
 
 data Unit where
@@ -164,16 +152,12 @@ loop (x : Unit) : Unit = loop x
 
 // The function is not total, so the proof should always fail.
 fail totality loop
-proof
-  proving forall x : Unit, exists r : Unit, (| loop |) x r
-  pick-any x
-  witness unit
-  proving (| loop |) x unit
-  devour
-  proving (| loop x |) unit
-  step
-  proving (| loop x |) unit
-  // Nothing to do here, really...
+proof                                  // |- forall x : Unit, exists r : Unit, (| loop |) x r
+  pick-any x                           // x : Unit |- exists r : Unit, (| loop |) x r
+  witness unit                         // x : Unit |- (| loop |) x unit
+  devour                               // x : Unit |- (| loop x |) unit
+  step                                 // x : Unit |- (| loop x |) unit
+  // Nothing can be done at this point.
 qed
 
 missing-case-ok (n : Nat) : Nat =
@@ -183,16 +167,12 @@ missing-case-ok (n : Nat) : Nat =
 
 // The functional is total, so we succeed.
 totality missing-case-ok
-proof
-  proving forall n : Nat, exists r : Nat, (| missing-case-ok |) n r
-  pick-any n : Nat
-  witness n
-  proving (| missing-case-ok |) n n
-  devour
-  proving (| missing-case-ok n |) n
-  step
-  proving (| n |) n
-  dequarantine
+proof                                  // |- forall n : Nat, exists r : Nat, (| missing-case-ok |) n r
+  pick-any n : Nat                     // n : Nat |- exists r : Nat, (| missing-case-ok |) n r
+  witness n                            // n : Nat |- (| missing-case-ok |) n n
+  devour                               // n : Nat |- (| missing-case-ok n |) n
+  step                                 // n : Nat |- (| n |) n
+  dequarantine                         // Theorem proved!
 qed
 
 missing-case-bad : Nat -> Nat
@@ -201,23 +181,16 @@ missing-case-bad : Nat -> Nat
 
 // The function is not total, so the proof should always fail.
 fail totality missing-case-bad
-proof
-  proving forall n : Nat, exists r : Nat, (| missing-case-bad |) n r
-  pick-any n
-  devour
-  proving exists r : Nat, (| missing-case-bad n |) r
-  cases n with // ISC
-  | succ n' =>
-    proving exists r : Nat, (| missing-case-bad (succ n') |) r
-    witness succ n'
-    proving (| missing-case-bad (succ n') |) (succ n')
-    step
-    proving (| succ n' |) (succ n')
-    dequarantine
-  | zero =>
-    proving exists r : Nat, (| missing-case-bad zero |) r
-    step
-    proving exists r : Nat, False
+proof                                  // |- forall n : Nat, exists r : Nat, (| missing-case-bad |) n r
+  pick-any n                           // n : Nat |- exists r : Nat, (| missing-case-bad |) n r
+  devour                               // n : Nat |- exists r : Nat, (| missing-case-bad n |) r
+  cases n with
+  | succ n' =>                         // n : Nat, n' : Nat |- exists r : Nat, (| missing-case-bad (succ n') |) r
+    witness succ n'                    // n : Nat, n' : Nat |- (| missing-case-bad (succ n') |) (succ n')
+    step                               // n : Nat, n' : Nat |- (| succ n' |) (succ n')
+    dequarantine                       // Goal solved!
+  | zero =>                            // n : Nat |- exists r : Nat, (| missing-case-bad zero |) r
+    step                               // n : Nat |- exists r : Nat, False
     // Nothing can be done at this point.
 qed
 
@@ -234,32 +207,21 @@ hof : Nat -> Nat
 
 // The function is total, but the proof won't go through by structural induction.
 fail totality hof
-proof
-  proving forall n : Nat, exists r : Nat, (| hof |) n r
-  pick-any n
-  devour
-  proving exists r : Nat, (| hof n |) r
-  induction n with // ISC
-  | zero =>
-    witness zero
-    proving (| hof zero |) zero
-    step
-    proving (| zero |) zero
-    dequarantine
-  | succ (n & (IH : exists r : Nat, (| hof n |) r)) =>
-    proving exists r : Nat, (| hof (succ n) |) r
-    step
-    proving exists r : Nat, (| sub n (hof (hof n)) |) r
-    pick-witness res-n (IH' : (| hof n |) res-n) for IH
-    undevour (hof n)
-    proving exists res-n, (| hof n |) res-n /\
-      exists r : Nat, (| sub n (hof res-n) |) r
-    witness res-n
-    both IH
-    proving exists r : Nat, (| sub n (hof res-n) |) r
-    undevour (hof res-n)
-    proving exists rr : Nat, (| hof resn |) rr /\
-      exists r : Nat, (| sub n rr |) r
+proof                                  // |- forall n : Nat, exists r : Nat, (| hof |) n r
+  pick-any n                           // n : Nat |- exists r : Nat, (| hof |) n r
+  devour                               // n : Nat |- exists r : Nat, (| hof n |) r
+  induction n with                     // Termination by syntactic check.
+  | zero =>                            // n : Nat |- exists r : Nat, (| hof zero |) r
+    witness zero                       // n : Nat |- exists r : Nat, (| hof zero |) zero
+    step                               // n : Nat |- exists r : Nat, (| zero |) zero
+    dequarantine                       // Goal solved!
+  | succ (n & ind (witness res-n such-that IH)) =>
+                                       // n : Nat, res-n : Nat, IH : (| hof n |) res-n |- exists r : Nat, (| hof (succ n) |) r
+    step                               // n : Nat, res-n : Nat, IH : (| hof n |) res-n |- exists r : Nat, (| sub n (hof (hof n)) |) r
+    undevour (hof n)                   // n : Nat, res-n : Nat, IH : (| hof n |) res-n |- exists rr, (| hof n |) rr /\ exists r : Nat, (| sub n (hof rr) |) r
+    witness res-n                      // n : Nat, res-n : Nat, IH : (| hof n |) res-n |- (| hof n |) res-n /\ exists r : Nat, (| sub n (hof res-n) |) r
+    both IH                            // n : Nat, res-n : Nat, IH : (| hof n |) res-n |- exists r : Nat, (| sub n (hof res-n) |) r
+    undevour (hof res-n)               // n : Nat, res-n : Nat, IH : (| hof n |) res-n |- exists rr : Nat, (| hof res-n |) rr /\ exists r : Nat, (| sub n rr |) r
     // Now we're stuck.
 qed
 
@@ -297,7 +259,7 @@ proof
     step
     proving (| op (i a) e |) (op (i a) e)
     dequarantine
-  | op (l & (IHl : exists res-l, (| norm l |) res-l)) (r & (IHr : exists res-r, (| norm r |) res-r)) =>
+  | op (l & ind (IHl : exists res-l, (| norm l |) res-l)) (r & (IHr : exists res-r, (| norm r |) res-r)) =>
     proving exists res : FreeMon A, (| norm (op l r) |) res
     pick-witness res-l IHl' for IHl
     pick-witness res-r IHr' for IHr
@@ -353,31 +315,18 @@ silly (b : Bool) : Bool =
 
 // The function is total.
 totality silly
-proof
-  proving forall b : Bool, exists r : Bool, (| silly |) b r
-  pick-any b
-  witness true
-  devour
-  proving (| silly b |) true
+proof                                  // |- forall b : Bool, exists r : Bool, (| silly |) b r
+  pick-any b                           // b : Bool |- exists r : Bool, (| silly |) b r
+  witness true                         // b : Bool |- (| silly |) b true
+  devour                               // b : Bool |- (| silly b |) true
   cases b with
-  | true =>
-    proving (| silly true |) true
-    step
-    proving (| if true then true esle silly true |) true
-    step
-    proving (| true |) true
-    dequarantine
-  | false =>
-    proving (| silly false |) true
-    step
-    proving (| if false then true else silly true |) true
-    step
-    proving (| silly true |) true
-    step
-    proving (| if true then true esle silly true |) true
-    step
-    proving (| true |) true
-    dequarantine
+  | true =>                            // b : Bool |- (| silly true |) true
+    step                               // b : Bool |- (| true |) true
+    dequarantine                       // Goal solved!
+  | false =>                           // b : Bool |- (| silly false |) true
+    step                               // b : Bool |- (| silly true |) true
+    step                               // b : Bool |- (| true |) true
+    dequarantine                       // Theorem proved!
 qed
 
 even : Nat -> Bool
@@ -390,27 +339,23 @@ search (n : Nat) : Nat =
 
 // Proving `search` total isn't very hard.
 totality search
-proof
-  proving forall n : Nat, exists r : Nat, (| search |) n r
-  pick-any n
-  devour
-  step
-  proving exists r : Nat, (| if even n then n else search (succ n) |) r
+proof                                  // |- forall n : Nat, exists r : Nat, (| search |) n r
+  pick-any n                           // n : Nat |- exists r : Nat, (| search |) n r
+  devour                               // n : Nat |- exists r : Nat, (| search n |) r
+  step                                 // n : Nat |- exists r : Nat, (| if even n then n else search (succ n) |) r
   cases even n with
-  | true =>
-    witness n
-    proving (| n |) n
-    dequarantine
-  | false & eqn (odd-n : even n === false) => // We need to give ourselves an equation `even n === false` for rewriting later.
-    witness succ n
-    proving (| search (succ n) |) (succ n)
-    step
-    proving (| if notb (even n) then succ n else search (succ (succ n)) |) (succ n)
-    rewrite odd-n
-    proving (| if notb false then succ n else search (succ (succ n)) |) (succ n)
-    step
-    proving (| succ n |) (succ n)
-    dequarantine
+  | true =>                            // n : Nat |- exists r : Nat, (| if true then n else search (succ n) |) r
+    witness n                          // n : Nat |- (| if true then n else search (succ n) |) n
+    step                               // n : Nat |- (| n |) n
+    dequarantine                       // Goal solved!
+  | false & eqn odd-n =>               // n : Nat, odd-n : even n === false |- exists r : Nat, (| if false then n else search (succ n) |) r
+    // We need to give ourselves an equation `even n === false` for rewriting later.
+    witness succ n                     // n : Nat, odd-n : even n === false |- (| if false then n else search (succ n) |) (succ n)
+    step                               // n : Nat, odd-n : even n === false |- (| search (succ n) |) (succ n)
+    step                               // n : Nat, odd-n : even n === false |- (| if notb (even n) then succ n else search (succ (succ n)) |) (succ n)
+    rewrite odd-n                      // n : Nat, odd-n : even n === false |- (| if notb false then succ n else search (succ (succ n)) |) (succ n)
+    step                               // n : Nat, odd-n : even n === false |- (| succ n |) (succ n)
+    dequarantine                       // Theorem proved!
 qed
 
 data List A where
@@ -426,18 +371,18 @@ interleave {A} (l1 l2 : List A) : List A =
 // We can prove totality by structural induction, because we could just as well
 // have defined this function with structural recursion...
 totality interleave
-proof
-  proving forall {A} (l1 l2 : List A), exists r : List A, (| interleave |) l1 l2 r
-  pick-any A l1
-  induction l1 with
-  | nil =>
-    pick-any l2
-    witness l2
-    proving (| interleave |) nil l2 l2
-    dequarantine
-  | cons h1 (t1 & (IH : forall l2, exists r, (| interleave |) t1 l2 r)) =>
-    pick-any l2
-    proving exists r : List A, (| interleave |) (cons h1 t1) l2 r
+proof                                  // |- forall {A} (l1 l2 : List A), exists r : List A, (| interleave |) l1 l2 r
+  pick-any A l1                        // A : Type, l1 : List A |- forall l2 : List A, exists r : List A, (| interleave |) l1 l2 r
+  devour                               // A : Type, l1 : List A |- forall l2 : List A, exists r : List A, (| interleave l1 |) l2 r
+  devour                               // A : Type, l1 : List A |- forall l2 : List A, exists r : List A, (| interleave l1 l2 |) r
+  induction l1 with                    // Termination by syntactic check (ISC).
+  | nil =>                             // A : Type, l1 : List A |- forall l2 : List A, exists r : List A, (| interleave nil l2 |) r
+    pick-any l2                        // A : Type, l1 l2 : List A |- exists r : List A, (| interleave nil l2 |) r
+    witness l2                         // A : Type, l1 l2 : List A |- (| interleave nil l2 |) l2
+    step                               // A : Type, l1 l2 : List A |- (| l2 |) l2
+    dequarantine                       // Goal solved!
+  | cons h1 (t1 & ind IH) =>           // A : Type, l1 : List A, IH : forall l2, exists r, (| interleave t1 l2 |) r |- forall l2 : List A, exists r : List A, (| interleave (cons h1 t1) l2 |) r
+    pick-any l2                        // A : Type, l1 : List A, IH : forall l2, exists r, (| interleave t1 l2 |) r, l2 : List A |- exists r : List A, (| interleave (cons h1 t1) l2 |) r
     cases l2 with
     | nil =>
       witness cons h1 t1
