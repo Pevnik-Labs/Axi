@@ -6,7 +6,7 @@
   [
     {
       "name": "keyword.other.toplevel.axi",
-      "match": "(?<![-_])\\b(theorem|declaration|axiom|class|instance)\\b(?![-_])"
+      "match": "(?<![-_])\\b(theorem|totality|declaration|axiom|class|instance)\\b(?![-_])"
     },
     {
       "name": "keyword.other.typedefinition.axi",
