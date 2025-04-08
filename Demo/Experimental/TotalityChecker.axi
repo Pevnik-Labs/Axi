@@ -76,7 +76,7 @@ theorem weird-id-spec :
 
 // t : A (t is total)
 // ------------------------
-// dequarantine : (| t |) t
+// dequarantine {t} : (| t |) t
 
 // Beware: for now `dequarantine` also acts as a congruence
 
@@ -84,13 +84,13 @@ theorem weird-id-spec :
 // ----------------------------------------------
 // dequarantine e : (| f t1 |) (f t2)
 
+// t1 : A   t2 : A   (| t1 |) t2   t1 total
+// ----------------------------------------
+// quarantine e : t1 === t2
 
-// (| match succ 5 with | succ n => n |) 4
-// step -> (| 4 |) 4
-// dequarantine
-
-// (| weird-id |) : Nat -> Nat -> Prop
-// step -> (| \n -> match n with | zero => zero | succ n' => succ (weird-id (weird-id n')) |)
+// t1 : A (t1 total)   t2 : A   e : t1 === t2
+// ------------------------------------------
+// dequarantine' e : (| t1 |) t2
 
 // Now it's legal to state theorems about the graph of `weird-id`.
 theorem weird-id-aux :
@@ -131,8 +131,34 @@ theorem weird-id-spec :
   forall n : Nat, weird-id n === n
 proof                                  // |- forall n : Nat, weird-id n === n
   pick-any n                           // n : Nat |- weird-id n === n
-  quarantine (weird-id n)              // n : Nat |- (| weird-id |) n n
+  quarantine                           // n : Nat |- (| weird-id n |) n
   instantiate weird-id-aux with n      // Theorem proved!
+qed
+
+// We should be able to prove that the graph of `weird-id` is deterministic.
+theorem weird-id-det :
+  forall x r1 r2 : Nat,
+    (| weird-id x |) r1 --> (| weird-id x |) r2 --> r1 === r2
+proof
+  pick-any x : Nat
+  induction x with
+  | zero =>
+    pick-any r1 r2
+    assume nr1 nr2                     // x r1 r2 : Nat, nr1 : (| weird-id zero |) r1, nr2 : (| weird-id zero |) r2 |- r1 === r2
+    step at nr1
+    step at nr2                        // x r1 r2 : Nat, nr1 : (| zero |) r1, nr2 : (| zero |) r2 |- r1 === r2
+                                       // x r1 r2 : Nat, nr1 : (| zero |) r1, nr2 : (| zero |) r2, nr1' : zero === r1, nr2' : zero === r2 |- r1 === r2
+    chaining
+      === r1
+      === zero  by rewrite <- (quarantine nr1)
+      === r2    by rewrite (quarantine nr2)
+  | succ (n & ind IH) =>
+    pick-any r1 r2
+    assume nr1 nr2                     // x r1 r2 n : Nat, IH : forall r1 r2, (| weird-id n |) r1 --> (| weird-id n |) r2 --> r1 == r2,
+                                       // nr1 : (| weird-id (succ n) |) r1, nr2 : (| weird-id (succ n) |) r2 |- r1 === r2
+    step at nr1
+    step at nr2                        // x r1 r2 n : Nat, nr1 : (| succ (weird-id (weird-id n)) |) r1, nr2 : (| succ (weird-id (weird-id n)) |) r2 |- r1 === r2
+    quarantine                         // x r1 r2 n : Nat, nr1 : (| succ (weird-id (weird-id n)) |) r1, nr2 : (| succ (weird-id (weird-id n)) |) r2 |- (| r1 |) r2
 qed
 
 weird-zero : Nat -> Nat
@@ -151,6 +177,7 @@ proof                                  // |- forall x : Nat, (| weird-zero |) x 
     dequarantine                       // Goal solved!
   | succ (n & ind IH) =>               // x : Nat, n : Nat, IH : (| weird-zero n |) zero |- (| weird-zero (succ n) |) zero
     step                               // x : Nat, n : Nat, IH : (| weird-zero n |) zero |- (| weird-zero (weird-zero n) |) zero
+
     undevour (weird-zero n)            // x : Nat, n : Nat, IH : (| weird-zero n |) zero |- exists r : Nat, (| weird-zero n |) r /\ (| weird-zero r |) zero
     witness zero                       // x : Nat, n : Nat, IH : (| weird-zero n |) zero |- (| weird-zero n |) zero /\ (| weird-zero zero |) zero
     both IH                            // x : Nat, n : Nat, IH : (| weird-zero n |) zero |- (| weird-zero zero |) zero
@@ -215,6 +242,15 @@ proof                                  // |- forall x : Nat, exists r : Nat, (| 
   | zero =>                            // x : Nat |- exists r : Nat, (| missing-case-bad zero |) r
     step                               // x : Nat |- exists r : Nat, False
     // Nothing can be done at this point.
+qed
+
+theorem missing-case-bad-contra :
+  forall r : Nat, ~ (| missing-case-bad zero |) r
+proof                                  // |- forall r : Nat, ~ (| missing-case-bad zero |) r
+  pick-any r                           // r : Nat |- ~ (| missing-case-bad zero |) r
+  assume contra                        // r : Nat, contra : (| missing-case-bad zero |) r |- False
+  step at contra                       // r : Nat, contra : False |- False
+  assumption
 qed
 
 // RSC
@@ -398,6 +434,34 @@ interleave' {A} : List A -> List A -> List A
 | l1, nil => l1
 | cons h1 t1, cons h2 t2 => cons h1 (cons h2 (interleave' t1 t2))
 
+// Another proof, using `interleave'`.
+totality interleave
+proof                                  // |- forall {A} (l1 l2 : List A), exists r : List A, (| interleave |) l1 l2 r
+  pick-any A l1 l2                     // A : Type, l1 l2 : List A |- exists r : List A, (| interleave |) l1 l2 r
+  devour                               // A : Type, l1 l2 : List A |- exists r : List A, (| interleave l1 |) l2 r
+  devour                               // A : Type, l1 l2 : List A |- exists r : List A, (| interleave l1 l2 |) r
+  witness (interleave' l1 l2)          // A : Type, l1 l2 : List A |- (| interleave l1 l2 |) (interleave' l1 l2)
+  induction l1 with                    // Termination by syntactic check (ISC).
+  | nil =>                             // A : Type, l1 l2 : List A |- (| interleave nil l2 |) (interleave' nil l2)
+    step                               // A : Type, l1 l2 : List A |- (| l2 |) (interleave' nil l2)
+    simpl                              // A : Type, l1 l2 : List A |- (| l2 |) l2
+    dequarantine                       // Goal solved!
+  | cons h1 (t1 & ind IH) =>           // A : Type, l1 l2 : List A, IH : forall l2, (| interleave t1 l2 |) (interleave' t1 l2)
+                                       // |- (| interleave (cons h1 t1) l2 |) (interleave' (cons h1 t1) l2)
+    cases l2 with
+    | nil =>                           // ... |- (| interleave (cons h1 t1) nil |) (interleave' (cons h1 t1) nil)
+      step                             // ... |- (| cons h1 (interleave nil t1) |) (interleave' (cons h1 t1) nil)
+      step                             // ... |- (| cons h1 t1 |) (interleave' (cons h1 t1) nil)
+      simpl                            // ... |- (| cons h1 t1 |) (cons h1 t1)
+      dequarantine                     // Goal solved!
+    | cons h2 t2 =>                    // ..., h2 : A, t2 : List A |- (| interleave (cons h1 t1) (cons h2 t2) |) (interleave' (cons h1 t1) (cons h2 t2))
+      step                             // ... |- (| cons h1 (interleave (cons h2 t2) t1) |) (interleave' (cons h1 t1) (cons h2 t2))
+      step                             // ... |- (| cons h1 (cons h2 (interleave t1 t2)) |) (interleave' (cons h1 t1) (cons h2 t2))
+      simpl                            // ... |- (| cons h1 (cons h2 (interleave t1 t2)) |) (cons h1 (cons h2 (interleave' t1 t2)))
+      dequarantine                     // ... |- (| interleave t1 t2 |) (interleave' t1 t2)
+      instantiate IH with t2
+qed
+
 data Z where
   z
   s : Z -> Z
@@ -525,5 +589,34 @@ data Queue A where
   cons : Option A -> Queue (Prod A A) -> Queue A
 
 
+well-founded {A} (R : A -> A -> Prop) : Prop =
+  forall P : A -> Prop,
+    (exists x : A, P x) --> exists m : A, P m /\ forall x : A, P x --> ~ R x m
 
-theorem well-founded-induction
+theorem well-founded-induction :
+  forall {A} (R : A -> A -> Prop) (P : A -> Prop)
+    well-founded R -->
+    (forall x : A, (forall y : A, R y x --> P y) --> P x) --> forall x : A, P x
+proof
+  pick-any A R P
+  assume wf
+  classic-contraposition
+  // abuse :)
+  proving (exists x : A, ~ P x) --> exists x : A, (exists y : A, ~ R y x /\ ~ P y) /\ ~ P x
+  assume (witness x : A such-that npx : ~ P x)
+  pick-witness (m : A) (both (npm : ~ P m) (all : forall x : A, P x --> ~ R x m)) for wf (\a -> ~ P a) (witness x such-that npx)
+  proving exists x : A, (exists y : A, ~ R y x /\ ~ P y) /\ ~ P x
+  witness m
+  proving (exists y : A, ~ R y m /\ ~ P y) /\ ~ P m
+  both
+  . proving exists y : A, ~ R y m /\ ~ P y
+    witness m
+    both
+    . proving ~ R m m
+      assume rmm : R m m
+      proving False
+      // well-founded relation is irreflexive
+    . proving ~ P m
+      assumption
+  . npm
+qed

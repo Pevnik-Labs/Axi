@@ -66,7 +66,7 @@ proof                                  // |- ((P --> Q) --> P) --> P
 qed
 
 // Of the two laws of contraposition, this one is only valid classically.
-theorem contraposition-classic :
+theorem classic-contraposition :
   (~ Q --> ~ P) --> (P --> Q)
 proof                                  // |- (~ Q --> ~ P) --> (P --> Q)
   assume nqnp p                        // nqnp : ~ Q --> ~ P, p : P |- Q
