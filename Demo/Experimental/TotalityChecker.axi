@@ -587,36 +587,3 @@ bushmap {A B} (f : A -> B) : Bush A -> Bush B
 data Queue A where
   nil  : Queue A
   cons : Option A -> Queue (Prod A A) -> Queue A
-
-
-well-founded {A} (R : A -> A -> Prop) : Prop =
-  forall P : A -> Prop,
-    (exists x : A, P x) --> exists m : A, P m /\ forall x : A, P x --> ~ R x m
-
-theorem well-founded-induction :
-  forall {A} (R : A -> A -> Prop) (P : A -> Prop)
-    well-founded R -->
-    (forall x : A, (forall y : A, R y x --> P y) --> P x) --> forall x : A, P x
-proof
-  pick-any A R P
-  assume wf
-  classic-contraposition
-  // abuse :)
-  proving (exists x : A, ~ P x) --> exists x : A, (exists y : A, ~ R y x /\ ~ P y) /\ ~ P x
-  assume (witness x : A such-that npx : ~ P x)
-  pick-witness (m : A) (both (npm : ~ P m) (all : forall x : A, P x --> ~ R x m)) for wf (\a -> ~ P a) (witness x such-that npx)
-  proving exists x : A, (exists y : A, ~ R y x /\ ~ P y) /\ ~ P x
-  witness m
-  proving (exists y : A, ~ R y m /\ ~ P y) /\ ~ P m
-  both
-  . proving exists y : A, ~ R y m /\ ~ P y
-    witness m
-    both
-    . proving ~ R m m
-      assume rmm : R m m
-      proving False
-      // well-founded relation is irreflexive
-    . proving ~ P m
-      assumption
-  . npm
-qed
