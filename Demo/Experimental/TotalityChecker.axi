@@ -567,7 +567,7 @@ proof                                  // |- forall {A B} (f : A -> B) (t : Tree
     | nil =>                             // ... |- forall-list (\t -> exists r : Tree B, (| tmap f t |) r) nil
       simpl                              // ... |- True
       trivial                            // Goal solved!
-    | cons 
+    | cons // TODO
 qed
 
 data RoseTree A where
