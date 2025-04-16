@@ -28,8 +28,7 @@ theorem classic-well-founded-induction :
 proof
   pick-any A R P
   assume wf
-  classic-contraposition
-  // abuse :)
+  classic-contraposition // abuse :)
   proving (exists x : A, ~ P x) --> exists x : A, (exists y : A, ~ R y x /\ ~ P y) /\ ~ P x
   assume (witness x : A such-that npx : ~ P x)
   pick-witness (m : A) (both (npm : ~ P m) (all : forall x : A, P x --> ~ R x m)) for wf (\a -> ~ P a) (witness x such-that npx)

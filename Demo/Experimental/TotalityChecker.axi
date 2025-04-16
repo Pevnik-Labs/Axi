@@ -42,6 +42,23 @@ transform (n : Nat) (f : Nat -> Nat) : Nat =
   | zero => f zero
   | succ n' => transform n' (\ x -> f (transform n' (\ y -> f (x + y))))
 
+data Z where
+  z
+  s : Z -> Z
+  p : Z -> Z
+
+// Pattern matching on the result of the recursive call, structurally recursive (RSC).
+norm : Z -> Z
+| z => z
+| s k =>
+  match norm k with
+  | p k' => k'
+  | k' => s k'
+| p k =>
+  match norm k with
+  | s k' => k'
+  | k' => p k'
+
 // Fails the syntactic check.
 weird-id : Nat -> Nat
 | zero => zero
@@ -461,23 +478,6 @@ proof                                  // |- forall {A} (l1 l2 : List A), exists
       dequarantine                     // ... |- (| interleave t1 t2 |) (interleave' t1 t2)
       instantiate IH with t2
 qed
-
-data Z where
-  z
-  s : Z -> Z
-  p : Z -> Z
-
-// This is structurally recursive (RSC).
-norm : Z -> Z
-| z => z
-| s k =>
-  match norm k with
-  | p k' => k'
-  | k' => s k'
-| p k =>
-  match norm k with
-  | s k' => k'
-  | k' => p k'
 
 data Tree A where
   node : A -> List (Tree A) -> Tree A
