@@ -108,7 +108,7 @@ u2e' : Unit -> Empty
 fail theorem contradiction : False
 proof                                  // |- False
   cases u2e unit with
-  // ERROR: Cannot use partial programs `u2e` inside a proof.
+  // ERROR: Cannot use partial program `u2e` inside a proof.
   // We attempt reasoning by cases on a value of the empty type,
   // but `u2e` is a partial function, so it cannot be used inside
   // proofs.
@@ -136,8 +136,9 @@ totality missing-case-ok
 proof                                  // |- forall n : Nat, exists r : Nat, missing-case-ok n =?= r
   pick-any n                           // n : Nat |- exists r : Nat, missing-case-ok n =?= r
   witness n                            // n : Nat |- missing-case-ok n =?= n
-  step                                 // n : Nat |- n =?= n
-  prefl                                // Theorem proved!
+  chaining
+    =?= missing-case-ok n
+    =?= n                  by step
 qed
 
 missing-case-bad : Nat -> Nat
@@ -151,8 +152,9 @@ proof                                  // |- forall x : Nat, exists r : Nat, mis
   cases x with
   | succ n' =>                         // x : Nat, n : Nat |- exists r : Nat, missing-case-bad (succ n) =?= r
     witness succ n'                    // x : Nat, n : Nat |- missing-case-bad (succ n) =?= succ n
-    step                               // x : Nat, n : Nat |- succ n =?= succ n
-    prefl                              // Goal solved!
+    chaining
+      =?= missing-case-bad (succ n)
+      =?= succ n                     by step
   | zero =>                            // x : Nat |- exists r : Nat, missing-case-bad zero =?= r
     witness 42                         // x : Nat |- missing-case-bad zero =?= 42
     step                               // x : Nat |- False
@@ -166,16 +168,7 @@ proof                                  // |- forall r : Nat, ~ missing-case-bad 
   pick-any r                           // r : Nat |- ~ missing-case-bad zero =?= r
   assume h                             // r : Nat, h : missing-case-bad zero =?= r |- False
   step at h                            // r : Nat, h : False |- False
-  absurd h                             // Theorem proved!
-qed
-
-theorem missing-case-bad-diverges :
-  ~ exists r : Nat, missing-case-bad zero =?= r
-proof
-  assume (witness r such-that h : missing-case-bad zero =?= r)
-  proving False                        
-  step at h                            
-  absurd h
+  assumption                           // Theorem proved!
 qed
 
 // An alternative proof, using functional inversion.
@@ -191,15 +184,16 @@ qed
 theorem missing-case-bad-succ :
   forall n : Nat, missing-case-bad (succ n) =?= succ n
 proof                                  // |- forall n : Nat, missing-case-bad (succ n) =?= succ n
-  pick-ay n                            // n : Nat |- missing-case-bad (succ n) =?= succ n
-  step                                 // n : Nat |- succ n =?= succ n
-  prefl                                // Theorem proved!
+  pick-any n                           // n : Nat |- missing-case-bad (succ n) =?= succ n
+  chaining
+    =?= missing-case-bad (succ n)
+    =?= succ n                     by step
 qed
 
 // We can use `missing-case-bad` to define another function,
 // which the syntactic check thinks is not total, but we will
 // be able to prove that it is.
-missing-case-good (n : Nat) : Nat :=
+missing-case-good (n : Nat) : Nat =
   missing-case-bad (succ n)
 // WARNING: Cannot establish the totality of `missing-case-good` with a syntactic check.
 
@@ -207,9 +201,10 @@ totality missing-case-good
 proof                                  // forall n : Nat, exists r : Nat, missing-case-good n =?= r
   pick-any n                           // n : Nat |- exists r : Nat, missing-case-good n =?= r
   witness succ n                       // n : Nat |- missing-case-good n =?= succ n
-  unfold missing-case-good             // n : Nat |- missing-case-bad (succ n) =?= succ n
-  step                                 // n : Nat |- succ n =?= succ n
-  prefl                                // Theorem proved!
+  chaining
+    =?= missing-case-good n
+    =?= missing-case-bad (succ n)
+    =?= succ n                     by step
 qed
 
 loop (x : Unit) : Unit =
@@ -242,31 +237,17 @@ bad (x : Unit) : Bool =
   notb (bad x)
 // WARNING: Cannot establish the totality of `bad` with a syntactic check.
 
-theorem notb-nofix :
-  forall b : Bool, ~ b === notb b
-proof                                  // |- forall b : Bool, ~ b === notb b
-  pick-any b : Bool                    // b : Bool |- ~ b === notb b
-  assume heq : b === notb b            // b : Bool, heq : b === notb b |- False
-  let goal : Prop =
-    match false with
-    | false => False
-    | true  => True
-  proving goal                         // b : Bool, heq : false === notb false, goal : Prop = ... |- goal
-  cases b with
-  | false =>                           // b : Bool, heq : false === notb false, goal : Prop = ... |- goal
-    unfold goal
-    rewrite heq
-    simpl                              // b : Bool, heq : false === notb false, goal : Prop = ... |- True
-    trivial                            // Goal solved!
-  | true =>                            // b : Bool, heq : true === notb true, goal : Prop = ... |- goal
-    simpl at heq                       // b : Bool, heq : true === false, goal : Prop = ... |- goal
-    unfold goal
-    rewrite <- heq
-    simpl                              // b : Bool, heq : true === false, goal : Prop = ... |- True
-    trivial                            // Theorem proved!
+theorem bad-diverges :
+  forall (x : Unit) (b : Bool),
+    ~ bad x =?= b
+proof                                  // |- forall (x : Unit) (b : Bool), ~ bad x =?= b
+  pick-any x b                         // x : Unit, b : Bool |- ~ bad x =?= b
+  assume heq                           // x : Unit, b : Bool, heq : bad x =?= b |- False
+  functional induction heq             // x : Unit, b : Bool, heq : bad x =?= b |- False --> False
+  absurd
 qed
 
-theorem bad-diverges :
+theorem bad-diverges' :
   forall (x : Unit) (b : Bool),
     ~ bad x =?= b
 proof                                  // |- forall (x : Unit) (b : Bool), ~ bad x =?= b
@@ -292,12 +273,14 @@ proof                                  // |- forall b : Bool, exists r : Bool, s
   witness true                         // b : Bool |- silly b =?= true
   cases b with
   | true =>                            // b : Bool |- silly true =?= true
-    step                               // b : Bool |- true =?= true
-    prefl                              // Goal solved!
+    chaining
+      =?= silly true
+      =?= true        by step
   | false =>                           // b : Bool |- silly false =?= true
-    step                               // b : Bool |- silly true =?= true
-    step                               // b : Bool |- true =?= true
-    prefl                              // Theorem proved!
+    chaining
+      =?= silly false
+      =?= silly true   by step
+      =?= true         by step
 qed
 
 even : Nat -> Bool
@@ -436,8 +419,9 @@ proof                                  // |- forall x : Nat, weird-id x =?= x
   pick-any x                           // x : Nat |- weird-id x =?= x
   induction x with                     // Termination by syntactic check.
   | zero =>                            // x : Nat |- weird-id zero =?= zero
-    step                               // x : Nat |- zero =?= zero
-    prefl                              // Goal solved!
+    chaining
+      =?= weird-id zero
+      =?= zero           by step
   | succ (n & ind IH) =>               // x : Nat, n : Nat, IH : weird-id n =?= n |- weird-id (succ n) =?= succ n
     chaining
       =?= weird-id (succ n)
@@ -479,8 +463,9 @@ proof                                  // |- forall x : Nat, weird-zero x =?= ze
   pick-any x                           // x : Nat |- weird-zero x =?= zero
   induction x with                     // Termination by syntactic check.
   | zero =>                            // x : Nat |- weird-zero zero =?= zero
-    step                               // x : Nat |- zero =?= zero
-    prefl                              // Goal solved!
+    chaining
+      =?= weird-zero zero
+      =?= zero             by step
   | succ (n & ind IH) =>               // x : Nat, n : Nat, IH : weird-zero n =?= zero |- weird-zero (succ n) =?= zero
     chaining
       =?= weird-zero (succ n)
@@ -665,7 +650,6 @@ proof
 
 qed
 
-
 sub (n : Nat) : Nat -> Nat
 | zero => n
 | succ m => pred (sub n m)
@@ -683,8 +667,9 @@ proof                        // |- forall x : Nat, exists r : Nat, hof x =?= r
   induction x with           // Termination by syntactic check.
   | zero =>                  // x : Nat |- exists r : Nat, hof zero =?= r
     witness zero             // x : Nat |- exists r : Nat, hof zero =?= zero
-    step                     // x : Nat |- exists r : Nat, zero =?= zero
-    prefl                    // Goal solved!
+    chaining
+      =?= hof zero
+      =?= zero      by step
   | succ (n & ind (witness rn such-that IH)) =>
                              // x : Nat, n : Nat, rn : Nat, IH : hof n =?= rn |- exists r : Nat, hof (succ n) =?= r
     witness rn               // x : Nat, n : Nat, rn : Nat, IH : hof n =?= rn |- hof (succ n) =?= rn
@@ -715,12 +700,14 @@ proof                                  // |- forall {A} (x : FreeMon A), exists 
   induction x with                     // Termination by syntactic check.
   | e =>                               // A : Type, x : FreeMon A |- exists res : FreeMon A, norm e =?= res
     witness e                          // A : Type, x : FreeMon A |- norm e =?= e
-    step                               // A : Type, x : FreeMon A |- e =?= e
-    prefl                              // Goal solved!
+    chaining
+      =?= norm e
+      =?= e       by step
   | i a =>                             // A : Type, x : FreeMon A, a : A |- exists res : FreeMon A, norm (i a) =?= res
     witness op (i a) e                 // A : Type, x : FreeMon A, a : A |- norm (i a) =?= op (i a) e
-    step                               // A : Type, x : FreeMon A, a : A |- op (i a) e =?= op (i a) e
-    prefl                              // Goal solved!
+    chaining
+      =?= norm (i a)
+      =?= op (i a) e  by step
   | op (l & ind (witness res-l such-that IHl)) (r & ind (witness res-r such-that IHr)) =>
                                        // A : Type, x l r res-l res-r : FreeMon A, IHl : norm l =?= res-l, IHr : norm r =?= res-r |- exists res : FreeMon A, norm (op l r) =?= res
     step                               // ... |- exists res, match norm l with | e => norm r | op l1 l2 => op l1 (norm (op l2 r)) =?= res
@@ -741,7 +728,7 @@ proof                                  // |- forall {A} (x : FreeMon A), exists 
       // At this point we can see that it won't go through by structural induction, as expected.
 abort
 
-data Tree A where
+data type Tree A where
   node : A -> List (Tree A) -> Tree A
 
 tmap {A B} (f : A -> B) : Tree A -> Tree B
@@ -783,9 +770,10 @@ proof
   // Let Γ = A B : Type, f : A -> B
   apply list-ind-deep {A} (\t -> exists r : Tree B, tmap f t =?= r) (\ts -> exists rs : List (Tree B), map (tmap f) ts =?= rs)
                                        // A B : Type, f : A -> B |- exists rs : List (Tree B), map (tmap f) nil =?= rs
-  . step                               // A B : Type, f : A -> B |- exists rs : List (Tree B), nil =?= rs
-    witness nil                        // A B : Type, f : A -> B |- nil =?= nil
-    prefl                              // Goal solved!
+  . witness nil                        // A B : Type, f : A -> B |- map (tmap f) nil =?= nil
+    chaining
+      =?= map (tmap f) nil
+      =?= nil               by step
                                        // A B : Type, f : A -> B |- forall (t : Tree A) (ts : List (Tree A)), (exists r : Tree B, tmap f t =?= r) --> (exists rs : List (Tree B), map (tmap f) ts =?= rs) --> exists rs : List (Tree B), map (tmap f) (cons t ts) =?= rs
   . pick-any t ts                      // A B : Type, f : A -> B, t : Tree A, ts : List (Tree A)
                                        // |- (exists r : Tree B, tmap f t =?= r) --> (exists rs : List (Tree B), map (tmap f) ts =?= rs) --> exists rs : List (Tree B), map (tmap f) (cons t ts) =?= rs
@@ -818,9 +806,10 @@ proof                                  // |- forall {A B} (f : A -> B) (t : Tree
       assume (witness rs such-that h)
                                         // A B : Type, f : A -> B, t : Tree A, x : A, ts : List (Tree A), rs : List (Tree B), h : map (tmap f) ts =?= rs |- exists r : Tree B, tmap f (node x ts) =?= r
       witness node (f x) rs              // ... |- tmap f (node x ts) =?= node (f x) rs
-      step                               // ... |- node (f x) (map (tmap f) ts) =?= node (f x) rs
-      quarantine-rewrite h               // ... |- node (f x) rs =?= node (f x) rs
-      prefl                              // Goal solved!
+      chaining
+        =?= tmap f (node x ts)
+        =?= node (f x) (map (tmap f) ts)  by step
+        =?= node (f x) rs                 by quarantine-rewrite h
                                          // A B : Type, f : A -> B, t : Tree A, x : A, ts : List (Tree A) |- exists rs : List (Tree B), map (tmap f) ts =?= rs
     apply tmap-aux                       // ... |- forall-list (\t -> exists r : Tree B, tmap f t =?= r) ts
     induction ts with                    // Termination by syntactic check.
