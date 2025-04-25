@@ -162,7 +162,7 @@ theorem choice :
 proof
   pick-any A B R
   assume total : forall a : A, exists b : B, R a b
-  let noncomputational f (a : A) : B =
+  let noncomputable f (a : A) : B =
     pick-witness b _ for total a in b
   proving exists f : A -> B, forall a : A, R a (f a)
   witness f
@@ -180,4 +180,4 @@ qed
 
 // AI Proving - see directory Demo/AI.
 
-// Records - see Demo/Tutorial/Programming.axi.demo (lines 256-382).
+// Records - see Demo/Tutorial/Programming.axi (lines 256-382).

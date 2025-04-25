@@ -19,7 +19,7 @@
     "languages":
     [{
       "id": "axi",
-      "extensions": [".axi", "axi.demo"],
+      "extensions": [".axi"],
       "configuration": "./language-configuration.json"
     }],
     "grammars":

@@ -22,7 +22,7 @@
     },
     {
       "name": "variable.other.proofterm.axi",
-      "match": "(?<![-_])\\b(apply|both|and-left|and-right|or-left|or-right|cases|lemma|suffices|proving|instantiate|witness|such-that|for|rewrite|symmetry|transitivity|unfold|simpl|induction|step|totalize|quarantine-rewrite)\\b(?![-_])"
+      "match": "(?<![-_])\\b(apply|both|and-left|and-right|or-left|or-right|cases|lemma|suffices|proving|instantiate|witness|such-that|for|choose|choose-spec|choosing|rewrite|symmetry|transitivity|unfold|simpl|induction|step|totalize|quarantine-rewrite)\\b(?![-_])"
     },
     {
       "name": "variable.other.proofterm.absurd.axi",
@@ -34,7 +34,7 @@
     },
     {
       "name": "variable.other.proofterm.binder.axi",
-      "match": "(?<![-_])\\b(assume|by-contradiction|pick-any|pick-witness|funext)\\b(?![-_])"
+      "match": "(?<![-_])\\b(assume|by-contradiction|pick-any|pick-witness|choose-witness|funext)\\b(?![-_])"
     },
     {
       "name": "keyword.operator.propformer.axi",
@@ -42,7 +42,7 @@
     },
     {
       "name": "keyword.other.axi",
-      "match": "(?<![-_])(\\b(by|in|of|fun|let|update|if|is|then|else|match|with|ind|noncomputational|eqn)\\b)(?![-_])"
+      "match": "(?<![-_])(\\b(by|in|of|fun|let|update|if|is|then|else|match|with|ind|noncomputable|eqn)\\b)(?![-_])"
     },
     {
       "name": "string.axi",
