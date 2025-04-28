@@ -1,0 +1,181 @@
+\documentclass{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{babel}
+\usepackage{xcolor}
+\usepackage{Commands}
+
+\usetheme{Darmstadt}
+
+\title{T-Axi}
+\author
+{
+  Wojciech Kołowski\\
+  \and
+  Mateusz Pyzik\\
+}
+\date{}
+
+\begin{document}
+
+\frame{\titlepage}
+
+\section{Intro}
+
+\begin{frame}{Quantities}
+
+Quantities: \\
+$r ::= \Zero \pipe \One \pipe \ExplicitOmega$
+
+\vspace{2em}
+
+The default quantity is $\ExplicitOmega$, so it's not written most of the time.
+
+\vspace{2em}
+
+Quantities are ordered: \\
+\begin{center}
+  $\subusage{\ExplicitOmega}{r}$ \\
+  $\subusage{\Zero}{\Zero}$ \\
+  $\subusage{\One}{\One}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Operations on quantities}
+
+Addition of quantities:
+\begin{center}
+  $\addqty{\Zero}{r} = r$ \\
+  $\addqty{\ExplicitOmega}{r} = \ExplicitOmega$ \\
+  $\addqty{\One}{\Zero} = \One$ \\
+  $\addqty{\One}{\One} = \ExplicitOmega$ \\
+  $\addqty{\One}{\ExplicitOmega} = \ExplicitOmega$
+\end{center}
+
+Multiplication:
+\begin{center}
+  $\mulqty{\Zero}{r} = \Zero$ \\
+  $\mulqty{\One}{r} = r$ \\
+  $\mulqty{\ExplicitOmega}{\Zero} = \Zero$ \\
+  $\mulqty{\ExplicitOmega}{\One} = \ExplicitOmega$ \\
+  $\mulqty{\ExplicitOmega}{\ExplicitOmega} = \ExplicitOmega$ \\
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Types}
+
+Types: \\
+$A, B ::= \Fun[r]{A}{B} \pipe \Box[r]{A} \pipe \Prod{A}{B} \pipe \Sum{A}{B} \pipe \Unit \pipe \Empty$
+
+\end{frame}
+
+\begin{frame}{Terms}
+
+Terms: \\
+$e ::=$ \\
+\qquad $x \pipe \fun[r]{x}[A]{e} \pipe \app{e_1}{e_2} \pipe$ \\
+\qquad $\boxintro[r]{e} \pipe \boxelim{x}{e_1}{e_2}$ \\
+\qquad $\letin[r]{x}{e_1}{e_2} \pipe$ \\
+%\qquad $\pair{e_1}{e_2} \pipe \outl{e} \pipe \outr{e} \pipe$ \\
+%\qquad $\inl{e} \pipe \inr{e} \pipe \case{e}{e_1}{e_2} \pipe$ \\
+%\qquad $\unit \pipe \emptyelim{e}$
+
+\end{frame}
+
+\begin{frame}{Contexts}
+
+Contexts: \\
+$\Gamma ::= \emptyctx \pipe \extend{\Gamma}[r]{x}{A} \pipe \extend{\Gamma}[r]{x}{A}[e] \pipe \assume{\Gamma}{p}{P}$ % \pipe \extendtype{\Gamma}{\alpha}$
+
+\vspace{2em}
+
+Operations on contexts: \\
+$\addctx{\Gamma_1}{\Gamma_2}$ \\
+$\scalectx{r}{\Gamma}$ \\
+$\subctx{\Gamma_1}{\Gamma_2}$ \\
+
+\end{frame}
+
+\begin{frame}{Contexts addition}
+
+\begin{center}
+  $\addctx{\emptyctx}{\emptyctx} = \emptyctx$ \\
+  $\addctx{(\extend{\Gamma_1}[r_1]{x}{A})}{(\extend{\Gamma_2}[r_2]{x}{A})} = \extend{(\addctx{\Gamma_1}{\Gamma_2})}[(\addqty{r_1}{r_2})]{x}{A}$ \\
+  $\addctx{(\extend{\Gamma_1}[r_1]{x}{A}[e])}{(\extend{\Gamma_2}[r_2]{x}{A}[e])} = \extend{(\addctx{\Gamma_1}{\Gamma_2})}[(\addqty{r_1}{r_2})]{x}{A}[e]$ \\
+  $\addctx{(\assume{\Gamma_1}{p}{P})}{(\assume{\Gamma_2}{p}{P})} = \assume{(\addctx{\Gamma_1}{\Gamma_2})}{p}{P}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Context scaling}
+
+\begin{center}
+  $\scalectx{s}{\emptyctx} = \emptyctx$ \\
+  $\scalectx{s}{(\extend{\Gamma}[r]{x}{A})} = \extend{\scalectx{s}{\Gamma}}[(\mulqty{s}{r})]{x}{A}$ \\
+  $\scalectx{s}{(\extend{\Gamma}[r]{x}{A}[e])} = \extend{\scalectx{s}{\Gamma}}[(\mulqty{s}{r})]{x}{A}[e]$ \\
+  $\scalectx{s}{(\assume{\Gamma}{p}{P})} = \assume{\scalectx{s}{\Gamma}}{p}{P}$ \\
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Context ordering}
+
+\begin{center}
+  $\infrule{}{\subctx{\emptyctx}{\emptyctx}}$
+
+  \vspace{1em}
+
+  $\infrule{\subctx{\Gamma_1}{\Gamma_2} \quad \subusage{r_1}{r_2}}{\subctx{\extend{\Gamma_1}[r_1]{x}{A}}{\extend{\Gamma_2}[r_2]{x}{A}}}$
+
+  \vspace{2em}
+
+  $\infrule{\subctx{\Gamma_1}{\Gamma_2} \quad \subusage{r_1}{r_2}}{\subctx{\extend{\Gamma_1}[r_1]{x}{A}[e]}{\extend{\Gamma_2}[r_2]{x}{A}[e]}}$
+
+  \vspace{2em}
+
+  $\infrule{\subctx{\Gamma_1}{\Gamma_2}}{\subctx{\assume{\Gamma_1}{p}{P}}{\assume{\Gamma_2}{p}{P}}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Judgements}
+
+
+\end{frame}
+
+\begin{frame}{Functions}
+
+\vspace{2em}
+
+\begin{center}
+  $\infrule{\typing{\extend{\Gamma}[r]{x}{A}}{e}{B}}{\typing{\Gamma}{\fun[r]{x}[A]{e}}{\Fun[r]{A}{B}}}$
+
+  \vspace{2em}
+
+  $\infrule{\subctx{\Gamma}{\addctx{\Gamma_1}{\scalectx{r}{\Gamma_2}}} \quad \typing{\Gamma_1}{e_1}{\Fun[r]{A}{B}} \quad \typing{\Gamma_2}{e_2}{B}}{\typing{\Gamma}{\app{e_1}{e_2}}{B}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Box}
+
+\begin{center}
+  $\infrule{\subctx{\Gamma}{\scalectx{r}{\Gamma'}} \quad \typing{\Gamma'}{e}{A}}{\typing{\Gamma}{\boxintro[r]{e}}{\Box[r]{A}}}$
+
+  \vspace{2em}
+
+  $\infrule{\subctx{\Gamma}{\addctx{\Gamma_1}{\Gamma_2}} \quad \typing{\Gamma_1}{e_1}{\Box[r]{A}} \quad \typing{\extend{\Gamma_2}[r]{x}{A}}{e_2}{B}}{\typing{\Gamma}{\boxelim{x}{e_1}{e_2}}{B}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Let}
+
+\begin{center}
+  $\infrule{\subctx{\Gamma}{\addctx{\Gamma_1}{\scalectx{r}{\Gamma_2}}} \quad \typing{\Gamma_1}{e_1}{A} \quad \typing{\extend{\Gamma_2}[r]{x}{A}}{e_2}{B}}{\typing{\Gamma}{\letin[r]{x}{e_1}{e_2}}{B}}$
+\end{center}
+
+\end{frame}
+
+\end{document}

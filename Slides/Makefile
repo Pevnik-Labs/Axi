@@ -25,14 +25,18 @@ PDFLATEX="pdflatex -interaction=nonstopmode -synctex=1"
 # editor are properly configured.
 
 all:
+	cd Theory; latexmk -pdf -pdflatex=$(PDFLATEX) -use-make
 	cd Research; latexmk -pdf -pdflatex=$(PDFLATEX) -use-make
 	latexmk -pdf -pdflatex=$(PDFLATEX) -use-make
 
 clean:
+	cd Theory; latexmk -CA
 	cd Research; latexmk -CA
 	latexmk -CA
 
 install:
 	mkdir -p ${out}/Research
 	cp Research/*.pdf ${out}/Research/
+	mkdir -p ${out}/Theory
+	cp Theory/*.pdf ${out}/Theory/
 	cp *.pdf ${out}/
