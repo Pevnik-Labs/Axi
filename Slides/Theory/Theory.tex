@@ -28,7 +28,7 @@ $r ::= \Zero \pipe \One \pipe \ExplicitOmega$
 
 \vspace{2em}
 
-The default quantity is $\ExplicitOmega$, so it's not written most of the time.
+$\ExplicitOmega$ is the default quantity, so when there's nothing to indicate quantity, it means it's $\ExplicitOmega$.
 
 \vspace{2em}
 
@@ -80,13 +80,50 @@ $e ::=$ \\
 %\qquad $\pair{e_1}{e_2} \pipe \outl{e} \pipe \outr{e} \pipe$ \\
 %\qquad $\inl{e} \pipe \inr{e} \pipe \case{e}{e_1}{e_2} \pipe$ \\
 %\qquad $\unit \pipe \emptyelim{e}$
+\qquad $\choose{p}$
+
+\vspace{2em}
+
+$\choose{p}$ is a noncomputable terms, whereas all others are computable.
+
+\end{frame}
+
+\begin{frame}{Propositions}
+
+Propositions: \\
+$P, Q ::=$ \\
+\qquad $\True \pipe \False \pipe \Impl{P}{Q} \pipe \And{P}{Q} \pipe \Or{P}{Q} \pipe$ \\
+\qquad $\All{x}[A]{P} \pipe \Ex{x}[A]{P} \pipe$ \\
+\qquad $\Eq[A]{e_1}{e_2}$
+
+\vspace{2em}
+
+Notations: \\
+$\Not{P}$ stands for $\Impl{P}{\False}$ \\
+$\Iff{P}{Q}$ stands for $\And{(\Impl{P}{Q})}{(\Impl{Q}{P})}$
+
+\end{frame}
+
+\begin{frame}{Proofterms}
+
+Proofterms ($P, Q$ are propositions, $e$ are terms, $h$ are variables): \\
+$p, q ::=$ \\
+\qquad $h \pipe \trueintro \pipe \falseelim{p}$ \\
+\qquad $\implintro{h}[P]{q} \pipe \implelim{p_1}{p_2} \pipe$ \\
+\qquad $\andintro{p_1}{p_2} \pipe \andeliml{p} \pipe \andelimr{p} \pipe$ \\
+\qquad $\orintrol{p} \pipe \orintror{p} \pipe \orelim{p_1}{p_2}{p_3} \pipe$ \\
+\qquad $\lemma{h}{P}{p}{q} \pipe \proofannot{P}{p} \pipe$ \\
+\qquad $\allintro{x}[A]{e} \pipe \allelim{p}{e} \pipe$ \\
+\qquad $\exintro{e}{p} \pipe \exelim{x}{h}{p_1}{p_2} \pipe$ \\
+\qquad $\refl[e] \pipe \rewrite{p_1}{P_2} \pipe \funext{x}[A]{p}$ \\
+\qquad $\bycontradiction{h}[P]{q} \pipe \choosespec{p}$
 
 \end{frame}
 
 \begin{frame}{Contexts}
 
 Contexts: \\
-$\Gamma ::= \emptyctx \pipe \extend{\Gamma}[r]{x}{A} \pipe \extend{\Gamma}[r]{x}{A}[e] \pipe \assume{\Gamma}{p}{P}$ % \pipe \extendtype{\Gamma}{\alpha}$
+$\Gamma ::= \emptyctx \pipe \extend{\Gamma}[r]{x}{A} \pipe \extend{\Gamma}[r]{x}{A}[e] \pipe \assume{\Gamma}{h}{P}$ % \pipe \extendtype{\Gamma}{\alpha}$
 
 \vspace{2em}
 
@@ -94,16 +131,17 @@ Operations on contexts: \\
 $\addctx{\Gamma_1}{\Gamma_2}$ \\
 $\scalectx{r}{\Gamma}$ \\
 $\subctx{\Gamma_1}{\Gamma_2}$ \\
+$\cartesianize{\Gamma}$
 
 \end{frame}
 
-\begin{frame}{Contexts addition}
+\begin{frame}{Context addition}
 
 \begin{center}
   $\addctx{\emptyctx}{\emptyctx} = \emptyctx$ \\
   $\addctx{(\extend{\Gamma_1}[r_1]{x}{A})}{(\extend{\Gamma_2}[r_2]{x}{A})} = \extend{(\addctx{\Gamma_1}{\Gamma_2})}[(\addqty{r_1}{r_2})]{x}{A}$ \\
   $\addctx{(\extend{\Gamma_1}[r_1]{x}{A}[e])}{(\extend{\Gamma_2}[r_2]{x}{A}[e])} = \extend{(\addctx{\Gamma_1}{\Gamma_2})}[(\addqty{r_1}{r_2})]{x}{A}[e]$ \\
-  $\addctx{(\assume{\Gamma_1}{p}{P})}{(\assume{\Gamma_2}{p}{P})} = \assume{(\addctx{\Gamma_1}{\Gamma_2})}{p}{P}$
+  $\addctx{(\assume{\Gamma_1}{p}{P})}{(\assume{\Gamma_2}{h}{P})} = \assume{(\addctx{\Gamma_1}{\Gamma_2})}{h}{P}$
 \end{center}
 
 \end{frame}
@@ -114,7 +152,7 @@ $\subctx{\Gamma_1}{\Gamma_2}$ \\
   $\scalectx{s}{\emptyctx} = \emptyctx$ \\
   $\scalectx{s}{(\extend{\Gamma}[r]{x}{A})} = \extend{\scalectx{s}{\Gamma}}[(\mulqty{s}{r})]{x}{A}$ \\
   $\scalectx{s}{(\extend{\Gamma}[r]{x}{A}[e])} = \extend{\scalectx{s}{\Gamma}}[(\mulqty{s}{r})]{x}{A}[e]$ \\
-  $\scalectx{s}{(\assume{\Gamma}{p}{P})} = \assume{\scalectx{s}{\Gamma}}{p}{P}$ \\
+  $\scalectx{s}{(\assume{\Gamma}{h}{P})} = \assume{\scalectx{s}{\Gamma}}{h}{P}$ \\
 \end{center}
 
 \end{frame}
@@ -134,15 +172,37 @@ $\subctx{\Gamma_1}{\Gamma_2}$ \\
 
   \vspace{2em}
 
-  $\infrule{\subctx{\Gamma_1}{\Gamma_2}}{\subctx{\assume{\Gamma_1}{p}{P}}{\assume{\Gamma_2}{p}{P}}}$
+  $\infrule{\subctx{\Gamma_1}{\Gamma_2}}{\subctx{\assume{\Gamma_1}{h}{P}}{\assume{\Gamma_2}{h}{P}}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Cartesianization}
+
+Cartesianization turns a context into a traditional context that doesn't mention any quantities.
+
+\begin{center}
+  $\cartesianize{\emptyctx} = \emptyctx$ \\
+  $\cartesianize{\extend{\Gamma}[r]{x}{A}} = \extend{\cartesianize{\Gamma}}{x}{A}$ \\
+  $\cartesianize{\extend{\Gamma}[r]{x}{A}[e]} = \extend{\cartesianize{\Gamma}}{x}{A}[e]$ \\
+  $\cartesianize{\assume{\Gamma}{h}{P}} = \assume{\cartesianize{\Gamma}}{h}{P}$
 \end{center}
 
 \end{frame}
 
 \begin{frame}{Judgements}
 
+Valid type judgement: $\type[\Gamma]{A}$ \\
+Typing judgement: $\typing{\Gamma}{e}{A}$
+
+\vspace{2em}
+
+Well-formed proposition judgement: $\prop[\Gamma]{P}$ \\
+Proof judgement: $\proves[\Gamma]{p}{P}$
 
 \end{frame}
+
+\section{Programming}
 
 \begin{frame}{Functions}
 
@@ -174,6 +234,94 @@ $\subctx{\Gamma_1}{\Gamma_2}$ \\
 
 \begin{center}
   $\infrule{\subctx{\Gamma}{\addctx{\Gamma_1}{\scalectx{r}{\Gamma_2}}} \quad \typing{\Gamma_1}{e_1}{A} \quad \typing{\extend{\Gamma_2}[r]{x}{A}}{e_2}{B}}{\typing{\Gamma}{\letin[r]{x}{e_1}{e_2}}{B}}$
+\end{center}
+
+\end{frame}
+
+\section{Logic}
+
+\begin{frame}{Well-formed propositions}
+
+\begin{center}
+
+  $\infrule{\prop[\extend{\Gamma}{x}{A}]{P}}{\prop{\All{x}[A]{P}}}$ \quad
+  $\infrule{\prop[\extend{\Gamma}{x}{A}]{P}}{\prop{\Ex{x}[A]{P}}}$
+
+  \vspace{1em}
+
+  $\infrule{\type[\Gamma]{A} \quad \typing{\Gamma}{e_1}{A} \quad \typing{\Gamma}{e_2}{A}}{\prop[\Gamma]{\Eq[A]{e_1}{e_2}}}$
+
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Substitution}
+
+The notation is $\subst{P}{x}{e}$ for substitution in propositions.
+\end{frame}
+
+\begin{frame}{Proofs}
+
+\begin{center}
+  $\infrule{\cartesian{\Gamma}}{\proves[\Gamma]{\trueintro}{\True}}$
+
+  \vspace{2em}
+
+  $\infrule{\cartesian{\Gamma} \quad \sidecond{(h : P) \in \Gamma}}{\proves[\Gamma]{\assumption}{P}}$
+
+  \vspace{2em}
+
+  $\infrule{\proves[\assume{\Gamma}{h}{P}]{q}{Q}}{\proves[\Gamma]{\implintro{h}[P]{q}}{\Impl{P}{Q}}}$
+
+  \vspace{2em}
+
+  $\infrule{\proves{q}{\Impl{P}{Q}} \quad \proves{p}{P}}{\proves{\implelim{q}{p}}{Q}}$
+
+  \vspace{2em}
+
+  $\infrule{\proves[\Gamma]{p}{P} \quad \proves[\assume{\Gamma}{h}{P}]{q}{Q}}{\proves[\Gamma]{\lemma{h}{P}{p}{q}}{Q}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Proofs}
+
+\begin{center}
+  $\infrule{\proves[\extend{\Gamma}{x}{A}]{p}{P}}{\proves[\Gamma]{\allintro{x}[A]{p}}{\All{x}[A]{P}}}$
+
+  \vspace{1em}
+
+  $\infrule{\proves{p}{\All{x}[A]{P}} \quad \typing{\Gamma}{e}{A}}{\proves{\allelim{p}{e}}{\subst{P}{x}{e}}}$
+
+  \vspace{2em}
+
+  $\infrule{\typing{\Gamma}{e}{A} \quad \proves{p}{\subst{P}{x}{e}}}{\proves{\exintro{e}{p}}{\Ex{x}[A]{P}}}$
+
+  \vspace{1em}
+
+  $\infrule{\proves[\Gamma]{p}{\Ex{x}[A]{P}} \quad \prop{Q} \quad \proves[\assume{\extend{\Gamma}{x}{A}}{h}{P}]{q}{Q}}{\proves[\Gamma]{\exelim{x}{h}{p}{q}}{Q}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Axiom of Choice}
+
+
+\begin{center}
+  $\infrule{\proves[\cartesianize{\Gamma}]{p}{\Ex{x}[A]{P}}}{\typing{\Gamma}{\choose{p}}{A}}$
+
+  \vspace{2em}
+
+  $\infrule{\proves{p}{\Ex{x}[A]{P}}}{\proves{\choosespec{p}}{\subst{P}{x}{\choose{p}}}}$
+
+  \vspace{2em}
+
+  $\infrule{\proves[\Gamma]{p}{\Ex{x}[A]{P}} \quad \prop{Q} \quad \proves[\assume{\extend{\Gamma}{x}{A}[\choose{p}]}{h}{P}]{q}{Q}}{\proves[\Gamma]{\choosewitnessl{x}{h}{p}{q}}{Q}}$
+
+  \vspace{2em}
+
+  $\infrule{\proves[\cartesianize{\Gamma}]{p}{\Ex{x}[A]{P}} \quad \type[\cartesianize{\Gamma}]{B} \quad \typing{\assume{\extend{\Gamma}{x}{A}[\choose{p}]}{h}{P}}{e}{B}}{\typing{\Gamma}{\choosewitnessp{x}{h}{p}{e}}{B}}$
+
 \end{center}
 
 \end{frame}
