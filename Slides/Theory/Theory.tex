@@ -80,7 +80,7 @@ $e ::=$ \\
 %\qquad $\pair{e_1}{e_2} \pipe \outl{e} \pipe \outr{e} \pipe$ \\
 %\qquad $\inl{e} \pipe \inr{e} \pipe \case{e}{e_1}{e_2} \pipe$ \\
 %\qquad $\unit \pipe \emptyelim{e}$
-\qquad $\choose{p}$
+\qquad $\choose{p} \pipe \choosewitnessp{x}{h}{p}{e}$
 
 \vspace{2em}
 
@@ -108,16 +108,17 @@ $\Iff{P}{Q}$ stands for $\And{(\Impl{P}{Q})}{(\Impl{Q}{P})}$
 
 Proofterms ($P, Q$ are propositions, $e$ are terms, $h$ are variables): \\
 $p, q ::=$ \\
-\qquad $h \pipe \trueintro \pipe \falseelim{p}$ \\
+\qquad $h \pipe \assumption \pipe \trueintro \pipe \falseelim{p}$ \\
 \qquad $\implintro{h}[P]{q} \pipe \implelim{p_1}{p_2} \pipe$ \\
 \qquad $\andintro{p_1}{p_2} \pipe \andeliml{p} \pipe \andelimr{p} \pipe$ \\
 \qquad $\orintrol{p} \pipe \orintror{p} \pipe \orelim{p_1}{p_2}{p_3} \pipe$ \\
 \qquad $\lemma{h}{P}{p}{q} \pipe \proofannot{P}{p} \pipe$ \\
+\qquad $\suffices{P}{q}{p} \pipe$ \\
 \qquad $\allintro{x}[A]{e} \pipe \allelim{p}{e} \pipe$ \\
 \qquad $\exintro{e}{p} \pipe \exelim{x}{h}{p_1}{p_2} \pipe$ \\
-\qquad $\refl[e] \pipe \rewrite{p_1}{P_2} \pipe \funext{x}[A]{p}$ \\
-\qquad $\bycontradiction{h}[P]{q} \pipe \choosespec{p}$
-
+\qquad $\refl[e] \pipe \rewrite{p_1}{p_2} \pipe \funext{x}[A]{p}$ \\
+\qquad $\bycontradiction{h}[\Not{P}]{q} \pipe$ \\
+\qquad $\choosespec{p} \pipe \choosewitnessl{x}{h}{p}{q}$
 \end{frame}
 
 \begin{frame}{Contexts}
@@ -128,10 +129,10 @@ $\Gamma ::= \emptyctx \pipe \extend{\Gamma}[r]{x}{A} \pipe \extend{\Gamma}[r]{x}
 \vspace{2em}
 
 Operations on contexts: \\
-$\addctx{\Gamma_1}{\Gamma_2}$ \\
-$\scalectx{r}{\Gamma}$ \\
-$\subctx{\Gamma_1}{\Gamma_2}$ \\
-$\cartesianize{\Gamma}$
+$\addctx{\Gamma_1}{\Gamma_2}$ -- context addition \\
+$\scalectx{r}{\Gamma}$ -- context scaling \\
+$\subctx{\Gamma_1}{\Gamma_2}$ -- context subusaging/ordering \\
+$\cartesianize{\Gamma}$ -- cartesianization
 
 \end{frame}
 
@@ -192,7 +193,12 @@ Cartesianization turns a context into a traditional context that doesn't mention
 
 \begin{frame}{Judgements}
 
-Valid type judgement: $\type[\Gamma]{A}$ \\
+Well-formed context judgement: $\ctx{\Gamma}$ \\
+Cartesian context judgement: $\cartesian{\Gamma}$
+
+\vspace{2em}
+
+Well-formed type judgement: $\type[\Gamma]{A}$ \\
 Typing judgement: $\typing{\Gamma}{e}{A}$
 
 \vspace{2em}
@@ -202,7 +208,72 @@ Proof judgement: $\proves[\Gamma]{p}{P}$
 
 \end{frame}
 
+\begin{frame}{Sanity checks}
+
+We'll set up the system so that:
+
+\begin{itemize}
+  \item If $\typing{\Gamma}{e}{A}$, then $\type[\cartesianize{\Gamma}]{A}$.
+  \item If $\proves[\Gamma]{p}{P}$, then $\prop[\Gamma]{P}$.
+  \item If $\prop[\Gamma]{P}$, then $\cartesian{\Gamma}$.
+  \item If $\type[\Gamma]{A}$, then $\cartesian{\Gamma}$.
+  \item If $\cartesian{\Gamma}$, then $\ctx{\Gamma}$.
+  %\item If $\ctx{\Gamma}$ and $(x : A) \in \Gamma$, then $\type[\Gamma]{A}$.
+  %\item If $\ctx{\Gamma}$ and $(x : A := e) \in \Gamma$, then $\typing{\Gamma}{e}{A}$.
+  %\item If $\ctx{\Gamma}$ and $(h : P) \in \Gamma$, then $\prop[\Gamma]{P}$.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Well-formed contexts}
+
+\begin{center}
+  $\infrule{}{\ctx{\emptyctx}}$
+
+  \vspace{2em}
+
+  $\infrule{\ctx{\Gamma} \quad \type[\cartesianize{\Gamma}]{A} \quad \sidecond{x \notin \Gamma}}{\ctx{\extend{\Gamma}[r]{x}{A}}}$
+
+  \vspace{2em}
+
+  $\infrule[DUBIOUS]{\ctx{\Gamma} \quad \typing{\Gamma}{e}{A} \quad \sidecond{x \notin \Gamma}}{\ctx{\extend{\Gamma}[r]{x}{A}[e]}}$
+
+  \vspace{2em}
+
+  $\infrule{\ctx{\Gamma} \quad \prop[\cartesianize{\Gamma}]{P} \quad \sidecond{h \notin \Gamma}}{\ctx{\assume{\Gamma}{h}{P}}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Cartesian contexts}
+
+\begin{center}
+  $\infrule{\ctx{\Gamma} \quad \sidecond{\Gamma = \cartesianize{\Gamma}}}{\cartesian{\Gamma}}$
+\end{center}
+
+\end{frame}
+
 \section{Programming}
+
+\begin{frame}{Well-formed types}
+
+\begin{center}
+  $\infrule{\cartesian{\Gamma}}{\type[\Gamma]{\Unit}}$ \quad
+  $\infrule{\cartesian{\Gamma}}{\type[\Gamma]{\Empty}}$
+
+  \vspace{2em}
+
+  $\infrule{\type{A} \quad \type{B}}{\type{\Fun[r]{A}{B}}}$ \quad
+  $\infrule{\type{A}}{\type{\Box[r]{A}}}$
+
+  \vspace{2em}
+
+  $\infrule{\type{A} \quad \type{B}}{\type{\Prod{A}{B}}}$ \quad
+  $\infrule{\type{A} \quad \type{B}}{\type{\Sum{A}{B}}}$
+
+\end{center}
+
+\end{frame}
 
 \begin{frame}{Functions}
 
@@ -243,9 +314,25 @@ Proof judgement: $\proves[\Gamma]{p}{P}$
 \begin{frame}{Well-formed propositions}
 
 \begin{center}
+  $\infrule{\cartesian{\Gamma}}{\prop[\Gamma]{\True}}$ \quad
+  $\infrule{\cartesian{\Gamma}}{\prop[\Gamma]{\False}}$
 
-  $\infrule{\prop[\extend{\Gamma}{x}{A}]{P}}{\prop{\All{x}[A]{P}}}$ \quad
-  $\infrule{\prop[\extend{\Gamma}{x}{A}]{P}}{\prop{\Ex{x}[A]{P}}}$
+  \vspace{1em}
+
+  $\infrule{\prop{P} \quad \prop{Q}}{\prop{\Impl{P}{Q}}}$
+
+  \vspace{1em}
+
+  $\infrule{\prop{P} \quad \prop{Q}}{\prop{\And{P}{Q}}}$ \quad
+  $\infrule{\prop{P} \quad \prop{Q}}{\prop{\Or{P}{Q}}}$
+
+  \vspace{1em}
+
+  $\infrule{\type[\Gamma]{A} \quad \prop[\extend{\Gamma}{x}{A}]{P}}{\prop{\All{x}[A]{P}}}$
+
+  \vspace{1em}
+
+  $\infrule{\type[\Gamma]{A} \quad \prop[\extend{\Gamma}{x}{A}]{P}}{\prop{\Ex{x}[A]{P}}}$
 
   \vspace{1em}
 
@@ -260,14 +347,12 @@ Proof judgement: $\proves[\Gamma]{p}{P}$
 The notation is $\subst{P}{x}{e}$ for substitution in propositions.
 \end{frame}
 
-\begin{frame}{Proofs}
+\begin{frame}{Assumptions and implication}
 
 \begin{center}
-  $\infrule{\cartesian{\Gamma}}{\proves[\Gamma]{\trueintro}{\True}}$
 
-  \vspace{2em}
-
-  $\infrule{\cartesian{\Gamma} \quad \sidecond{(h : P) \in \Gamma}}{\proves[\Gamma]{\assumption}{P}}$
+  $\infrule{\prop[\Gamma]{P} \quad \sidecond{(h : P) \in \Gamma}}{\proves[\Gamma]{h}{P}}$ \quad
+  $\infrule{\prop[\Gamma]{P} \quad \sidecond{(h : P) \in \Gamma}}{\proves[\Gamma]{\assumption}{P}}$
 
   \vspace{2em}
 
@@ -276,15 +361,55 @@ The notation is $\subst{P}{x}{e}$ for substitution in propositions.
   \vspace{2em}
 
   $\infrule{\proves{q}{\Impl{P}{Q}} \quad \proves{p}{P}}{\proves{\implelim{q}{p}}{Q}}$
-
-  \vspace{2em}
-
-  $\infrule{\proves[\Gamma]{p}{P} \quad \proves[\assume{\Gamma}{h}{P}]{q}{Q}}{\proves[\Gamma]{\lemma{h}{P}{p}{q}}{Q}}$
 \end{center}
 
 \end{frame}
 
-\begin{frame}{Proofs}
+\begin{frame}{Propositional logic}
+
+\begin{center}
+  $\infrule{\cartesian{\Gamma}}{\proves[\Gamma]{\trueintro}{\True}}$ \quad
+  $\infrule{\prop[\Gamma]{Q} \quad \proves[\Gamma]{p}{\False}}{\proves[\Gamma]{\falseelim{p}}{Q}}$
+
+  \vspace{2em}
+
+  $\infrule{\proves[\Gamma]{p}{P} \quad \proves[\Gamma]{q}{Q}}{\proves[\Gamma]{\andintro{p}{q}}{\And{P}{Q}}}$
+
+  \vspace{1em}
+
+  $\infrule{\proves[\Gamma]{pq}{\And{P}{Q}}}{\proves[\Gamma]{\andeliml{pq}}{P}}$ \quad
+  $\infrule{\proves[\Gamma]{pq}{\And{P}{Q}}}{\proves[\Gamma]{\andelimr{pq}}{Q}}$
+
+  \vspace{2em}
+
+  $\infrule{\proves[\Gamma]{p}{P} \quad \prop[\Gamma]{Q}}{\proves[\Gamma]{\orintrol{p}}{\Or{P}{Q}}}$ \quad
+  $\infrule{\prop[\Gamma]{P} \quad \proves[\Gamma]{q}{Q}}{\proves[\Gamma]{\orintror{q}}{\Or{P}{Q}}}$
+
+  \vspace{1em}
+
+  $\infrule{\proves[\Gamma]{pq}{\Or{P}{Q}} \quad \proves[\Gamma]{r_1}{\Impl{P}{R}} \quad \proves[\Gamma]{r_2}{\Impl{Q}{R}}}{\proves[\Gamma]{\orelim{pq}{r_1}{r_2}}{R}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Utilities}
+
+\begin{center}
+  $\infrule{\proves[\Gamma]{p}{P} \quad \proves[\assume{\Gamma}{h}{P}]{q}{Q}}{\proves[\Gamma]{\lemma{h}{P}{p}{q}}{Q}}$
+
+  \vspace{2em}
+
+  $\infrule{\proves[\Gamma]{p}{P}}{\proves[\Gamma]{\proofannot{P}{p}}{P}}$
+
+  \vspace{2em}
+
+  $\infrule{\proves[\Gamma]{pq}{\Impl{P}{Q}} \quad \proves[\Gamma]{p}{P}}{\proves[\Gamma]{\suffices{P}{pq}{p}}{Q}}$
+
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Quantifiers}
 
 \begin{center}
   $\infrule{\proves[\extend{\Gamma}{x}{A}]{p}{P}}{\proves[\Gamma]{\allintro{x}[A]{p}}{\All{x}[A]{P}}}$
@@ -295,7 +420,7 @@ The notation is $\subst{P}{x}{e}$ for substitution in propositions.
 
   \vspace{2em}
 
-  $\infrule{\typing{\Gamma}{e}{A} \quad \proves{p}{\subst{P}{x}{e}}}{\proves{\exintro{e}{p}}{\Ex{x}[A]{P}}}$
+  $\infrule{\typing{\Gamma}{e}{A} \quad \prop[\extend{\Gamma}{x}{A}]{P} \quad \proves{p}{\subst{P}{x}{e}}}{\proves{\exintro{e}{p}}{\Ex{x}[A]{P}}}$
 
   \vspace{1em}
 
@@ -304,13 +429,32 @@ The notation is $\subst{P}{x}{e}$ for substitution in propositions.
 
 \end{frame}
 
-\begin{frame}{Axiom of Choice}
-
+\begin{frame}{Equality}
 
 \begin{center}
-  $\infrule{\proves[\cartesianize{\Gamma}]{p}{\Ex{x}[A]{P}}}{\typing{\Gamma}{\choose{p}}{A}}$
+  $\infrule{\typing{\Gamma}{e}{A}}{\proves[\Gamma]{\refl[e]}{\Eq[A]{e}{e}}}$
 
   \vspace{2em}
+
+  $\infrule{\proves[\Gamma]{q}{\Eq[A]{e_1}{e_2}} \quad \prop[\extend{\Gamma}{x}{A}]{P} \quad \proves[\Gamma]{p}{\subst{P}{x}{e_2}}}{\proves[\Gamma]{\rewrite{q}{p}}{\subst{P}{x}{e_1}}}$
+
+  \vspace{2em}
+
+  $\infrule{\proves[\extend{\Gamma}{x}{A}]{p}{\Eq[B]{\app{f}{x}}{\app{g}{x}}}}{\proves[\Gamma]{\funext{x}[A]{p}}{\Eq[\Fun[r]{A}{B}]}{f}{g}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Classical Logic}
+
+\begin{center}
+  $\infrule{\proves[\assume{\Gamma}{h}{\Not{P}}]{q}{\False}}{\proves[\Gamma]{\bycontradiction{h}[\Not{P}]{q}}{P}}$
+
+  \vspace{2em}
+
+  $\infrule{\proves[\cartesianize{\Gamma}]{p}{\Ex{x}[A]{P}}}{\typing{\Gamma}{\choose{p}}{A}}$
+
+  \vspace{1em}
 
   $\infrule{\proves{p}{\Ex{x}[A]{P}}}{\proves{\choosespec{p}}{\subst{P}{x}{\choose{p}}}}$
 
@@ -318,7 +462,7 @@ The notation is $\subst{P}{x}{e}$ for substitution in propositions.
 
   $\infrule{\proves[\Gamma]{p}{\Ex{x}[A]{P}} \quad \prop{Q} \quad \proves[\assume{\extend{\Gamma}{x}{A}[\choose{p}]}{h}{P}]{q}{Q}}{\proves[\Gamma]{\choosewitnessl{x}{h}{p}{q}}{Q}}$
 
-  \vspace{2em}
+  \vspace{1em}
 
   $\infrule{\proves[\cartesianize{\Gamma}]{p}{\Ex{x}[A]{P}} \quad \type[\cartesianize{\Gamma}]{B} \quad \typing{\assume{\extend{\Gamma}{x}{A}[\choose{p}]}{h}{P}}{e}{B}}{\typing{\Gamma}{\choosewitnessp{x}{h}{p}{e}}{B}}$
 

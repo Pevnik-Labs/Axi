@@ -69,7 +69,7 @@
 \NewDocumentCommand{\Ex}{m o m}{\exists #1 \optionalannot{#2} .\, #3}
 
 % Equality.
-\newcommand{\Eq}[3][]{#2 =_{#1} #3}
+\NewDocumentCommand{\Eq}{o m m}{#2 =_{#1} #3}
 
 % Proofterms.
 
@@ -92,6 +92,7 @@
 %\newcommand{\iffelimr}[1]{\textbf{right-iff}\ #1}
 \RenewDocumentCommand{\lemma}{m m m m}{\textbf{lemma}\ #1 : #2\ \textbf{by}\ #3\ \textbf{in}\ #4}
 \NewDocumentCommand{\proofannot}{m m}{\textbf{proving}\ #1\ \textbf{by}\ #2}
+\NewDocumentCommand{\suffices}{m m m}{\textbf{suffices}\ #1\ \textbf{by}\ #2\ \textbf{in}\ #3}
 
 % Classical logic.
 \NewDocumentCommand{\bycontradiction}{m o m}{\textbf{by-contradiction}\ #1 \optionalannot{#2}\ \textbf{in}\ #3}
@@ -124,6 +125,9 @@
 \NewDocumentCommand{\cartesianize}{m}{| #1 |}
 
 % Judgements.
+
+% Valid context.
+\newcommand{\ctx}[1]{#1\ \texttt{ctx}}
 
 % Cartesian context.
 \NewDocumentCommand{\cartesian}{m}{#1\ \texttt{cartesian}}
