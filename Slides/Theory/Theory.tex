@@ -6,7 +6,7 @@
 
 \usetheme{Darmstadt}
 
-\title{T-Axi}
+\title{T-Axi (declarative)}
 \author
 {
   Wojciech Kołowski\\
@@ -75,16 +75,17 @@ $A, B ::= \Fun[r]{A}{B} \pipe \Box[r]{A} \pipe \Prod{A}{B} \pipe \Sum{A}{B} \pip
 Terms: \\
 $e ::=$ \\
 \qquad $x \pipe \fun[r]{x}[A]{e} \pipe \app{e_1}{e_2} \pipe$ \\
-\qquad $\boxintro[r]{e} \pipe \boxelim{x}{e_1}{e_2}$ \\
-\qquad $\letin[r]{x}{e_1}{e_2} \pipe$ \\
-%\qquad $\pair{e_1}{e_2} \pipe \outl{e} \pipe \outr{e} \pipe$ \\
-%\qquad $\inl{e} \pipe \inr{e} \pipe \case{e}{e_1}{e_2} \pipe$ \\
-%\qquad $\unit \pipe \emptyelim{e}$
-\qquad $\choose{p} \pipe \choosewitnessp{x}{h}{p}{e}$
+\qquad $\boxintro[r]{e} \pipe \boxelim{x}[A]{e_1}{e_2}$ \\
+\qquad $\pair{e_1}{e_2} \pipe \letpair{x}{y}{e_1}{e_2} \pipe$ \\
+\qquad $\inl[A]{e} \pipe \inr[A]{e} \pipe \case{e}{e_1}{e_2} \pipe$ \\
+\qquad $\unit \pipe \unitelim[A]{e_1}{e_2} \pipe$ \\
+\qquad $\emptyelim[A]{e} \pipe$ \\
+\qquad $\letin[r]{x}[A]{e_1}{e_2} \pipe$ \\
+\qquad $\choose[A]{p} \pipe \choosewitnessp{x}{h}{p}{e}$
 
 \vspace{2em}
 
-$\choose{p}$ is a noncomputable terms, whereas all others are computable.
+$\choose[A]{p}$ and $\choosewitnessp{x}{h}{p}{e}$ are noncomputable terms, whereas all others are computable.
 
 \end{frame}
 
@@ -275,6 +276,18 @@ We'll set up the system so that:
 
 \end{frame}
 
+\begin{frame}{Using variables}
+
+\begin{center}
+  $\infrule{\ctx{\Gamma} \quad \Gamma = \extend{\Gamma_1}[r]{x}{A}, \Gamma_2 \quad \subusage{r}{\One} \quad \subctx{\Gamma_1}{\scalectx{\Zero}{\Gamma_1}} \quad \subctx{\Gamma_2}{\scalectx{\Zero}{\Gamma_2}}}{\typing{\Gamma}{x}{A}}$
+
+  \vspace{2em}
+
+  $\infrule{\ctx{\Gamma} \quad \Gamma = \extend{\Gamma_1}[r]{x}{A}[e], \Gamma_2 \quad \subusage{r}{\One} \quad \subctx{\Gamma_1}{\scalectx{\Zero}{\Gamma_1}} \quad \subctx{\Gamma_2}{\scalectx{\Zero}{\Gamma_2}}}{\typing{\Gamma}{x}{A}}$
+\end{center}
+
+\end{frame}
+
 \begin{frame}{Functions}
 
 \vspace{2em}
@@ -284,7 +297,7 @@ We'll set up the system so that:
 
   \vspace{2em}
 
-  $\infrule{\subctx{\Gamma}{\addctx{\Gamma_1}{\scalectx{r}{\Gamma_2}}} \quad \typing{\Gamma_1}{e_1}{\Fun[r]{A}{B}} \quad \typing{\Gamma_2}{e_2}{B}}{\typing{\Gamma}{\app{e_1}{e_2}}{B}}$
+  $\infrule{\subctx{\Gamma}{\addctx{\Gamma_1}{\scalectx{r}{\Gamma_2}}} \quad \typing{\Gamma_1}{e_1}{\Fun[r]{A}{B}} \quad \typing{\Gamma_2}{e_2}{A}}{\typing{\Gamma}{\app{e_1}{e_2}}{B}}$
 \end{center}
 
 \end{frame}
@@ -296,7 +309,52 @@ We'll set up the system so that:
 
   \vspace{2em}
 
-  $\infrule{\subctx{\Gamma}{\addctx{\Gamma_1}{\Gamma_2}} \quad \typing{\Gamma_1}{e_1}{\Box[r]{A}} \quad \typing{\extend{\Gamma_2}[r]{x}{A}}{e_2}{B}}{\typing{\Gamma}{\boxelim{x}{e_1}{e_2}}{B}}$
+  $\infrule{\subctx{\Gamma}{\addctx{\Gamma_1}{\Gamma_2}} \quad \typing{\Gamma_1}{e_1}{\Box[r]{A}} \quad \typing{\extend{\Gamma_2}[r]{x}{A}}{e_2}{B}}{\typing{\Gamma}{\boxelim{x}[A]{e_1}{e_2}}{B}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Empty}
+
+\begin{center}
+  $\infrule{\type[\cartesianize{\Gamma}]{A} \quad \typing{\Gamma}{e}{\Empty}}{\typing{\Gamma}{\emptyelim[A]{e}}{A}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Unit}
+
+\begin{center}
+  $\infrule{\ctx{\Gamma} \quad \subctx{\Gamma}{\scalectx{\Zero}{\Gamma}}}{\typing{\Gamma}{\unit}{\Unit}}$
+
+  \vspace{2em}
+
+  $\infrule{\decomposectx{\Gamma}{\Gamma_1}{\Gamma_2} \quad \typing{\Gamma_1}{e_1}{\Unit} \quad \typing{\Gamma_2}{e_2}{A}}{\typing{\Gamma}{\unitelim[A]{e_1}{e_2}}{A}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Products}
+
+\begin{center}
+  $\infrule{\decomposectx{\Gamma}{\Gamma_1}{\Gamma_2} \quad \typing{\Gamma_1}{a}{A} \quad \typing{\Gamma_2}{b}{B}}{\typing{\Gamma}{\pair{a}{b}}{\Prod{A}{B}}}$
+
+  \vspace{2em}
+
+  $\infrule{\decomposectx{\Gamma}{\Gamma_1}{\Gamma_2} \quad \typing{\Gamma_1}{e_1}{\Prod{A}{B}} \quad \typing{\extend{\extend{\Gamma_2}[\One]{x}{A}}[\One]{y}{B}}{e_2}{C}}{\typing{\Gamma}{\letpair{x}{y}{e_1}{e_2}}{C}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Sums}
+
+\begin{center}
+  $\infrule{\typing{\Gamma}{e}{A} \quad \type[\cartesianize{\Gamma}]{B}}{\typing{\Gamma}{\inl[B]{e}}{\Sum{A}{B}}}$ \quad
+  $\infrule{\type[\cartesianize{\Gamma}]{A} \quad \typing{\Gamma}{e}{B}}{\typing{\Gamma}{\inl[A]{e}}{\Sum{A}{B}}}$
+
+  \vspace{2em}
+
+  $\infrule{\decomposectx{\Gamma}{\Gamma_1}{\Gamma_2} \quad \typing{\Gamma_1}{e}{\Sum{A}{B}} \quad \typing{\Gamma_2}{f}{\Fun[\One]{A}{C}} \quad \typing{\Gamma_2}{g}{\Fun[\One]{B}{C}}}{\typing{\Gamma}{\case{e}{f}{g}}{C}}$
 \end{center}
 
 \end{frame}
@@ -304,7 +362,7 @@ We'll set up the system so that:
 \begin{frame}{Let}
 
 \begin{center}
-  $\infrule{\subctx{\Gamma}{\addctx{\Gamma_1}{\scalectx{r}{\Gamma_2}}} \quad \typing{\Gamma_1}{e_1}{A} \quad \typing{\extend{\Gamma_2}[r]{x}{A}}{e_2}{B}}{\typing{\Gamma}{\letin[r]{x}{e_1}{e_2}}{B}}$
+  $\infrule{\subctx{\Gamma}{\addctx{\scalectx{r}{\Gamma_1}}{\Gamma_2}} \quad \typing{\Gamma_1}{e_1}{A} \quad \typing{\extend{\Gamma_2}[r]{x}{A}[e_1]}{e_2}{B}}{\typing{\Gamma}{\letin[r]{x}[A]{e_1}{e_2}}{B}}$
 \end{center}
 
 \end{frame}

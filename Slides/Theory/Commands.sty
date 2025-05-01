@@ -3,14 +3,14 @@
 \usepackage{xparse}
 
 % Pipes - used when specifying grammars in BNF format.
-\newcommand{\pipe}{\ |\ }
+\NewDocumentCommand{\pipe}{}{\ |\ }
 
 % Programming language.
 
 % Quantities.
-\newcommand{\Zero}{0}
-\newcommand{\One}{1}
-\newcommand{\ExplicitOmega}{\omega}
+\NewDocumentCommand{\Zero}{}{0}
+\NewDocumentCommand{\One}{}{1}
+\NewDocumentCommand{\ExplicitOmega}{}{\omega}
 
 % Subusaging - order on quantities.
 \NewDocumentCommand{\subusage}{m m}{#1 \leq #2}
@@ -20,35 +20,37 @@
 \NewDocumentCommand{\mulqty}{m m}{#1 \cdot #2}
 
 % Types.
-\NewDocumentCommand{\Fun}{o m m}{\IfValueTF{#1}{#1\ }{} #2 \to #3}
+\NewDocumentCommand{\Fun}{o m m}{\IfValueTF{#1}{#1\, }{} #2 \to #3}
 \RenewDocumentCommand{\Box}{o m}{\texttt{!}_{#1}\, #2}
-%\newcommand{\Fun}[2]{#1 \to #2}
-\newcommand{\Prod}[2]{#1 \otimes #2}
-\newcommand{\Sum}[2]{#1 \oplus #2}
-\newcommand{\Unit}{\textbf{1}}
-\newcommand{\Empty}{\textbf{0}}
+\NewDocumentCommand{\Prod}{m m}{#1 \otimes #2}
+\NewDocumentCommand{\Sum}{m m}{#1 \oplus #2}
+\NewDocumentCommand{\Unit}{}{\texttt{Unit}}
+\NewDocumentCommand{\Empty}{}{\texttt{Empty}}
 %\newcommand{\ForallT}[2]{\forall #1.\, #2}
 
 % An optional type annotation.
-\newcommand{\optionalannot}[1]{\IfValueTF{#1}{: #1}{}}
-\newcommand{\optionalspace}[1]{\IfValueTF{#1}{\ #1}{}}
+\NewDocumentCommand{\optionalannot}{m}{\IfValueTF{#1}{: #1}{}}
+\NewDocumentCommand{\optionalspace}{m}{\IfValueTF{#1}{\ #1}{}}
+\NewDocumentCommand{\optional}{m}{\IfValueTF{#1}{#1}{}}
 
 % Terms.
 %\newcommand{\annot}[2]{(#1 : #2)}
-\NewDocumentCommand{\fun}{o m o m}{\lambda_{#1}\, #2 \optionalannot{#3} .\, #4}
+\NewDocumentCommand{\fun}{o m o m}{\lambda_{\optional{#1}}\, #2 \optionalannot{#3} .\, #4}
 \NewDocumentCommand{\app}{m m}{#1\ #2}
-\NewDocumentCommand{\boxintro}{o m}{\texttt{box}_{#1}\ #2}
-\NewDocumentCommand{\boxelim}{m m m}{\texttt{letbox}\ #1 = #2\ \texttt{in}\ #3}
-\NewDocumentCommand{\letin}{o m m m}{\texttt{let}_{#1}\ #2 = #3\ \texttt{in}\ #4}
-\newcommand{\pair}[2]{(#1, #2)}
-\newcommand{\outl}[2][]{\texttt{outl}_{#1}\ #2}
-\newcommand{\outr}[2][]{\texttt{outr}_{#1}\ #2}
-\newcommand{\inl}[2][]{\texttt{inl}_{#1}\ #2}
-\newcommand{\inr}[2][]{\texttt{inr}_{#1}\ #2}
-\newcommand{\case}[3]{\texttt{case}\ #1\ \texttt{of}\ (#2, #3)}
-\newcommand{\unit}{\texttt{unit}}
-\newcommand{\emptyelim}[2][]{\Empty\texttt{-elim}_{#1}\ #2}
-\RenewDocumentCommand{\choose}{m}{\texttt{choose}\ #1}
+\NewDocumentCommand{\boxintro}{o m}{\texttt{box}_{\optional{#1}}\ #2}
+\NewDocumentCommand{\boxelim}{m o m m}{\texttt{letbox}\ #1 \optionalannot{#2} = #3\ \texttt{in}\ #4}
+\NewDocumentCommand{\letin}{o m o m m}{\texttt{let}_{\optional{#1}}\ #2 \optionalannot{#3} = #4\ \texttt{in}\ #5}
+\NewDocumentCommand{\pair}{m m}{(#1, #2)}
+\NewDocumentCommand{\outl}{o m}{\texttt{outl}_{\optional{#1}}\ #2}
+\NewDocumentCommand{\outr}{o m}{\texttt{outr}_{\optional{#1}}\ #2}
+\NewDocumentCommand{\letpair}{m m m m}{\texttt{letpair}\ (#1, #2) = #3\ \texttt{in}\ #4}
+\NewDocumentCommand{\inl}{o m}{\texttt{inl}_{\optional{#1}}\ #2}
+\NewDocumentCommand{\inr}{o m}{\texttt{inr}_{\optional{#1}}\ #2}
+\NewDocumentCommand{\case}{m m m}{\texttt{case}\ #1\ \texttt{of}\ (#2, #3)}
+\NewDocumentCommand{\unit}{}{\texttt{unit}}
+\NewDocumentCommand{\unitelim}{o m m}{\texttt{letunit}_{\optional{#1}}\ \unit = #2\ \texttt{in}\ #3}
+\NewDocumentCommand{\emptyelim}{o m}{\Empty\texttt{-elim}_{\optional{#1}}\ #2}
+\RenewDocumentCommand{\choose}{o m}{\texttt{choose}_{\optional{#1}}\ #2}
 \NewDocumentCommand{\choosewitnessp}{m m m m}{\texttt{choose-witness}\ #1\ #2\ \texttt{for}\ #3\ \texttt{in}\ #4}
 
 % Logic.
@@ -56,13 +58,13 @@
 % Propositions.
 
 % Propositional logic.
-\newcommand{\True}{\top}
-\newcommand{\False}{\bot}
-\newcommand{\Not}[1]{\neg #1}
-\newcommand{\Or}[2]{#1 \lor #2}
-\renewcommand{\And}[2]{#1 \land #2}
-\newcommand{\Impl}[2]{#1 \Rightarrow #2}
-\newcommand{\Iff}[2]{#1 \Leftrightarrow #2}
+\NewDocumentCommand{\True}{}{\top}
+\NewDocumentCommand{\False}{}{\bot}
+\NewDocumentCommand{\Not}{m}{\neg #1}
+\NewDocumentCommand{\Or}{m m}{#1 \lor #2}
+\RenewDocumentCommand{\And}{m m}{#1 \land #2}
+\NewDocumentCommand{\Impl}{m m}{#1 \Rightarrow #2}
+\NewDocumentCommand{\Iff}{m m}{#1 \Leftrightarrow #2}
 
 % Quantifiers.
 \NewDocumentCommand{\All}{m o m}{\forall #1 \optionalannot{#2} .\, #3}
@@ -76,17 +78,17 @@
 % Propositional logic.
 \NewDocumentCommand{\assumption}{}{\textbf{assumption}}
 \NewDocumentCommand{\implintro}{m o m}{\textbf{assume}\ #1 \optionalannot{#2}\ \textbf{in}\ #3}
-\newcommand{\implelim}[2]{\textbf{apply}\ #1\ #2}
-\newcommand{\trueintro}{\textbf{trivial}}
-\newcommand{\falseelim}[1]{\textbf{absurd}\ #1}
+\NewDocumentCommand{\implelim}{m m}{\textbf{apply}\ #1\ #2}
+\NewDocumentCommand{\trueintro}{}{\textbf{trivial}}
+\NewDocumentCommand{\falseelim}{m}{\textbf{absurd}\ #1}
 %\newcommand{\notintro}[2]{\textbf{suppose-absurd}\ #1\ \textbf{in}\ #2}
 %\newcommand{\notelim}[2]{\textbf{absurd}\ #1\ #2}
-\newcommand{\andintro}[2]{\textbf{both}\ #1\ #2}
-\newcommand{\andeliml}[1]{\textbf{and-left}\ #1}
-\newcommand{\andelimr}[1]{\textbf{and-right}\ #1}
+\NewDocumentCommand{\andintro}{m m}{\textbf{both}\ #1\ #2}
+\NewDocumentCommand{\andeliml}{m}{\textbf{and-left}\ #1}
+\NewDocumentCommand{\andelimr}{m}{\textbf{and-right}\ #1}
 \NewDocumentCommand{\orintrol}{m}{\textbf{or-left}\ #1}
 \NewDocumentCommand{\orintror}{m}{\textbf{or-right}\ #1}
-\newcommand{\orelim}[3]{\textbf{cases}\ #1\ #2\ #3}
+\NewDocumentCommand{\orelim}{m m m}{\textbf{cases}\ #1\ #2\ #3}
 %\newcommand{\iffintro}[2]{\textbf{equivalence}\ #1\ #2}
 %\newcommand{\iffeliml}[1]{\textbf{left-iff}\ #1}
 %\newcommand{\iffelimr}[1]{\textbf{right-iff}\ #1}
@@ -101,19 +103,19 @@
 
 % Quantifiers.
 \NewDocumentCommand{\allintro}{m o m}{\textbf{pick-any}\ #1 \optionalannot{#2}\ \textbf{in}\ #3}
-\newcommand{\allelim}[2]{\textbf{instantiate}\ #1\ \textbf{with}\ #2}
+\NewDocumentCommand{\allelim}{m m}{\textbf{instantiate}\ #1\ \textbf{with}\ #2}
 \NewDocumentCommand{\exintro}{m m}{\textbf{witness}\ #1\ \textbf{such that}\ #2}
 \NewDocumentCommand{\exelim}{m m m m}{\textbf{pick-witness}\ #1\ #2\ \textbf{for}\ #3\ \textbf{in}\ #4}
 
 % Equality.
 \NewDocumentCommand{\refl}{o}{\textbf{refl} \optionalspace{#1}}
-\newcommand{\rewrite}[2]{\textbf{rewrite}\ #1\ \textbf{in}\ #2}
+\NewDocumentCommand{\rewrite}{m m}{\textbf{rewrite}\ #1\ \textbf{in}\ #2}
 \NewDocumentCommand{\funext}{m o m}{\textbf{funext}\ #1 \optionalannot{#2}\ \textbf{in}\ #3}
 
 % Contexts.
 
 % Typing contexts.
-\newcommand{\emptyctx}{\cdot}
+\NewDocumentCommand{\emptyctx}{}{\cdot}
 \NewDocumentCommand{\extend}{m o m m o}{#1, \IfValueTF{#2}{#2\,}{} #3 : #4 \IfValueTF{#5}{:= #5}{}}
 \NewDocumentCommand{\assume}{m m m}{#1, #2 : #3}
 \NewDocumentCommand{\extendtype}{m m}{#1, #2}
@@ -123,11 +125,12 @@
 \NewDocumentCommand{\scalectx}{m m}{#1\, #2}
 \NewDocumentCommand{\subctx}{m m}{#1 \leq #2}
 \NewDocumentCommand{\cartesianize}{m}{| #1 |}
+\NewDocumentCommand{\decomposectx}{m o m o m}{\subctx{#1}{\addctx{\scalectx{\optional{#2}}{#3}}{\scalectx{\optional{#4}}{#5}}}}
 
 % Judgements.
 
 % Valid context.
-\newcommand{\ctx}[1]{#1\ \texttt{ctx}}
+\NewDocumentCommand{\ctx}{m}{#1\ \texttt{ctx}}
 
 % Cartesian context.
 \NewDocumentCommand{\cartesian}{m}{#1\ \texttt{cartesian}}
@@ -145,11 +148,11 @@
 \NewDocumentCommand{\proves}{O{\Gamma} m m}{#1 \vdash #2 : #3}
 
 % Inference rules.
-\newcommand{\rulename}[1]{\textsc{\footnotesize{#1}}}
-\newcommand{\infrule}[3][]{\displaystyle \frac{#2}{#3} \rulename{#1}}
+\NewDocumentCommand{\rulename}{m}{\textsc{\footnotesize{#1}}}
+\NewDocumentCommand{\infrule}{O{} m m}{\displaystyle \frac{#2}{#3} \rulename{#1}}
 
 % Side conditions - this command semantically marks side conditions in inference rules, but otherwise does nothing.
-\newcommand{\sidecond}[1]{#1}
+\NewDocumentCommand{\sidecond}{m}{#1}
 
 % Substitution.
 \NewDocumentCommand{\subst}{m m m}{#1\left[#2 := #3\right]}
