@@ -21,20 +21,36 @@
 
 \section{Intro}
 
+\begin{frame}{TODO}
+
+\begin{itemize}
+  \item Kinding.
+  \item Polymorphism.
+  \item Higher-order quantification.
+  \item Totality checker.
+  \item Computation and conversion checking.
+  \item Inductives and records.
+  \item Algorithmic system.
+  \item Distinguish noncomputable terms.
+  \item Distinguish partial terms.
+\end{itemize}
+
+\end{frame}
+
 \begin{frame}{Quantities}
 
 Quantities: \\
-$r ::= \Zero \pipe \One \pipe \ExplicitOmega$
+$r ::= \Zero \pipe \One \pipe \Unrestricted$
 
 \vspace{2em}
 
-$\ExplicitOmega$ is the default quantity, so when there's nothing to indicate quantity, it means it's $\ExplicitOmega$.
+$\Unrestricted$ is the default quantity, so when there's nothing to indicate quantity, it means it's $\Unrestricted$.
 
 \vspace{2em}
 
 Quantities are ordered: \\
 \begin{center}
-  $\subusage{\ExplicitOmega}{r}$ \\
+  $\subusage{\Unrestricted}{r}$ \\
   $\subusage{\Zero}{\Zero}$ \\
   $\subusage{\One}{\One}$
 \end{center}
@@ -46,19 +62,19 @@ Quantities are ordered: \\
 Addition of quantities:
 \begin{center}
   $\addqty{\Zero}{r} = r$ \\
-  $\addqty{\ExplicitOmega}{r} = \ExplicitOmega$ \\
+  $\addqty{\Unrestricted}{r} = \Unrestricted$ \\
   $\addqty{\One}{\Zero} = \One$ \\
-  $\addqty{\One}{\One} = \ExplicitOmega$ \\
-  $\addqty{\One}{\ExplicitOmega} = \ExplicitOmega$
+  $\addqty{\One}{\One} = \Unrestricted$ \\
+  $\addqty{\One}{\Unrestricted} = \Unrestricted$
 \end{center}
 
 Multiplication:
 \begin{center}
   $\mulqty{\Zero}{r} = \Zero$ \\
   $\mulqty{\One}{r} = r$ \\
-  $\mulqty{\ExplicitOmega}{\Zero} = \Zero$ \\
-  $\mulqty{\ExplicitOmega}{\One} = \ExplicitOmega$ \\
-  $\mulqty{\ExplicitOmega}{\ExplicitOmega} = \ExplicitOmega$ \\
+  $\mulqty{\Unrestricted}{\Zero} = \Zero$ \\
+  $\mulqty{\Unrestricted}{\One} = \Unrestricted$ \\
+  $\mulqty{\Unrestricted}{\Unrestricted} = \Unrestricted$ \\
 \end{center}
 
 \end{frame}
@@ -134,6 +150,10 @@ $\addctx{\Gamma_1}{\Gamma_2}$ -- context addition \\
 $\scalectx{r}{\Gamma}$ -- context scaling \\
 $\subctx{\Gamma_1}{\Gamma_2}$ -- context subusaging/ordering \\
 $\cartesianize{\Gamma}$ -- cartesianization
+
+\vspace{2em}
+
+Q: Definitions in context look fishy when combined with quantities!
 
 \end{frame}
 
@@ -244,6 +264,11 @@ We'll set up the system so that:
   $\infrule{\ctx{\Gamma} \quad \prop[\cartesianize{\Gamma}]{P} \quad \sidecond{h \notin \Gamma}}{\ctx{\assume{\Gamma}{h}{P}}}$
 \end{center}
 
+\vspace{1em}
+
+Q: Do we want to disallow shadowing? \\
+Q: Do we really need to check type/proposition well-formedness in a cartesianized context?
+
 \end{frame}
 
 \begin{frame}{Cartesian contexts}
@@ -286,6 +311,10 @@ We'll set up the system so that:
   $\infrule{\ctx{\Gamma} \quad \Gamma = \extend{\Gamma_1}[r]{x}{A}[e], \Gamma_2 \quad \subusage{r}{\One} \quad \subctx{\Gamma_1}{\scalectx{\Zero}{\Gamma_1}} \quad \subctx{\Gamma_2}{\scalectx{\Zero}{\Gamma_2}}}{\typing{\Gamma}{x}{A}}$
 \end{center}
 
+\vspace{2em}
+
+Q: Is there a better notation?
+
 \end{frame}
 
 \begin{frame}{Functions}
@@ -300,6 +329,10 @@ We'll set up the system so that:
   $\infrule{\subctx{\Gamma}{\addctx{\Gamma_1}{\scalectx{r}{\Gamma_2}}} \quad \typing{\Gamma_1}{e_1}{\Fun[r]{A}{B}} \quad \typing{\Gamma_2}{e_2}{A}}{\typing{\Gamma}{\app{e_1}{e_2}}{B}}$
 \end{center}
 
+\vspace{2em}
+
+Q: Where exactly do we need quantity and type annotations?
+
 \end{frame}
 
 \begin{frame}{Box}
@@ -311,6 +344,10 @@ We'll set up the system so that:
 
   $\infrule{\subctx{\Gamma}{\addctx{\Gamma_1}{\Gamma_2}} \quad \typing{\Gamma_1}{e_1}{\Box[r]{A}} \quad \typing{\extend{\Gamma_2}[r]{x}{A}}{e_2}{B}}{\typing{\Gamma}{\boxelim{x}[A]{e_1}{e_2}}{B}}$
 \end{center}
+
+\vspace{2em}
+
+Q: Notation for box intro and elim?
 
 \end{frame}
 
@@ -356,6 +393,10 @@ We'll set up the system so that:
 
   $\infrule{\decomposectx{\Gamma}{\Gamma_1}{\Gamma_2} \quad \typing{\Gamma_1}{e}{\Sum{A}{B}} \quad \typing{\Gamma_2}{f}{\Fun[\One]{A}{C}} \quad \typing{\Gamma_2}{g}{\Fun[\One]{B}{C}}}{\typing{\Gamma}{\case{e}{f}{g}}{C}}$
 \end{center}
+
+\vspace{2em}
+
+Q: Do we want first-order representation of the branches?
 
 \end{frame}
 
@@ -403,14 +444,19 @@ We'll set up the system so that:
 \begin{frame}{Substitution}
 
 The notation is $\subst{P}{x}{e}$ for substitution in propositions.
+
+\vspace{2em}
+
+Q: Do we need to check type well-formedness when checking proposition well-formedness? It should follow from the other sanity checks.
+
 \end{frame}
 
 \begin{frame}{Assumptions and implication}
 
 \begin{center}
 
-  $\infrule{\prop[\Gamma]{P} \quad \sidecond{(h : P) \in \Gamma}}{\proves[\Gamma]{h}{P}}$ \quad
-  $\infrule{\prop[\Gamma]{P} \quad \sidecond{(h : P) \in \Gamma}}{\proves[\Gamma]{\assumption}{P}}$
+  $\infrule{\cartesian{\Gamma} \quad \sidecond{(h : P) \in \Gamma}}{\proves[\Gamma]{h}{P}}$ \quad
+  $\infrule{\cartesian{\Gamma} \quad \sidecond{(h : P) \in \Gamma}}{\proves[\Gamma]{\assumption}{P}}$
 
   \vspace{2em}
 
@@ -524,6 +570,49 @@ The notation is $\subst{P}{x}{e}$ for substitution in propositions.
 
   $\infrule{\proves[\cartesianize{\Gamma}]{p}{\Ex{x}[A]{P}} \quad \type[\cartesianize{\Gamma}]{B} \quad \typing{\assume{\extend{\Gamma}{x}{A}[\choose{p}]}{h}{P}}{e}{B}}{\typing{\Gamma}{\choosewitnessp{x}{h}{p}{e}}{B}}$
 
+\end{center}
+
+\end{frame}
+
+\section{Totality}
+
+\NewDocumentCommand{\emptyenv}{}{\emptyset}
+\NewDocumentCommand{\extendenv}{m m m m}{#1, #2 : #3 := #4}
+\NewDocumentCommand{\extendthm}{m m m m}{#1, #2 : #3 := #4}
+\NewDocumentCommand{\extendpartial}{m m m m}{#1, \texttt{partial}\ #2 : #3 := #4}
+\NewDocumentCommand{\totality}{m m m}{#1, \texttt{totality}\ #2\ #3}
+
+\NewDocumentCommand{\env}{m}{#1\ \texttt{env}}
+
+\begin{frame}{Environments}
+
+Global environments: \\
+$\Sigma ::=$ \\
+\qquad $\emptyenv \pipe \extendthm{\Sigma}{h}{P}{p} \pipe \extendenv{\Sigma}{x}{A}{e} \pipe$ \\
+\qquad $\extendpartial{\Sigma}{x}{A}{e} \pipe \totality{\Sigma}{x}{p}$
+
+\end{frame}
+
+\begin{frame}{Well-formed environments}
+
+\begin{center}
+  $\infrule{}{\env{\emptyenv}}$
+
+  \vspace{2em}
+
+  $\infrule{\env{\Sigma} \quad h \notin \Sigma \quad \proves[\Sigma \pipe \emptyctx]{p}{P}}{\env{\extendthm{\Sigma}{h}{P}{p}}}$
+
+  \vspace{2em}
+
+  $\infrule{\env{\Sigma} \quad x \notin \Sigma \quad \typing{\Sigma \pipe \emptyctx}{e}{A}}{\env{\extendenv{\Sigma}{x}{A}{e}}}$
+
+  \vspace{2em}
+
+  $\infrule{\env{\Sigma} \quad x \notin \Sigma \quad \typing{\Sigma \pipe \emptyctx}{e}{A} \quad e\ \textbf{fails syntactic check}}{\env{\extendpartial{\Sigma}{x}{A}{e}}}$
+
+  \vspace{2em}
+
+  $\infrule{\env{\Sigma} \quad \Sigma = \extendpartial{\Sigma_1}{x}{A}{e}, \Sigma_2 \quad \proves[\Sigma \pipe \emptyctx]{p}{\Ex{r}[A]{e =?= r}}}{\env{\totality{\Sigma}{x}{p}}}$
 \end{center}
 
 \end{frame}
