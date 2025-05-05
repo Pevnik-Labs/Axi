@@ -255,9 +255,13 @@ We'll set up the system so that:
 
   $\infrule{\ctx{\Gamma} \quad \type[\cartesianize{\Gamma}]{A} \quad \sidecond{x \notin \Gamma}}{\ctx{\extend{\Gamma}[r]{x}{A}}}$
 
+  %\vspace{2em}
+
+  %$\infrule[DUBIOUS]{\ctx{\Gamma} \quad \cartesianize{\Gamma'} = \cartesianize{\Gamma} \quad \subctx{\Gamma'}{\scalectx{r}{\Gamma''}} \quad \typing{\Gamma''}{e}{A} \quad \sidecond{x \notin \Gamma}}{\ctx{\extend{\Gamma}[r]{x}{A}[e]}}$
+
   \vspace{2em}
 
-  $\infrule[DUBIOUS]{\ctx{\Gamma} \quad \typing{\Gamma}{e}{A} \quad \sidecond{x \notin \Gamma}}{\ctx{\extend{\Gamma}[r]{x}{A}[e]}}$
+  $\infrule{\ctx{\Gamma_1} \quad \decomposectx{\Gamma_1}{\Gamma}[r]{\Gamma_2} \quad \typing{\Gamma_2}{e}{A} \quad \sidecond{x \notin \Gamma}}{\ctx{\extend{\Gamma}[r]{x}{A}[e]}}$
 
   \vspace{2em}
 
@@ -266,8 +270,7 @@ We'll set up the system so that:
 
 \vspace{1em}
 
-Q: Do we want to disallow shadowing? \\
-Q: Do we really need to check type/proposition well-formedness in a cartesianized context?
+Q: Do we really need to check type well-formedness in a cartesianized context?
 
 \end{frame}
 
@@ -301,14 +304,34 @@ Q: Do we really need to check type/proposition well-formedness in a cartesianize
 
 \end{frame}
 
-\begin{frame}{Using variables}
+\NewDocumentCommand{\varctx}{m m}{| #1 |_{#2}}
+
+\begin{frame}{}
 
 \begin{center}
-  $\infrule{\ctx{\Gamma} \quad \Gamma = \extend{\Gamma_1}[r]{x}{A}, \Gamma_2 \quad \subusage{r}{\One} \quad \subctx{\Gamma_1}{\scalectx{\Zero}{\Gamma_1}} \quad \subctx{\Gamma_2}{\scalectx{\Zero}{\Gamma_2}}}{\typing{\Gamma}{x}{A}}$
+  $\varctx{\emptyctx}{x} = \emptyctx$ \\
+  $\varctx{\extend{\Gamma}[r]{x}{A}}{x} = \extend{\scalectx{\Zero}{\Gamma}}[\One]{x}{A}$ \\
+  $\varctx{\extend{\Gamma}[r]{y}{A}}{x} = \extend{\varctx{\Gamma}{x}}[\Zero]{y}{A}$ \\
+  $\varctx{\extend{\Gamma}[r]{x}{A}[e]}{x} = \extend{\scalectx{\Zero}{\Gamma}}[\One]{x}{A}[e]$ \\
+  $\varctx{\extend{\Gamma}[r]{y}{A}[e]}{x} = \extend{\varctx{\Gamma}{x}}[\Zero]{y}{A}[e]$ \\
+  $\varctx{\assume{\Gamma}{h}{P}}{x} = \assume{\varctx{\Gamma}{x}}{h}{P}$
+\end{center}
 
-  \vspace{2em}
+\end{frame}
 
-  $\infrule{\ctx{\Gamma} \quad \Gamma = \extend{\Gamma_1}[r]{x}{A}[e], \Gamma_2 \quad \subusage{r}{\One} \quad \subctx{\Gamma_1}{\scalectx{\Zero}{\Gamma_1}} \quad \subctx{\Gamma_2}{\scalectx{\Zero}{\Gamma_2}}}{\typing{\Gamma}{x}{A}}$
+\begin{frame}{Using variables}
+
+
+\begin{center}
+  %$\infrule{\ctx{\Gamma} \quad \Gamma = \extend{\Gamma_1}[r]{x}{A}, \Gamma_2 \quad \subusage{r}{\One} \quad \subctx{\Gamma_1}{\scalectx{\Zero}{\Gamma_1}} \quad \subctx{\Gamma_2}{\scalectx{\Zero}{\Gamma_2}}}{\typing{\Gamma}{x}{A}}$
+
+  %\vspace{2em}
+
+  %$\infrule{\ctx{\Gamma} \quad \Gamma = \extend{\Gamma_1}[r]{x}{A}[e], \Gamma_2 \quad \subusage{r}{\One} \quad \subctx{\Gamma_1}{\scalectx{\Zero}{\Gamma_1}} \quad \subctx{\Gamma_2}{\scalectx{\Zero}{\Gamma_2}}}{\typing{\Gamma}{x}{A}}$
+
+  %\vspace{2em}
+
+  $\infrule{\ctx{\Gamma} \quad (x : A) \in \Gamma \quad \subctx{\Gamma}{\varctx{\Gamma}{x}}}{\typing{\Gamma}{x}{A}}$
 \end{center}
 
 \vspace{2em}
@@ -387,7 +410,7 @@ Q: Notation for box intro and elim?
 
 \begin{center}
   $\infrule{\typing{\Gamma}{e}{A} \quad \type[\cartesianize{\Gamma}]{B}}{\typing{\Gamma}{\inl[B]{e}}{\Sum{A}{B}}}$ \quad
-  $\infrule{\type[\cartesianize{\Gamma}]{A} \quad \typing{\Gamma}{e}{B}}{\typing{\Gamma}{\inl[A]{e}}{\Sum{A}{B}}}$
+  $\infrule{\type[\cartesianize{\Gamma}]{A} \quad \typing{\Gamma}{e}{B}}{\typing{\Gamma}{\inr[A]{e}}{\Sum{A}{B}}}$
 
   \vspace{2em}
 
@@ -396,7 +419,7 @@ Q: Notation for box intro and elim?
 
 \vspace{2em}
 
-Q: Do we want first-order representation of the branches?
+Q: Do we want first-order representation of the branches? Probably yes.
 
 \end{frame}
 
@@ -448,6 +471,10 @@ The notation is $\subst{P}{x}{e}$ for substitution in propositions.
 \vspace{2em}
 
 Q: Do we need to check type well-formedness when checking proposition well-formedness? It should follow from the other sanity checks.
+
+\vspace{1em}
+
+Type well-formedness checks are redundant.
 
 \end{frame}
 
