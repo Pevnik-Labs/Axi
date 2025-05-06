@@ -8,9 +8,12 @@
 % Programming language.
 
 % Quantities.
+\NewDocumentCommand{\qty}{}{\mathcal{Q}}
 \NewDocumentCommand{\Zero}{}{0}
 \NewDocumentCommand{\One}{}{1}
-\NewDocumentCommand{\Unrestricted}{}{\omega}
+\NewDocumentCommand{\Few}{}{?}
+\NewDocumentCommand{\Many}{}{+}
+\NewDocumentCommand{\Any}{}{*}
 
 % Subusaging - order on quantities.
 \NewDocumentCommand{\subusage}{m m}{#1 \leq #2}
@@ -18,6 +21,8 @@
 % Operations on quantities.
 \NewDocumentCommand{\addqty}{m m}{#1 + #2}
 \NewDocumentCommand{\mulqty}{m m}{#1 \cdot #2}
+\NewDocumentCommand{\subqty}{m m}{#1 - #2}
+\NewDocumentCommand{\divqty}{m m}{#1 / #2}
 
 % Types.
 \NewDocumentCommand{\Fun}{o m m}{\IfValueTF{#1}{#1\, }{} #2 \to #3}
@@ -121,9 +126,11 @@
 \NewDocumentCommand{\extendtype}{m m}{#1, #2}
 
 % Context operations.
+\NewDocumentCommand{\subctx}{m m}{#1 \leq #2}
 \NewDocumentCommand{\addctx}{m m}{#1 + #2}
 \NewDocumentCommand{\scalectx}{m m}{#1\, #2}
-\NewDocumentCommand{\subctx}{m m}{#1 \leq #2}
+\NewDocumentCommand{\varctx}{m m}{| #1 |_{#2}}
+\NewDocumentCommand{\divctx}{m m}{#1 / #2}
 \NewDocumentCommand{\cartesianize}{m}{| #1 |}
 \NewDocumentCommand{\decomposectx}{m o m o m}{\subctx{#1}{\addctx{\scalectx{\optional{#2}}{#3}}{\scalectx{\optional{#4}}{#5}}}}
 

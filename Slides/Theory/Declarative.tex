@@ -19,7 +19,7 @@
 
 \frame{\titlepage}
 
-\section{Intro}
+\section{Quantities}
 
 \begin{frame}{TODO}
 
@@ -40,44 +40,133 @@
 \begin{frame}{Quantities}
 
 Quantities: \\
-$r ::= \Zero \pipe \One \pipe \Unrestricted$
+$r ::= \Zero \pipe \One \pipe \Few \pipe \Many \pipe \Any$
 
 \vspace{2em}
 
-$\Unrestricted$ is the default quantity, so when there's nothing to indicate quantity, it means it's $\Unrestricted$.
+\begin{itemize}
+  \item $\Zero$ means a resource has been used up and is no longer available.
+  \item $\One$ means a resource must be used exactly once.
+  \item $\Few$ (pronounced ``few'') means a resource must be used at most once.
+  \item $\Many$ (pronounced ``many'') means a resource must be used at least once.
+  \item $\Any$ (pronounced ``any'') means no restrictions on usage.
+\end{itemize}
 
 \vspace{2em}
 
-Quantities are ordered: \\
+$\Any$ is the default quantity, so when there's nothing to indicate quantity, it means it's $\Any$.
+
+\end{frame}
+
+\begin{frame}{Subusage ordering}
+
+$\subusage{r_1}{r_2}$ means that a resource with quantity $r_1$ may be used when quantity $r_2$ is expected. This ordering is called sub-usaging. The definition below is just the skeleton, the full ordering is the reflexive-transitive closure of it.
+
 \begin{center}
-  $\subusage{\Unrestricted}{r}$ \\
-  $\subusage{\Zero}{\Zero}$ \\
-  $\subusage{\One}{\One}$
+  $\subusage{\Any}{\Few}$ \\
+  $\subusage{\Any}{\Many}$ \\
+  $\subusage{\Many}{\One}$ \\
+  $\subusage{\Few}{\One}$ \\
+  $\subusage{\Few}{\Zero}$
 \end{center}
 
 \end{frame}
 
-\begin{frame}{Operations on quantities}
+\begin{frame}{Addition of quantities}
 
-Addition of quantities:
+When we have two quantities of the same resource, we can sum the quantities.
+
+\vspace{2em}
+
 \begin{center}
   $\addqty{\Zero}{r} = r$ \\
-  $\addqty{\Unrestricted}{r} = \Unrestricted$ \\
-  $\addqty{\One}{\Zero} = \One$ \\
-  $\addqty{\One}{\One} = \Unrestricted$ \\
-  $\addqty{\One}{\Unrestricted} = \Unrestricted$
-\end{center}
-
-Multiplication:
-\begin{center}
-  $\mulqty{\Zero}{r} = \Zero$ \\
-  $\mulqty{\One}{r} = r$ \\
-  $\mulqty{\Unrestricted}{\Zero} = \Zero$ \\
-  $\mulqty{\Unrestricted}{\One} = \Unrestricted$ \\
-  $\mulqty{\Unrestricted}{\Unrestricted} = \Unrestricted$ \\
+  $\addqty{r}{\Zero} = r$ \\
+  $\addqty{\Few}{\Few} = \Any$ \\
+  $\addqty{\Few}{\Any} = \Any$ \\
+  $\addqty{\Any}{\Few} = \Any$ \\
+  $\addqty{\Any}{\Any} = \Any$ \\
+  $\addqty{\_}{\_} = \Many$
 \end{center}
 
 \end{frame}
+
+\begin{frame}{Multiplication of quantities}
+
+When we have a quantity $r_1$ of resource $A$ that contains quantitty $r_2$ of resource $B$, then we in fact have quantity $\mulqty{r_1}{r_2}$ of resource $B$.
+
+\vspace{2em}
+
+\begin{center}
+  $\mulqty{\Zero}{r} = \Zero$ \\
+  $\mulqty{r}{\Zero} = \Zero$ \\
+  $\mulqty{\One}{r} = r$ \\
+  $\mulqty{r}{\One} = r$ \\
+  $\mulqty{\Few}{\Few} = \Few$ \\
+  $\mulqty{\Many}{\Many} = \Many$ \\
+  $\mulqty{\_}{\_} = \Any$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{The algebra of quantities}
+
+Quantities $\qty$ form a positive ordered commutative semiring with no zero divisors, i.e.:
+
+\begin{itemize}
+  \item $(\qty, \addqty{}{}, \Zero)$ is a commutative monoid.
+  \item $(\qty, \mulqty{}{}, \One)$ is a commutative monoid.
+  \item $\Zero$ annihilates multiplication.
+  \item Multiplication distributes over addition.
+  \item Addition and multiplication preserve the subusage ordering in both arguments.
+  \item If $\addqty{r_1}{r_2} = \Zero$, then $r_1 = \Zero$ and $r_2 = \Zero$.
+  \item If $\mulqty{r_1}{r_2} = \Zero$, then $r_1 = \Zero$ or $r_2 = \Zero$.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Subtraction of quantities}
+
+$\subqty{r_1}{r_2}$ is the least $r'$ such that $\subusage{r_1}{\addqty{r'}{r_2}}$.
+
+\vspace{2em}
+
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{|c|c|c|c|c|c|}
+  \hline
+  $\subqty{r_1}{r_2}$ & $\Zero$ & $\One$  & $\Few$  & $\Many$ & $\Any$  \\ \hline
+  $\Zero$             & $\Zero$ &         &         &         &         \\ \hline
+  $\One$              & $\One$  & $\Zero$ &         &         &         \\ \hline
+  $\Few$              & $\Few$  & $\Zero$ & $\Zero$ &         &         \\ \hline
+  $\Many$             & $\Many$ & $\Any$  & $\Many$ & $\Any$  & $\Many$ \\ \hline
+  $\Any$              & $\Any$  & $\Any$  & $\Any$  & $\Any$  & $\Any$  \\ \hline
+  \end{tabular}
+\end{table}
+
+\end{frame}
+
+\begin{frame}{Division with remainder (TODO)}
+
+$\divqty{a}{b}$ is some good $(q, r)$ such that $\subusage{a}{\addqty{\mulqty{b}{q}}{r}}$.
+
+\vspace{2em}
+
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{|c|c|c|c|c|c|}
+  \hline
+  $\divqty{r_1}{r_2}$ & $\Zero$         & $\One$  & $\Few$          & $\Many$         & $\Any$          \\ \hline
+  $\Zero$             & $\Any$          & $\Zero$ & $\Zero$         & $\Zero$         & $\Zero$         \\ \hline
+  $\One$              & $(\Any, \One)$  & $\One$  & $(\Zero, \One)$ & $(\Zero, \One)$ & $(\Zero, \One)$ \\ \hline
+  $\Few$              & $\Any$          & $\Few$  & $\Few$          & $\Zero$         & $\Zero$         \\ \hline
+  $\Many$             & $(\Any, \Many)$ & $\Many$ & $(\Any, \Many)$ & $\Many$         & $(\Any, \Many)$ \\ \hline
+  $\Any$              & $\Any$          & $\Any$  & $\Any$          & $\Any$          & $\Any$          \\ \hline
+  \end{tabular}
+\end{table}
+
+\end{frame}
+
+\section{Syntax}
 
 \begin{frame}{Types}
 
@@ -143,73 +232,6 @@ $p, q ::=$ \\
 Contexts: \\
 $\Gamma ::= \emptyctx \pipe \extend{\Gamma}[r]{x}{A} \pipe \extend{\Gamma}[r]{x}{A}[e] \pipe \assume{\Gamma}{h}{P}$ % \pipe \extendtype{\Gamma}{\alpha}$
 
-\vspace{2em}
-
-Operations on contexts: \\
-$\addctx{\Gamma_1}{\Gamma_2}$ -- context addition \\
-$\scalectx{r}{\Gamma}$ -- context scaling \\
-$\subctx{\Gamma_1}{\Gamma_2}$ -- context subusaging/ordering \\
-$\cartesianize{\Gamma}$ -- cartesianization
-
-\vspace{2em}
-
-Q: Definitions in context look fishy when combined with quantities!
-
-\end{frame}
-
-\begin{frame}{Context addition}
-
-\begin{center}
-  $\addctx{\emptyctx}{\emptyctx} = \emptyctx$ \\
-  $\addctx{(\extend{\Gamma_1}[r_1]{x}{A})}{(\extend{\Gamma_2}[r_2]{x}{A})} = \extend{(\addctx{\Gamma_1}{\Gamma_2})}[(\addqty{r_1}{r_2})]{x}{A}$ \\
-  $\addctx{(\extend{\Gamma_1}[r_1]{x}{A}[e])}{(\extend{\Gamma_2}[r_2]{x}{A}[e])} = \extend{(\addctx{\Gamma_1}{\Gamma_2})}[(\addqty{r_1}{r_2})]{x}{A}[e]$ \\
-  $\addctx{(\assume{\Gamma_1}{p}{P})}{(\assume{\Gamma_2}{h}{P})} = \assume{(\addctx{\Gamma_1}{\Gamma_2})}{h}{P}$
-\end{center}
-
-\end{frame}
-
-\begin{frame}{Context scaling}
-
-\begin{center}
-  $\scalectx{s}{\emptyctx} = \emptyctx$ \\
-  $\scalectx{s}{(\extend{\Gamma}[r]{x}{A})} = \extend{\scalectx{s}{\Gamma}}[(\mulqty{s}{r})]{x}{A}$ \\
-  $\scalectx{s}{(\extend{\Gamma}[r]{x}{A}[e])} = \extend{\scalectx{s}{\Gamma}}[(\mulqty{s}{r})]{x}{A}[e]$ \\
-  $\scalectx{s}{(\assume{\Gamma}{h}{P})} = \assume{\scalectx{s}{\Gamma}}{h}{P}$ \\
-\end{center}
-
-\end{frame}
-
-\begin{frame}{Context ordering}
-
-\begin{center}
-  $\infrule{}{\subctx{\emptyctx}{\emptyctx}}$
-
-  \vspace{1em}
-
-  $\infrule{\subctx{\Gamma_1}{\Gamma_2} \quad \subusage{r_1}{r_2}}{\subctx{\extend{\Gamma_1}[r_1]{x}{A}}{\extend{\Gamma_2}[r_2]{x}{A}}}$
-
-  \vspace{2em}
-
-  $\infrule{\subctx{\Gamma_1}{\Gamma_2} \quad \subusage{r_1}{r_2}}{\subctx{\extend{\Gamma_1}[r_1]{x}{A}[e]}{\extend{\Gamma_2}[r_2]{x}{A}[e]}}$
-
-  \vspace{2em}
-
-  $\infrule{\subctx{\Gamma_1}{\Gamma_2}}{\subctx{\assume{\Gamma_1}{h}{P}}{\assume{\Gamma_2}{h}{P}}}$
-\end{center}
-
-\end{frame}
-
-\begin{frame}{Cartesianization}
-
-Cartesianization turns a context into a traditional context that doesn't mention any quantities.
-
-\begin{center}
-  $\cartesianize{\emptyctx} = \emptyctx$ \\
-  $\cartesianize{\extend{\Gamma}[r]{x}{A}} = \extend{\cartesianize{\Gamma}}{x}{A}$ \\
-  $\cartesianize{\extend{\Gamma}[r]{x}{A}[e]} = \extend{\cartesianize{\Gamma}}{x}{A}[e]$ \\
-  $\cartesianize{\assume{\Gamma}{h}{P}} = \assume{\cartesianize{\Gamma}}{h}{P}$
-\end{center}
-
 \end{frame}
 
 \begin{frame}{Judgements}
@@ -243,6 +265,108 @@ We'll set up the system so that:
   %\item If $\ctx{\Gamma}$ and $(x : A := e) \in \Gamma$, then $\typing{\Gamma}{e}{A}$.
   %\item If $\ctx{\Gamma}$ and $(h : P) \in \Gamma$, then $\prop[\Gamma]{P}$.
 \end{itemize}
+
+\end{frame}
+
+\section{Contexts}
+
+\begin{frame}{Operations on contexts}
+
+Operations on contexts: \\
+$\subctx{\Gamma_1}{\Gamma_2}$ -- context subusaging \\
+$\addctx{\Gamma_1}{\Gamma_2}$ -- context addition \\
+$\scalectx{r}{\Gamma}$ -- context scaling \\
+$\divctx{\Gamma}{r}$ -- context division (with remainder) \\
+$\cartesianize{\Gamma}$ -- cartesianization \\
+$\varctx{\Gamma}{x}$ -- spotlight $x$
+
+\end{frame}
+
+\begin{frame}{Context subusaging}
+
+\begin{center}
+  $\infrule{}{\subctx{\emptyctx}{\emptyctx}}$
+
+  \vspace{1em}
+
+  $\infrule{\subctx{\Gamma_1}{\Gamma_2} \quad \subusage{r_1}{r_2}}{\subctx{\extend{\Gamma_1}[r_1]{x}{A}}{\extend{\Gamma_2}[r_2]{x}{A}}}$
+
+  \vspace{2em}
+
+  $\infrule{\subctx{\Gamma_1}{\Gamma_2} \quad \subusage{r_1}{r_2}}{\subctx{\extend{\Gamma_1}[r_1]{x}{A}[e]}{\extend{\Gamma_2}[r_2]{x}{A}[e]}}$
+
+  \vspace{2em}
+
+  $\infrule{\subctx{\Gamma_1}{\Gamma_2}}{\subctx{\assume{\Gamma_1}{h}{P}}{\assume{\Gamma_2}{h}{P}}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Context addition}
+
+\begin{center}
+  $\addctx{\emptyctx}{\emptyctx} = \emptyctx$ \\
+  $\addctx{(\extend{\Gamma_1}[r_1]{x}{A})}{(\extend{\Gamma_2}[r_2]{x}{A})} = \extend{(\addctx{\Gamma_1}{\Gamma_2})}[(\addqty{r_1}{r_2})]{x}{A}$ \\
+  $\addctx{(\extend{\Gamma_1}[r_1]{x}{A}[e])}{(\extend{\Gamma_2}[r_2]{x}{A}[e])} = \extend{(\addctx{\Gamma_1}{\Gamma_2})}[(\addqty{r_1}{r_2})]{x}{A}[e]$ \\
+  $\addctx{(\assume{\Gamma_1}{p}{P})}{(\assume{\Gamma_2}{h}{P})} = \assume{(\addctx{\Gamma_1}{\Gamma_2})}{h}{P}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Context scaling}
+
+\begin{center}
+  $\scalectx{s}{\emptyctx} = \emptyctx$ \\
+  $\scalectx{s}{(\extend{\Gamma}[r]{x}{A})} = \extend{\scalectx{s}{\Gamma}}[(\mulqty{s}{r})]{x}{A}$ \\
+  $\scalectx{s}{(\extend{\Gamma}[r]{x}{A}[e])} = \extend{\scalectx{s}{\Gamma}}[(\mulqty{s}{r})]{x}{A}[e]$ \\
+  $\scalectx{s}{(\assume{\Gamma}{h}{P})} = \assume{\scalectx{s}{\Gamma}}{h}{P}$ \\
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Spotlight}
+
+\begin{center}
+  $\varctx{\emptyctx}{x} = \emptyctx$ \\
+  $\varctx{\extend{\Gamma}[r]{x}{A}}{x} = \extend{\scalectx{\Zero}{\Gamma}}[\One]{x}{A}$ \\
+  $\varctx{\extend{\Gamma}[r]{y}{A}}{x} = \extend{\varctx{\Gamma}{x}}[\Zero]{y}{A}$ \\
+  $\varctx{\extend{\Gamma}[r]{x}{A}[e]}{x} = \extend{\scalectx{\Zero}{\Gamma}}[\One]{x}{A}[e]$ \\
+  $\varctx{\extend{\Gamma}[r]{y}{A}[e]}{x} = \extend{\varctx{\Gamma}{x}}[\Zero]{y}{A}[e]$ \\
+  $\varctx{\assume{\Gamma}{h}{P}}{x} = \assume{\varctx{\Gamma}{x}}{h}{P}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Context division with remainder}
+
+\begin{center}
+  $\infrule{}{\divctx{\emptyctx}{r} = \emptyctx}$
+
+  \vspace{2em}
+
+  $\infrule{\divctx{\Gamma}{q} = (\Gamma_1, \Gamma_2) \quad \divqty{r}{q} = (r_1, r_2)}{\divctx{(\extend{\Gamma}[r]{x}{A})}{q} = ((\extend{\Gamma_1}[r_1]{x}{A}), (\extend{\Gamma_2}[r_2]{x}{A}))}$
+
+  \vspace{2em}
+
+  $\infrule{\divctx{\Gamma}{q} = (\Gamma_1, \Gamma_2) \quad \divqty{r}{q} = (r_1, r_2)}{\divctx{(\extend{\Gamma}[r]{x}{A}[e])}{q} = ((\extend{\Gamma_1}[r_1]{x}{A}[e]), (\extend{\Gamma_2}[r_2]{x}{A}[e]))}$
+
+  \vspace{2em}
+
+  $\infrule{\divctx{\Gamma}{q} = \Gamma'}{\divctx{(\assume{\Gamma}{h}{P})}{q} = ((\assume{\Gamma'}{h}{P}), (\assume{\Gamma'}{h}{P}))}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Cartesianization}
+
+Cartesianization turns a context into a traditional context that doesn't mention any quantities.
+
+\begin{center}
+  $\cartesianize{\emptyctx} = \emptyctx$ \\
+  $\cartesianize{\extend{\Gamma}[r]{x}{A}} = \extend{\cartesianize{\Gamma}}{x}{A}$ \\
+  $\cartesianize{\extend{\Gamma}[r]{x}{A}[e]} = \extend{\cartesianize{\Gamma}}{x}{A}[e]$ \\
+  $\cartesianize{\assume{\Gamma}{h}{P}} = \assume{\cartesianize{\Gamma}}{h}{P}$
+\end{center}
 
 \end{frame}
 
@@ -304,21 +428,6 @@ Q: Do we really need to check type well-formedness in a cartesianized context?
 
 \end{frame}
 
-\NewDocumentCommand{\varctx}{m m}{| #1 |_{#2}}
-
-\begin{frame}{}
-
-\begin{center}
-  $\varctx{\emptyctx}{x} = \emptyctx$ \\
-  $\varctx{\extend{\Gamma}[r]{x}{A}}{x} = \extend{\scalectx{\Zero}{\Gamma}}[\One]{x}{A}$ \\
-  $\varctx{\extend{\Gamma}[r]{y}{A}}{x} = \extend{\varctx{\Gamma}{x}}[\Zero]{y}{A}$ \\
-  $\varctx{\extend{\Gamma}[r]{x}{A}[e]}{x} = \extend{\scalectx{\Zero}{\Gamma}}[\One]{x}{A}[e]$ \\
-  $\varctx{\extend{\Gamma}[r]{y}{A}[e]}{x} = \extend{\varctx{\Gamma}{x}}[\Zero]{y}{A}[e]$ \\
-  $\varctx{\assume{\Gamma}{h}{P}}{x} = \assume{\varctx{\Gamma}{x}}{h}{P}$
-\end{center}
-
-\end{frame}
-
 \begin{frame}{Using variables}
 
 
@@ -333,10 +442,6 @@ Q: Do we really need to check type well-formedness in a cartesianized context?
 
   $\infrule{\ctx{\Gamma} \quad (x : A) \in \Gamma \quad \subctx{\Gamma}{\varctx{\Gamma}{x}}}{\typing{\Gamma}{x}{A}}$
 \end{center}
-
-\vspace{2em}
-
-Q: Is there a better notation?
 
 \end{frame}
 
