@@ -130,6 +130,7 @@
 \NewDocumentCommand{\addctx}{m m}{#1 + #2}
 \NewDocumentCommand{\scalectx}{m m}{#1\, #2}
 \NewDocumentCommand{\varctx}{m m}{| #1 |_{#2}}
+\NewDocumentCommand{\usevar}{m m}{#1 - #2}
 \NewDocumentCommand{\divctx}{m m}{#1 / #2}
 \NewDocumentCommand{\cartesianize}{m}{| #1 |}
 \NewDocumentCommand{\decomposectx}{m o m o m}{\subctx{#1}{\addctx{\scalectx{\optional{#2}}{#3}}{\scalectx{\optional{#4}}{#5}}}}
