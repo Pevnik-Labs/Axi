@@ -17,12 +17,15 @@
 
 % Subusaging - order on quantities.
 \NewDocumentCommand{\subusage}{m m}{#1 \leq #2}
+\NewDocumentCommand{\glbqty}{m m}{#1 \sqcap #2}
+\NewDocumentCommand{\lubqty}{m m}{#1 \sqcup #2}
 
 % Operations on quantities.
 \NewDocumentCommand{\addqty}{m m}{#1 + #2}
 \NewDocumentCommand{\mulqty}{m m}{#1 \cdot #2}
 \NewDocumentCommand{\subqty}{m m}{#1 - #2}
 \NewDocumentCommand{\divqty}{m m}{#1 / #2}
+\NewDocumentCommand{\typeqty}{m}{\texttt{qty}(#1)}
 
 % Types.
 \NewDocumentCommand{\Fun}{o m m}{\IfValueTF{#1}{#1\, }{} #2 \to #3}
@@ -44,10 +47,7 @@
 \NewDocumentCommand{\app}{m m}{#1\ #2}
 \NewDocumentCommand{\boxintro}{o m}{\texttt{box}_{\optional{#1}}\ #2}
 \NewDocumentCommand{\boxelim}{m o m m}{\texttt{letbox}\ #1 \optionalannot{#2} = #3\ \texttt{in}\ #4}
-\NewDocumentCommand{\letin}{o m o m m}{\texttt{let}_{\optional{#1}}\ #2 \optionalannot{#3} = #4\ \texttt{in}\ #5}
 \NewDocumentCommand{\pair}{m m}{(#1, #2)}
-\NewDocumentCommand{\outl}{o m}{\texttt{outl}_{\optional{#1}}\ #2}
-\NewDocumentCommand{\outr}{o m}{\texttt{outr}_{\optional{#1}}\ #2}
 \NewDocumentCommand{\letpair}{m m m m}{\texttt{letpair}\ (#1, #2) = #3\ \texttt{in}\ #4}
 \NewDocumentCommand{\inl}{o m}{\texttt{inl}_{\optional{#1}}\ #2}
 \NewDocumentCommand{\inr}{o m}{\texttt{inr}_{\optional{#1}}\ #2}
@@ -55,6 +55,8 @@
 \NewDocumentCommand{\unit}{}{\texttt{unit}}
 \NewDocumentCommand{\unitelim}{o m m}{\texttt{letunit}_{\optional{#1}}\ \unit = #2\ \texttt{in}\ #3}
 \NewDocumentCommand{\emptyelim}{o m}{\Empty\texttt{-elim}_{\optional{#1}}\ #2}
+\NewDocumentCommand{\letin}{o m o m m}{\texttt{let}_{\optional{#1}}\ #2 \optionalannot{#3} = #4\ \texttt{in}\ #5}
+\NewDocumentCommand{\letnoncomp}{m o m m}{\texttt{let noncomputable}\ #1 \optionalannot{#2} = #3\ \texttt{in}\ #4}
 \RenewDocumentCommand{\choose}{o m}{\texttt{choose}_{\optional{#1}}\ #2}
 \NewDocumentCommand{\choosewitnessp}{m m m m}{\texttt{choose-witness}\ #1\ #2\ \texttt{for}\ #3\ \texttt{in}\ #4}
 
@@ -86,17 +88,12 @@
 \NewDocumentCommand{\implelim}{m m}{\textbf{apply}\ #1\ #2}
 \NewDocumentCommand{\trueintro}{}{\textbf{trivial}}
 \NewDocumentCommand{\falseelim}{m}{\textbf{absurd}\ #1}
-%\newcommand{\notintro}[2]{\textbf{suppose-absurd}\ #1\ \textbf{in}\ #2}
-%\newcommand{\notelim}[2]{\textbf{absurd}\ #1\ #2}
 \NewDocumentCommand{\andintro}{m m}{\textbf{both}\ #1\ #2}
 \NewDocumentCommand{\andeliml}{m}{\textbf{and-left}\ #1}
 \NewDocumentCommand{\andelimr}{m}{\textbf{and-right}\ #1}
 \NewDocumentCommand{\orintrol}{m}{\textbf{or-left}\ #1}
 \NewDocumentCommand{\orintror}{m}{\textbf{or-right}\ #1}
 \NewDocumentCommand{\orelim}{m m m}{\textbf{cases}\ #1\ #2\ #3}
-%\newcommand{\iffintro}[2]{\textbf{equivalence}\ #1\ #2}
-%\newcommand{\iffeliml}[1]{\textbf{left-iff}\ #1}
-%\newcommand{\iffelimr}[1]{\textbf{right-iff}\ #1}
 \RenewDocumentCommand{\lemma}{m m m m}{\textbf{lemma}\ #1 : #2\ \textbf{by}\ #3\ \textbf{in}\ #4}
 \NewDocumentCommand{\proofannot}{m m}{\textbf{proving}\ #1\ \textbf{by}\ #2}
 \NewDocumentCommand{\suffices}{m m m}{\textbf{suffices}\ #1\ \textbf{by}\ #2\ \textbf{in}\ #3}
