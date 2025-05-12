@@ -26,6 +26,12 @@
 \NewDocumentCommand{\subqty}{m m}{#1 - #2}
 \NewDocumentCommand{\divqty}{m m}{#1 / #2}
 \NewDocumentCommand{\typeqty}{m}{\texttt{qty}(#1)}
+\NewDocumentCommand{\modeqty}{O{i} m}{#1(#2)}
+\NewDocumentCommand{\totalqty}{m m O{i}}{#1_{#2}^{#3}}
+
+% Modes.
+\NewDocumentCommand{\computable}{}{\texttt{c}}
+\NewDocumentCommand{\noncomputable}{}{\texttt{nc}}
 
 % Types.
 \NewDocumentCommand{\Fun}{o m m}{\IfValueTF{#1}{#1\, }{} #2 \to #3}
@@ -145,6 +151,7 @@
 
 % Declarative typing.
 \NewDocumentCommand{\typing}{m m m}{#1 \vdash #2 : #3}
+\NewDocumentCommand{\fulltyping}{m O{i} m m}{#1 \vdash_{\optional{#2}} #3 : #4}
 
 % Well-formed proposition.
 \NewDocumentCommand{\prop}{O{\Gamma} m}{#1 \vdash #2\ \texttt{prop}}

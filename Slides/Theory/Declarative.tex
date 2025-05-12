@@ -179,20 +179,6 @@ $A, B ::= \Fun[r]{A}{B} \pipe \Box[r]{A} \pipe \Prod{A}{B} \pipe \Sum{A}{B} \pip
 
 \end{frame}
 
-\begin{frame}{The inherent quantity of a type}
-
-\begin{center}
-  $\typeqty{\Unit} = \Any$ \\
-  $\typeqty{\Empty} = \Any$ \\
-  $\typeqty{\Box[\Zero]{A}} = \Any$ \\
-  $\typeqty{\Box[r]{A}} = \mulqty{\typeqty{A}}{r}$ \\
-  $\typeqty{\Prod{A}{B}} = \lubqty{\typeqty{A}}{\typeqty{B}}$ \\
-  $\typeqty{\Sum{A}{B}} = \lubqty{\typeqty{A}}{\typeqty{B}}$ \\
-  $\typeqty{\Fun[r]{A}{B}} = \One$
-\end{center}
-
-\end{frame}
-
 \begin{frame}{Terms}
 
 Terms: \\
@@ -261,7 +247,7 @@ Cartesian context judgement: $\cartesian{\Gamma}$
 \vspace{2em}
 
 Well-formed type judgement: $\type[\Gamma]{A}$ \\
-Typing judgement: $\typing{\Gamma}{e}{A}$
+Typing judgement: $\fulltyping{\Gamma}{e}{A}$
 
 \vspace{2em}
 
@@ -275,7 +261,7 @@ Proof judgement: $\proves[\Gamma]{p}{P}$
 We'll set up the system so that:
 
 \begin{itemize}
-  \item If $\typing{\Gamma}{e}{A}$, then $\type[\cartesianize{\Gamma}]{A}$.
+  \item If $\fulltyping{\Gamma}{e}{A}$, then $\type[\cartesianize{\Gamma}]{A}$.
   \item If $\proves[\Gamma]{p}{P}$, then $\prop[\Gamma]{P}$.
   \item If $\prop[\Gamma]{P}$, then $\cartesian{\Gamma}$.
   \item If $\type[\Gamma]{A}$, then $\cartesian{\Gamma}$.
@@ -397,7 +383,7 @@ Cartesianization turns a context into a traditional context that doesn't mention
 
   \vspace{2em}
 
-  $\infrule{\ctx{\Gamma_1} \quad \decomposectx{\Gamma_1}{\Gamma}[r]{\Gamma_2} \quad \typing{\Gamma_2}{e}{A} \quad \sidecond{x \notin \Gamma}}{\ctx{\extend{\Gamma}[r]{x}{A}[e]}}$
+  $\infrule{\ctx{\Gamma_1} \quad \decomposectx{\Gamma_1}{\Gamma}[r]{\Gamma_2} \quad \fulltyping{\Gamma_2}[i]{e}{A} \quad \sidecond{x \notin \Gamma} \quad i\ \textbf{inferred from}\ e}{\ctx{\extend{\Gamma}[r]{x}{A}[e]}}$
 
   \vspace{2em}
 
@@ -440,40 +426,57 @@ Q: Do we really need to check type well-formedness in a cartesianized context?
 
 \end{frame}
 
+\begin{frame}{The inherent quantity of a type}
+
+\begin{center}
+  $\typeqty{\Unit} = \Any$ \\
+  $\typeqty{\Empty} = \Any$ \\
+  $\typeqty{\Box[\Zero]{A}} = \Any$ \\
+  $\typeqty{\Box[r]{A}} = \mulqty{r}{\typeqty{A}}$ \\
+  $\typeqty{\Prod{A}{B}} = \lubqty{\typeqty{A}}{\typeqty{B}}$ \\
+  $\typeqty{\Sum{A}{B}} = \lubqty{\typeqty{A}}{\typeqty{B}}$ \\
+  $\typeqty{\Fun[r]{A}{B}} = \One$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Total quantity added to context}
+
+\begin{center}
+  $\totalqty{r}{A}[\noncomputable] = \Any$ \\
+  $\totalqty{r}{A}[\computable] = \mulqty{r}{\typeqty{A}}$
+\end{center}
+
+\end{frame}
+
 \begin{frame}{Using variables}
 
 \begin{center}
-  $\infrule{\ctx{\Gamma} \quad (x : A) \in \Gamma \quad \subctx{\Gamma}{\varctx{\Gamma}{x}}}{\typing{\Gamma}{x}{A}}$
+  $\infrule{\ctx{\Gamma} \quad (x : A) \in \Gamma \quad \subctx{\Gamma}{\varctx{\Gamma}{x}}}{\fulltyping{\Gamma}{x}{A}}$
 \end{center}
 
 \end{frame}
 
 \begin{frame}{Functions}
 
-\vspace{2em}
-
 \begin{center}
-  $\infrule{\typing{\extend{\Gamma}[r]{x}{A}}{e}{B}}{\typing{\Gamma}{\fun[r]{x}[A]{e}}{\Fun[r]{A}{B}}}$
+  $\infrule{\fulltyping{\extend{\Gamma}[\totalqty{r}{A}]{x}{A}}{e}{B}}{\fulltyping{\Gamma}{\fun[r]{x}[A]{e}}{\Fun[r]{A}{B}}}$
 
   \vspace{2em}
 
-  $\infrule{\subctx{\Gamma}{\addctx{\Gamma_1}{\scalectx{r}{\Gamma_2}}} \quad \typing{\Gamma_1}{e_1}{\Fun[r]{A}{B}} \quad \typing{\Gamma_2}{e_2}{A}}{\typing{\Gamma}{\app{e_1}{e_2}}{B}}$
+  $\infrule{\subctx{\Gamma}{\addctx{\Gamma_1}{\scalectx{r}{\Gamma_2}}} \quad \fulltyping{\Gamma_1}{e_1}{\Fun[r]{A}{B}} \quad \fulltyping{\Gamma_2}{e_2}{A}}{\fulltyping{\Gamma}{\app{e_1}{e_2}}{B}}$
 \end{center}
-
-\vspace{2em}
-
-Q: Where exactly do we need quantity and type annotations?
 
 \end{frame}
 
 \begin{frame}{Box}
 
 \begin{center}
-  $\infrule{\subctx{\Gamma}{\scalectx{r}{\Gamma'}} \quad \typing{\Gamma'}{e}{A}}{\typing{\Gamma}{\boxintro[r]{e}}{\Box[r]{A}}}$
+  $\infrule{\subctx{\Gamma}{\scalectx{r}{\Gamma'}} \quad \fulltyping{\Gamma'}{e}{A}}{\fulltyping{\Gamma}{\boxintro[r]{e}}{\Box[r]{A}}}$
 
   \vspace{2em}
 
-  $\infrule{\subctx{\Gamma}{\addctx{\Gamma_1}{\Gamma_2}} \quad \typing{\Gamma_1}{e_1}{\Box[r]{A}} \quad \typing{\extend{\Gamma_2}[r]{x}{A}}{e_2}{B}}{\typing{\Gamma}{\boxelim{x}[A]{e_1}{e_2}}{B}}$
+  $\infrule{\subctx{\Gamma}{\addctx{\Gamma_1}{\Gamma_2}} \quad \fulltyping{\Gamma_1}{e_1}{\Box[r]{A}} \quad \fulltyping{\extend{\Gamma_2}[\totalqty{r}{A}]{x}{A}}{e_2}{B}}{\fulltyping{\Gamma}{\boxelim{x}[A]{e_1}{e_2}}{B}}$
 \end{center}
 
 \vspace{2em}
@@ -485,7 +488,7 @@ Q: Notation for box intro and elim?
 \begin{frame}{Empty}
 
 \begin{center}
-  $\infrule{\type[\cartesianize{\Gamma}]{A} \quad \typing{\Gamma}{e}{\Empty}}{\typing{\Gamma}{\emptyelim[A]{e}}{A}}$
+  $\infrule{\type[\cartesianize{\Gamma}]{A} \quad \fulltyping{\Gamma}{e}{\Empty}}{\fulltyping{\Gamma}{\emptyelim[A]{e}}{A}}$
 \end{center}
 
 \end{frame}
@@ -493,11 +496,11 @@ Q: Notation for box intro and elim?
 \begin{frame}{Unit}
 
 \begin{center}
-  $\infrule{\ctx{\Gamma} \quad \subctx{\Gamma}{\scalectx{\Zero}{\Gamma}}}{\typing{\Gamma}{\unit}{\Unit}}$
+  $\infrule{\ctx{\Gamma} \quad \subctx{\Gamma}{\scalectx{\Zero}{\Gamma}}}{\fulltyping{\Gamma}{\unit}{\Unit}}$
 
   \vspace{2em}
 
-  $\infrule{\decomposectx{\Gamma}{\Gamma_1}{\Gamma_2} \quad \typing{\Gamma_1}{e_1}{\Unit} \quad \typing{\Gamma_2}{e_2}{A}}{\typing{\Gamma}{\unitelim[A]{e_1}{e_2}}{A}}$
+  $\infrule{\decomposectx{\Gamma}{\Gamma_1}{\Gamma_2} \quad \fulltyping{\Gamma_1}{e_1}{\Unit} \quad \fulltyping{\Gamma_2}{e_2}{A}}{\fulltyping{\Gamma}{\unitelim[A]{e_1}{e_2}}{A}}$
 \end{center}
 
 \end{frame}
@@ -505,11 +508,11 @@ Q: Notation for box intro and elim?
 \begin{frame}{Products}
 
 \begin{center}
-  $\infrule{\decomposectx{\Gamma}{\Gamma_1}{\Gamma_2} \quad \typing{\Gamma_1}{a}{A} \quad \typing{\Gamma_2}{b}{B}}{\typing{\Gamma}{\pair{a}{b}}{\Prod{A}{B}}}$
+  $\infrule{\decomposectx{\Gamma}{\Gamma_1}{\Gamma_2} \quad \fulltyping{\Gamma_1}{a}{A} \quad \fulltyping{\Gamma_2}{b}{B}}{\fulltyping{\Gamma}{\pair{a}{b}}{\Prod{A}{B}}}$
 
   \vspace{2em}
 
-  $\infrule{\decomposectx{\Gamma}{\Gamma_1}{\Gamma_2} \quad \typing{\Gamma_1}{e_1}{\Prod{A}{B}} \quad \typing{\extend{\extend{\Gamma_2}[\One]{x}{A}}[\One]{y}{B}}{e_2}{C}}{\typing{\Gamma}{\letpair{x}{y}{e_1}{e_2}}{C}}$
+  $\infrule{\decomposectx{\Gamma}{\Gamma_1}{\Gamma_2} \quad \fulltyping{\Gamma_1}{e_1}{\Prod{A}{B}} \quad \fulltyping{\extend{\extend{\Gamma_2}[\totalqty{\One}{A}]{x}{A}}[\totalqty{\One}{B}]{y}{B}}{e_2}{C}}{\fulltyping{\Gamma}{\letpair{x}{y}{e_1}{e_2}}{C}}$
 \end{center}
 
 \end{frame}
@@ -517,12 +520,12 @@ Q: Notation for box intro and elim?
 \begin{frame}{Sums}
 
 \begin{center}
-  $\infrule{\typing{\Gamma}{e}{A} \quad \type[\cartesianize{\Gamma}]{B}}{\typing{\Gamma}{\inl[B]{e}}{\Sum{A}{B}}}$ \quad
-  $\infrule{\type[\cartesianize{\Gamma}]{A} \quad \typing{\Gamma}{e}{B}}{\typing{\Gamma}{\inr[A]{e}}{\Sum{A}{B}}}$
+  $\infrule{\fulltyping{\Gamma}{e}{A} \quad \type[\cartesianize{\Gamma}]{B}}{\fulltyping{\Gamma}{\inl[B]{e}}{\Sum{A}{B}}}$ \quad
+  $\infrule{\type[\cartesianize{\Gamma}]{A} \quad \fulltyping{\Gamma}{e}{B}}{\fulltyping{\Gamma}{\inr[A]{e}}{\Sum{A}{B}}}$
 
   \vspace{2em}
 
-  $\infrule{\decomposectx{\Gamma}{\Gamma_1}{\Gamma_2} \quad \typing{\Gamma_1}{e}{\Sum{A}{B}} \quad \typing{\Gamma_2}{f}{\Fun[\One]{A}{C}} \quad \typing{\Gamma_2}{g}{\Fun[\One]{B}{C}}}{\typing{\Gamma}{\case{e}{f}{g}}{C}}$
+  $\infrule{\decomposectx{\Gamma}{\Gamma_1}{\Gamma_2} \quad \fulltyping{\Gamma_1}{e}{\Sum{A}{B}} \quad \fulltyping{\Gamma_2}{f}{\Fun[\One]{A}{C}} \quad \fulltyping{\Gamma_2}{g}{\Fun[\One]{B}{C}}}{\fulltyping{\Gamma}{\case{e}{f}{g}}{C}}$
 \end{center}
 
 \vspace{2em}
@@ -534,7 +537,7 @@ Q: Do we want first-order representation of the branches? Probably yes.
 \begin{frame}{Let}
 
 \begin{center}
-  $\infrule{\subctx{\Gamma}{\addctx{\scalectx{r}{\Gamma_1}}{\Gamma_2}} \quad \typing{\Gamma_1}{e_1}{A} \quad \typing{\extend{\Gamma_2}[r]{x}{A}[e_1]}{e_2}{B}}{\typing{\Gamma}{\letin[r]{x}[A]{e_1}{e_2}}{B}}$
+  $\infrule{\subctx{\Gamma}{\addctx{\scalectx{r}{\Gamma_1}}{\Gamma_2}} \quad \fulltyping{\Gamma_1}{e_1}{A} \quad \fulltyping{\extend{\Gamma_2}[\totalqty{r}{A}]{x}{A}[e_1]}{e_2}{B}}{\fulltyping{\Gamma}{\letin[r]{x}[A]{e_1}{e_2}}{B}}$
 \end{center}
 
 \end{frame}
@@ -566,7 +569,7 @@ Q: Do we want first-order representation of the branches? Probably yes.
 
   \vspace{1em}
 
-  $\infrule{\type[\Gamma]{A} \quad \typing{\Gamma}{e_1}{A} \quad \typing{\Gamma}{e_2}{A}}{\prop[\Gamma]{\Eq[A]{e_1}{e_2}}}$
+  $\infrule{\type[\Gamma]{A} \quad \fulltyping{\Gamma}[\noncomputable]{e_1}{A} \quad \fulltyping{\Gamma}[\noncomputable]{e_2}{A}}{\prop[\Gamma]{\Eq[A]{e_1}{e_2}}}$
 
 \end{center}
 
@@ -655,11 +658,11 @@ Type well-formedness checks are redundant.
 
   \vspace{1em}
 
-  $\infrule{\proves{p}{\All{x}[A]{P}} \quad \typing{\Gamma}{e}{A}}{\proves{\allelim{p}{e}}{\subst{P}{x}{e}}}$
+  $\infrule{\proves{p}{\All{x}[A]{P}} \quad \fulltyping{\Gamma}[\noncomputable]{e}{A}}{\proves{\allelim{p}{e}}{\subst{P}{x}{e}}}$
 
   \vspace{2em}
 
-  $\infrule{\typing{\Gamma}{e}{A} \quad \prop[\extend{\Gamma}{x}{A}]{P} \quad \proves{p}{\subst{P}{x}{e}}}{\proves{\exintro{e}{p}}{\Ex{x}[A]{P}}}$
+  $\infrule{\fulltyping{\Gamma}[\noncomputable]{e}{A} \quad \prop[\extend{\Gamma}{x}{A}]{P} \quad \proves{p}{\subst{P}{x}{e}}}{\proves{\exintro{e}{p}}{\Ex{x}[A]{P}}}$
 
   \vspace{1em}
 
@@ -671,7 +674,7 @@ Type well-formedness checks are redundant.
 \begin{frame}{Equality}
 
 \begin{center}
-  $\infrule{\typing{\Gamma}{e}{A}}{\proves[\Gamma]{\refl[e]}{\Eq[A]{e}{e}}}$
+  $\infrule{\fulltyping{\Gamma}[\noncomputable]{e}{A}}{\proves[\Gamma]{\refl[e]}{\Eq[A]{e}{e}}}$
 
   \vspace{2em}
 
@@ -691,7 +694,7 @@ Type well-formedness checks are redundant.
 
   \vspace{2em}
 
-  $\infrule{\proves[\cartesianize{\Gamma}]{p}{\Ex{x}[A]{P}}}{\typing{\Gamma}{\choose{p}}{A}}$
+  $\infrule{\proves[\cartesianize{\Gamma}]{p}{\Ex{x}[A]{P}}}{\fulltyping{\Gamma}[\noncomputable]{\choose{p}}{A}}$
 
   \vspace{1em}
 
@@ -703,7 +706,7 @@ Type well-formedness checks are redundant.
 
   \vspace{1em}
 
-  $\infrule{\proves[\cartesianize{\Gamma}]{p}{\Ex{x}[A]{P}} \quad \type[\cartesianize{\Gamma}]{B} \quad \typing{\assume{\extend{\Gamma}{x}{A}[\choose{p}]}{h}{P}}{e}{B}}{\typing{\Gamma}{\choosewitnessp{x}{h}{p}{e}}{B}}$
+  $\infrule{\proves[\cartesianize{\Gamma}]{p}{\Ex{x}[A]{P}} \quad \type[\cartesianize{\Gamma}]{B} \quad \fulltyping{\assume{\extend{\Gamma}{x}{A}[\choose{p}]}{h}{P}}[\noncomputable]{e}{B}}{\fulltyping{\Gamma}[\noncomputable]{\choosewitnessp{x}{h}{p}{e}}{B}}$
 
 \end{center}
 
@@ -739,11 +742,11 @@ $\Sigma ::=$ \\
 
   \vspace{2em}
 
-  $\infrule{\env{\Sigma} \quad x \notin \Sigma \quad \typing{\Sigma \pipe \emptyctx}{e}{A}}{\env{\extendenv{\Sigma}{x}{A}{e}}}$
+  $\infrule{\env{\Sigma} \quad x \notin \Sigma \quad \fulltyping{\Sigma \pipe \emptyctx}[\computable]{e}{A}}{\env{\extendenv{\Sigma}{x}{A}{e}}}$
 
   \vspace{2em}
 
-  $\infrule{\env{\Sigma} \quad x \notin \Sigma \quad \typing{\Sigma \pipe \emptyctx}{e}{A} \quad e\ \textbf{fails syntactic check}}{\env{\extendpartial{\Sigma}{x}{A}{e}}}$
+  $\infrule{\env{\Sigma} \quad x \notin \Sigma \quad \fulltyping{\Sigma \pipe \emptyctx}[\computable]{e}{A} \quad e\ \textbf{fails syntactic check}}{\env{\extendpartial{\Sigma}{x}{A}{e}}}$
 
   \vspace{2em}
 
