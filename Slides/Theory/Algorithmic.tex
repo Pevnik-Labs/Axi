@@ -136,5 +136,104 @@
 
 \end{frame}
 
+\section{Conversion}
+
+\NewDocumentCommand{\termconv}{m m m m m}{#1 \vdash #2\ \hat{\equiv}\ #3 \mathcolor{blue}{\Leftarrow} #4 \dashv #5}
+\NewDocumentCommand{\termconvwhnf}{m m m m m}{#1 \vdash #2\ \equiv\ #3 \mathcolor{blue}{\Leftarrow} #4 \dashv #5}
+\NewDocumentCommand{\termconvne}{m m m m m}{#1 \vdash #2\ \hat{\sim}\ #3 \mathcolor{red}{\Rightarrow} #4 \dashv #5}
+\NewDocumentCommand{\termconvnewhnf}{m m m m m}{#1 \vdash #2\ \sim\ #3 \mathcolor{red}{\Rightarrow} #4 \dashv #5}
+
+\NewDocumentCommand{\typeconv}{m m m m}{#1 \vdash #2 \hat{\equiv} #3 \dashv #4}
+\NewDocumentCommand{\typeconvwhnf}{m m m m}{#1 \vdash #2 \equiv #3 \dashv #4}
+
+\NewDocumentCommand{\propconv}{m m m m}{#1 \vdash #2 \hat{\equiv} #3 \dashv #4}
+\NewDocumentCommand{\propconvwhnf}{m m m m}{#1 \vdash #2 \equiv #3 \dashv #4}
+\NewDocumentCommand{\propconvnewhnf}{m m m m}{#1 \vdash #2 \sim #3 \dashv #4}
+
+\begin{frame}{Conversion of propositions}
+
+\begin{center}
+  $\infrule{}{\propconvwhnf{\Gamma}{\True}{\True}{\Gamma}}$ \quad
+  $\infrule{}{\propconvwhnf{\Gamma}{\False}{\False}{\Gamma}}$
+
+  \vspace{2em}
+
+  $\infrule{\propconv{\Gamma}{P_1}{P_2}{\Gamma_1} \quad \propconv{\Gamma_1}{Q_1}{Q_2}{\Gamma_2}}{\propconvwhnf{\Gamma}{\Impl{P_1}{Q_1}}{\Impl{P_2}{Q_2}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\propconv{\Gamma}{P_1}{P_2}{\Gamma_1} \quad \propconv{\Gamma_1}{Q_1}{Q_2}{\Gamma_2}}{\propconvwhnf{\Gamma}{\And{P_1}{Q_1}}{\And{P_2}{Q_2}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\propconv{\Gamma}{P_1}{P_2}{\Gamma_1} \quad \propconv{\Gamma_1}{Q_1}{Q_2}{\Gamma_2}}{\propconvwhnf{\Gamma}{\Or{P_1}{Q_1}}{\Or{P_2}{Q_2}}{\Gamma_2}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Conversion of propositions}
+
+\begin{center}
+  $\infrule{\typeconv{\Gamma}{A_1}{A_2}{\Gamma_1} \quad \propconv{\extend{\Gamma_1}{x_1}{A_1}}{P_1}{\subst{P_2}{x_2}{x_1}}{\extend{\Gamma_2}{x_1}{A_1}}}{\propconvwhnf{\Gamma}{\All{x_1}[A_1]{P_1}}{\All{x_2}[A_2]{P_2}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\typeconv{\Gamma}{A_1}{A_2}{\Gamma_1} \quad \propconv{\extend{\Gamma_1}{x_1}{A_1}}{P_1}{\subst{P_2}{x_2}{x_1}}{\extend{\Gamma_2}{x_1}{A_1}}}{\propconvwhnf{\Gamma}{\Ex{x_1}[A_1]{P_1}}{\Ex{x_2}[A_2]{P_2}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\typeconv{\Gamma}{A_1}{A_2}{\Gamma_1} \quad \termconv{\Gamma_1}{e_1}{e_2}{A_1}{\Gamma_2} \quad \termconv{\Gamma_2}{e_2}{e_2'}{A_1}{\Gamma_3}}{\propconvwhnf{\Gamma}{\Eq[A_1]{e_1}{e_1'}}{\Eq[A_2]{e_2}{e_2'}}{\Gamma_3}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Conversion of propositions}
+
+\begin{center}
+  $\infrule{\propconvnewhnf{\Gamma}{N_1}{N_2}{\Gamma'} \quad }{\propconvwhnf{\Gamma}{N_1}{N_2}{\Gamma'}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Conversion of types}
+
+\begin{center}
+  $\infrule{}{\typeconvwhnf{\Gamma}{\Unit}{\Unit}{\Gamma}}$ \quad
+  $\infrule{}{\typeconvwhnf{\Gamma}{\Empty}{\Empty}{\Gamma}}$
+
+  \vspace{2em}
+
+  $\infrule{\typeconv{\Gamma}{A_1}{A_2}{\Gamma_1} \quad \typeconv{\Gamma_1}{B_1}{B_2}{\Gamma_2}}{\typeconvwhnf{\Gamma}{\Prod{A_1}{B_1}}{\Prod{A_2}{B_2}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\typeconv{\Gamma}{A_1}{A_2}{\Gamma_1} \quad \typeconv{\Gamma_1}{B_1}{B_2}{\Gamma_2}}{\typeconvwhnf{\Gamma}{\Sum{A_1}{B_1}}{\Sum{A_2}{B_2}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\typeconv{\Gamma}{A_1}{A_2}{\Gamma_1} \quad \typeconv{\Gamma_1}{B_1}{B_2}{\Gamma_2}}{\typeconvwhnf{\Gamma}{\Fun[r]{A_1}{B_1}}{\Fun[r]{A_2}{B_2}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\typeconv{\Gamma}{A_1}{A_2}{\Gamma'}}{\typeconvwhnf{\Gamma}{\Box[r]{A_1}}{\Box[r]{A_2}}{\Gamma'}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Conversion of terms}
+
+\begin{center}
+  $\infrule{\findvar{\Gamma}{x} = A}{\termconvne{\Gamma}{x}{x}{A}{\Gamma}}$
+
+  \vspace{2em}
+
+  $\infrule{\termconv{\extend{\Gamma}{x}{A}}{\app{f}{x}}{\app{g}{x}}{B}{\extend{\Gamma'}{x}{A}}}{\termconvwhnf{\Gamma}{f}{g}{\Fun[r]{A}{B}}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\termconvnewhnf{\Gamma}{n_1}{n_2}{\Fun[r]{A}{B}}{\Gamma_1} \quad \termconv{\Gamma_1}{u_1}{u_2}{A}{\Gamma_2}}{\termconvne{\Gamma}{\app{n_1}{u_1}}{\app{n_2}{u_2}}{B}{\Gamma_2}}$
+\end{center}
+
+\end{frame}
 
 \end{document}
