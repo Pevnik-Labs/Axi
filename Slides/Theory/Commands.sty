@@ -52,14 +52,15 @@
 \NewDocumentCommand{\fun}{o m o m}{\lambda_{\optional{#1}}\, #2 \optionalannot{#3} .\, #4}
 \NewDocumentCommand{\app}{m m}{#1\ #2}
 \NewDocumentCommand{\boxintro}{o m}{\texttt{box}_{\optional{#1}}\ #2}
-\NewDocumentCommand{\boxelim}{m o m m}{\texttt{letbox}\ #1 \optionalannot{#2} = #3\ \texttt{in}\ #4}
+\NewDocumentCommand{\boxelim}{m o m m}{\texttt{let box}\ #1 = #3\ \texttt{in}\ #4}
+%\NewDocumentCommand{\boxelim}{m o m m}{\texttt{let box}\ #1 \optionalannot{#2} = #3\ \texttt{in}\ #4}
 \NewDocumentCommand{\pair}{m m}{(#1, #2)}
-\NewDocumentCommand{\letpair}{m m m m}{\texttt{letpair}\ (#1, #2) = #3\ \texttt{in}\ #4}
+\NewDocumentCommand{\letpair}{m m m m}{\texttt{let}\ (#1, #2) = #3\ \texttt{in}\ #4}
 \NewDocumentCommand{\inl}{o m}{\texttt{inl}_{\optional{#1}}\ #2}
 \NewDocumentCommand{\inr}{o m}{\texttt{inr}_{\optional{#1}}\ #2}
 \NewDocumentCommand{\case}{m m m}{\texttt{case}\ #1\ \texttt{of}\ (#2, #3)}
 \NewDocumentCommand{\unit}{}{\texttt{unit}}
-\NewDocumentCommand{\unitelim}{o m m}{\texttt{letunit}_{\optional{#1}}\ \unit = #2\ \texttt{in}\ #3}
+\NewDocumentCommand{\unitelim}{o m m}{\texttt{let}_{\optional{#1}}\ \unit = #2\ \texttt{in}\ #3}
 \NewDocumentCommand{\emptyelim}{o m}{\Empty\texttt{-elim}_{\optional{#1}}\ #2}
 \NewDocumentCommand{\letin}{o m o m m}{\texttt{let}_{\optional{#1}}\ #2 \optionalannot{#3} = #4\ \texttt{in}\ #5}
 \NewDocumentCommand{\letnoncomp}{m o m m}{\texttt{let noncomputable}\ #1 \optionalannot{#2} = #3\ \texttt{in}\ #4}

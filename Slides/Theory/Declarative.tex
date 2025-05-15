@@ -28,10 +28,9 @@
   \item Polymorphism.
   \item Higher-order quantification.
   \item Totality checker.
-  \item Computation and conversion checking.
+  \item Computation.
   \item Inductives and records.
   \item Algorithmic system.
-  \item Distinguish noncomputable terms.
   \item Distinguish partial terms.
 \end{itemize}
 
@@ -476,7 +475,7 @@ Q: Do we really need to check type well-formedness in a cartesianized context?
 
   \vspace{2em}
 
-  $\infrule{\subctx{\Gamma}{\addctx{\Gamma_1}{\Gamma_2}} \quad \fulltyping{\Gamma_1}{e_1}{\Box[r]{A}} \quad \fulltyping{\extend{\Gamma_2}[\totalqty{r}{A}]{x}{A}}{e_2}{B}}{\fulltyping{\Gamma}{\boxelim{x}[A]{e_1}{e_2}}{B}}$
+  $\infrule{\decomposectx{\Gamma}{\Gamma_1}{\Gamma_2} \quad \fulltyping{\Gamma_1}{e_1}{\Box[r]{A}} \quad \fulltyping{\extend{\Gamma_2}[\totalqty{r}{A}]{x}{A}}{e_2}{B}}{\fulltyping{\Gamma}{\boxelim{x}[A]{e_1}{e_2}}{B}}$
 \end{center}
 
 \vspace{2em}

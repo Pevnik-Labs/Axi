@@ -139,14 +139,14 @@
 \section{Conversion}
 
 \NewDocumentCommand{\termconv}{m m m m m}{#1 \vdash #2\ \hat{\equiv}\ #3 \mathcolor{blue}{\Leftarrow} #4 \dashv #5}
-\NewDocumentCommand{\termconvwhnf}{m m m m m}{#1 \vdash #2\ \equiv\ #3 \mathcolor{blue}{\Leftarrow} #4 \dashv #5}
+\NewDocumentCommand{\termconvwhnf}{m m m m m}{#1 \vdash #2 \equiv #3 \mathcolor{blue}{\Leftarrow} #4 \dashv #5}
 \NewDocumentCommand{\termconvne}{m m m m m}{#1 \vdash #2\ \hat{\sim}\ #3 \mathcolor{red}{\Rightarrow} #4 \dashv #5}
-\NewDocumentCommand{\termconvnewhnf}{m m m m m}{#1 \vdash #2\ \sim\ #3 \mathcolor{red}{\Rightarrow} #4 \dashv #5}
+\NewDocumentCommand{\termconvnewhnf}{m m m m m}{#1 \vdash #2 \sim #3 \mathcolor{red}{\Rightarrow} #4 \dashv #5}
 
-\NewDocumentCommand{\typeconv}{m m m m}{#1 \vdash #2 \hat{\equiv} #3 \dashv #4}
+\NewDocumentCommand{\typeconv}{m m m m}{#1 \vdash #2\ \hat{\equiv}\ #3 \dashv #4}
 \NewDocumentCommand{\typeconvwhnf}{m m m m}{#1 \vdash #2 \equiv #3 \dashv #4}
 
-\NewDocumentCommand{\propconv}{m m m m}{#1 \vdash #2 \hat{\equiv} #3 \dashv #4}
+\NewDocumentCommand{\propconv}{m m m m}{#1 \vdash #2\ \hat{\equiv}\ #3 \dashv #4}
 \NewDocumentCommand{\propconvwhnf}{m m m m}{#1 \vdash #2 \equiv #3 \dashv #4}
 \NewDocumentCommand{\propconvnewhnf}{m m m m}{#1 \vdash #2 \sim #3 \dashv #4}
 
@@ -182,7 +182,7 @@
 
   \vspace{2em}
 
-  $\infrule{\typeconv{\Gamma}{A_1}{A_2}{\Gamma_1} \quad \termconv{\Gamma_1}{e_1}{e_2}{A_1}{\Gamma_2} \quad \termconv{\Gamma_2}{e_2}{e_2'}{A_1}{\Gamma_3}}{\propconvwhnf{\Gamma}{\Eq[A_1]{e_1}{e_1'}}{\Eq[A_2]{e_2}{e_2'}}{\Gamma_3}}$
+  $\infrule{\typeconv{\Gamma}{A_1}{A_2}{\Gamma_1} \quad \termconv{\Gamma_1}{e_1}{e_2}{A_1}{\Gamma_2} \quad \termconv{\Gamma_2}{e_1'}{e_2'}{A_1}{\Gamma_3}}{\propconvwhnf{\Gamma}{\Eq[A_1]{e_1}{e_1'}}{\Eq[A_2]{e_2}{e_2'}}{\Gamma_3}}$
 \end{center}
 
 \end{frame}
