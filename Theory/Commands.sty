@@ -20,6 +20,9 @@
 \NewDocumentCommand{\glbqty}{m m}{#1 \sqcap #2}
 \NewDocumentCommand{\lubqty}{m m}{#1 \sqcup #2}
 
+% Arithmetic order on quantities.
+\NewDocumentCommand{\subarith}{O{} O{}}{#1 \leq #2}
+
 % Operations on quantities.
 \NewDocumentCommand{\addqty}{m m}{#1 + #2}
 \NewDocumentCommand{\mulqty}{m m}{#1 \cdot #2}
@@ -142,10 +145,7 @@
 % Judgements.
 
 % Valid context.
-\NewDocumentCommand{\ctx}{m}{#1\ \texttt{ctx}}
-
-% Valid (or cartesian) context.
-\NewDocumentCommand{\cart}{O{i} m}{#2\ \texttt{ctx}_{#1}}
+\NewDocumentCommand{\ctx}{O{i} m}{#2\ \texttt{ctx}_{#1}}
 
 % Cartesian context.
 \NewDocumentCommand{\cartesian}{m}{#1\ \texttt{cartesian}}
@@ -154,14 +154,18 @@
 \NewDocumentCommand{\type}{O{\Gamma} m}{#1 \vdash #2\ \texttt{type}}
 
 % Declarative typing.
-\NewDocumentCommand{\typing}{m m m}{#1 \vdash #2 : #3}
-\NewDocumentCommand{\fulltyping}{m O{i} m m}{#1 \vdash_{\optional{#2}} #3 : #4}
+\NewDocumentCommand{\typing}{O{\Gamma} O{i} m m}{#1 \vdash_{\optional{#2}} #3 : #4}
 
 % Well-formed proposition.
 \NewDocumentCommand{\prop}{O{\Gamma} m}{#1 \vdash #2\ \texttt{prop}}
 
 % Proof judgement.
 \NewDocumentCommand{\proves}{O{\Gamma} m m}{#1 \vdash #2 : #3}
+
+% Conversion judgements.
+\NewDocumentCommand{\typeconv}{O{\Gamma} m m}{#1 \vdash #2 \equiv #3\ \texttt{type}}
+\NewDocumentCommand{\propconv}{O{\Gamma} m m}{#1 \vdash #2 \equiv #3\ \texttt{prop}}
+\NewDocumentCommand{\termconv}{O{\Gamma} m m m}{#1 \vdash #2 \equiv #3 : #4}
 
 % Inference rules.
 \NewDocumentCommand{\rulename}{m}{\textsc{\footnotesize{#1}}}

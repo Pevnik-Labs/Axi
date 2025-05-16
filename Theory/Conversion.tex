@@ -21,21 +21,11 @@
 
 \section{Conversion}
 
-\NewDocumentCommand{\typeconv}{O{\Gamma} m m}{#1 \vdash #2 \equiv #3\ \texttt{type}}
-\NewDocumentCommand{\propconv}{O{\Gamma} m m}{#1 \vdash #2 \equiv #3\ \texttt{prop}}
-\NewDocumentCommand{\termconv}{O{\Gamma} m m m}{#1 \vdash #2 \equiv #3 : #4}
-
-\begin{frame}{Type conversion -- sanity checks}
-
-We'll set up the type conversion judgement so that if $\typeconv{A}{B}$ then $\type{A}$ and $\type{B}$.
-
-\end{frame}
-
 \begin{frame}{Type conversion}
 
 \begin{center}
-  $\infrule{}{\typeconv{\Unit}{\Unit}}$ \quad
-  $\infrule{}{\typeconv{\Empty}{\Empty}}$
+  $\infrule{\ctx[\noncomputable]{\Gamma}}{\typeconv{\Unit}{\Unit}}$ \quad
+  $\infrule{\ctx[\noncomputable]{\Gamma}}{\typeconv{\Empty}{\Empty}}$
 
   \vspace{2em}
 
@@ -68,17 +58,11 @@ The rules above are the complete definition of type conversion. For now the cont
 
 \end{frame}
 
-\begin{frame}{Proposition conversion -- sanity checks}
-
-We'll set up the proposition conversion judgement so that if $\propconv{P}{Q}$ then $\prop{P}$ and $\prop{Q}$.
-
-\end{frame}
-
 \begin{frame}{Proposition conversion}
 
 \begin{center}
-  $\infrule{}{\propconv{\True}{\True}}$ \quad
-  $\infrule{}{\propconv{\False}{\False}}$
+  $\infrule{\ctx[\noncomputable]{\Gamma}}{\propconv{\True}{\True}}$ \quad
+  $\infrule{\ctx[\noncomputable]{\Gamma}}{\propconv{\False}{\False}}$
 
   \vspace{2em}
 
@@ -109,18 +93,22 @@ We'll set up the proposition conversion judgement so that if $\propconv{P}{Q}$ t
   $\infrule{\typeconv{A_1}{A_2} \quad \termconv{e_1}{e_2}{A_1} \quad \termconv{e_1'}{e_2'}{A_1}}{\propconv{\Eq[A_1]{e_1}{e_1'}}{\Eq[A_2]{e_2}{e_2'}}}$
 \end{center}
 
+\vspace{2em}
+
+Note that we don't worry about $\alpha$-conversion and assume the variable is the same on both sides.
+
 \end{frame}
 
 \begin{frame}{Term conversion -- sanity checks}
 
-We'll set up the term conversion judgement so that if $\termconv{a_1}{a_2}{A}$ then $\typing{\Gamma}{a_1}{A}$ and $\typing{\Gamma}{a_2}{A}$.
+We'll set up the term conversion judgement so that if $\termconv{a_1}{a_2}{A}$ then $\typing[\Gamma][\noncomputable]{a_1}{A}$ and $\typing[\Gamma][\noncomputable]{a_2}{A}$.
 
 \end{frame}
 
 \begin{frame}{Term conversion -- Empty}
 
 \begin{center}
-  $\infrule{\typing{\Gamma}{e_1}{\Empty} \quad \typing{\Gamma}{e_2}{\Empty}}{\termconv[\Gamma]{e_1}{e_2}{\Empty}}$
+  $\infrule{\typing[\Gamma][\noncomputable]{e_1}{\Empty} \quad \typing[\Gamma][\noncomputable]{e_2}{\Empty}}{\termconv[\Gamma]{e_1}{e_2}{\Empty}}$
 
   \vspace{2em}
 
@@ -132,15 +120,15 @@ We'll set up the term conversion judgement so that if $\termconv{a_1}{a_2}{A}$ t
 \begin{frame}{Term conversion -- Unit}
 
 \begin{center}
-  $\infrule{\typing{\Gamma}{a}{A}}{\termconv{\unitelim{\unit}{a}}{a}{A}}$
+  $\infrule{\typing[\Gamma][\noncomputable]{a}{A}}{\termconv{\unitelim{\unit}{a}}{a}{A}}$
 
   \vspace{2em}
 
-  $\infrule{\ctx{\Gamma} \quad \subctx{\Gamma}{\scalectx{\Zero}{\Gamma}}}{\termconv[\Gamma]{\unit}{\unit}{\Unit}}$
+  $\infrule{\ctx[\noncomputable]{\Gamma} \quad \subctx{\Gamma}{\scalectx{\Zero}{\Gamma}}}{\termconv[\Gamma]{\unit}{\unit}{\Unit}}$
 
   \vspace{2em}
 
-  $\infrule{\typing{\Gamma}{u_1}{\Unit} \quad \typing{\Gamma}{u_2}{\Unit}}{\termconv[\Gamma]{u_1}{u_2}{\Unit}}$
+  $\infrule{\typing[\Gamma][\noncomputable]{u_1}{\Unit} \quad \typing[\Gamma][\noncomputable]{u_2}{\Unit}}{\termconv[\Gamma]{u_1}{u_2}{\Unit}}$
 
   \vspace{2em}
 
@@ -152,7 +140,7 @@ We'll set up the term conversion judgement so that if $\termconv{a_1}{a_2}{A}$ t
 \begin{frame}{Term conversion -- functions}
 
 \begin{center}
-  $\infrule{\decomposectx{\Gamma}{\Gamma_1}[r]{\Gamma_2} \quad \typing{\extend{\Gamma_1}[\totalqty{r}{A}]{x}{A}}{b}{B} \quad \typing{\Gamma_2}{a}{A}}{\termconv{\app{(\fun[r]{x}[A]{b})}{a}}{\subst{b}{x}{a}}{B}}$
+  $\infrule{\decomposectx{\Gamma}{\Gamma_1}[r]{\Gamma_2} \quad \typing[\extend{\Gamma_1}[\totalqty{r}{A}]{x}{A}][\noncomputable]{b}{B} \quad \typing[\Gamma_2][\noncomputable]{a}{A}}{\termconv{\app{(\fun[r]{x}[A]{b})}{a}}{\subst{b}{x}{a}}{B}}$
 
   \vspace{2em}
 
@@ -168,7 +156,7 @@ We'll set up the term conversion judgement so that if $\termconv{a_1}{a_2}{A}$ t
 \begin{frame}{Term conversion -- box}
 
 \begin{center}
-  $\infrule{\decomposectx{\Gamma}[r]{\Gamma_1}{\Gamma_2} \quad \typing{\Gamma_1}{a}{A} \quad \typing{\extend{\Gamma_2}[\totalqty{r}{A}]{x}{A}}{b}{B}}{\termconv{\boxelim{x}[A]{\boxintro[r]{a}}{b}}{\subst{b}{x}{a}}{B}}$
+  $\infrule{\decomposectx{\Gamma}[r]{\Gamma_1}{\Gamma_2} \quad \typing[\Gamma_1][\noncomputable]{a}{A} \quad \typing[\extend{\Gamma_2}[\totalqty{r}{A}]{x}{A}][\noncomputable]{b}{B}}{\termconv{\boxelim{x}[A]{\boxintro[r]{a}}{b}}{\subst{b}{x}{a}}{B}}$
 
   \vspace{2em}
 
@@ -204,49 +192,6 @@ We'll set up the term conversion judgement so that if $\termconv{a_1}{a_2}{A}$ t
   \vspace{2em}
 
   $\infrule{\decomposectx{\Gamma}{\Gamma_1}{\Gamma_2} \quad \termconv[\Gamma_1]{e_1}{e_2}{\Sum{A}{B}} \quad \begin{array}{l} \termconv[\Gamma_2]{f_1}{f_2}{\Fun[\One]{A}{C}} \\ \termconv[\Gamma_2]{g_1}{g_2}{\Fun[\One]{B}{C}} \end{array}}{\termconv{\case{e_1}{f_1}{g_1}}{\case{e_2}{f_2}{g_2}}{C}}$
-\end{center}
-
-\end{frame}
-
-\section{Totality}
-
-\NewDocumentCommand{\emptyenv}{}{\emptyset}
-\NewDocumentCommand{\extendenv}{m m m m}{#1, #2 : #3 := #4}
-\NewDocumentCommand{\extendthm}{m m m m}{#1, #2 : #3 := #4}
-\NewDocumentCommand{\extendpartial}{m m m m}{#1, \texttt{partial}\ #2 : #3 := #4}
-\NewDocumentCommand{\totality}{m m m}{#1, \texttt{totality}\ #2\ #3}
-
-\NewDocumentCommand{\env}{m}{#1\ \texttt{env}}
-
-\begin{frame}{Environments}
-
-Global environments: \\
-$\Sigma ::=$ \\
-\qquad $\emptyenv \pipe \extendthm{\Sigma}{h}{P}{p} \pipe \extendenv{\Sigma}{x}{A}{e} \pipe$ \\
-\qquad $\extendpartial{\Sigma}{x}{A}{e} \pipe \totality{\Sigma}{x}{p}$
-
-\end{frame}
-
-\begin{frame}{Well-formed environments}
-
-\begin{center}
-  $\infrule{}{\env{\emptyenv}}$
-
-  \vspace{2em}
-
-  $\infrule{\env{\Sigma} \quad h \notin \Sigma \quad \proves[\Sigma \pipe \emptyctx]{p}{P}}{\env{\extendthm{\Sigma}{h}{P}{p}}}$
-
-  \vspace{2em}
-
-  $\infrule{\env{\Sigma} \quad x \notin \Sigma \quad \fulltyping{\Sigma \pipe \emptyctx}[\computable]{e}{A}}{\env{\extendenv{\Sigma}{x}{A}{e}}}$
-
-  \vspace{2em}
-
-  $\infrule{\env{\Sigma} \quad x \notin \Sigma \quad \fulltyping{\Sigma \pipe \emptyctx}[\computable]{e}{A} \quad e\ \textbf{fails syntactic check}}{\env{\extendpartial{\Sigma}{x}{A}{e}}}$
-
-  \vspace{2em}
-
-  $\infrule{\env{\Sigma} \quad \Sigma = \extendpartial{\Sigma_1}{x}{A}{e}, \Sigma_2 \quad \proves[\Sigma \pipe \emptyctx]{p}{\Ex{r}[A]{e =?= r}}}{\env{\totality{\Sigma}{x}{p}}}$
 \end{center}
 
 \end{frame}
