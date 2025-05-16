@@ -240,8 +240,7 @@ $\Gamma ::= \emptyctx \pipe \extend{\Gamma}[r]{x}{A} \pipe \extend{\Gamma}[r]{x}
 
 \begin{frame}{Judgements}
 
-Well-formed context judgement: $\ctx{\Gamma}$ \\
-Cartesian context judgement: $\cartesian{\Gamma}$
+Well-formed context judgement: $\cart{\Gamma}$
 
 \vspace{2em}
 
@@ -261,10 +260,11 @@ We'll set up the system so that:
 
 \begin{itemize}
   \item If $\fulltyping{\Gamma}{e}{A}$, then $\type[\cartesianize{\Gamma}]{A}$.
+  \item If $\fulltyping{\Gamma}{e}{A}$, then $\cart{\Gamma}$.
   \item If $\proves[\Gamma]{p}{P}$, then $\prop[\Gamma]{P}$.
-  \item If $\prop[\Gamma]{P}$, then $\cartesian{\Gamma}$.
-  \item If $\type[\Gamma]{A}$, then $\cartesian{\Gamma}$.
-  \item If $\cartesian{\Gamma}$, then $\ctx{\Gamma}$.
+  \item If $\prop[\Gamma]{P}$, then $\cart[\noncomputable]{\Gamma}$.
+  \item If $\type[\Gamma]{A}$, then $\cart[\noncomputable]{\Gamma}$.
+  \item If $\cart[\noncomputable]{\Gamma}$, then $\cart[\computable]{\Gamma}$.
 \end{itemize}
 
 \end{frame}
@@ -374,19 +374,19 @@ Cartesianization turns a context into a traditional context that doesn't mention
 \begin{frame}{Well-formed contexts}
 
 \begin{center}
-  $\infrule{}{\ctx{\emptyctx}}$
+  $\infrule{}{\cart[\computable]{\emptyctx}}$
 
   \vspace{2em}
 
-  $\infrule{\ctx{\Gamma} \quad \type[\cartesianize{\Gamma}]{A} \quad \sidecond{x \notin \Gamma}}{\ctx{\extend{\Gamma}[r]{x}{A}}}$
+  $\infrule{\cart[\computable]{\Gamma} \quad \type[\cartesianize{\Gamma}]{A} \quad \sidecond{x \notin \Gamma}}{\cart[\computable]{\extend{\Gamma}[r]{x}{A}}}$
 
   \vspace{2em}
 
-  $\infrule{\ctx{\Gamma_1} \quad \decomposectx{\Gamma_1}{\Gamma}[r]{\Gamma_2} \quad \fulltyping{\Gamma_2}[i]{e}{A} \quad \sidecond{x \notin \Gamma} \quad i\ \textbf{inferred from}\ e}{\ctx{\extend{\Gamma}[r]{x}{A}[e]}}$
+  $\infrule{\cart[\computable]{\Gamma} \quad \fulltyping{\cartesianize{\Gamma}}[\noncomputable]{e}{A} \quad \sidecond{x \notin \Gamma}}{\cart[\computable]{\extend{\Gamma}[r]{x}{A}[e]}}$
 
   \vspace{2em}
 
-  $\infrule{\ctx{\Gamma} \quad \prop[\cartesianize{\Gamma}]{P} \quad \sidecond{h \notin \Gamma}}{\ctx{\assume{\Gamma}{h}{P}}}$
+  $\infrule{\cart[\computable]{\Gamma} \quad \prop[\cartesianize{\Gamma}]{P} \quad \sidecond{h \notin \Gamma}}{\cart[\computable]{\assume{\Gamma}{h}{P}}}$
 \end{center}
 
 \vspace{1em}
@@ -398,7 +398,7 @@ Q: Do we really need to check type well-formedness in a cartesianized context?
 \begin{frame}{Cartesian contexts}
 
 \begin{center}
-  $\infrule{\ctx{\Gamma} \quad \sidecond{\Gamma = \cartesianize{\Gamma}}}{\cartesian{\Gamma}}$
+  $\infrule{\cart[\computable]{\Gamma} \quad \sidecond{\Gamma = \cartesianize{\Gamma}}}{\cart[\noncomputable]{\Gamma}}$
 \end{center}
 
 \end{frame}
@@ -408,8 +408,8 @@ Q: Do we really need to check type well-formedness in a cartesianized context?
 \begin{frame}{Well-formed types}
 
 \begin{center}
-  $\infrule{\cartesian{\Gamma}}{\type[\Gamma]{\Unit}}$ \quad
-  $\infrule{\cartesian{\Gamma}}{\type[\Gamma]{\Empty}}$
+  $\infrule{\cart[\noncomputable]{\Gamma}}{\type[\Gamma]{\Unit}}$ \quad
+  $\infrule{\cart[\noncomputable]{\Gamma}}{\type[\Gamma]{\Empty}}$
 
   \vspace{2em}
 
@@ -451,7 +451,7 @@ Q: Do we really need to check type well-formedness in a cartesianized context?
 \begin{frame}{Using variables}
 
 \begin{center}
-  $\infrule{\ctx{\Gamma} \quad (x : A) \in \Gamma \quad \subctx{\Gamma}{\varctx{\Gamma}{x}}}{\fulltyping{\Gamma}{x}{A}}$
+  $\infrule{\cart{\Gamma} \quad (x : A) \in \Gamma \quad \subctx{\Gamma}{\varctx{\Gamma}{x}}}{\fulltyping{\Gamma}{x}{A}}$
 \end{center}
 
 \end{frame}
@@ -495,7 +495,7 @@ Q: Notation for box intro and elim?
 \begin{frame}{Unit}
 
 \begin{center}
-  $\infrule{\ctx{\Gamma} \quad \subctx{\Gamma}{\scalectx{\Zero}{\Gamma}}}{\fulltyping{\Gamma}{\unit}{\Unit}}$
+  $\infrule{\cart{\Gamma} \quad \subctx{\Gamma}{\scalectx{\Zero}{\Gamma}}}{\fulltyping{\Gamma}{\unit}{\Unit}}$
 
   \vspace{2em}
 
@@ -546,8 +546,8 @@ Q: Do we want first-order representation of the branches? Probably yes.
 \begin{frame}{Well-formed propositions}
 
 \begin{center}
-  $\infrule{\cartesian{\Gamma}}{\prop[\Gamma]{\True}}$ \quad
-  $\infrule{\cartesian{\Gamma}}{\prop[\Gamma]{\False}}$
+  $\infrule{\cart[\noncomputable]{\Gamma}}{\prop[\Gamma]{\True}}$ \quad
+  $\infrule{\cart[\noncomputable]{\Gamma}}{\prop[\Gamma]{\False}}$
 
   \vspace{1em}
 
@@ -592,8 +592,8 @@ Type well-formedness checks are redundant.
 
 \begin{center}
 
-  $\infrule{\cartesian{\Gamma} \quad \sidecond{(h : P) \in \Gamma}}{\proves[\Gamma]{h}{P}}$ \quad
-  $\infrule{\cartesian{\Gamma} \quad \sidecond{(h : P) \in \Gamma}}{\proves[\Gamma]{\assumption}{P}}$
+  $\infrule{\cart[\noncomputable]{\Gamma} \quad \sidecond{(h : P) \in \Gamma}}{\proves[\Gamma]{h}{P}}$ \quad
+  $\infrule{\cart[\noncomputable]{\Gamma} \quad \sidecond{(h : P) \in \Gamma}}{\proves[\Gamma]{\assumption}{P}}$
 
   \vspace{2em}
 
@@ -609,7 +609,7 @@ Type well-formedness checks are redundant.
 \begin{frame}{Propositional logic}
 
 \begin{center}
-  $\infrule{\cartesian{\Gamma}}{\proves[\Gamma]{\trueintro}{\True}}$ \quad
+  $\infrule{\cart[\noncomputable]{\Gamma}}{\proves[\Gamma]{\trueintro}{\True}}$ \quad
   $\infrule{\prop[\Gamma]{Q} \quad \proves[\Gamma]{p}{\False}}{\proves[\Gamma]{\falseelim{p}}{Q}}$
 
   \vspace{2em}

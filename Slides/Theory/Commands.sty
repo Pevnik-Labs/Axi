@@ -16,7 +16,7 @@
 \NewDocumentCommand{\Any}{}{*}
 
 % Subusaging - order on quantities.
-\NewDocumentCommand{\subusage}{m m}{#1 \leq #2}
+\NewDocumentCommand{\subusage}{m m}{#1 \sqsubseteq #2}
 \NewDocumentCommand{\glbqty}{m m}{#1 \sqcap #2}
 \NewDocumentCommand{\lubqty}{m m}{#1 \sqcup #2}
 
@@ -130,7 +130,7 @@
 \NewDocumentCommand{\extendtype}{m m}{#1, #2}
 
 % Context operations.
-\NewDocumentCommand{\subctx}{m m}{#1 \leq #2}
+\NewDocumentCommand{\subctx}{m m}{#1 \sqsubseteq #2}
 \NewDocumentCommand{\addctx}{m m}{#1 + #2}
 \NewDocumentCommand{\scalectx}{m m}{#1\, #2}
 \NewDocumentCommand{\varctx}{m m}{| #1 |_{#2}}
@@ -143,6 +143,9 @@
 
 % Valid context.
 \NewDocumentCommand{\ctx}{m}{#1\ \texttt{ctx}}
+
+% Valid (or cartesian) context.
+\NewDocumentCommand{\cart}{O{i} m}{#2\ \texttt{ctx}_{#1}}
 
 % Cartesian context.
 \NewDocumentCommand{\cartesian}{m}{#1\ \texttt{cartesian}}
