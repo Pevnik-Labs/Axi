@@ -21,7 +21,9 @@
 \NewDocumentCommand{\lubqty}{m m}{#1 \sqcup #2}
 
 % Arithmetic order on quantities.
-\NewDocumentCommand{\subarith}{O{} O{}}{#1 \leq #2}
+\NewDocumentCommand{\learithqty}{O{} O{}}{#1 \leq #2}
+\NewDocumentCommand{\lesubqty}{m m}{#1 \leq_{\texttt{sub}} #2}
+\NewDocumentCommand{\ledecqty}{m m}{#1 \leq_{\texttt{dec}} #2}
 
 % Operations on quantities.
 \NewDocumentCommand{\addqty}{m m}{#1 + #2}

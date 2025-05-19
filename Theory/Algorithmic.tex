@@ -42,9 +42,37 @@ $\subqty{r_1}{r_2}$ is the least $r'$ such that $\subusage{r_1}{\addqty{r'}{r_2}
 
 \end{frame}
 
-\begin{frame}{``Arithmetic'' order on quantities}
+\begin{frame}{Subtraction order on quantities}
 
-The arithmetic order on quantities is $\Zero \subarith \One \subarith \Few \subarith \Many \subarith \Any$. The idea is to compare the quantities by how ``big'' they are.
+$\lesubqty{r_1}{r_2}$ holds when $\subqty{r_2}{r_1}$ is defined.
+
+\vspace{2em}
+
+Explicitly: $\Zero \lesubqty{}{} \One \lesubqty{}{} \Few \lesubqty{}{} \Many \lesubqty{}{} \Any \lesubqty{}{} \Many$
+
+\end{frame}
+
+\begin{frame}{Decrementation order on quantities}
+
+$\ledecqty{r_1}{r_2}$ holds when $\subqty{r_2}{\One} = r_1$.
+
+\begin{center}
+  $\infrule{}{\ledecqty{\Any}{\Many}}$
+
+  \vspace{2em}
+
+  $\infrule{}{\ledecqty{\Zero}{\One}}$
+
+  \vspace{2em}
+
+  $\infrule{}{\ledecqty{\Zero}{\Few}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Arithmetic order on quantities}
+
+The arithmetic order on quantities is $\Zero \learithqty \One \learithqty \Few \learithqty \Many \learithqty \Any$. The idea is to compare the quantities by how ``big'' they are.
 
 \end{frame}
 
@@ -191,11 +219,11 @@ $\divqty{a}{b} = (q, r)$ when $a = \addqty{\mulqty{b}{q}}{r}$, with $q$ as large
 
   \vspace{2em}
 
-  $\infrule{\infer{\Gamma}{e}{\Sum{A}{B}}{\Gamma_1} \quad \check{\Gamma_1}{f}{\Fun[\One]{A}{C}}{\Gamma_2} \quad \check{\Gamma_1}{g}{\Fun[\One]{B}{C}}{\Gamma_3}}{\check{\Gamma}{\case{e}{f}{g}}{C}{\Gamma_2 \sqcup \Gamma_3}}$
+  $\infrule{\infer{\Gamma}{e}{\Sum{A}{B}}{\Gamma_1} \quad \begin{array}{l} \check{\Gamma_1}{f}{\Fun[\One]{A}{C}}{\Gamma_2} \\ \check{\Gamma_1}{g}{\Fun[\One]{B}{C}}{\Gamma_3} \end{array}}{\check{\Gamma}{\case{e}{f}{g}}{C}{\Gamma_2 \sqcup \Gamma_3}}$
 
   \vspace{2em}
 
-  $\infrule{\infer{\Gamma}{e}{\Sum{A}{B}}{\Gamma_1} \quad \infer{\Gamma_1}{f}{\Fun[\One]{A}{C}}{\Gamma_2} \quad \infer{\Gamma_1}{g}{\Fun[\One]{B}{C}}{\Gamma_3}}{\infer{\Gamma}{\case{e}{f}{g}}{C}{\Gamma_2 \sqcup \Gamma_3}}$
+  $\infrule{\infer{\Gamma}{e}{\Sum{A}{B}}{\Gamma_1} \quad \begin{array}{l} \infer{\Gamma_1}{f}{\Fun[\One]{A}{C}}{\Gamma_2} \\ \infer{\Gamma_1}{g}{\Fun[\One]{B}{C}}{\Gamma_3} \end{array}}{\infer{\Gamma}{\case{e}{f}{g}}{C}{\Gamma_2 \sqcup \Gamma_3}}$
 \end{center}
 
 \end{frame}
@@ -211,7 +239,7 @@ $\divqty{a}{b} = (q, r)$ when $a = \addqty{\mulqty{b}{q}}{r}$, with $q$ as large
 \section{Conversion}
 
 \RenewDocumentCommand{\termconv}{m m m m m}{#1 \vdash #2\ \hat{\equiv}\ #3 \mathcolor{blue}{\Leftarrow} #4 \dashv #5}
-\NewDocumentCommand{\termconvwhnf}{m m m m m}{#1 \vdash #2 \equiv #3 \mathcolor{blue}{\Leftarrow} #4 \dashv #5}
+\NewDocumentCommand{\termconvwhnf}{m m m m m}{#1 \vdash #2\ \equiv #3 \mathcolor{blue}{\Leftarrow} #4 \dashv #5}
 \NewDocumentCommand{\termconvne}{m m m m m}{#1 \vdash #2\ \hat{\sim}\ #3 \mathcolor{red}{\Rightarrow} #4 \dashv #5}
 \NewDocumentCommand{\termconvnewhnf}{m m m m m}{#1 \vdash #2 \sim #3 \mathcolor{red}{\Rightarrow} #4 \dashv #5}
 
@@ -221,6 +249,31 @@ $\divqty{a}{b} = (q, r)$ when $a = \addqty{\mulqty{b}{q}}{r}$, with $q$ as large
 \RenewDocumentCommand{\propconv}{m m m m}{#1 \vdash #2\ \hat{\equiv}\ #3 \dashv #4}
 \NewDocumentCommand{\propconvwhnf}{m m m m}{#1 \vdash #2 \equiv #3 \dashv #4}
 \NewDocumentCommand{\propconvnewhnf}{m m m m}{#1 \vdash #2 \sim #3 \dashv #4}
+
+\begin{frame}{Conversion of types}
+
+\begin{center}
+  $\infrule{}{\typeconvwhnf{\Gamma}{\Unit}{\Unit}{\Gamma}}$ \quad
+  $\infrule{}{\typeconvwhnf{\Gamma}{\Empty}{\Empty}{\Gamma}}$
+
+  \vspace{2em}
+
+  $\infrule{\typeconv{\Gamma}{A_1}{A_2}{\Gamma_1} \quad \typeconv{\Gamma_1}{B_1}{B_2}{\Gamma_2}}{\typeconvwhnf{\Gamma}{\Prod{A_1}{B_1}}{\Prod{A_2}{B_2}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\typeconv{\Gamma}{A_1}{A_2}{\Gamma_1} \quad \typeconv{\Gamma_1}{B_1}{B_2}{\Gamma_2}}{\typeconvwhnf{\Gamma}{\Sum{A_1}{B_1}}{\Sum{A_2}{B_2}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\typeconv{\Gamma}{A_1}{A_2}{\Gamma_1} \quad \typeconv{\Gamma_1}{B_1}{B_2}{\Gamma_2}}{\typeconvwhnf{\Gamma}{\Fun[r]{A_1}{B_1}}{\Fun[r]{A_2}{B_2}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\typeconv{\Gamma}{A_1}{A_2}{\Gamma'}}{\typeconvwhnf{\Gamma}{\Box[r]{A_1}}{\Box[r]{A_2}}{\Gamma'}}$
+\end{center}
+
+\end{frame}
 
 \begin{frame}{Conversion of propositions}
 
@@ -263,31 +316,6 @@ $\divqty{a}{b} = (q, r)$ when $a = \addqty{\mulqty{b}{q}}{r}$, with $q$ as large
 
 \begin{center}
   $\infrule{\propconvnewhnf{\Gamma}{N_1}{N_2}{\Gamma'} \quad }{\propconvwhnf{\Gamma}{N_1}{N_2}{\Gamma'}}$
-\end{center}
-
-\end{frame}
-
-\begin{frame}{Conversion of types}
-
-\begin{center}
-  $\infrule{}{\typeconvwhnf{\Gamma}{\Unit}{\Unit}{\Gamma}}$ \quad
-  $\infrule{}{\typeconvwhnf{\Gamma}{\Empty}{\Empty}{\Gamma}}$
-
-  \vspace{2em}
-
-  $\infrule{\typeconv{\Gamma}{A_1}{A_2}{\Gamma_1} \quad \typeconv{\Gamma_1}{B_1}{B_2}{\Gamma_2}}{\typeconvwhnf{\Gamma}{\Prod{A_1}{B_1}}{\Prod{A_2}{B_2}}{\Gamma_2}}$
-
-  \vspace{2em}
-
-  $\infrule{\typeconv{\Gamma}{A_1}{A_2}{\Gamma_1} \quad \typeconv{\Gamma_1}{B_1}{B_2}{\Gamma_2}}{\typeconvwhnf{\Gamma}{\Sum{A_1}{B_1}}{\Sum{A_2}{B_2}}{\Gamma_2}}$
-
-  \vspace{2em}
-
-  $\infrule{\typeconv{\Gamma}{A_1}{A_2}{\Gamma_1} \quad \typeconv{\Gamma_1}{B_1}{B_2}{\Gamma_2}}{\typeconvwhnf{\Gamma}{\Fun[r]{A_1}{B_1}}{\Fun[r]{A_2}{B_2}}{\Gamma_2}}$
-
-  \vspace{2em}
-
-  $\infrule{\typeconv{\Gamma}{A_1}{A_2}{\Gamma'}}{\typeconvwhnf{\Gamma}{\Box[r]{A_1}}{\Box[r]{A_2}}{\Gamma'}}$
 \end{center}
 
 \end{frame}
