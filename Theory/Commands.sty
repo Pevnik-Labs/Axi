@@ -34,10 +34,6 @@
 \NewDocumentCommand{\modeqty}{O{i} m}{#1(#2)}
 \NewDocumentCommand{\totalqty}{m m O{i}}{#1_{#2}^{#3}}
 
-% Modes.
-\NewDocumentCommand{\computable}{}{\texttt{c}}
-\NewDocumentCommand{\noncomputable}{}{\texttt{nc}}
-
 % Types.
 \NewDocumentCommand{\Fun}{o m m}{\IfValueTF{#1}{#1\, }{} #2 \to #3}
 \RenewDocumentCommand{\Box}{o m}{\texttt{!}_{#1}\, #2}
@@ -45,7 +41,8 @@
 \NewDocumentCommand{\Sum}{m m}{#1 \oplus #2}
 \NewDocumentCommand{\Unit}{}{\texttt{Unit}}
 \NewDocumentCommand{\Empty}{}{\texttt{Empty}}
-%\newcommand{\ForallT}[2]{\forall #1.\, #2}
+\NewDocumentCommand{\ForallE}{m o m}{\forall #1 : \Type[#2] .\, #3}
+\NewDocumentCommand{\ForallI}{m o m}{\forall \{#1 : \Type[#2]\} .\, #3}
 
 % An optional type annotation.
 \NewDocumentCommand{\optionalannot}{m}{\IfValueTF{#1}{: #1}{}}
@@ -126,13 +123,16 @@
 \NewDocumentCommand{\rewrite}{m m}{\textbf{rewrite}\ #1\ \textbf{in}\ #2}
 \NewDocumentCommand{\funext}{m o m}{\textbf{funext}\ #1 \optionalannot{#2}\ \textbf{in}\ #3}
 
+% Kinding.
+\NewDocumentCommand{\Type}{o}{\texttt{Type}_{\optional{#1}}}
+
 % Contexts.
 
 % Typing contexts.
 \NewDocumentCommand{\emptyctx}{}{\cdot}
 \NewDocumentCommand{\extend}{m o m m o}{#1, \IfValueTF{#2}{#2\,}{} #3 : #4 \IfValueTF{#5}{:= #5}{}}
 \NewDocumentCommand{\assume}{m m m}{#1, #2 : #3}
-\NewDocumentCommand{\extendtype}{m m}{#1, #2}
+\NewDocumentCommand{\extendtype}{m m o}{#1, #2 : \Type[#3]}
 
 % Context operations.
 \NewDocumentCommand{\subctx}{m m}{#1 \sqsubseteq #2}
@@ -145,6 +145,10 @@
 \NewDocumentCommand{\decomposectx}{m o m o m}{\subctx{#1}{\addctx{\scalectx{\optional{#2}}{#3}}{\scalectx{\optional{#4}}{#5}}}}
 
 % Judgements.
+
+% Modes.
+\NewDocumentCommand{\computable}{}{\texttt{c}}
+\NewDocumentCommand{\noncomputable}{}{\texttt{nc}}
 
 % Valid context.
 \NewDocumentCommand{\ctx}{O{i} m}{#2\ \texttt{ctx}_{#1}}

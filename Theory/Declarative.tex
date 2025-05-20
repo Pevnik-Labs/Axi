@@ -132,7 +132,9 @@ Quantities $\qty$ form a positive ordered commutative semiring with no zero divi
 \begin{frame}{Types}
 
 Types: \\
-$A, B ::= \Fun[r]{A}{B} \pipe \Box[r]{A} \pipe \Prod{A}{B} \pipe \Sum{A}{B} \pipe \Unit \pipe \Empty$
+$A, B ::=$ \\
+\qquad $\Fun[r]{A}{B} \pipe \Box[r]{A} \pipe \Prod{A}{B} \pipe \Sum{A}{B} \pipe \Unit \pipe \Empty \pipe$ \\
+\qquad $\ForallE{a}[r]{A} \pipe \ForallI{a}[r]{A}$
 
 \end{frame}
 
@@ -192,7 +194,7 @@ $p, q ::=$ \\
 \begin{frame}{Contexts}
 
 Contexts: \\
-$\Gamma ::= \emptyctx \pipe \extend{\Gamma}[r]{x}{A} \pipe \extend{\Gamma}[r]{x}{A}[e] \pipe \assume{\Gamma}{h}{P}$ % \pipe \extendtype{\Gamma}{\alpha}$
+$\Gamma ::= \emptyctx \pipe \extend{\Gamma}[r]{x}{A} \pipe \extend{\Gamma}[r]{x}{A}[e] \pipe \assume{\Gamma}{h}{P} \pipe \extendtype{\Gamma}{a}[r]$
 
 \end{frame}
 
@@ -842,6 +844,14 @@ Note that we don't worry about $\alpha$-conversion and assume the variable is th
 \begin{center}
   $\infrule{\termconv[\Gamma]{a_1}{a_2}{A} \quad \termconv[\extend{\Gamma}{x}{A}]{b_1}{b_2}{B}}{\termconv[\Gamma]{\letin{x}{a_1}{b_1}}{\letin{x}{a_2}{b_2}}{B}}$
 \end{center}
+
+\end{frame}
+
+\section{Polymorphism}
+
+\begin{frame}{Universes}
+
+$U$ ::= $\Type[\One] \pipe \Type[\Few] \pipe \Type[\Many] \pipe \Type[\Any]$
 
 \end{frame}
 

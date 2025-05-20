@@ -1,0 +1,111 @@
+\documentclass{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{babel}
+\usepackage{xcolor}
+\usepackage{Commands}
+
+\usetheme{Darmstadt}
+
+\title{T-Axi (declarative)}
+\author
+{
+  Wojciech Kołowski\\
+  \and
+  Mateusz Pyzik\\
+}
+\date{}
+
+\begin{document}
+
+\frame{\titlepage}
+
+\section{Polymorphism}
+
+\begin{frame}{Universes}
+
+$U$ ::= $\Type[\One] \pipe \Type[\Few] \pipe \Type[\Many] \pipe \Type[\Any]$
+
+\vspace{2em}
+
+The default quantity is $\Any$, so $\Type$ without any index means $\Type[\Any]$.
+
+\end{frame}
+
+\NewDocumentCommand{\kinding}{O{\Gamma} m o}{#1 \vdash #2 : \Type[#3]}
+
+\begin{frame}{}
+
+\begin{center}
+  $\infrule{\ctx[\computable]{\Gamma} \quad r \neq \Zero}{\ctx[\computable]{\extendtype{\Gamma}{a}[r]}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Kinding}
+
+\begin{center}
+  $\infrule{\ctx[\noncomputable]{\Gamma}}{\kinding{\Unit}}$ \quad
+  $\infrule{\ctx[\noncomputable]{\Gamma}}{\kinding{\Empty}}$
+
+  \vspace{2em}
+
+  $\infrule{\kinding{A}[r_1] \quad \kinding{B}[r_2]}{\kinding{\Fun[s]{A}{B}}[\One]}$
+
+  \vspace{2em}
+
+  $\infrule{\kinding{A}[r]}{\kinding{\Box[\Zero]{A}}}$ \quad
+  $\infrule{\kinding{A}[r] \quad r \neq \Zero}{\kinding{\Box[s]{A}}[\mulqty{r}{s}]}$
+
+  \vspace{2em}
+
+  $\infrule{\kinding{A}[r_1] \quad \kinding{B}[r_2]}{\kinding{\Prod{A}{B}}[\lubqty{r_1}{r_2}]}$ \quad
+  $\infrule{\kinding{A}[r_1] \quad \kinding{B}[r_2]}{\kinding{\Sum{A}{B}}[\lubqty{r_1}{r_2}]}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Kinding}
+
+\begin{center}
+  $\infrule{\ctx[\noncomputable]{\Gamma} \quad (a : \Type[r]) \in \Gamma}{\kinding{a}[r]}$
+
+  \vspace{2em}
+
+  $\infrule{\kinding[\extendtype{\Gamma}{A}[r]]{B}[s]}{\kinding{\ForallE{A}[r]{B}}[s]}$
+
+  \vspace{2em}
+
+  $\infrule{\kinding[\extendtype{\Gamma}{A}[r]]{B}[s]}{\kinding{\ForallI{A}[r]{B}}[s]}$
+\end{center}
+
+\end{frame}
+
+\NewDocumentCommand{\tfun}{m o m}{\Lambda\, #1 \IfValueTF{#2}{: \Type[#2]}{} .\, #3}
+
+\NewDocumentCommand{\itfun}{m o m}{\Lambda\, \{#1 \IfValueTF{#2}{: \Type[#2]}{}\} .\, #3}
+
+\NewDocumentCommand{\tapp}{m m}{#1\ #2}
+
+\NewDocumentCommand{\itapp}{m m}{#1\ @#2}
+
+\begin{frame}{Polymorphism (decl)}
+
+\begin{center}
+  $\infrule{\typing[\extendtype{\Gamma}{a}[r]]{e}{B}}{\typing{\tfun{a}[r]{e}}{\ForallE{a}[r]{B}}}$
+
+  \vspace{2em}
+
+  $\infrule{\typing[\extendtype{\Gamma}{a}[r]]{e}{B}}{\typing{\itfun{a}[r]{e}}{\ForallI{a}[r]{B}}}$
+
+  \vspace{2em}
+
+  $\infrule{\typing{e}{\ForallE{a}[r]{B}} \quad \kinding[\cartesianize{\Gamma}]{A}[r]}{\typing{\tapp{e}{A}}{\subst{B}{a}{A}}}$
+
+  \vspace{2em}
+
+  $\infrule{\typing{e}{\ForallI{a}[r]{B}} \quad \kinding[\cartesianize{\Gamma}]{A}[r]}{\typing{\itapp{e}{A}}{\subst{B}{a}{A}}}$
+\end{center}
+
+\end{frame}
+
+\end{document}
