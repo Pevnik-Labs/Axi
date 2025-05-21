@@ -68,6 +68,10 @@
 \NewDocumentCommand{\letnoncomp}{m o m m}{\texttt{let noncomputable}\ #1 \optionalannot{#2} = #3\ \texttt{in}\ #4}
 \RenewDocumentCommand{\choose}{o m}{\texttt{choose}_{\optional{#1}}\ #2}
 \NewDocumentCommand{\choosewitnessp}{m m m m}{\texttt{choose-witness}\ #1\ #2\ \texttt{for}\ #3\ \texttt{in}\ #4}
+\NewDocumentCommand{\tfun}{m o m}{\Lambda\, #1 \IfValueTF{#2}{: \Type[#2]}{} .\, #3}
+\NewDocumentCommand{\itfun}{m o m}{\Lambda\, \{#1 \IfValueTF{#2}{: \Type[#2]}{}\} .\, #3}
+\NewDocumentCommand{\tapp}{m m}{#1\ #2}
+\NewDocumentCommand{\itapp}{m m}{#1\ @#2}
 
 % Logic.
 
@@ -157,7 +161,7 @@
 \NewDocumentCommand{\cartesian}{m}{#1\ \texttt{cartesian}}
 
 % Valid type.
-\NewDocumentCommand{\type}{O{\Gamma} m}{#1 \vdash #2\ \texttt{type}}
+\NewDocumentCommand{\type}{O{\Gamma} m o}{#1 \vdash #2 : \Type[#3]}
 
 % Declarative typing.
 \NewDocumentCommand{\typing}{O{\Gamma} O{i} m m}{#1 \vdash_{\optional{#2}} #3 : #4}
@@ -169,7 +173,7 @@
 \NewDocumentCommand{\proves}{O{\Gamma} m m}{#1 \vdash #2 : #3}
 
 % Conversion judgements.
-\NewDocumentCommand{\typeconv}{O{\Gamma} m m}{#1 \vdash #2 \equiv #3\ \texttt{type}}
+\NewDocumentCommand{\typeconv}{O{\Gamma} m m o}{#1 \vdash #2 \equiv #3 : \Type[#4]}
 \NewDocumentCommand{\propconv}{O{\Gamma} m m}{#1 \vdash #2 \equiv #3\ \texttt{prop}}
 \NewDocumentCommand{\termconv}{O{\Gamma} m m m}{#1 \vdash #2 \equiv #3 : #4}
 
