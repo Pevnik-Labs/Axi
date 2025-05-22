@@ -1,0 +1,87 @@
+\section{Conversion}
+
+\begin{frame}{Conversion of types}
+
+\begin{center}
+  $\infrule{}{\infertypeconvwhnf{\Gamma}{\Unit}{\Unit}{\Gamma}}$ \quad
+  $\infrule{}{\infertypeconvwhnf{\Gamma}{\Empty}{\Empty}{\Gamma}}$
+
+  \vspace{2em}
+
+  $\infrule{\infertypeconv{\Gamma}{A_1}{A_2}{\Gamma_1} \quad \infertypeconv{\Gamma_1}{B_1}{B_2}{\Gamma_2}}{\infertypeconvwhnf{\Gamma}{\Prod{A_1}{B_1}}{\Prod{A_2}{B_2}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\infertypeconv{\Gamma}{A_1}{A_2}{\Gamma_1} \quad \infertypeconv{\Gamma_1}{B_1}{B_2}{\Gamma_2}}{\infertypeconvwhnf{\Gamma}{\Sum{A_1}{B_1}}{\Sum{A_2}{B_2}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\infertypeconv{\Gamma}{A_1}{A_2}{\Gamma_1} \quad \infertypeconv{\Gamma_1}{B_1}{B_2}{\Gamma_2}}{\infertypeconvwhnf{\Gamma}{\Fun[r]{A_1}{B_1}}{\Fun[r]{A_2}{B_2}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\infertypeconv{\Gamma}{A_1}{A_2}{\Gamma'}}{\infertypeconvwhnf{\Gamma}{\Box[r]{A_1}}{\Box[r]{A_2}}{\Gamma'}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Conversion of propositions}
+
+\begin{center}
+  $\infrule{}{\checkpropconvwhnf{\Gamma}{\True}{\True}{\Gamma}}$ \quad
+  $\infrule{}{\checkpropconvwhnf{\Gamma}{\False}{\False}{\Gamma}}$
+
+  \vspace{2em}
+
+  $\infrule{\checkpropconv{\Gamma}{P_1}{P_2}{\Gamma_1} \quad \checkpropconv{\Gamma_1}{Q_1}{Q_2}{\Gamma_2}}{\checkpropconvwhnf{\Gamma}{\Impl{P_1}{Q_1}}{\Impl{P_2}{Q_2}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\checkpropconv{\Gamma}{P_1}{P_2}{\Gamma_1} \quad \checkpropconv{\Gamma_1}{Q_1}{Q_2}{\Gamma_2}}{\checkpropconvwhnf{\Gamma}{\And{P_1}{Q_1}}{\And{P_2}{Q_2}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\checkpropconv{\Gamma}{P_1}{P_2}{\Gamma_1} \quad \checkpropconv{\Gamma_1}{Q_1}{Q_2}{\Gamma_2}}{\checkpropconvwhnf{\Gamma}{\Or{P_1}{Q_1}}{\Or{P_2}{Q_2}}{\Gamma_2}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Conversion of propositions}
+
+\begin{center}
+  $\infrule{\infertypeconv{\Gamma}{A_1}{A_2}{\Gamma_1} \quad \checkpropconv{\extend{\Gamma_1}{x_1}{A_1}}{P_1}{\subst{P_2}{x_2}{x_1}}{\extend{\Gamma_2}{x_1}{A_1}}}{\checkpropconvwhnf{\Gamma}{\All{x_1}[A_1]{P_1}}{\All{x_2}[A_2]{P_2}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\infertypeconv{\Gamma}{A_1}{A_2}{\Gamma_1} \quad \checkpropconv{\extend{\Gamma_1}{x_1}{A_1}}{P_1}{\subst{P_2}{x_2}{x_1}}{\extend{\Gamma_2}{x_1}{A_1}}}{\checkpropconvwhnf{\Gamma}{\Ex{x_1}[A_1]{P_1}}{\Ex{x_2}[A_2]{P_2}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\infertypeconv{\Gamma}{A_1}{A_2}{\Gamma_1} \quad \checktermconv{\Gamma_1}{e_1}{e_2}{A_1}{\Gamma_2} \quad \checktermconv{\Gamma_2}{e_1'}{e_2'}{A_1}{\Gamma_3}}{\checkpropconvwhnf{\Gamma}{\Eq[A_1]{e_1}{e_1'}}{\Eq[A_2]{e_2}{e_2'}}{\Gamma_3}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Conversion of propositions}
+
+\begin{center}
+  $\infrule{\inferpropconvwhnf{\Gamma}{N_1}{N_2}{\Gamma'} \quad }{\checkpropconvwhnf{\Gamma}{N_1}{N_2}{\Gamma'}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Conversion of terms}
+
+\begin{center}
+  $\infrule{\findvar{\Gamma}{x} = A}{\infertermconv{\Gamma}{x}{x}{A}{\Gamma}}$
+
+  \vspace{2em}
+
+  $\infrule{\checktermconv{\extend{\Gamma}{x}{A}}{\app{f}{x}}{\app{g}{x}}{B}{\extend{\Gamma'}{x}{A}}}{\checktermconvwhnf{\Gamma}{f}{g}{\Fun[r]{A}{B}}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\infertermconvwhnf{\Gamma}{n_1}{n_2}{\Fun[r]{A}{B}}{\Gamma_1} \quad \checktermconv{\Gamma_1}{u_1}{u_2}{A}{\Gamma_2}}{\infertermconv{\Gamma}{\app{n_1}{u_1}}{\app{n_2}{u_2}}{B}{\Gamma_2}}$
+\end{center}
+
+\end{frame}

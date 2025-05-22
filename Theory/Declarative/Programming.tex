@@ -48,7 +48,9 @@
   $\typeqty{\Box[r]{A}} = \mulqty{r}{\typeqty{A}}$ \\
   $\typeqty{\Prod{A}{B}} = \lubqty{\typeqty{A}}{\typeqty{B}}$ \\
   $\typeqty{\Sum{A}{B}} = \lubqty{\typeqty{A}}{\typeqty{B}}$ \\
-  $\typeqty{\Fun[r]{A}{B}} = \One$
+  $\typeqty{\Fun[r]{A}{B}} = \One$ \\
+  $\typeqty{\ForallE{a}[r]{B}} = \typeqty{B}$ \\
+  $\typeqty{\ForallI{a}[r]{B}} = \typeqty{B}$ \\
 \end{center}
 
 \end{frame}
@@ -159,9 +161,13 @@ Q: Do we want first-order representation of the branches? Probably yes.
   \vspace{2em}
 
   $\infrule{\typing{e}{\ForallE{a}[r]{B}} \quad \type[\cartesianize{\Gamma}]{A}[r]}{\typing{\tapp{e}{A}}{\subst{B}{a}{A}}}$
+\end{center}
 
-  \vspace{2em}
+\end{frame}
 
+\begin{frame}{Polymorphism (implicit arguments)}
+
+\begin{center}
   $\infrule{\typing[\extendtype{\Gamma}{a}[r]]{e}{B}}{\typing{\itfun{a}[r]{e}}{\ForallI{a}[r]{B}}}$
 
   \vspace{2em}

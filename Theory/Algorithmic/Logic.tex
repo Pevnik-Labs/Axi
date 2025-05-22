@@ -1,0 +1,82 @@
+\section{Logic}
+
+\begin{frame}{Assumptions and implication}
+
+\begin{center}
+  $\infrule{\findhyp{\Gamma}{h} = P}{\inferproof{\Gamma}{h}{P}{\Gamma}}$ \quad
+  $\infrule{(h : P) \in \Gamma}{\checkproof{\Gamma}{\assumption}{P}{\Gamma}}$
+
+  \vspace{2em}
+
+  $\infrule{\checkproof{\assume{\Gamma}{h}{P}}{q}{Q}{\assume{\Gamma'}{h}{P}}}{\checkproof{\Gamma}{\implintro{h}{q}}{\Impl{P}{Q}}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\inferproof{\Gamma}{q}{\Impl{P}{Q}}{\Gamma_1} \quad \checkproof{\Gamma_1}{p}{P}{\Gamma_2}}{\inferproof{\Gamma}{\implelim{q}{p}}{Q}{\Gamma_2}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Propositional logic}
+
+\begin{center}
+  $\infrule{}{\checkproof{\Gamma}{\trueintro}{\True}{\Gamma}}$ \quad
+  $\infrule{\checkproof{\Gamma}{p}{\False}{\Gamma'}}{\checkproof{\Gamma}{\falseelim{p}}{Q}{\Gamma'}}$
+
+  \vspace{1em}
+
+  $\infrule{\checkproof{\Gamma}{p}{P}{\Gamma_1} \quad \checkproof{\Gamma_1}{q}{Q}{\Gamma_2}}{\checkproof{\Gamma}{\andintro{p}{q}}{\And{P}{Q}}{\Gamma_2}}$
+
+  \vspace{1em}
+
+  $\infrule{\inferproof{\Gamma}{pq}{\And{P}{Q}}{\Gamma'}}{\inferproof{\Gamma}{\andeliml{pq}}{P}{\Gamma'}}$ \quad
+  $\infrule{\inferproof{\Gamma}{pq}{\And{P}{Q}}{\Gamma'}}{\inferproof{\Gamma}{\andelimr{pq}}{Q}{\Gamma'}}$
+
+  \vspace{1em}
+
+  $\infrule{\checkproof{\Gamma}{p}{P}{\Gamma'}}{\checkproof{\Gamma}{\orintrol{p}}{\Or{P}{Q}}{\Gamma'}}$ \quad
+  $\infrule{\checkproof{\Gamma}{q}{Q}{\Gamma'}}{\checkproof{\Gamma}{\orintror{q}}{\Or{P}{Q}}{\Gamma'}}$
+
+  \vspace{1em}
+
+  $\infrule{\inferproof{\Gamma}{pq}{\Or{P}{Q}}{\Gamma_1} \quad \checkproof{\Gamma_1}{r_1}{\Impl{P}{R}}{\Gamma_2} \quad \checkproof{\Gamma_1}{r_2}{\Impl{Q}{R}}{\Gamma_3}}{\checkproof{\Gamma}{\orelim{pq}{r_1}{r_2}}{R}{\Gamma_2 \sqcup \Gamma_3}}$
+
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Quantifiers}
+
+\begin{center}
+  $\infrule{\checkproof{\Gamma}{p}{\subst{P}{x}{y}}{\Gamma'}}{\checkproof{\Gamma}{\allintro{y}{p}}{\All{x}[A]{P}}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\inferproof{\Gamma}{p}{\All{x}[A]{P}}{\Gamma_1} \quad \checktype{\Gamma_1}[\noncomputable]{e}{A}{\Gamma_2}}{\inferproof{\Gamma}{\allelim{p}{e}}{\subst{P}{x}{e}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\checktype{\Gamma}[\noncomputable]{e}{A}{\Gamma_1} \quad \checkproof{\Gamma_1}{p}{\subst{P}{x}{e}}{\Gamma_2}}{\checkproof{\Gamma}{\exintro{e}{p}}{\Ex{x}[A]{P}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\inferproof{\Gamma}{p}{\Ex{x}[A]{P}}{\Gamma_1} \quad \checkproof{\assume{\extend{\Gamma_1}{y}{A}}{h}{\subst{P}{x}{y}}}{q}{Q}{\Gamma_2}}{\checkproof{\Gamma}{\exelim{y}{h}{p}{q}}{Q}{\Gamma_2}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Equality}
+
+\begin{center}
+  $\infrule{\checktermconv{\Gamma}{e_1}{e_2}{A}{\Gamma'}}{\checkproof{\Gamma}{\refl}{\Eq[A]{e_1}{e_2}}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\inferproof{\Gamma}{q}{\Eq[A]{e_1}{e_2}}{\Gamma_1} \quad \begin{array}{l} \checkprop{\extend{\Gamma_1}{x}{A}}{P}{\extend{\Gamma_2}{x}{A}} \\ \checkproof{\Gamma_2}{p}{\subst{P}{x}{e_2}}{\Gamma_3} \end{array}}{\inferproof{\Gamma}{\rewrite{q}[x.P]{p}}{\subst{P}{x}{e_1}}{\Gamma_3}}$
+
+  \vspace{2em}
+
+  $\infrule{\checkproof{\extend{\Gamma}{x}{A}}{p}{\Eq[B]{f}{g}}{\extend{\Gamma'}{x}{A}}}{\checkproof{\Gamma}{\funext{x}{p}}{\Eq[\Fun[r]{A}{B}]{f}{g}}{\Gamma'}}$
+\end{center}
+
+\end{frame}

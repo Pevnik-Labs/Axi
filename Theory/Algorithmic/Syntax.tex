@@ -1,0 +1,22 @@
+\section{Syntax}
+
+\begin{frame}{Syntax}
+
+The syntax in the algorithmic system is the same, but we will have far fewer annotations in terms
+
+\end{frame}
+
+\begin{frame}{Judgements}
+
+Kind inference judgement: $\inferkind{\Gamma}{A}[r]{\Gamma'}$ \\
+Type conversion judgements: $\infertypeconv{\Gamma}{A}{B}{\Gamma'}$, $\infertypeconvwhnf{\Gamma}{A}{B}{\Gamma'}$ \\
+
+Type checking judgement: $\checktype{\Gamma}{e}{A}{\Gamma'}$ \\
+Type inference judgement: $\infertype{\Gamma}{e}{A}{\Gamma'}$ \\
+
+Term conversion judgements: $\checktermconv{\Gamma}{e_1}{e_2}{A}{\Gamma'}$, $\infertermconv{\Gamma}{e_1}{e_2}{A}{\Gamma'}$, $\checktermconvwhnf{\Gamma}{e_1}{e_2}{A}{\Gamma'}$, $\infertermconvwhnf{\Gamma}{e_1}{e_2}{A}{\Gamma'}$ \\
+
+Proposition checking judgement: $\checkprop{\Gamma}{P}{\Gamma'}$ \\
+Proposition conversion judgements: $\checkpropconv{\Gamma}{P}{Q}{\Gamma'}$, $\checkpropconvwhnf{\Gamma}{P}{Q}{\Gamma'}$, $\inferpropconvwhnf{\Gamma}{P}{Q}{\Gamma'}$
+
+\end{frame}

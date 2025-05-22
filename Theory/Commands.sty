@@ -124,7 +124,7 @@
 
 % Equality.
 \NewDocumentCommand{\refl}{o}{\textbf{refl} \optionalspace{#1}}
-\NewDocumentCommand{\rewrite}{m m}{\textbf{rewrite}\ #1\ \textbf{in}\ #2}
+\NewDocumentCommand{\rewrite}{m o m}{\textbf{rewrite}\ #1\ \IfValueTF{#2}{\textbf{at}\ #2}{}\ \textbf{in}\ #3}
 \NewDocumentCommand{\funext}{m o m}{\textbf{funext}\ #1 \optionalannot{#2}\ \textbf{in}\ #3}
 
 % Kinding.
@@ -176,6 +176,32 @@
 \NewDocumentCommand{\typeconv}{O{\Gamma} m m o}{#1 \vdash #2 \equiv #3 : \Type[#4]}
 \NewDocumentCommand{\propconv}{O{\Gamma} m m}{#1 \vdash #2 \equiv #3\ \texttt{prop}}
 \NewDocumentCommand{\termconv}{O{\Gamma} m m m}{#1 \vdash #2 \equiv #3 : #4}
+
+% Algorithmic judgements.
+\NewDocumentCommand{\findvar}{m m}{#1(#2)}
+\NewDocumentCommand{\findhyp}{m m}{#1(#2)}
+
+\NewDocumentCommand{\inferkind}{m m O{} m}{#1 \vdash #2 \mathcolor{red}{\Rightarrow} \Type[#3] \dashv #4}
+
+\NewDocumentCommand{\checkprop}{m m m}{#1 \vdash #2 \mathcolor{blue}{\Leftarrow} \texttt{prop} \dashv #3}
+
+\NewDocumentCommand{\checktype}{m O{i} m m m}{#1 \vdash_{\optional{#2}} #3 \mathcolor{blue}{\Leftarrow} #4 \dashv #5}
+\NewDocumentCommand{\infertype}{m O{i} m m m}{#1 \vdash_{\optional{#2}} #3 \mathcolor{red}{\Rightarrow} #4 \dashv #5}
+
+\NewDocumentCommand{\checkproof}{m m m m}{#1 \vdash #2 \mathcolor{blue}{\Leftarrow} #3 \dashv #4}
+\NewDocumentCommand{\inferproof}{m m m m}{#1 \vdash #2 \mathcolor{red}{\Rightarrow} #3 \dashv #4}
+
+\NewDocumentCommand{\infertypeconv}{m m m O{} m}{#1 \vdash #2\ \hat{\equiv}\ #3 \mathcolor{red}{\Rightarrow} \Type[#4] \dashv #5}
+\NewDocumentCommand{\infertypeconvwhnf}{m m m O{} m}{#1 \vdash #2 \equiv #3 \mathcolor{red}{\Rightarrow} \Type[#4] \dashv #5}
+
+\NewDocumentCommand{\checktermconv}{m m m m m}{#1 \vdash #2\ \hat{\equiv}\ #3 \mathcolor{blue}{\Leftarrow} #4 \dashv #5}
+\NewDocumentCommand{\checktermconvwhnf}{m m m m m}{#1 \vdash #2\ \equiv #3 \mathcolor{blue}{\Leftarrow} #4 \dashv #5}
+\NewDocumentCommand{\infertermconv}{m m m m m}{#1 \vdash #2\ \hat{\sim}\ #3 \mathcolor{red}{\Rightarrow} #4 \dashv #5}
+\NewDocumentCommand{\infertermconvwhnf}{m m m m m}{#1 \vdash #2 \sim #3 \mathcolor{red}{\Rightarrow} #4 \dashv #5}
+
+\NewDocumentCommand{\checkpropconv}{m m m m}{#1 \vdash #2\ \hat{\equiv}\ #3 \dashv #4}
+\NewDocumentCommand{\checkpropconvwhnf}{m m m m}{#1 \vdash #2 \equiv #3 \dashv #4}
+\NewDocumentCommand{\inferpropconvwhnf}{m m m m}{#1 \vdash #2 \sim #3 \dashv #4}
 
 % Inference rules.
 \NewDocumentCommand{\rulename}{m}{\textsc{\footnotesize{#1}}}
