@@ -8,7 +8,8 @@
   $\usevar{(\extend{\Gamma}[r]{y}{A})}{x} = \extend{\usevar{\Gamma}{x}}[r]{y}{A}$ \\
   $\usevar{(\extend{\Gamma}[r]{x}{A}[e])}{x} = \extend{\Gamma}[(\subqty{r}{\One})]{x}{A}[e]$ \\
   $\usevar{(\extend{\Gamma}[r]{y}{A}[e])}{x} = \extend{\usevar{\Gamma}{x}}[r]{y}{A}[e]$ \\
-  $\usevar{(\assume{\Gamma}{h}{P})}{x} = \assume{\usevar{\Gamma}{x}}{h}{P}$
+  $\usevar{(\assume{\Gamma}{h}{P})}{x} = \assume{\usevar{\Gamma}{x}}{h}{P}$ \\
+  $\usevar{(\extendtype{\Gamma}{a}[r])}{x} = \extendtype{\usevar{\Gamma}{x}}{a}[r]$
 \end{center}
 
 \end{frame}
@@ -28,7 +29,11 @@
 
   \vspace{2em}
 
-  $\infrule{\divctx{\Gamma}{q} = \Gamma'}{\divctx{(\assume{\Gamma}{h}{P})}{q} = ((\assume{\Gamma'}{h}{P}), (\assume{\Gamma'}{h}{P}))}$
+  $\infrule{\divctx{\Gamma}{q} = (\Gamma_1, \Gamma_2)}{\divctx{(\assume{\Gamma}{h}{P})}{q} = ((\assume{\Gamma_1}{h}{P}), (\assume{\Gamma_2}{h}{P}))}$
+
+  \vspace{2em}
+
+  $\infrule{\divctx{\Gamma}{q} = (\Gamma_1, \Gamma_2)}{\divctx{(\extendtype{\Gamma}{a}[r])}{q} = ((\extendtype{\Gamma_1}{a}[r]), (\extendtype{\Gamma_2}{a}[r]))}$
 \end{center}
 
 \end{frame}

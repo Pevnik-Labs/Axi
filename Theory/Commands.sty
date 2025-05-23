@@ -50,7 +50,7 @@
 \NewDocumentCommand{\optional}{m}{\IfValueTF{#1}{#1}{}}
 
 % Terms.
-%\newcommand{\annot}[2]{(#1 : #2)}
+\NewDocumentCommand{\annot}{m m}{(#1 : #2)}
 \NewDocumentCommand{\fun}{o m o m}{\lambda_{\optional{#1}}\, #2 \optionalannot{#3} .\, #4}
 \NewDocumentCommand{\app}{m m}{#1\ #2}
 \NewDocumentCommand{\boxintro}{o m}{\texttt{box}_{\optional{#1}}\ #2}
@@ -108,11 +108,11 @@
 \NewDocumentCommand{\orintror}{m}{\textbf{or-right}\ #1}
 \NewDocumentCommand{\orelim}{m m m}{\textbf{cases}\ #1\ #2\ #3}
 \RenewDocumentCommand{\lemma}{m m m m}{\textbf{lemma}\ #1 : #2\ \textbf{by}\ #3\ \textbf{in}\ #4}
-\NewDocumentCommand{\proofannot}{m m}{\textbf{proving}\ #1\ \textbf{by}\ #2}
+\NewDocumentCommand{\proving}{m m}{\textbf{proving}\ #1\ \textbf{by}\ #2}
 \NewDocumentCommand{\suffices}{m m m}{\textbf{suffices}\ #1\ \textbf{by}\ #2\ \textbf{in}\ #3}
 
 % Classical logic.
-\NewDocumentCommand{\bycontradiction}{m o m}{\textbf{by-contradiction}\ #1 \optionalannot{#2}\ \textbf{in}\ #3}
+\NewDocumentCommand{\bycontradiction}{m o m}{\textbf{by-contradiction}\ #1 \IfValueTF{#2}{: \Not{#2}}{}\ \textbf{in}\ #3}
 \NewDocumentCommand{\choosespec}{m}{\textbf{choose-spec}\ #1}
 \NewDocumentCommand{\choosewitnessl}{m m m m}{\textbf{choose-witness}\ #1\ #2\ \textbf{for}\ #3\ \textbf{in}\ #4}
 
@@ -124,7 +124,7 @@
 
 % Equality.
 \NewDocumentCommand{\refl}{o}{\textbf{refl} \optionalspace{#1}}
-\NewDocumentCommand{\rewrite}{m o m}{\textbf{rewrite}\ #1\ \IfValueTF{#2}{\textbf{at}\ #2}{}\ \textbf{in}\ #3}
+\NewDocumentCommand{\rewrite}{m o m}{\textbf{rewrite}\ #1\ \IfValueTF{#2}{\textbf{at}\ #2\ }{} \textbf{in}\ #3}
 \NewDocumentCommand{\funext}{m o m}{\textbf{funext}\ #1 \optionalannot{#2}\ \textbf{in}\ #3}
 
 % Kinding.

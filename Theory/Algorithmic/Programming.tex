@@ -10,6 +10,18 @@ $\infertype{\extend{\Gamma}[r]{x}{A}}{e}{A}{\extend{\Gamma'}[\Zero]{x}{A}}$ is a
 
 \end{frame}
 
+\begin{frame}{Subsumption and annotations}
+
+\begin{center}
+  $\infrule[Subsumption]{\infertype{\Gamma}{e}{B}{\Gamma_1} \quad \infertypeconv{\Gamma_1}{A}{B}[r]{\Gamma_2}}{\checktype{\Gamma}{e}{A}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule[Annot]{\inferkind{\Gamma}{A}[r]{\Gamma_1} \quad \checktype{\Gamma_1}{e}{A}{\Gamma_2}}{\infertype{\Gamma}{\annot{e}{A}}{A}{\Gamma_2}}$
+\end{center}
+
+\end{frame}
+
 \begin{frame}{Using variables}
 
 \begin{center}

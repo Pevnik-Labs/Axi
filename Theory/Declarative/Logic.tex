@@ -89,7 +89,7 @@ The notation is $\subst{P}{x}{e}$ for substitution in propositions.
 
   \vspace{2em}
 
-  $\infrule{\proves[\Gamma]{p}{P}}{\proves[\Gamma]{\proofannot{P}{p}}{P}}$
+  $\infrule{\proves[\Gamma]{p}{P}}{\proves[\Gamma]{\proving{P}{p}}{P}}$
 
   \vspace{2em}
 
@@ -138,11 +138,11 @@ The notation is $\subst{P}{x}{e}$ for substitution in propositions.
 \begin{frame}{Classical Logic}
 
 \begin{center}
-  $\infrule{\proves[\assume{\Gamma}{h}{\Not{P}}]{q}{\False}}{\proves[\Gamma]{\bycontradiction{h}[\Not{P}]{q}}{P}}$
+  $\infrule{\proves[\assume{\Gamma}{h}{\Not{P}}]{q}{\False}}{\proves[\Gamma]{\bycontradiction{h}[P]{q}}{P}}$
 
   \vspace{2em}
 
-  $\infrule{\proves[\cartesianize{\Gamma}]{p}{\Ex{x}[A]{P}}}{\typing[\Gamma][\noncomputable]{\choose{p}}{A}}$
+  $\infrule{\proves[\Gamma]{p}{\Ex{x}[A]{P}}}{\typing[\Gamma][\noncomputable]{\choose{p}}{A}}$
 
   \vspace{1em}
 
@@ -154,7 +154,7 @@ The notation is $\subst{P}{x}{e}$ for substitution in propositions.
 
   \vspace{1em}
 
-  $\infrule{\proves[\cartesianize{\Gamma}]{p}{\Ex{x}[A]{P}} \quad \type[\cartesianize{\Gamma}]{B}[r] \quad \typing[\assume{\extend{\Gamma}{x}{A}[\choose{p}]}{h}{P}][\noncomputable]{e}{B}}{\typing[\Gamma][\noncomputable]{\choosewitnessp{x}{h}{p}{e}}{B}}$
+  $\infrule{\proves[\Gamma]{p}{\Ex{x}[A]{P}} \quad \type[\Gamma]{B}[r] \quad \typing[\assume{\extend{\Gamma}{x}{A}[\choose{p}]}{h}{P}][\noncomputable]{e}{B}}{\typing[\Gamma][\noncomputable]{\choosewitnessp{x}{h}{p}{e}}{B}}$
 
 \end{center}
 
