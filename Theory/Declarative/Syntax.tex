@@ -35,7 +35,7 @@ $A, B ::=$ \\
 Terms: \\
 $e ::=$ \\
 \qquad $x \pipe \fun[r]{x}[A]{e} \pipe \app{e_1}{e_2} \pipe$ \\
-\qquad $\boxintro[r]{e} \pipe \boxelim{x}[A]{e_1}{e_2}$ \\
+\qquad $\boxintro[r]{e} \pipe \boxelim{x}[A]{e_1}{e_2} \pipe$ \\
 \qquad $\pair{e_1}{e_2} \pipe \letpair{x}{y}{e_1}{e_2} \pipe$ \\
 \qquad $\inl[A]{e} \pipe \inr[A]{e} \pipe \case{e}{e_1}{e_2} \pipe$ \\
 \qquad $\unit \pipe \unitelim[A]{e_1}{e_2} \pipe$ \\
@@ -43,7 +43,7 @@ $e ::=$ \\
 \qquad $\letin[r]{x}[A]{e_1}{e_2} \pipe$ \\
 \qquad $\tfun{a}[r]{e} \pipe \tapp{e}{A} \pipe$ \\
 \qquad $\itfun{a}[r]{e} \pipe \itapp{e}{A} \pipe$ \\
-\qquad $\letnoncomp{x}[A]{e_1}{e_2} \pipe$ \\
+%\qquad $\letnoncomp{x}[A]{e_1}{e_2} \pipe$ \\
 \qquad $\choose[A]{p} \pipe \choosewitnessp{x}{h}{p}{e}$
 
 \vspace{1em}

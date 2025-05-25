@@ -111,6 +111,22 @@ Note that we don't worry about $\alpha$-conversion and assume the variable is th
 
 \end{frame}
 
+\begin{frame}{Term conversion -- closure}
+
+\begin{center}
+  $\infrule[Refl]{\typing{e}{A}}{\termconv{e}{e}{A}}$
+
+  \vspace{2em}
+
+  $\infrule[Sym]{\termconv{e_2}{e_1}{A}}{\termconv{e_1}{e_2}{A}}$
+
+  \vspace{2em}
+
+  $\infrule[Trans]{\termconv{e_1}{e_2}{A} \quad \termconv{e_2}{e_3}{A}}{\termconv{e_1}{e_3}{A}}$
+\end{center}
+
+\end{frame}
+
 \begin{frame}{Term conversion -- Empty}
 
 \begin{center}
@@ -220,8 +236,16 @@ Note that we don't worry about $\alpha$-conversion and assume the variable is th
 \begin{frame}{Term conversion -- let}
 
 \begin{center}
+  $\infrule{\typing[\Gamma][\noncomputable]{e_1}{A} \quad \typing[\extend{\Gamma}{x}{A}][\noncomputable]{e_2}{B}}{\termconv{\letin{x}{e_1}{e_2}}{\subst{e_2}{x}{e_1}}{B}}$
+
+  \vspace{2em}
+
   $\infrule{\termconv[\Gamma]{a_1}{a_2}{A} \quad \termconv[\extend{\Gamma}{x}{A}]{b_1}{b_2}{B}}{\termconv[\Gamma]{\letin{x}{a_1}{b_1}}{\letin{x}{a_2}{b_2}}{B}}$
 \end{center}
+
+\vspace{2em}
+
+Q: Should we have both rules, or just the first one?
 
 \end{frame}
 

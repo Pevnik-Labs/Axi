@@ -3,7 +3,7 @@
 \begin{frame}{Subsumption and annotations}
 
 \begin{center}
-  $\infrule[Subsumption]{\inferproof{\Gamma}{p}{P'}{\Gamma_1} \quad \checkpropconv{\Gamma_1}{P}{P'}{\Gamma_2}}{\checkproof{\Gamma}{p}{P}{\Gamma_2}}$
+  $\infrule[Subsumption]{\inferproof{\Gamma}{p}{P}{\Gamma_1} \quad \checkpropconv{\Gamma_1}{P}{Q}{\Gamma_2}}{\checkproof{\Gamma}{p}{Q}{\Gamma_2}}$
 
   \vspace{2em}
 
@@ -51,7 +51,7 @@
 
   \vspace{1em}
 
-  $\infrule{\inferproof{\Gamma}{pq}{\Or{P}{Q}}{\Gamma_1} \quad \checkproof{\Gamma_1}{r_1}{\Impl{P}{R}}{\Gamma_2} \quad \checkproof{\Gamma_1}{r_2}{\Impl{Q}{R}}{\Gamma_3}}{\checkproof{\Gamma}{\orelim{pq}{r_1}{r_2}}{R}{\Gamma_2 \sqcup \Gamma_3}}$
+  $\infrule{\inferproof{\Gamma}{pq}{\Or{P}{Q}}{\Gamma_1} \quad \checkproof{\Gamma_1}{r_1}{\Impl{P}{R}}{\Gamma_2} \quad \checkproof{\Gamma_1}{r_2}{\Impl{Q}{R}}{\Gamma_3}}{\checkproof{\Gamma}{\orelim{pq}{r_1}{r_2}}{R}{\lubctx{\Gamma_2}{\Gamma_3}}}$
 
 \end{center}
 

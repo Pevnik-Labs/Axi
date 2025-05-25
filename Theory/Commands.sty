@@ -55,7 +55,6 @@
 \NewDocumentCommand{\app}{m m}{#1\ #2}
 \NewDocumentCommand{\boxintro}{o m}{\texttt{box}_{\optional{#1}}\ #2}
 \NewDocumentCommand{\boxelim}{m o m m}{\texttt{let box}\ #1 = #3\ \texttt{in}\ #4}
-%\NewDocumentCommand{\boxelim}{m o m m}{\texttt{let box}\ #1 \optionalannot{#2} = #3\ \texttt{in}\ #4}
 \NewDocumentCommand{\pair}{m m}{(#1, #2)}
 \NewDocumentCommand{\letpair}{m m m m}{\texttt{let}\ (#1, #2) = #3\ \texttt{in}\ #4}
 \NewDocumentCommand{\inl}{o m}{\texttt{inl}_{\optional{#1}}\ #2}
@@ -140,6 +139,8 @@
 
 % Context operations.
 \NewDocumentCommand{\subctx}{m m}{#1 \sqsubseteq #2}
+\NewDocumentCommand{\glbctx}{m m}{#1 \sqcap #2}
+\NewDocumentCommand{\lubctx}{m m}{#1 \sqcup #2}
 \NewDocumentCommand{\addctx}{m m}{#1 + #2}
 \NewDocumentCommand{\scalectx}{m m}{#1\, #2}
 \NewDocumentCommand{\varctx}{m m}{| #1 |_{#2}}
@@ -181,6 +182,7 @@
 \NewDocumentCommand{\findvar}{m m}{#1(#2)}
 \NewDocumentCommand{\findhyp}{m m}{#1(#2)}
 
+\NewDocumentCommand{\checkkind}{m m O{} m}{#1 \vdash #2 \mathcolor{blue}{\Leftarrow} \Type[#3] \dashv #4}
 \NewDocumentCommand{\inferkind}{m m O{} m}{#1 \vdash #2 \mathcolor{red}{\Rightarrow} \Type[#3] \dashv #4}
 
 \NewDocumentCommand{\checkprop}{m m m}{#1 \vdash #2 \mathcolor{blue}{\Leftarrow} \texttt{prop} \dashv #3}
@@ -191,16 +193,17 @@
 \NewDocumentCommand{\checkproof}{m m m m}{#1 \vdash #2 \mathcolor{blue}{\Leftarrow} #3 \dashv #4}
 \NewDocumentCommand{\inferproof}{m m m m}{#1 \vdash #2 \mathcolor{red}{\Rightarrow} #3 \dashv #4}
 
-\NewDocumentCommand{\infertypeconv}{m m m O{} m}{#1 \vdash #2\ \hat{\equiv}\ #3 \mathcolor{red}{\Rightarrow} \Type[#4] \dashv #5}
-\NewDocumentCommand{\infertypeconvwhnf}{m m m O{} m}{#1 \vdash #2 \equiv #3 \mathcolor{red}{\Rightarrow} \Type[#4] \dashv #5}
+\NewDocumentCommand{\checktypeconv}{m m m O{} m}{#1 \vdash #2 \equiv #3 \mathcolor{blue}{\Leftarrow} \Type[#4] \dashv #5}
+\NewDocumentCommand{\infertypeconv}{m m m O{} m}{#1 \vdash #2 \equiv #3 \mathcolor{red}{\Rightarrow} \Type[#4] \dashv #5}
+\NewDocumentCommand{\infertypeconvwhnf}{m m m O{} m}{#1 \vdash #2\ \hat{\equiv}\ #3 \mathcolor{red}{\Rightarrow} \Type[#4] \dashv #5}
 
-\NewDocumentCommand{\checktermconv}{m m m m m}{#1 \vdash #2\ \hat{\equiv}\ #3 \mathcolor{blue}{\Leftarrow} #4 \dashv #5}
-\NewDocumentCommand{\checktermconvwhnf}{m m m m m}{#1 \vdash #2\ \equiv #3 \mathcolor{blue}{\Leftarrow} #4 \dashv #5}
-\NewDocumentCommand{\infertermconv}{m m m m m}{#1 \vdash #2\ \hat{\sim}\ #3 \mathcolor{red}{\Rightarrow} #4 \dashv #5}
-\NewDocumentCommand{\infertermconvwhnf}{m m m m m}{#1 \vdash #2 \sim #3 \mathcolor{red}{\Rightarrow} #4 \dashv #5}
+\NewDocumentCommand{\checktermconv}{m m m m m}{#1 \vdash #2 \equiv #3 \mathcolor{blue}{\Leftarrow} #4 \dashv #5}
+\NewDocumentCommand{\checktermconvwhnf}{m m m m m}{#1 \vdash #2\ \hat{\equiv}\ #3 \mathcolor{blue}{\Leftarrow} #4 \dashv #5}
+\NewDocumentCommand{\infertermconv}{m m m m m}{#1 \vdash #2 \equiv #3 \mathcolor{red}{\Rightarrow} #4 \dashv #5}
+\NewDocumentCommand{\infertermconvwhnf}{m m m m m}{#1 \vdash #2\ \hat{\equiv}\ #3 \mathcolor{red}{\Rightarrow} #4 \dashv #5}
 
-\NewDocumentCommand{\checkpropconv}{m m m m}{#1 \vdash #2\ \hat{\equiv}\ #3 \dashv #4}
-\NewDocumentCommand{\checkpropconvwhnf}{m m m m}{#1 \vdash #2 \equiv #3 \dashv #4}
+\NewDocumentCommand{\checkpropconv}{m m m m}{#1 \vdash #2 \equiv #3 \dashv #4}
+\NewDocumentCommand{\checkpropconvwhnf}{m m m m}{#1 \vdash #2\ \hat{\equiv}\ #3 \dashv #4}
 \NewDocumentCommand{\inferpropconvwhnf}{m m m m}{#1 \vdash #2 \sim #3 \dashv #4}
 
 % Inference rules.
