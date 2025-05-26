@@ -134,7 +134,7 @@ Note that we don't worry about $\alpha$-conversion and assume the variable is th
 
   \vspace{2em}
 
-  $\infrule{\type[\Gamma]{A}[r] \quad \termconv{e_1}{e_2}{\Empty}}{\termconv{\emptyelim{e_1}}{\emptyelim{e_2}}{A}}$
+  $\infrule{\type[\Gamma]{A}[r] \quad \termconv{e_1}{e_2}{\Empty}}{\termconv{\emptyelim{e_1}[A]}{\emptyelim{e_2}[A]}{A}}$
 \end{center}
 
 \end{frame}
@@ -150,7 +150,7 @@ Note that we don't worry about $\alpha$-conversion and assume the variable is th
 
   \vspace{2em}
 
-  $\infrule{\termconv{u_1}{u_2}{\Unit} \quad \termconv{a_1}{a_2}{A}}{\termconv{\unitelim{u_1}{a_1}}{\unitelim{u_2}{a_2}}{A}}$
+  $\infrule{\termconv{u_1}{u_2}{\Unit} \quad \termconv{a_1}{a_2}{A}}{\termconv{\unitelim{u_1}{a_1}[A]}{\unitelim{u_2}{a_2}[A]}{A}}$
 \end{center}
 
 \end{frame}
@@ -174,19 +174,15 @@ Note that we don't worry about $\alpha$-conversion and assume the variable is th
 \begin{frame}{Term conversion -- box}
 
 \begin{center}
-  $\infrule{\typing[\Gamma][\noncomputable]{a}{A} \quad \typing[\extend{\Gamma}{x}{A}][\noncomputable]{b}{B}}{\termconv{\boxelim{x}[A]{\boxintro[r]{a}}{b}}{\subst{b}{x}{a}}{B}}$
+  $\infrule{\typing[\Gamma][\noncomputable]{a}{A} \quad \typing[\extend{\Gamma}{x}{A}][\noncomputable]{b}{B}}{\termconv{\boxelim{x}{\boxintro[r]{a}}{b}[B]}{\subst{b}{x}{a}}{B}}$
 
   \vspace{2em}
 
-  $\infrule{\termconv{\boxelim{x}{e_1}{x}}{\boxelim{x}{e_2}{x}}{A}}{\termconv{e_1}{e_2}{\Box[r]{A}}}$
+  $\infrule{\termconv{\boxelim{x}{e_1}{x}[A]}{\boxelim{x}{e_2}{x}[A]}{A}}{\termconv{e_1}{e_2}{\Box[r]{A}}}$
 
   \vspace{2em}
 
-  %$\infrule{\termconv{a_1}{a_2}{A}}{\termconv{\boxintro{a_1}}{\boxintro{a_2}}{\Box[r]{A}}}$
-
-  %\vspace{2em}
-
-  $\infrule{\termconv{a_1}{a_2}{\Box[r]{A}} \quad \termconv[\extend{\Gamma}{x}{A_1}]{b_1}{b_2}{B}}{\termconv{\boxelim{x}[A_1]{a_1}{b_1}}{\boxelim{x}[A_2]{a_2}{b_2}}{B}}$
+  $\infrule{\termconv{a_1}{a_2}{\Box[r]{A}} \quad \termconv[\extend{\Gamma}{x}{A_1}]{b_1}{b_2}{B}}{\termconv{\boxelim{x}{a_1}{b_1}[B]}{\boxelim{x}{a_2}{b_2}[B]}{B}}$
 \end{center}
 
 \end{frame}
@@ -194,19 +190,15 @@ Note that we don't worry about $\alpha$-conversion and assume the variable is th
 \begin{frame}{Term conversion -- product}
 
 \begin{center}
-  $\infrule{\typing[\Gamma][\noncomputable]{a}{A} \quad \typing[\Gamma][\noncomputable]{b}{B} \quad \typing[\extend{\extend{\Gamma}{x}{A}}{y}{B}][\noncomputable]{c}{C}}{\termconv{\letpair{x}{y}{\pair{a}{b}}{c}}{\subst{\subst{c}{x}{a}}{y}{b}}{C}}$
+  $\infrule{\typing[\Gamma][\noncomputable]{a}{A} \quad \typing[\Gamma][\noncomputable]{b}{B} \quad \typing[\extend{\extend{\Gamma}{x}{A}}{y}{B}][\noncomputable]{c}{C}}{\termconv{\letpair{x}{y}{\pair{a}{b}}{c}[C]}{\subst{\subst{c}{x}{a}}{y}{b}}{C}}$
 
   \vspace{2em}
 
-  $\infrule{\begin{array}{l} \termconv{\letpair{x}{y}{e_1}{x}}{\letpair{x}{y}{e_2}{x}}{A} \\ \termconv{\letpair{x}{y}{e_1}{y}}{\letpair{x}{y}{e_2}{y}}{B} \end{array}}{\termconv{e_1}{e_2}{\Prod{A}{B}}}$
+  $\infrule{\begin{array}{l} \termconv{\letpair{x}{y}{e_1}{x}[A]}{\letpair{x}{y}{e_2}{x}[A]}{A} \\ \termconv{\letpair{x}{y}{e_1}{y}[B]}{\letpair{x}{y}{e_2}{y}[B]}{B} \end{array}}{\termconv{e_1}{e_2}{\Prod{A}{B}}}$
 
   \vspace{2em}
 
-  %$\infrule{\termconv{a_1}{a_2}{A} \quad \termconv{b_1}{b_2}{B}}{\termconv{\pair{a_1}{b_1}}{\pair{a_2}{b_2}}{\Prod{A}{B}}}$
-
-  %\vspace{2em}
-
-  $\infrule{\termconv{e_1}{e_2}{\Prod{A}{B}} \quad \termconv[\extend{\extend{\Gamma}{x}{A}}{y}{B}]{c_1}{c_2}{C}}{\termconv{\letpair{x}{y}{e_1}{c_1}}{\letpair{x}{y}{e_2}{c_2}}{C}}$
+  $\infrule{\termconv{e_1}{e_2}{\Prod{A}{B}} \quad \termconv[\extend{\extend{\Gamma}{x}{A}}{y}{B}]{c_1}{c_2}{C}}{\termconv{\letpair{x}{y}{e_1}{c_1}[C]}{\letpair{x}{y}{e_2}{c_2}[C]}{C}}$
 
 \end{center}
 
@@ -215,11 +207,11 @@ Note that we don't worry about $\alpha$-conversion and assume the variable is th
 \begin{frame}{Term conversion -- sum}
 
 \begin{center}
-  $\infrule{\typing[\Gamma][\noncomputable]{a}{A} \quad \typing[\Gamma][\noncomputable]{f}{\Fun[\One]{A}{C}} \quad \typing[\Gamma][\noncomputable]{g}{\Fun[\One]{B}{C}}}{\termconv{\case{\inl{a}}{f}{g}}{\app{f}{a}}{C}}$
+  $\infrule{\typing[\Gamma][\noncomputable]{a}{A} \quad \typing[\Gamma][\noncomputable]{f}{\Fun[\One]{A}{C}} \quad \typing[\Gamma][\noncomputable]{g}{\Fun[\One]{B}{C}}}{\termconv{\case{\inl{a}}{f}{g}[C]}{\app{f}{a}}{C}}$
 
   \vspace{2em}
 
-  $\infrule{\typing[\Gamma][\noncomputable]{b}{B} \quad \typing[\Gamma][\noncomputable]{f}{\Fun[\One]{A}{C}} \quad \typing[\Gamma][\noncomputable]{g}{\Fun[\One]{B}{C}}}{\termconv{\case{\inr{b}}{f}{g}}{\app{g}{b}}{C}}$
+  $\infrule{\typing[\Gamma][\noncomputable]{b}{B} \quad \typing[\Gamma][\noncomputable]{f}{\Fun[\One]{A}{C}} \quad \typing[\Gamma][\noncomputable]{g}{\Fun[\One]{B}{C}}}{\termconv{\case{\inr{b}}{f}{g}[C]}{\app{g}{b}}{C}}$
 
   \vspace{2em}
 
@@ -228,7 +220,7 @@ Note that we don't worry about $\alpha$-conversion and assume the variable is th
 
   \vspace{2em}
 
-  $\infrule{\termconv{e_1}{e_2}{\Sum{A}{B}} \quad \begin{array}{l} \termconv{f_1}{f_2}{\Fun[\One]{A}{C}} \\ \termconv{g_1}{g_2}{\Fun[\One]{B}{C}} \end{array}}{\termconv{\case{e_1}{f_1}{g_1}}{\case{e_2}{f_2}{g_2}}{C}}$
+  $\infrule{\termconv{e_1}{e_2}{\Sum{A}{B}} \quad \begin{array}{l} \termconv{f_1}{f_2}{\Fun[\One]{A}{C}} \\ \termconv{g_1}{g_2}{\Fun[\One]{B}{C}} \end{array}}{\termconv{\case{e_1}{f_1}{g_1}[C]}{\case{e_2}{f_2}{g_2}[C]}{C}}$
 \end{center}
 
 \end{frame}

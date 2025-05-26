@@ -91,7 +91,7 @@
 
   \vspace{2em}
 
-  $\infrule{\decomposectx{\Gamma}{\Gamma_1}{\Gamma_2} \quad \typing[\Gamma_1]{e_1}{\Box[r]{A}} \quad \typing[\extend{\Gamma_2}[\totalqty{r}{A}]{x}{A}]{e_2}{B}}{\typing[\Gamma]{\boxelim{x}[A]{e_1}{e_2}}{B}}$
+  $\infrule{\decomposectx{\Gamma}{\Gamma_1}{\Gamma_2} \quad \typing[\Gamma_1]{e_1}{\Box[r]{A}} \quad \typing[\extend{\Gamma_2}[\totalqty{r}{A}]{x}{A}]{e_2}{B}}{\typing[\Gamma]{\boxelim{x}{e_1}{e_2}[B]}{B}}$
 \end{center}
 
 \end{frame}
@@ -99,7 +99,7 @@
 \begin{frame}{Empty}
 
 \begin{center}
-  $\infrule{\type[\cartesianize{\Gamma}]{A}[r] \quad \typing[\Gamma]{e}{\Empty}}{\typing[\Gamma]{\emptyelim[A]{e}}{A}}$
+  $\infrule{\type[\cartesianize{\Gamma}]{A}[r] \quad \typing[\Gamma]{e}{\Empty}}{\typing[\Gamma]{\emptyelim{e}[A]}{A}}$
 \end{center}
 
 \end{frame}
@@ -111,7 +111,7 @@
 
   \vspace{2em}
 
-  $\infrule{\decomposectx{\Gamma}{\Gamma_1}{\Gamma_2} \quad \typing[\Gamma_1]{e_1}{\Unit} \quad \typing[\Gamma_2]{e_2}{A}}{\typing[\Gamma]{\unitelim[A]{e_1}{e_2}}{A}}$
+  $\infrule{\decomposectx{\Gamma}{\Gamma_1}{\Gamma_2} \quad \typing[\Gamma_1]{e_1}{\Unit} \quad \typing[\Gamma_2]{e_2}{A}}{\typing[\Gamma]{\unitelim{e_1}{e_2}[A]}{A}}$
 \end{center}
 
 \end{frame}
@@ -123,7 +123,7 @@
 
   \vspace{2em}
 
-  $\infrule{\decomposectx{\Gamma}{\Gamma_1}{\Gamma_2} \quad \typing[\Gamma_1]{e_1}{\Prod{A}{B}} \quad \typing[\extend{\extend{\Gamma_2}[\totalqty{\One}{A}]{x}{A}}[\totalqty{\One}{B}]{y}{B}]{e_2}{C}}{\typing[\Gamma]{\letpair{x}{y}{e_1}{e_2}}{C}}$
+  $\infrule{\decomposectx{\Gamma}{\Gamma_1}{\Gamma_2} \quad \typing[\Gamma_1]{e_1}{\Prod{A}{B}} \quad \typing[\extend{\extend{\Gamma_2}[\totalqty{\One}{A}]{x}{A}}[\totalqty{\One}{B}]{y}{B}]{e_2}{C}}{\typing[\Gamma]{\letpair{x}{y}{e_1}{e_2}[C]}{C}}$
 \end{center}
 
 \end{frame}
@@ -136,7 +136,7 @@
 
   \vspace{2em}
 
-  $\infrule{\decomposectx{\Gamma}{\Gamma_1}{\Gamma_2} \quad \typing[\Gamma_1]{e}{\Sum{A}{B}} \quad \typing[\Gamma_2]{f}{\Fun[\One]{A}{C}} \quad \typing[\Gamma_2]{g}{\Fun[\One]{B}{C}}}{\typing[\Gamma]{\case{e}{f}{g}}{C}}$
+  $\infrule{\decomposectx{\Gamma}{\Gamma_1}{\Gamma_2} \quad \typing[\Gamma_1]{e}{\Sum{A}{B}} \quad \typing[\Gamma_2]{f}{\Fun[\One]{A}{C}} \quad \typing[\Gamma_2]{g}{\Fun[\One]{B}{C}}}{\typing[\Gamma]{\case{e}{f}{g}[C]}{C}}$
 \end{center}
 
 \vspace{2em}

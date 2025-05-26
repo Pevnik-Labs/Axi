@@ -54,18 +54,18 @@
 \NewDocumentCommand{\fun}{o m o m}{\lambda_{\optional{#1}}\, #2 \optionalannot{#3} .\, #4}
 \NewDocumentCommand{\app}{m m}{#1\ #2}
 \NewDocumentCommand{\boxintro}{o m}{\texttt{box}_{\optional{#1}}\ #2}
-\NewDocumentCommand{\boxelim}{m o m m}{\texttt{let box}\ #1 = #3\ \texttt{in}\ #4}
+\NewDocumentCommand{\boxelim}{o m m m o}{\texttt{let}_{\optional{#5}}\ \texttt{box}\ #2 = #3\ \texttt{in}\ #4}
 \NewDocumentCommand{\pair}{m m}{(#1, #2)}
-\NewDocumentCommand{\letpair}{m m m m}{\texttt{let}\ (#1, #2) = #3\ \texttt{in}\ #4}
+\NewDocumentCommand{\letpair}{o m m m m o}{\texttt{let}_{\optional{#6}}\ (#2, #3) = #4\ \texttt{in}\ #5}
 \NewDocumentCommand{\inl}{o m}{\texttt{inl}_{\optional{#1}}\ #2}
 \NewDocumentCommand{\inr}{o m}{\texttt{inr}_{\optional{#1}}\ #2}
-\NewDocumentCommand{\case}{m m m}{\texttt{case}\ #1\ \texttt{of}\ (#2, #3)}
+\NewDocumentCommand{\case}{o m m m o}{\texttt{case}_{\optional{#5}}\ #2\ \texttt{of}\ (#3, #4)}
 \NewDocumentCommand{\unit}{}{\texttt{unit}}
-\NewDocumentCommand{\unitelim}{o m m}{\texttt{let}_{\optional{#1}}\ \unit = #2\ \texttt{in}\ #3}
-\NewDocumentCommand{\emptyelim}{o m}{\Empty\texttt{-elim}_{\optional{#1}}\ #2}
+\NewDocumentCommand{\unitelim}{o m m o}{\texttt{let}_{\optional{#4}}\ \unit = #2\ \texttt{in}\ #3}
+\NewDocumentCommand{\emptyelim}{m o}{\Empty\texttt{-elim}_{\optional{#2}}\ #1}
 \NewDocumentCommand{\letin}{o m o m m}{\texttt{let}_{\optional{#1}}\ #2 \optionalannot{#3} = #4\ \texttt{in}\ #5}
 \NewDocumentCommand{\letnoncomp}{m o m m}{\texttt{let noncomputable}\ #1 \optionalannot{#2} = #3\ \texttt{in}\ #4}
-\RenewDocumentCommand{\choose}{o m}{\texttt{choose}_{\optional{#1}}\ #2}
+\RenewDocumentCommand{\choose}{m}{\texttt{choose}\ #1}
 \NewDocumentCommand{\choosewitnessp}{m m m m}{\texttt{choose-witness}\ #1\ #2\ \texttt{for}\ #3\ \texttt{in}\ #4}
 \NewDocumentCommand{\tfun}{m o m}{\Lambda\, #1 \IfValueTF{#2}{: \Type[#2]}{} .\, #3}
 \NewDocumentCommand{\itfun}{m o m}{\Lambda\, \{#1 \IfValueTF{#2}{: \Type[#2]}{}\} .\, #3}
@@ -90,7 +90,7 @@
 \NewDocumentCommand{\Ex}{m o m}{\exists #1 \optionalannot{#2} .\, #3}
 
 % Equality.
-\NewDocumentCommand{\Eq}{o m m}{#2 =_{#1} #3}
+\NewDocumentCommand{\Eq}{o m m}{#2 =_{\optional{#1}} #3}
 
 % Proofterms.
 
@@ -99,7 +99,7 @@
 \NewDocumentCommand{\implintro}{m o m}{\textbf{assume}\ #1 \optionalannot{#2}\ \textbf{in}\ #3}
 \NewDocumentCommand{\implelim}{m m}{\textbf{apply}\ #1\ #2}
 \NewDocumentCommand{\trueintro}{}{\textbf{trivial}}
-\NewDocumentCommand{\falseelim}{m}{\textbf{absurd}\ #1}
+\NewDocumentCommand{\falseelim}{o m}{\textbf{absurd}_{\optional{#1}}\ #2}
 \NewDocumentCommand{\andintro}{m m}{\textbf{both}\ #1\ #2}
 \NewDocumentCommand{\andeliml}{m}{\textbf{and-left}\ #1}
 \NewDocumentCommand{\andelimr}{m}{\textbf{and-right}\ #1}

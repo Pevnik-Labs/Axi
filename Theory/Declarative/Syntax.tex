@@ -35,20 +35,19 @@ $A, B ::=$ \\
 Terms: \\
 $e ::=$ \\
 \qquad $x \pipe \fun[r]{x}[A]{e} \pipe \app{e_1}{e_2} \pipe$ \\
-\qquad $\boxintro[r]{e} \pipe \boxelim{x}[A]{e_1}{e_2} \pipe$ \\
-\qquad $\pair{e_1}{e_2} \pipe \letpair{x}{y}{e_1}{e_2} \pipe$ \\
-\qquad $\inl[A]{e} \pipe \inr[A]{e} \pipe \case{e}{e_1}{e_2} \pipe$ \\
-\qquad $\unit \pipe \unitelim[A]{e_1}{e_2} \pipe$ \\
-\qquad $\emptyelim[A]{e} \pipe$ \\
+\qquad $\boxintro[r]{e} \pipe \boxelim{x}{e_1}{e_2}[A] \pipe$ \\
+\qquad $\pair{e_1}{e_2} \pipe \letpair{x}{y}{e_1}{e_2}[A] \pipe$ \\
+\qquad $\inl[A]{e} \pipe \inr[A]{e} \pipe \case{e}{e_1}{e_2}[A] \pipe$ \\
+\qquad $\unit \pipe \unitelim{e_1}{e_2}[A] \pipe$ \\
+\qquad $\emptyelim{e}[A] \pipe$ \\
 \qquad $\letin[r]{x}[A]{e_1}{e_2} \pipe$ \\
 \qquad $\tfun{a}[r]{e} \pipe \tapp{e}{A} \pipe$ \\
 \qquad $\itfun{a}[r]{e} \pipe \itapp{e}{A} \pipe$ \\
-%\qquad $\letnoncomp{x}[A]{e_1}{e_2} \pipe$ \\
-\qquad $\choose[A]{p} \pipe \choosewitnessp{x}{h}{p}{e}$
+\qquad $\choose{p} \pipe \choosewitnessp{x}{h}{p}{e}$
 
 \vspace{1em}
 
-$\choose[A]{p}$ and $\choosewitnessp{x}{h}{p}{e}$ are noncomputable terms, whereas all others are computable.
+$\choose{p}$ and $\choosewitnessp{x}{h}{p}{e}$ are noncomputable terms, whereas all others are computable.
 
 \end{frame}
 
@@ -83,6 +82,7 @@ $p, q ::=$ \\
 \qquad $\refl[e] \pipe \rewrite{p_1}{p_2} \pipe \funext{x}[A]{p}$ \\
 \qquad $\bycontradiction{h}[P]{q} \pipe$ \\
 \qquad $\choosespec{p} \pipe \choosewitnessl{x}{h}{p}{q}$
+
 \end{frame}
 
 \begin{frame}{Contexts}

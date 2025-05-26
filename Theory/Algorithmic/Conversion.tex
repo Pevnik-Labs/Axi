@@ -115,20 +115,20 @@
 Whnfs: \\
 $\hat{e} ::=$ \\
 \qquad $n \pipe \fun[r]{x}{e} \pipe \boxintro[r]{e} \pipe \pair{e_1}{e_2} \pipe \inl{e} \pipe \inr{e} \pipe \unit$ \\
-\qquad $\tfun{a}[r]{e} \pipe \itfun{a}[r]{e}$
+\qquad $\tfun{a}[r]{e} \pipe \itfun{a}[r]{e} \pipe \emptyelim{e}$
 
 \vspace{2em}
 
 Neutral forms: \\
 $n ::=$ \\
 \qquad $x \pipe \app{n}{e} \pipe \tapp{n}{A} \pipe \itapp{n}{A} \pipe$ \\
-\qquad $\unitelim{n}{e} \pipe \boxelim{x}{n}{e} \pipe$ \\
-\qquad $\letpair{x}{y}{n}{e} \pipe \case{n}{e_1}{e_2} \pipe$ \\
-\qquad $\choose{p} \pipe \choosewitnessp{x}{h}{p}{n}$
+\qquad $\unitelim{n}{e}[A] \pipe \boxelim{x}{n}{e}[A] \pipe$ \\
+\qquad $\letpair{x}{y}{n}{e}[A] \pipe \case{n}{e_1}{e_2}[A] \pipe$ \\
+\qquad $\choose{p}$
 
 \vspace{2em}
 
-Note that $\emptyelim{e}$ is neither whnf nor neutral.
+Note that $\emptyelim{e}$ is a whnf despite being an eliminator.
 
 \end{frame}
 
@@ -142,7 +142,7 @@ $\reductions{e_1}{e_1'}$ -- multi step
 
 \end{frame}
 
-\begin{frame}{Term conversion (all terms)}
+\begin{frame}{Term conversion -- checking, all terms}
 
 \begin{center}
   $\infrule{}{\checktermconv{\Gamma}{e_1}{e_2}{\Unit}{\Gamma}}$
@@ -153,18 +153,18 @@ $\reductions{e_1}{e_1'}$ -- multi step
 
   \vspace{2em}
 
-  $\infrule{}{\checktermconv{\Gamma}{\emptyelim{e_1}}{\emptyelim{e_2}}{A}{\Gamma'}}$
-
-  \vspace{2em}
-
-  $\infrule{\quad A \neq \Unit \quad A \neq \Empty \quad \reductions{e_1}{e_1'} \quad \reductions{e_2}{e_2'} \quad \checktermconvwhnf{\Gamma}{e_1'}{e_2'}{A}{\Gamma'}}{\checktermconv{\Gamma}{e_1}{e_2}{A}{\Gamma'}}$
+  $\infrule{A \neq \Unit \quad A \neq \Empty \quad \reductions{e_1}{e_1'} \quad \reductions{e_2}{e_2'} \quad \checktermconvwhnf{\Gamma}{e_1'}{e_2'}{A}{\Gamma'}}{\checktermconv{\Gamma}{e_1}{e_2}{A}{\Gamma'}}$
 \end{center}
 
 \end{frame}
 
-\begin{frame}{Term conversion (whnfs)}
+\begin{frame}{Term conversion -- checking whnfs}
 
 \begin{center}
+  $\infrule{}{\checktermconvwhnf{\Gamma}{\emptyelim{e_1}}{\emptyelim{e_2}}{A}{\Gamma'}}$
+
+  \vspace{2em}
+
   $\infrule{\checktermconv{\extend{\Gamma}{x}{A}}{\app{f}{x}}{\app{g}{x}}{B}{\extend{\Gamma'}{x}{A}}}{\checktermconvwhnf{\Gamma}{f}{g}{\Fun[r]{A}{B}}{\Gamma'}}$
 
   \vspace{2em}
@@ -178,10 +178,10 @@ $\reductions{e_1}{e_1'}$ -- multi step
 
 \end{frame}
 
-\begin{frame}{Term conversion (whnfs)}
+\begin{frame}{Term conversion -- checking whnfs}
 
 \begin{center}
-  $\infrule{\checktermconv{\Gamma}{e_1}{e_2}{A}{\Gamma'}}{\checktermconvwhnf{\Gamma}{\inl{e_1}}{\inl{e_2}}{\Sum{A}{B}}{\Gamma'}}$
+  $\infrule{\checktermconv{\Gamma}{e_1}{e_2}{A}{\Gamma'}}{\checktermconvwhnf{\Gamma}{\inl{e_1}}{\inl{e_2}}{\Sum{A}{B}}{\Gamma}}$
 
   \vspace{1em}
 
@@ -198,7 +198,7 @@ $\reductions{e_1}{e_1'}$ -- multi step
 
 \end{frame}
 
-\begin{frame}{Term conversion (neutral)}
+\begin{frame}{Term conversion -- infer neutrals}
 
 \begin{center}
   $\infrule{\findvar{\Gamma}{x} = A}{\infertermconv{\Gamma}{x}{x}{A}{\Gamma}}$
@@ -218,22 +218,22 @@ $\reductions{e_1}{e_1'}$ -- multi step
 
 \end{frame}
 
-\begin{frame}{Term conversion (neutral)}
+\begin{frame}{Term conversion -- infer neutrals}
 
 \begin{center}
-  $\infrule{\infertermconvwhnf{\Gamma}{n_1}{n_2}{\Unit}{\Gamma_1} \quad \infertermconv{\Gamma_1}{e_1}{e_2}{A}{\Gamma_2}}{\infertermconv{\Gamma}{\unitelim{n_1}{e_1}}{\unitelim{n_2}{e_2}}{A}{}}$
+  $\infrule{\infertypeconv{\Gamma}{A_1}{A_2}[r]{\Gamma_1} \quad \checktermconv{\Gamma_1}{e_1}{e_2}{A}{\Gamma_2}}{\infertermconv{\Gamma}{\unitelim{n_1}{e_1}[A_1]}{\unitelim{n_2}{e_2}[A_2]}{A_1}{\Gamma_2}}$
 
   \vspace{2em}
 
-  $\infrule{\infertermconvwhnf{\Gamma}{n_1}{n_2}{\Box[r]{A}}{\Gamma_1} \quad \infertermconv{\extend{\Gamma_1}{x}{A}}{e_1}{e_2}{B}{\extend{\Gamma_2}{x}{A}}}{\infertermconv{\Gamma}{\boxelim{x}{n_1}{e_1}}{\boxelim{x}{n_2}{e_2}}{B}{\Gamma_2}}$
+  $\infrule{\begin{array}{l} \infertypeconv{\Gamma}{B_1}{B_2}[s]{\Gamma_1} \\ \infertermconvwhnf{\Gamma}{n_1}{n_2}{\Box[r]{A}}{\Gamma_2} \end{array} \quad \checktermconv{\extend{\Gamma_2}{x}{A}}{e_1}{e_2}{B_1}{\extend{\Gamma_3}{x}{A}}}{\infertermconv{\Gamma}{\boxelim{x}{n_1}{e_1}[B_1]}{\boxelim{x}{n_2}{e_2}[B_2]}{B_1}{\Gamma_3}}$
 
   \vspace{2em}
 
-  $\infrule{\infertermconvwhnf{\Gamma}{n_1}{n_2}{\Prod{A}{B}}{\Gamma_1} \quad \infertermconv{\extend{\extend{\Gamma_1}{x}{A}}{y}{B}}{e_1}{e_2}{C}{\extend{\extend{\Gamma_2}{x}{A}}{y}{B}}}{\infertermconv{\Gamma}{\letpair{x}{y}{n_1}{e_1}}{\letpair{x}{y}{n_2}{e_2}}{C}{\Gamma_2}}$
+  $\infrule{\begin{array}{l} \infertypeconv{\Gamma}{C_1}{C_2}[r]{\Gamma_1} \\ \infertermconvwhnf{\Gamma_1}{n_1}{n_2}{\Prod{A}{B}}{\Gamma_2} \end{array} \quad \checktermconv{\extend{\extend{\Gamma_2}{x}{A}}{y}{B}}{e_1}{e_2}{C_1}{\extend{\extend{\Gamma_3}{x}{A}}{y}{B}}}{\infertermconv{\Gamma}{\letpair{x}{y}{n_1}{e_1}[C_1]}{\letpair{x}{y}{n_2}{e_2}[C_2]}{C_1}{\Gamma_2}}$
 
-  \vspace{2em}
+  \vspace{1em}
 
-  $\infrule{\infertermconv{\Gamma}{e_1}{e_2}{\Sum{A}{B}}{\Gamma_1} \quad \begin{array}{l} \infertermconv{\Gamma_1}{f_1}{f_2}{\Fun[\One]{A}{C}}{\Gamma_2} \\ \infertermconv{\Gamma_1}{g_1}{g_2}{\Fun[\One]{B}{C}}{\Gamma_3} \end{array}}{\infertermconv{\Gamma}{\case{e_1}{f_1}{g_1}}{\case{e_2}{f_2}{g_2}}{C}{\lubctx{\Gamma_2}{\Gamma_3}}}$
+  $\infrule{\begin{array}{l} \infertypeconv{\Gamma}{C_1}{C_2}[r]{\Gamma_1} \\ \infertermconv{\Gamma_1}{e_1}{e_2}{\Sum{A}{B}}{\Gamma_2} \end{array} \quad \begin{array}{l} \checktermconv{\Gamma_2}{f_1}{f_2}{\Fun[\One]{A}{C_1}}{\Gamma_3} \\ \checktermconv{\Gamma_2}{g_1}{g_2}{\Fun[\One]{B}{C_1}}{\Gamma_4} \end{array}}{\infertermconv{\Gamma}{\case{e_1}{f_1}{g_1}[C_1]}{\case{e_2}{f_2}{g_2}[C_2]}{C_1}{\lubctx{\Gamma_3}{\Gamma_4}}}$
 \end{center}
 
 \end{frame}
