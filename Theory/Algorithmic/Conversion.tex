@@ -114,21 +114,17 @@
 
 Whnfs: \\
 $\hat{e} ::=$ \\
-\qquad $n \pipe \fun[r]{x}{e} \pipe \boxintro[r]{e} \pipe \pair{e_1}{e_2} \pipe \inl{e} \pipe \inr{e} \pipe \unit$ \\
-\qquad $\tfun{a}[r]{e} \pipe \itfun{a}[r]{e} \pipe \emptyelim{e}$
+\qquad $n \pipe \fun{x}{e} \pipe \boxintro{e} \pipe \pair{e_1}{e_2} \pipe \inl{e} \pipe \inr{e} \pipe \unit$ \\
+\qquad $\tfun{a}[r]{e} \pipe \itfun{a}[r]{e}$
 
 \vspace{2em}
 
 Neutral forms: \\
 $n ::=$ \\
-\qquad $x \pipe \app{n}{e} \pipe \tapp{n}{A} \pipe \itapp{n}{A} \pipe$ \\
+\qquad $x \pipe \app{n}{e} \pipe \tapp{n}{A} \pipe \itapp{n}{A} \pipe \emptyelim{e}[A] \pipe$ \\
 \qquad $\unitelim{n}{e}[A] \pipe \boxelim{x}{n}{e}[A] \pipe$ \\
 \qquad $\letpair{x}{y}{n}{e}[A] \pipe \case{n}{e_1}{e_2}[A] \pipe$ \\
 \qquad $\choose{p}$
-
-\vspace{2em}
-
-Note that $\emptyelim{e}$ is a whnf despite being an eliminator.
 
 \end{frame}
 
@@ -161,10 +157,6 @@ $\reductions{e_1}{e_1'}$ -- multi step
 \begin{frame}{Term conversion -- checking whnfs}
 
 \begin{center}
-  $\infrule{}{\checktermconvwhnf{\Gamma}{\emptyelim{e_1}}{\emptyelim{e_2}}{A}{\Gamma'}}$
-
-  \vspace{2em}
-
   $\infrule{\checktermconv{\extend{\Gamma}{x}{A}}{\app{f}{x}}{\app{g}{x}}{B}{\extend{\Gamma'}{x}{A}}}{\checktermconvwhnf{\Gamma}{f}{g}{\Fun[r]{A}{B}}{\Gamma'}}$
 
   \vspace{2em}
@@ -214,6 +206,10 @@ $\reductions{e_1}{e_1'}$ -- multi step
   \vspace{2em}
 
   $\infrule{\infertermconvwhnf{\Gamma}{n_1}{n_2}{\ForallI{a}[r]{B}}{\Gamma_1} \quad \checktypeconv{\Gamma_1}{A_1}{A_2}[r]{\Gamma_2}}{\infertermconv{\Gamma}{\itapp{n_1}{A_1}}{\itapp{n_2}{A_2}}{\subst{B}{a}{A}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\infertypeconv{\Gamma}{A_1}{A_2}[r]{\Gamma'}}{\infertermconv{\Gamma}{\emptyelim{e_1}[A_1]}{\emptyelim{e_2}[A_2]}{A_1}{\Gamma'}}$
 \end{center}
 
 \end{frame}
