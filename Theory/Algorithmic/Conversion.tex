@@ -123,7 +123,7 @@ Neutral forms: \\
 $n ::=$ \\
 \qquad $x \pipe \app{n}{e} \pipe \tapp{n}{A} \pipe \itapp{n}{A} \pipe \emptyelim{e}[A] \pipe$ \\
 \qquad $\unitelim{n}{e}[A] \pipe \boxelim{x}{n}{e}[A] \pipe$ \\
-\qquad $\letpair{x}{y}{n}{e}[A] \pipe \case{n}{e_1}{e_2}[A] \pipe$ \\
+\qquad $\letpair{x}{y}{n}{e}[A] \pipe \newcase{n}{x}{e_1}{y}{e_2}[A] \pipe$ \\
 \qquad $\choose{p}$
 
 \end{frame}
@@ -190,6 +190,14 @@ $\reductions{e_1}{e_1'}$ -- multi step
 
 \end{frame}
 
+\begin{frame}{Term conversion -- switch mode}
+
+\begin{center}
+  $\infrule{\infertermconv{\Gamma}{n_1}{n_2}{A}{\Gamma_1} \quad \infertypeconv{\Gamma_1}{A}{B}[r]{\Gamma_2}}{\checktermconvwhnf{\Gamma}{n_1}{n_2}{B}{\Gamma_2}}$
+\end{center}
+
+\end{frame}
+
 \begin{frame}{Term conversion -- infer neutrals}
 
 \begin{center}
@@ -229,7 +237,7 @@ $\reductions{e_1}{e_1'}$ -- multi step
 
   \vspace{1em}
 
-  $\infrule{\begin{array}{l} \infertypeconv{\Gamma}{C_1}{C_2}[r]{\Gamma_1} \\ \infertermconv{\Gamma_1}{e_1}{e_2}{\Sum{A}{B}}{\Gamma_2} \end{array} \quad \begin{array}{l} \checktermconv{\Gamma_2}{f_1}{f_2}{\Fun[\One]{A}{C_1}}{\Gamma_3} \\ \checktermconv{\Gamma_2}{g_1}{g_2}{\Fun[\One]{B}{C_1}}{\Gamma_4} \end{array}}{\infertermconv{\Gamma}{\case{e_1}{f_1}{g_1}[C_1]}{\case{e_2}{f_2}{g_2}[C_2]}{C_1}{\lubctx{\Gamma_3}{\Gamma_4}}}$
+  $\infrule{\begin{array}{l} \infertypeconv{\Gamma}{C_1}{C_2}[r]{\Gamma_1} \\ \infertermconv{\Gamma_1}{e_1}{e_2}{\Sum{A}{B}}{\Gamma_2} \end{array} \quad \begin{array}{l} \checktermconv{\extend{\Gamma_2}{x}{A}}{f_1}{f_2}{C}{\extend{\Gamma_3}{x}{A}} \\ \checktermconv{\extend{\Gamma_2}{y}{B}}{g_1}{g_2}{C}{\extend{\Gamma_4}{y}{B}} \end{array}}{\infertermconv{\Gamma}{\newcase{e_1}{x_1}{f_1}{y_1}{g_1}[C_1]}{\newcase{e_2}{x_2}{f_2}{y_2}{g_2}[C_2]}{C_1}{\lubctx{\Gamma_3}{\Gamma_4}}}$
 \end{center}
 
 \end{frame}

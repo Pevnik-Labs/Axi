@@ -136,7 +136,7 @@
 
   \vspace{2em}
 
-  $\infrule{\decomposectx{\Gamma}{\Gamma_1}{\Gamma_2} \quad \typing[\Gamma_1]{e}{\Sum{A}{B}} \quad \typing[\Gamma_2]{f}{\Fun[\One]{A}{C}} \quad \typing[\Gamma_2]{g}{\Fun[\One]{B}{C}}}{\typing[\Gamma]{\case{e}{f}{g}[C]}{C}}$
+  $\infrule{\decomposectx{\Gamma}{\Gamma_1}{\Gamma_2} \quad \typing[\Gamma_1]{e}{\Sum{A}{B}} \quad \begin{array}{l} \typing[\extend{\Gamma_2}[\totalqty{\One}{A}]{x}{A}]{e_1}{C} \\ \typing[\extend{\Gamma_2}[\totalqty{\One}{B}]{y}{B}]{e_2}{C} \end{array}}{\typing[\Gamma]{\newcase{e}{x}{e_1}{y}{e_2}[C]}{C}}$
 \end{center}
 
 \vspace{2em}

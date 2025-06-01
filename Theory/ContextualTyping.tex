@@ -2,7 +2,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{babel}
 \usepackage{xcolor}
-\usepackage{../Commands}
+\usepackage{Commands}
 
 \usetheme{Darmstadt}
 
@@ -64,24 +64,10 @@
 
   \vspace{2em}
 
-  %$\infrule{\begin{array}{l} \divctx{\Gamma}{r} = (\Gamma_1, \Gamma_2) \quad \infer{\Gamma_1}{\emptyhint}{e'}{A}{\Gamma_3} \\ \infer{\extend{(\addctx{\Gamma_2}{\scalectx{r}{\Gamma_3}})}[\totalqty{r}{A}]{x}{A}}{\Sigma}{e}{B}{\extend{\Gamma_4}[\Zero]{x}{A}} \end{array}}{\infer{\Gamma}{\arghint{\Sigma}{e'}}{\fun[r]{x}{e}}{\Fun[r]{A}{B}}{\Gamma_4}}$
-
   $\infrule{\begin{array}{l} \infer{\Gamma}{\emptyhint}{e'}{A}{\Gamma_1} \\ \infer{\extend{\Gamma_1}[\totalqty{\One}{A}]{x}{A}}{\Sigma}{e}{B}{\extend{\Gamma_2}[\Zero]{x}{A}} \end{array}}{\infer{\Gamma}{\arghint{\Sigma}{e'}}{\fun{x}{e}}{\Fun{A}{B}}{\Gamma_2}}$
 \end{center}
 
 \end{frame}
-
-%\begin{frame}{Inferring quantities}
-
-%\begin{center}
-  %$\infrule{\begin{array}{l} \infer{\Gamma}{\emptyhint}{e'}{A}{\Gamma'} \quad \infer{\extend{\Gamma}[-\Zero]{x}{A}}{\Sigma}{e}{B}{\extend{\Gamma_1}[-r']{x}{A}} \\ \subusage{\subqty{\totalqty{r}{A}}{r'}}{\Zero} \quad \divctx{\Gamma_1}{r} = (\Gamma_2, \Gamma_3) \quad \infer{\Gamma_2}{\emptyhint}{e'}{A}{\Gamma_4} \end{array}}{\infer{\Gamma}{\arghint{\Sigma}{e'}}{\fun{x}{e}}{\Fun[r]{A}{B}}{\addctx{\Gamma_3}{\scalectx{r}{\Gamma_4}}}}$
-
-  %\vspace{2em}
-
-  %$\infrule{\begin{array}{l} \infer{\Gamma}{\emptyhint}{e'}{A}{\Gamma_1} \quad \infer{\extend{\Gamma}[-\Zero]{x}{A}}{\Sigma}{e}{B}{\extend{\Gamma_2}[-r']{x}{A}} \\ \subusage{\subqty{\totalqty{r}{A}}{r'}}{\Zero} \end{array}}{\infer{\Gamma}{\arghint{\Sigma}{e'}}{\fun{x}{e}}{\Fun[r]{A}{B}}{\Gamma_2 - \scalectx{r}{(\Gamma -\Gamma_1)}}}$
-%\end{center}
-
-%\end{frame}
 
 \begin{frame}{Box}
 
@@ -118,7 +104,7 @@
 
   \vspace{2em}
 
-  $\infrule{\begin{array}{l} \infer{\Gamma}{\Sigma}{\emptyelim{e}}{B}{\Gamma_1} \quad \infer{\Gamma_1}{\typehint{A}}{e'}{A'}{\Gamma_2} \end{array}}{\infer{\Gamma}{\arghint{\Sigma}{e'}}{\emptyelim{e}}{\Fun{A}{B}}{\Gamma_2}}$
+  $\infrule{\begin{array}{l} \infer{\Gamma}{\Sigma}{\emptyelim{e}}{B}{\Gamma_1} \quad \infer{\Gamma_1}{\emptyhint}{e'}{A'}{\Gamma_2} \end{array}}{\infer{\Gamma}{\arghint{\Sigma}{e'}}{\emptyelim{e}}{\Fun{A}{B}}{\Gamma_2}}$
 \end{center}
 
 \end{frame}
@@ -139,12 +125,10 @@
 
 \end{frame}
 
-\RenewDocumentCommand{\case}{o m m m m m o}{\texttt{case}_{\optional{#7}}\ #2\ \texttt{of}\ \{\texttt{inl}\ #3 \rightarrow #4;\ \texttt{inr}\ #5 \rightarrow #6\}}
-
 \begin{frame}{Sum}
 
 \begin{center}
-  $\infrule{\infer{\Gamma}{\emptyhint}{e}{\Sum{A}{B}}{\Gamma_1} \quad \begin{array}{l} \infer{\extend{\Gamma_1}[\totalqty{\One}{A}]{x}{A}}{\Sigma}{e_1}{C}{\extend{\Gamma_2}[\Zero]{x}{A}} \\ \infer{\extend{\Gamma_1}[\totalqty{\One}{B}]{y}{B}}{\Sigma}{e_2}{C}{\extend{\Gamma_3}[\Zero]{y}{B}} \end{array}}{\infer{\Gamma}{\Sigma}{\case{e}{x}{e_1}{y}{e_2}}{C}{\lubctx{\Gamma_2}{\Gamma_3}}}$
+  $\infrule{\infer{\Gamma}{\emptyhint}{e}{\Sum{A}{B}}{\Gamma_1} \quad \begin{array}{l} \infer{\extend{\Gamma_1}[\totalqty{\One}{A}]{x}{A}}{\Sigma}{e_1}{C}{\extend{\Gamma_2}[\Zero]{x}{A}} \\ \infer{\extend{\Gamma_1}[\totalqty{\One}{B}]{y}{B}}{\Sigma}{e_2}{C}{\extend{\Gamma_3}[\Zero]{y}{B}} \end{array}}{\infer{\Gamma}{\Sigma}{\newcase{e}{x}{e_1}{y}{e_2}}{C}{\lubctx{\Gamma_2}{\Gamma_3}}}$
 
   \vspace{2em}
 

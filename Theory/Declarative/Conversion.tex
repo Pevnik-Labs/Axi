@@ -207,11 +207,11 @@ Note that we don't worry about $\alpha$-conversion and assume the variable is th
 \begin{frame}{Term conversion -- sum}
 
 \begin{center}
-  $\infrule{\typing[\Gamma][\noncomputable]{a}{A} \quad \typing[\Gamma][\noncomputable]{f}{\Fun[\One]{A}{C}} \quad \typing[\Gamma][\noncomputable]{g}{\Fun[\One]{B}{C}}}{\termconv{\case{\inl{a}}{f}{g}[C]}{\app{f}{a}}{C}}$
+  $\infrule{\typing[\Gamma][\noncomputable]{a}{A} \quad \typing[\extend{\Gamma}{x}{A}][\noncomputable]{c_1}{C} \quad \typing[\extend{\Gamma}{y}{B}][\noncomputable]{c_2}{C}}{\termconv{\newcase{\inl{a}}{x}{c_1}{y}{c_2}[C]}{\subst{c_1}{x}{a}}{C}}$
 
   \vspace{2em}
 
-  $\infrule{\typing[\Gamma][\noncomputable]{b}{B} \quad \typing[\Gamma][\noncomputable]{f}{\Fun[\One]{A}{C}} \quad \typing[\Gamma][\noncomputable]{g}{\Fun[\One]{B}{C}}}{\termconv{\case{\inr{b}}{f}{g}[C]}{\app{g}{b}}{C}}$
+  $\infrule{\typing[\Gamma][\noncomputable]{b}{B} \quad \typing[\extend{\Gamma}{x}{A}][\noncomputable]{c_1}{C} \quad \typing[\extend{\Gamma}{y}{B}][\noncomputable]{c_2}{C}}{\termconv{\newcase{\inr{b}}{x}{c_1}{y}{c_2}[C]}{\subst{c_2}{y}{b}}{C}}$
 
   \vspace{2em}
 
@@ -220,7 +220,7 @@ Note that we don't worry about $\alpha$-conversion and assume the variable is th
 
   \vspace{2em}
 
-  $\infrule{\termconv{e_1}{e_2}{\Sum{A}{B}} \quad \begin{array}{l} \termconv{f_1}{f_2}{\Fun[\One]{A}{C}} \\ \termconv{g_1}{g_2}{\Fun[\One]{B}{C}} \end{array}}{\termconv{\case{e_1}{f_1}{g_1}[C]}{\case{e_2}{f_2}{g_2}[C]}{C}}$
+  $\infrule{\termconv{e_1}{e_2}{\Sum{A}{B}} \quad \begin{array}{l} \termconv[\extend{\Gamma}{x}{A}]{c_1}{c_1'}{C} \\ \termconv[\extend{\Gamma}{y}{B}]{c_2}{c_2'}{C} \end{array}}{\termconv{\newcase{e_1}{x}{c_1}{y}{c_2}[C]}{\newcase{e_1'}{x}{c_1'}{y}{c_2'}[C]}{C}}$
 \end{center}
 
 \end{frame}
