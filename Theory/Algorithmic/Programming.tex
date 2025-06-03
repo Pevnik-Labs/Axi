@@ -75,11 +75,11 @@ $\infertype{\extend{\Gamma}[r]{x}{A}}{e}{A}{\extend{\Gamma'}[\Zero]{x}{A}}$ is a
 \begin{frame}{Using variables}
 
 \begin{center}
-  $\infrule{\findvar{\Gamma}{x} = A}{\infertype{\Gamma}[\computable]{x}{A}{\usevar{\Gamma}{x}}}$
+  $\infrule{\findvar{\Gamma}{x}{A}}{\infertype{\Gamma}[\computable]{x}{A}{\usevar{\Gamma}{x}}}$
 
   \vspace{2em}
 
-  $\infrule{\findvar{\Gamma}{x} = A}{\infertype{\Gamma}[\noncomputable]{x}{A}{\Gamma}}$
+  $\infrule{\findvar{\Gamma}{x}{A}}{\infertype{\Gamma}[\noncomputable]{x}{A}{\Gamma}}$
 \end{center}
 
 \end{frame}

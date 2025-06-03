@@ -1,5 +1,54 @@
 \section{Logic}
 
+\begin{frame}{Well-formed propositions}
+
+\begin{center}
+  $\infrule{}{\checkprop{\Gamma}{\True}{\True}{\Gamma}}$ \quad
+  $\infrule{}{\checkprop{\Gamma}{\False}{\False}{\Gamma}}$
+
+  \vspace{2em}
+
+  $\infrule{\checkprop{\Gamma}{P}{P'}{\Gamma_1} \quad \checkprop{\Gamma_1}{Q}{Q'}{\Gamma_2}}{\checkprop{\Gamma}{\Impl{P}{Q}}{\Impl{P'}{Q'}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\checkprop{\Gamma}{P}{P'}{\Gamma_1} \quad \checkprop{\Gamma_1}{Q}{Q'}{\Gamma_2}}{\checkprop{\Gamma}{\And{P}{Q}}{\And{P'}{Q'}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\checkprop{\Gamma}{P}{P'}{\Gamma_1} \quad \checkprop{\Gamma_1}{Q}{Q'}{\Gamma_2}}{\checkprop{\Gamma}{\Or{P}{Q}}{\Or{P'}{Q'}}{\Gamma_2}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Well-formed propositions}
+
+\begin{center}
+  $\infrule{\inferkind{\Gamma}{A}[r]{\Gamma_1} \quad \checkprop{\extend{\Gamma_1}{x}{A}}{P}{P'}{\extend{\Gamma_2}{x}{A}}}{\checkprop{\Gamma}{\All{x}[A]{P}}{\All{x}[A]{P'}}{\Gamma_2}}$
+
+  \vspace{1em}
+
+  $\infrule{\checkprop{\extend{\Gamma}{x}{\hat{\alpha}}}{P}{P'}{\extend{\Gamma'}{x}{A}}}{\checkprop{\Gamma}{\All{x}{P}}{\All{x}[A]{P'}}{\Gamma'}}$
+
+  \vspace{1em}
+
+  $\infrule{\inferkind{\Gamma}{A}[r]{\Gamma_1} \quad \checkprop{\extend{\Gamma_1}{x}{A}}{P}{P'}{\extend{\Gamma_2}{x}{A}}}{\checkprop{\Gamma}{\Ex{x}[A]{P}}{\Ex{x}[A]{P'}}{\Gamma_2}}$
+
+  \vspace{1em}
+
+  $\infrule{\checkprop{\extend{\Gamma}{x}{\hat{\alpha}}}{P}{P'}{\extend{\Gamma'}{x}{A}}}{\checkprop{\Gamma}{\Ex{x}{P}}{\Ex{x}[A]{P'}}{\Gamma'}}$
+
+  \vspace{1em}
+
+  $\infrule{\inferkind{\Gamma}{A}[r]{\Gamma_1} \quad \checktype{\Gamma_1}[\noncomputable]{e_1}{A}{\Gamma_2} \quad \checktype{\Gamma_2}[\noncomputable]{e_2}{A}{\Gamma_3}}{\checkprop{\Gamma}{\Eq[A]{e_1}{e_2}}{\Eq[A]{e_1}{e_2}}{\Gamma_3}}$
+
+  \vspace{1em}
+
+  $\infrule{\infertype{\Gamma}[\noncomputable]{e_1}{A}{\Gamma_1} \quad \checktype{\Gamma_1}[\noncomputable]{e_2}{A}{\Gamma_2}}{\checkprop{\Gamma}{\Eq{e_1}{e_2}}{\Eq[A]{e_1}{e_2}}{\Gamma_2}}$
+\end{center}
+
+\end{frame}
+
 \begin{frame}{Subsumption and annotations}
 
 \begin{center}
@@ -7,7 +56,7 @@
 
   \vspace{2em}
 
-  $\infrule[Annot]{\checkprop{\Gamma}{P}{\Gamma_1} \quad \checkproof{\Gamma_1}{p}{P}{\Gamma_2}}{\inferproof{\Gamma}{\proving{P}{p}}{P}{\Gamma_2}}$
+  $\infrule[Annot]{\checkprop{\Gamma}{P}{P'}{\Gamma_1} \quad \checkproof{\Gamma_1}{p}{P'}{\Gamma_2}}{\inferproof{\Gamma}{\proving{P}{p}}{P'}{\Gamma_2}}$
 \end{center}
 
 \end{frame}
@@ -15,8 +64,8 @@
 \begin{frame}{Assumptions and implication}
 
 \begin{center}
-  $\infrule{\findhyp{\Gamma}{h} = P}{\inferproof{\Gamma}{h}{P}{\Gamma}}$ \quad
-  $\infrule{(h : P) \in \Gamma}{\checkproof{\Gamma}{\assumption}{P}{\Gamma}}$
+  $\infrule{\findhyp{\Gamma}{h}{P}}{\inferproof{\Gamma}{h}{P}{\Gamma}}$ \quad
+  $\infrule{\findhyp{\Gamma}{h}{P}}{\checkproof{\Gamma}{\assumption}{P}{\Gamma}}$
 
   \vspace{2em}
 
@@ -74,11 +123,11 @@ To make the system more checking, it makes sense to turn conjunction positive an
 \begin{frame}{Utilities}
 
 \begin{center}
-  $\infrule{\checkprop{\Gamma}{P}{\Gamma_1} \quad \checkproof{\Gamma_1}{p}{P}{\Gamma_2} \quad \checkproof{\assume{\Gamma_2}{h}{P}}{q}{Q}{\assume{\Gamma_3}{h}{P}}}{\checkproof{\Gamma}{\lemma{h}{P}{p}{q}}{Q}{\Gamma_3}}$
+  $\infrule{\begin{array}{l} \checkprop{\Gamma}{P}{P'}{\Gamma_1} \\ \checkproof{\Gamma_1}{p}{P'}{\Gamma_2} \quad \checkproof{\assume{\Gamma_2}{h}{P'}}{q}{Q}{\assume{\Gamma_3}{h}{P'}} \end{array}}{\checkproof{\Gamma}{\lemma{h}{P}{p}{q}}{Q}{\Gamma_3}}$
 
   \vspace{2em}
 
-  $\infrule{\checkprop{\Gamma}{P}{\Gamma_1} \quad \checkproof{\Gamma}{q}{\Impl{P}{Q}}{\Gamma_2} \quad \checkproof{\Gamma_2}{p}{P}{\Gamma_3}}{\checkproof{\Gamma}{\suffices{P}{q}{p}}{Q}{\Gamma_2}}$
+  $\infrule{\checkprop{\Gamma}{P}{P'}{\Gamma_1} \quad \checkproof{\Gamma}{q}{\Impl{P'}{Q}}{\Gamma_2} \quad \checkproof{\Gamma_2}{p}{P'}{\Gamma_3}}{\checkproof{\Gamma}{\suffices{P}{q}{p}}{Q}{\Gamma_2}}$
 \end{center}
 
 \end{frame}
@@ -110,7 +159,7 @@ To make the system more checking, it makes sense to turn conjunction positive an
 
   \vspace{2em}
 
-  $\infrule{\inferproof{\Gamma}{q}{\Eq[A]{e_1}{e_2}}{\Gamma_1} \quad \begin{array}{l} \checkprop{\extend{\Gamma_1}{x}{A}}{P}{\extend{\Gamma_2}{x}{A}} \\ \checkproof{\Gamma_2}{p}{\subst{P}{x}{e_2}}{\Gamma_3} \end{array}}{\inferproof{\Gamma}{\rewrite{q}[x.P]{p}}{\subst{P}{x}{e_1}}{\Gamma_3}}$
+  $\infrule{\inferproof{\Gamma}{q}{\Eq[A]{e_1}{e_2}}{\Gamma_1} \quad \begin{array}{l} \checkprop{\extend{\Gamma_1}{x}{A}}{P}{P'}{\extend{\Gamma_2}{x}{A}} \\ \checkproof{\Gamma_2}{p}{\subst{P'}{x}{e_2}}{\Gamma_3} \end{array}}{\inferproof{\Gamma}{\rewrite{q}[x.P]{p}}{\subst{P'}{x}{e_1}}{\Gamma_3}}$
 
   \vspace{2em}
 
@@ -142,11 +191,11 @@ To make the system more checking, it makes sense to turn conjunction positive an
 \begin{frame}{Classical logic}
 
 \begin{center}
-  $\infrule{\begin{array}{l} \inferproof{\Gamma}{p}{\Ex{x}[A]{P}}{\Gamma_1} \\ \checkproof{\assume{\extend{\Gamma}{y}{A}[\choose{p}]}{h}{\subst{P}{x}{y}}}{q}{Q}{\assume{\extend{\Gamma_2}{y}{A}[\choose{p}]}{h}{\subst{P}{x}{y}}} \end{array}}{\checkproof{\Gamma}{\choosewitnessl{y}{h}{p}{q}}{Q}{\Gamma_2}}$
+  $\infrule{\begin{array}{l} \inferproof{\Gamma}{p}{\Ex{x}[A]{P}}{\Gamma_1} \\ \checkproof{\assume{\extend{\Gamma_1}{y}{A}[\choose{p}]}{h}{\subst{P}{x}{y}}}{q}{Q}{\assume{\extend{\Gamma_2}{y}{A}[\choose{p}]}{h}{\subst{P}{x}{y}}} \end{array}}{\checkproof{\Gamma}{\choosewitnessl{y}{h}{p}{q}}{Q}{\Gamma_2}}$
 
   \vspace{2em}
 
-  $\infrule{\begin{array}{l} \inferproof{\Gamma}{p}{\Ex{x}[A]{P}}{\Gamma_1} \\ \infertype{\assume{\extend{\Gamma}{y}{A}[\choose{p}]}{h}{\subst{P}{x}{y}}}[\noncomputable]{e}{B}{\assume{\extend{\Gamma_2}{y}{A}[\choose{p}]}{h}{\subst{P}{x}{y}}} \end{array}}{\infertype{\Gamma}[\noncomputable]{\choosewitnessp{y}{h}{p}{e}}{B}{\Gamma_2}}$
+  $\infrule{\begin{array}{l} \inferproof{\Gamma}{p}{\Ex{x}[A]{P}}{\Gamma_1} \\ \infertype{\assume{\extend{\Gamma_1}{y}{A}[\choose{p}]}{h}{\subst{P}{x}{y}}}[\noncomputable]{e}{B}{\assume{\extend{\Gamma_2}{y}{A}[\choose{p}]}{h}{\subst{P}{x}{y}}} \end{array}}{\infertype{\Gamma}[\noncomputable]{\choosewitnessp{y}{h}{p}{e}}{B}{\Gamma_2}}$
 \end{center}
 
 \end{frame}

@@ -47,11 +47,11 @@ $\infertype{\Gamma}{e}{A}{\extend{\Gamma'}[\totalqty{s}{A}]{x}{A}}$ is a shortha
 \begin{frame}{Using variables}
 
 \begin{center}
-  $\infrule{\findvar{\Gamma}{x} = A}{\infertype{\Gamma}[\computable]{x}{A}{\varctx{\Gamma}{x}}}$
+  $\infrule{\findvar{\Gamma}{x}{A}}{\infertype{\Gamma}[\computable]{x}{A}{\varctx{\Gamma}{x}}}$
 
   \vspace{2em}
 
-  $\infrule{\findvar{\Gamma}{x} = A}{\infertype{\Gamma}[\noncomputable]{x}{A}{\scalectx{\Zero}{\Gamma}}}$
+  $\infrule{\findvar{\Gamma}{x}{A}}{\infertype{\Gamma}[\noncomputable]{x}{A}{\scalectx{\Zero}{\Gamma}}}$
 \end{center}
 
 \end{frame}

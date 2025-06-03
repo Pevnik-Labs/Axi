@@ -110,6 +110,82 @@
 
 \end{frame}
 
+\NewDocumentCommand{\contraction}{m m}{#1 \longmapsto #2}
+\NewDocumentCommand{\reduction}{m m}{#1 \longrightarrow #2}
+\NewDocumentCommand{\reductions}{m m}{#1 \longrightarrow^* #2}
+
+\begin{frame}{Contraction}
+
+\begin{center}
+  $\infrule{}{\contraction{\app{(\fun{x}{e_1})}{e_2}}{\subst{e_1}{x}{e_2}}}$
+
+  \vspace{1em}
+
+  $\infrule{}{\contraction{\boxelim{x}{\boxintro{e_1}}{e_2}}{\subst{e_2}{x}{e_1}}}$
+
+  \vspace{1em}
+
+  $\infrule{}{\contraction{\unitelim{\unit}{e}}{e}}$
+
+  \vspace{1em}
+
+  $\infrule{}{\contraction{\letpair{x}{y}{\pair{e_1}{e_2}}{e_3}}{\subst{\subst{e_3}{x}{e_1}}{y}{e_2}}}$
+
+  \vspace{1em}
+
+  $\infrule{}{\contraction{\case{\inl{e_1}}{x}{e_2}{y}{e_3}}{\subst{e_2}{x}{e_1}}}$
+
+  \vspace{1em}
+
+  $\infrule{}{\contraction{\case{\inr{e_1}}{x}{e_2}{y}{e_3}}{\subst{e_3}{x}{e_1}}}$
+
+  \vspace{1em}
+
+  $\infrule{}{\contraction{\letin{x}{e_1}{e_2}}{\subst{e_2}{x}{e_1}}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Contraction}
+
+\begin{center}
+  $\infrule{}{\contraction{\tapp{(\tfun{a}[r]{e})}{A}}{\subst{e}{a}{A}}}$
+
+  \vspace{1em}
+
+  $\infrule{}{\contraction{\itapp{(\itfun{a}[r]{e})}{A}}{\subst{e}{a}{A}}}$
+
+  \vspace{1em}
+
+  $\infrule{}{\contraction{\choosewitnessp{x}{h}{p}{e}}{\subst{\subst{e}{x}{\choose{p}}}{h}{\choosespec{p}}}}$
+\end{center}
+
+\end{frame}
+
+\NewDocumentCommand{\plug}{m m}{#1[#2]}
+
+\begin{frame}{Weak head evaluation contexts}
+
+E ::=\\
+\qquad $\square \pipe \app{\square}{e} \pipe \tapp{\square}{A} \pipe \itapp{\square}{A} \pipe$ \\
+\qquad $\unitelim{\square}{e} \pipe \boxelim{x}{\square}{e} \pipe$ \\
+\qquad $\letpair{x}{y}{\square}{e} \pipe \newcase{\square}{x}{e_1}{y}{e_2}$
+
+\end{frame}
+
+\begin{frame}{Computation}
+
+\begin{center}
+  $\infrule{\contraction{e}{e'}}{\reduction{\plug{E}{e}}{\plug{E}{e'}}}$
+
+  \vspace{2em}
+
+  $\infrule{}{\reductions{e}{e}}$ \quad
+  $\infrule{\reduction{e_1}{e_2} \quad \reductions{e_2}{e_3}}{\reductions{e_1}{e_3}}$
+\end{center}
+
+\end{frame}
+
 \begin{frame}{Whnfs and neutral terms}
 
 Whnfs: \\
@@ -125,16 +201,6 @@ $n ::=$ \\
 \qquad $\unitelim{n}{e}[A] \pipe \boxelim{x}{n}{e}[A] \pipe$ \\
 \qquad $\letpair{x}{y}{n}{e}[A] \pipe \newcase{n}{x}{e_1}{y}{e_2}[A] \pipe$ \\
 \qquad $\choose{p}$
-
-\end{frame}
-
-\NewDocumentCommand{\reduction}{m m}{#1 \longrightarrow #2}
-\NewDocumentCommand{\reductions}{m m}{#1 \longrightarrow^* #2}
-
-\begin{frame}{Computation}
-
-$\reduction{e_1}{e_1'}$ -- single step \\
-$\reductions{e_1}{e_1'}$ -- multi step
 
 \end{frame}
 
@@ -201,7 +267,7 @@ $\reductions{e_1}{e_1'}$ -- multi step
 \begin{frame}{Term conversion -- infer neutrals}
 
 \begin{center}
-  $\infrule{\findvar{\Gamma}{x} = A}{\infertermconv{\Gamma}{x}{x}{A}{\Gamma}}$
+  $\infrule{\findvar{\Gamma}{x}{A}}{\infertermconv{\Gamma}{x}{x}{A}{\Gamma}}$
 
   \vspace{2em}
 

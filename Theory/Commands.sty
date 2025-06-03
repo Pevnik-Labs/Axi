@@ -181,13 +181,13 @@
 \NewDocumentCommand{\termconv}{O{\Gamma} m m m}{#1 \vdash #2 \equiv #3 : #4}
 
 % Algorithmic judgements.
-\NewDocumentCommand{\findvar}{m m}{#1(#2)}
-\NewDocumentCommand{\findhyp}{m m}{#1(#2)}
+\NewDocumentCommand{\findvar}{m m m}{#1(#2) = #3}
+\NewDocumentCommand{\findhyp}{m m m}{#1(#2) = #3}
 
 \NewDocumentCommand{\checkkind}{m m O{} m}{#1 \vdash #2 \mathcolor{blue}{\Leftarrow} \Type[#3] \dashv #4}
 \NewDocumentCommand{\inferkind}{m m O{} m}{#1 \vdash #2 \mathcolor{red}{\Rightarrow} \Type[#3] \dashv #4}
 
-\NewDocumentCommand{\checkprop}{m m m}{#1 \vdash #2 \mathcolor{blue}{\Leftarrow} \texttt{prop} \dashv #3}
+\NewDocumentCommand{\checkprop}{m m m m}{#1 \vdash #2 \mathcolor{blue}{\Leftarrow} \texttt{prop} \mathcolor{red}{\Rightarrow} #3 \dashv #4}
 
 \NewDocumentCommand{\checktype}{m O{i} m m m}{#1 \vdash_{\optional{#2}} #3 \mathcolor{blue}{\Leftarrow} #4 \dashv #5}
 \NewDocumentCommand{\infertype}{m O{i} m m m}{#1 \vdash_{\optional{#2}} #3 \mathcolor{red}{\Rightarrow} #4 \dashv #5}
