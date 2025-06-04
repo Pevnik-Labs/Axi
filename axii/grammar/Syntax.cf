@@ -1,0 +1,197 @@
+{- LBNF Axi grammar -}
+entrypoints [Dec] ;
+
+comment "#!" ;
+comment "//" ;
+comment "/*" "*/" ;
+
+layout toplevel ;
+layout "." ;
+layout "=>" ;
+layout "by" ;
+layout "chaining" ;
+layout "let" ;
+layout "proof" ;
+layout "record" ;
+layout "where" ;
+layout stop "in" ;
+layout stop "qed" ;
+
+token Number '-'? digit+ ('.' digit+)? ('e' '-'? digit+)? ;
+token Chr '\'' (char - ["'\\"] | '\\' (["abefnrtv\\\'\"?"] | ["xuU"]? (digit | letter)+)) '\'' ;
+token Str '"' (char - ["\"\\"] | '\\' (["abefnrtv\\\'\"?"] | ["xuU"]? (digit | letter)+))* '"' ;
+token Hole '?' (letter | '_') (digit | letter | ["-_'"])* ;
+token Id
+  ((letter | '_') (digit | letter | ["-_'"])* '.')*
+  ((letter | '_') (digit | letter | ["-_'"])* | ["-,;:!?.'\"@*/\\&#%^+<=>|~$"]+) ;
+
+separator Dec ";" ;
+
+StructureD. Dec ::= StructureKwd Pat Def ;
+ConstantD. Dec ::= Pat Def ;
+DeclarationD. Dec ::= "declaration" [Param] TypeAnnOpt ;
+PipeClauseD. Dec ::= PipeClause ;
+
+DataKwd. StructureKwd ::= "data" ;
+RecordKwd. StructureKwd ::= "record" ;
+ModuleKwd. StructureKwd ::= "module" ;
+ClassKwd. StructureKwd ::= "class" ;
+InstanceKwd. StructureKwd ::= "instance" ;
+AxiomKwd. StructureKwd ::= "axiom" ;
+TheoremKwd. StructureKwd ::= "theorem" ;
+
+ByBlockDef. Def ::= ByBlock ;
+ProofBlockDef. Def ::= "proof" "{" [ProofStep] "}" "qed" ;
+ValueDef. Def ::= Value ;
+WhereBlockDef. Def ::= "where" "{" [Dec] "}" ;
+NoDef. Def ::= ;
+
+HasBBO. ByBlockOpt ::= ByBlock ;
+NoBBO. ByBlockOpt ::= ;
+
+MkBB. ByBlock ::= "by" "{" [ProofStep] "}" ;
+
+separator ProofStep ";" ;
+
+ProofDecPS. ProofStep ::= ProofDec ;
+BulletBlockPS. ProofStep ::= "." "{" [ProofStep] "}" ;
+CasesPS. ProofStep ::= "cases" [Exp] ;
+CasesWithPS. ProofStep ::= "cases" [Exp] "with" ;
+InductionPS. ProofStep ::= "induction" [Exp] "with" ;
+PipeClausePS. ProofStep ::= PipeClause ;
+ProvingPS. ProofStep ::= "proving" Exp ;
+ApplyPS. ProofStep ::= "apply" [Exp] ;
+InstantiatePS. ProofStep ::= "instantiate" Exp ;
+IntroPS. ProofStep ::= "\\" Patterns ;
+WitnessPS. ProofStep ::= "witness" ExpOpt ;
+ExpPS. ProofStep ::= Exp ;
+
+AssumePD. ProofDec ::= "assume" Patterns ;
+ByContradictionPD. ProofDec ::= "by-contradiction" Pat11 TypeAnnOpt ;
+LetPD. ProofDec ::= "let" "{" [Dec] "}" ;
+LemmaPD. ProofDec ::= "lemma" Pat1 Def ;
+OpenPD. ProofDec ::= "open" Id ;
+PickAnyPD. ProofDec ::= "pick-any" Patterns ;
+PickWitnessPD. ProofDec ::= "pick-witness" Patterns "for" Exp ;
+ChainingPD. ProofDec ::= "chaining" "{" [ChainLink] "}" ;
+RewritePD. ProofDec ::= "rewrite" [RewriteItem] ;
+UnfoldPD. ProofDec ::= "unfold" [Pat2] ;
+
+separator ChainLink ";" ;
+
+MkCL. ChainLink ::= ChainOp Exp11 ByBlockOpt ;
+
+LeftLongArrowCO. ChainOp ::= "<--" ;
+LeftArrowCO. ChainOp ::= "<-" ;
+RightLongArrowCO. ChainOp ::= "-->" ;
+RightArrowCO. ChainOp ::= "->" ;
+EqCO. ChainOp ::= "=" ;
+EqualCO. ChainOp ::= "===" ;
+EquivCO. ChainOp ::= "<-->" ;
+ExpCO. ChainOp ::= Exp11;
+
+separator nonempty RewriteItem "," ;
+
+MkRI. RewriteItem ::= DirectionOpt Exp ;
+
+LeftDO. DirectionOpt ::= "<-" ;
+RightDO. DirectionOpt ::= "->" ;
+NoDO. DirectionOpt ::= ;
+
+MkP. Patterns ::= [Param] TypeAnnOpt ;
+
+terminator Param "" ;
+
+ExplicitP. Param ::= Pat11 ;
+ImplicitP. Param ::= "{" Pat "}" ;
+InstanceP. Param ::= "{{" Pat "}}" ;
+
+separator nonempty Pat2 "," ;
+
+NoncomputableP. Pat ::= "noncomputable" Pat1 ;
+TypeP. Pat ::= "type" Pat1 ;
+PropositionP. Pat ::= "proposition" Pat1 ;
+CtorAnnP. Pat1 ::= Pat2 "of" [Exp1] ;
+SuperAnnP. Pat1 ::= Pat2 ":>" [Exp1] ;
+SubAnnP. Pat1 ::= Pat2 "<:" [Exp1] ;
+TypeAnnP. Pat2 ::= Pat3 TypeAnn ;
+OrP. Pat3 ::= Pat4 "|" Pat3 ;
+AndP. Pat4 ::= Pat5 "&" Pat4 ;
+IndP. Pat10 ::= "ind" Pat11 ;
+CallP. Pat10 ::= Pat11 Param [Param] ;
+NumberP. Pat11 ::= Number ;
+CharP. Pat11 ::= Chr ;
+StringP. Pat11 ::= Str ;
+HoleP. Pat11 ::= Hole ;
+VarP. Pat11 ::= Id ;
+RecordP. Pat11 ::= "record" "{" [FieldPat] "}" ;
+TupleP. Pat11 ::= "(" Pat2 "," [Pat2] ")" ;
+UnitP. Pat11 ::= "(" ")" ;
+WitnessP. Pat11 ::= "(" "witness" Pat "such-that" Pat ")" ;
+coercions Pat 11 ;
+
+separator FieldPat ";" ;
+
+PunP. FieldPat ::= Id ;
+FieldP. FieldPat ::= Id "=" Pat ;
+
+HasTAO. TypeAnnOpt ::= TypeAnn ;
+NoTAO. TypeAnnOpt ::= ;
+
+MkTA. TypeAnn ::= ":" Exp1 ;
+
+MkV. Value ::= "=" Exp ;
+
+HasEO. ExpOpt ::= Exp ;
+NoEO. ExpOpt ::= ;
+
+separator nonempty Exp "," ;
+separator nonempty Exp1 "," ;
+
+EqE. Exp ::= Exp1 "=" Exp ;
+EqualE. Exp ::= Exp1 "===" Exp ;
+LamE. Exp ::= "\\" Clause ;
+ProofDecInE. Exp ::= ProofDec "in" Exp ;
+WitnessSuchThatE. Exp ::= "witness" Exp "such-that" Exp ;
+AnnE. Exp1 ::= Exp2 ":" Exp1 ;
+ProvingByE. Exp ::= "proving" ExpOpt ByBlock ;
+SufficesByE. Exp ::= "suffices" Exp1 ByBlock ;
+ExistsE. Exp1 ::= "exists" Patterns "," Exp1 ;
+ForallE. Exp1 ::= "forall" Patterns "," Exp1 ;
+ArrowE. Exp1 ::= Exp2 "->" Exp1 ;
+ImplicationE. Exp1 ::= Exp2 "-->" Exp1 ;
+EquivalenceE. Exp2 ::= Exp3 "<-->" Exp3 ;
+DisjunctionE. Exp3 ::= Exp4 "\\/" Exp3 ;
+ConjunctionE. Exp4 ::= Exp5 "/\\" Exp4 ;
+NegationE. Exp5 ::= "~" Exp5 ;
+CallE. Exp10 ::= Exp11 [Arg] ;
+LamCasesE. Exp11 ::= "\\" Patterns "where" "{" [Clause] "}" ;
+CaseE. Exp11 ::= "case" Exp "where" "{" [Clause] "}" ;
+MatchWith. Exp11 ::= "match" Exp "with" [PipeClause] ;
+InstantiateWithE. Exp11 ::= "instantiate" Exp "with" ;
+TupleE. Exp11 ::= "(" TupleOpt ")" ;
+RecordE. Exp11 ::= "record" "{" [Dec] "}" ;
+RecordUpdateE. Exp11 ::= "record" Exp "where" "{" [Dec] "}" ;
+AssumptionE. Exp11 ::= "assumption" ;
+NumberE. Exp11 ::= Number ;
+CharE. Exp11 ::= Chr ;
+StringE. Exp11 ::= Str ;
+HoleE. Exp11 ::= Hole ;
+VarE. Exp11 ::= Id ;
+coercions Exp 11 ;
+
+separator Clause ";" ;
+
+MkC. Clause ::= [Param] "->" Exp ;
+
+terminator PipeClause "" ;
+
+MkPC. PipeClause ::= "|" [Pat2] "=>" "{" [ProofStep] "}" ;
+
+separator nonempty Arg "" ;
+
+ExplicitA. Arg ::= Exp11 ;
+ImplicitA. Arg ::= "{" Exp "}" ;
+
+HasTO. TupleOpt ::= Exp "," [Exp] ;
+NoTO. TupleOpt ::= ;
