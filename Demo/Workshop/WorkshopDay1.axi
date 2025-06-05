@@ -193,7 +193,7 @@ theorem not-all-exists :
   ~ (forall x : A, P x) --> exists x : A, ~ P x
 proof
   assume nall : ~ (forall x : A, P x)
-  by-contradiction nex : ~ exists x : A, ~ P x
+  by-contradiction nex : ~ (exists x : A, ~ P x)
   apply nall
   proving forall x : A, P x
   pick-any x : A

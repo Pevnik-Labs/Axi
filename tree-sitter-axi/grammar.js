@@ -60,7 +60,7 @@ const instantiate = "instantiate";
 const lemma = "lemma";
 const let_ = "let";
 const match = "match";
-const noncomputational = "noncomputational";
+const noncomputable = "noncomputable";
 const of = "of";
 const open = "open";
 const pick_any = "pick-any";
@@ -154,8 +154,7 @@ module.exports = grammar({
       $.identifier,
       optional($.parameters),
       optional(choice(
-        $.type_ann,
-        seq(sub, $._term, repeat(seq(comma, $._term)))
+        $._struct_ann,
       )),
       $.where_block
     ),
@@ -171,8 +170,10 @@ module.exports = grammar({
       optional($._sort_specifier),
       $.identifier,
       optional($.parameters),
-      optional($._ann),
-      optional($.value)
+      choice(
+        $.ctor_ann,
+        seq(optional($.type_ann), optional($.value))
+      ),
     ),
 
     unpack_declaration: $ => seq(
@@ -311,7 +312,7 @@ module.exports = grammar({
     _proof_decl: $ => choice(
       $.assume,
       $.by_contradiction,
-      seq(let_, optional(noncomputational), $._declaration),
+      seq(let_, optional(noncomputable), $._declaration),
       $.lemma_declaration,
       $.open,
       $.pick_any,
@@ -396,10 +397,12 @@ module.exports = grammar({
       $.type_ann,
     ),
 
-    _ann: $ => choice(
-      $.ctor_ann,
-      $.type_ann
+    _struct_ann: $ => choice(
+      $.sub_ann,
+      $.type_ann,
     ),
+
+    sub_ann: $ => seq(sub, $._term, repeat(seq(comma, $._term))),
 
     ctor_ann: $ => prec(1, seq(of, $._term, repeat(seq(comma, prec(1, $._term))))),
 
@@ -434,7 +437,7 @@ module.exports = grammar({
 
     intro: $ => seq(lambda, optional($.patterns)),
 
-    witness: $ => seq(witness, optional(seq($._term))),
+    witness: $ => seq(witness, optional($._term)),
 
     value: $ => seq(eq, $._term),
 

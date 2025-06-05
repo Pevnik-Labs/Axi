@@ -64,7 +64,7 @@
   "lemma"
   "let"
   "match"
-  "noncomputational"
+  "noncomputable"
   "of"
   "open"
   "pick-any"
