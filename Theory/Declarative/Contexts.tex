@@ -3,7 +3,7 @@
 \begin{frame}{Operations on contexts}
 
 Operations on contexts: \\
-$\subctx{\Gamma_1}{\Gamma_2}$ -- context subusaging \\
+$\subusagectx{\Gamma_1}{\Gamma_2}$ -- context subusaging \\
 $\addctx{\Gamma_1}{\Gamma_2}$ -- context addition \\
 $\scalectx{r}{\Gamma}$ -- context scaling \\
 $\cartesianize{\Gamma}$ -- cartesianization \\
@@ -14,23 +14,23 @@ $\varctx{\Gamma}{x}$ -- spotlight $x$
 \begin{frame}{Context subusaging}
 
 \begin{center}
-  $\infrule{}{\subctx{\emptyctx}{\emptyctx}}$
+  $\infrule{}{\subusagectx{\emptyctx}{\emptyctx}}$
 
   \vspace{1em}
 
-  $\infrule{\subctx{\Gamma_1}{\Gamma_2} \quad \subusage{r_1}{r_2}}{\subctx{\extend{\Gamma_1}[r_1]{x}{A}}{\extend{\Gamma_2}[r_2]{x}{A}}}$
+  $\infrule{\subusagectx{\Gamma_1}{\Gamma_2} \quad \subusage{r_1}{r_2}}{\subusagectx{\extend{\Gamma_1}[r_1]{x}{A}}{\extend{\Gamma_2}[r_2]{x}{A}}}$
 
   \vspace{2em}
 
-  $\infrule{\subctx{\Gamma_1}{\Gamma_2} \quad \subusage{r_1}{r_2}}{\subctx{\extend{\Gamma_1}[r_1]{x}{A}[e]}{\extend{\Gamma_2}[r_2]{x}{A}[e]}}$
+  $\infrule{\subusagectx{\Gamma_1}{\Gamma_2} \quad \subusage{r_1}{r_2}}{\subusagectx{\extend{\Gamma_1}[r_1]{x}{A}[e]}{\extend{\Gamma_2}[r_2]{x}{A}[e]}}$
 
   \vspace{2em}
 
-  $\infrule{\subctx{\Gamma_1}{\Gamma_2}}{\subctx{\assume{\Gamma_1}{h}{P}}{\assume{\Gamma_2}{h}{P}}}$
+  $\infrule{\subusagectx{\Gamma_1}{\Gamma_2}}{\subusagectx{\assume{\Gamma_1}{h}{P}}{\assume{\Gamma_2}{h}{P}}}$
 
   \vspace{2em}
 
-  $\infrule{\subctx{\Gamma_1}{\Gamma_2} \quad \subusage{r_1}{r_2}}{\subctx{\extendtype{\Gamma_1}{a}[r_1]}{\extendtype{\Gamma_2}{a}[r_2]}}$
+  $\infrule{\subusagectx{\Gamma_1}{\Gamma_2} \quad \subusage{r_1}{r_2}}{\subusagectx{\extendtype{\Gamma_1}{a}[r_1]}{\extendtype{\Gamma_2}{a}[r_2]}}$
 \end{center}
 
 \end{frame}

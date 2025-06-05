@@ -41,8 +41,8 @@
 \NewDocumentCommand{\Sum}{m m}{#1 \oplus #2}
 \NewDocumentCommand{\Unit}{}{\texttt{Unit}}
 \NewDocumentCommand{\Empty}{}{\texttt{Empty}}
-\NewDocumentCommand{\ForallE}{m o m}{\forall #1 : \Type[#2] .\, #3}
-\NewDocumentCommand{\ForallI}{m o m}{\forall \{#1 : \Type[#2]\} .\, #3}
+\NewDocumentCommand{\ForallE}{m o m}{\forall #1 \IfValueTF{#2}{: \Type[#2]}{} .\, #3}
+\NewDocumentCommand{\ForallI}{m o m}{\forall \{#1 \IfValueTF{#2}{: \Type[#2]}{}\} .\, #3}
 
 % An optional type annotation.
 \NewDocumentCommand{\optionalannot}{m}{\IfValueTF{#1}{: #1}{}}
@@ -60,7 +60,6 @@
 \NewDocumentCommand{\inl}{o m}{\texttt{inl}_{\optional{#1}}\ #2}
 \NewDocumentCommand{\inr}{o m}{\texttt{inr}_{\optional{#1}}\ #2}
 \NewDocumentCommand{\case}{o m m m o}{\texttt{case}_{\optional{#5}}\ #2\ \texttt{of}\ (#3, #4)}
-%\NewDocumentCommand{\newcase}{o m m m m m o}{\texttt{case}_{\optional{#7}}\ #2\ \texttt{of}\ \{\inl{#3} \rightarrow #4;\ \inr{#5} \rightarrow #6\}}
 \NewDocumentCommand{\newcase}{o m m m m m o}{\texttt{case}_{\optional{#7}}\ #2\ \texttt{of}\ \{#3.#4;\ #5.#6 \}}
 \NewDocumentCommand{\unit}{}{\texttt{unit}}
 \NewDocumentCommand{\unitelim}{o m m o}{\texttt{let}_{\optional{#4}}\ \unit = #2\ \texttt{in}\ #3}
@@ -140,10 +139,11 @@
 \NewDocumentCommand{\extendtype}{m m o}{#1, #2 : \Type[#3]}
 
 % Context operations.
-\NewDocumentCommand{\subctx}{m m}{#1 \sqsubseteq #2}
+\NewDocumentCommand{\subusagectx}{m m}{#1 \sqsubseteq #2}
 \NewDocumentCommand{\glbctx}{m m}{#1 \sqcap #2}
 \NewDocumentCommand{\lubctx}{m m}{#1 \sqcup #2}
 \NewDocumentCommand{\addctx}{m m}{#1 + #2}
+\NewDocumentCommand{\subctx}{m m}{#1 - #2}
 \NewDocumentCommand{\scalectx}{m m}{#1\, #2}
 \NewDocumentCommand{\varctx}{m m}{| #1 |_{#2}}
 \NewDocumentCommand{\usevar}{m m}{#1 - #2}

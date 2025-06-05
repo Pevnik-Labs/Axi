@@ -1,4 +1,14 @@
-\section{Typing}
+\section{Programming}\begin{frame}{Kind inference judgement}
+
+$\inferkind{\Gamma}{A}[r]{\Gamma'}$
+\begin{itemize}
+  \item In context $\Gamma$, infer the kind of type $A$ to be $\Type[r]$, returning output context $\Gamma'$.
+  \item Modes: $\Gamma$ is input, $A$ is subject, $\Type[r]$ and $\Gamma'$ are outputs.
+  \item Preconditions: $\ctx[\noncomputable]{\Gamma}$.
+  \item Postcondition: $\type[\Gamma']{A}[r]$.
+\end{itemize}
+
+\end{frame}
 
 \begin{frame}{Kind inference}
 
@@ -42,6 +52,19 @@
 
 \end{frame}
 
+\begin{frame}{Kind checking judgement}
+
+$\checkkind{\Gamma}{A}[r]{\Gamma'}$
+\begin{itemize}
+  \item Kind checking judgement.
+  \item In context $\Gamma$, check that the kind of type $A$ is $\Type[r]$, returning output context $\Gamma'$.
+  \item Modes: $\Gamma$ and $\Type[r]$ are inputs, $A$ is subject, $\Gamma'$ is an output.
+  \item Preconditions: $\ctx[\noncomputable]{\Gamma}$.
+  \item Postcondition: $\type[\Gamma']{A}[r]$.
+\end{itemize}
+
+\end{frame}
+
 \begin{frame}{Kind checking}
 
 \begin{center}
@@ -50,7 +73,31 @@
 
 \end{frame}
 
-\begin{frame}{Context clean-up}
+\begin{frame}{Typing judgements}
+
+$\checktype{\Gamma}{e}{A}{\Gamma'}$
+\begin{itemize}
+  \item Type checking judgement.
+  \item In context $\Gamma$, check whether term $e$ has type $A$ and return output context $\Gamma'$.
+  \item Modes: $\Gamma$ and $A$ are inputs, $e$ is subject, $\Gamma'$ is an output.
+  \item Preconditions: $\ctx{\Gamma}$ and $\type[\Gamma]{A}[r]$
+  \item Postcondition: $\typing[\subctx{\Gamma}{\Gamma'}]{e}{A}$
+\end{itemize}
+
+\vspace{1em}
+
+$\infertype{\Gamma}{e}{A}{\Gamma'}$
+\begin{itemize}
+  \item Type inference judgement.
+  \item In context $\Gamma$, term $e$ infers type $A$, returning output context $\Gamma'$.
+  \item Modes: $\Gamma$ is input, $e$ is subject, $A$ and $\Gamma'$ are outputs.
+  \item Preconditions: $\ctx{\Gamma}$
+  \item Postcondition: $\typing[\subctx{\Gamma}{\Gamma'}]{e}{A}$
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Context clean-up notation}
 
 $\checktype{\extend{\Gamma}[r]{x}{A}}{e}{A}{\extend{\Gamma'}[\Zero]{x}{A}}$ is a shorthand for $\checktype{\extend{\Gamma}[r]{x}{A}}{e}{A}{\extend{\Gamma'}[r']{x}{A}}$ with the additional condition $\subusage{r'}{\Zero}$ when $i = \computable$
 

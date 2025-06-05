@@ -1,5 +1,14 @@
 \section{Syntax}
 
+\begin{frame}{Algorithmic types}
+
+Types: \\
+$A, B ::=$ \\
+\qquad $\Fun[r]{A}{B} \pipe \Box[r]{A} \pipe \Prod{A}{B} \pipe \Sum{A}{B} \pipe \Unit \pipe \Empty \pipe$ \\
+\qquad $\ForallE{a}[r]{A} \pipe \ForallE{a}{A} \pipe \ForallI{a}[r]{A} \pipe \ForallI{a}{A}$
+
+\end{frame}
+
 \begin{frame}{Algorithmic terms}
 
 Terms: \\
@@ -37,6 +46,20 @@ However, as long as annotations must be types (and not partial types, for exampl
 
 \end{frame}
 
+\begin{frame}{Algorithmic propositions}
+
+Propositions: \\
+$P, Q ::=$ \\
+\qquad $\True \pipe \False \pipe \Impl{P}{Q} \pipe \And{P}{Q} \pipe \Or{P}{Q} \pipe$ \\
+\qquad $\All{x}[A]{P} \pipe \All{x}{P} \pipe \Ex{x}[A]{P} \pipe \Ex{x}{P} \pipe$ \\
+\qquad $\Eq[A]{e_1}{e_2} \pipe \Eq{e_1}{e_2}$
+
+\vspace{2em}
+
+The only difference from declarative propositions is that we can omit type annotations on quantifiers and equality.
+
+\end{frame}
+
 \begin{frame}{Algorithmic proofterms}
 
 Proofterms ($P, Q$ are propositions, $e$ are terms, $h$ are variables): \\
@@ -65,42 +88,5 @@ We can recover some of the original proofterms by combining algorithmic proofter
 \end{itemize}
 
 \vspace{2em}
-
-\end{frame}
-
-\begin{frame}{Judgements}
-
-Kinding inference judgement: $\inferkind{\Gamma}{A}[r]{\Gamma'}$
-
-\vspace{1em}
-
-Type conversion judgements: $\infertypeconv{\Gamma}{A}{B}[r]{\Gamma'}$ (all types), $\infertypeconvwhnf{\Gamma}{A}{B}[r]{\Gamma'}$ (types in whnf) \\
-
-\vspace{1em}
-
-Type checking judgement: $\checktype{\Gamma}{e}{A}{\Gamma'}$ \\
-Type inference judgement: $\infertype{\Gamma}{e}{A}{\Gamma'}$
-
-\vspace{1em}
-
-Term conversion judgements: $\checktermconv{\Gamma}{e_1}{e_2}{A}{\Gamma'}$ (all terms), $\checktermconvwhnf{\Gamma}{e_1}{e_2}{A}{\Gamma'}$ (whnfs), $\infertermconv{\Gamma}{n_1}{n_2}{A}{\Gamma'}$ (neutral terms), $\infertermconvwhnf{\Gamma}{n_1}{n_2}{A}{\Gamma'}$ (neutral terms, type in whnf)
-
-\vspace{1em}
-
-Proposition elaboration judgement: $\checkprop{\Gamma}{P}{P'}{\Gamma'}$
-
-\vspace{1em}
-
-Proposition conversion judgements: $\checkpropconv{\Gamma}{P}{Q}{\Gamma'}$ (all propositions), $\checkpropconvwhnf{\Gamma}{P}{Q}{\Gamma'}$ (whnfs)
-
-\end{frame}
-
-\begin{frame}{Auxiliary judgements}
-
-Kind checking judgement: $\checkkind{\Gamma}{A}[r]{\Gamma'}$
-
-\vspace{2em}
-
-Type conversion (checking) judgement: $\checktypeconv{\Gamma}{A}{B}[r]{\Gamma'}$
 
 \end{frame}
