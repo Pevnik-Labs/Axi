@@ -1,0 +1,84 @@
+\documentclass{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage{babel}
+\usepackage{xcolor}
+\usepackage{Commands}
+
+\usetheme{Darmstadt}
+
+\title{Complete and Easy Contextual Typing}
+
+\NewDocumentCommand{\infer}{m O{i} m m m}{#1 \vdash_{#2} #3 \mathcolor{red}{\Rightarrow} #4 \dashv #5}
+
+\NewDocumentCommand{\emptyhint}{}{\square}
+\NewDocumentCommand{\typehint}{m}{\square : #1}
+\NewDocumentCommand{\arghint}{m m}{\square #2}
+
+\NewDocumentCommand{\findhint}{m m m}{#1, #2, #3}
+\NewDocumentCommand{\movehint}{m m m}{#1, #2, #3}
+
+\NewDocumentCommand{\compat}{m m m m}{#1 \vdash #2 \mathcolor{red}{\leadsto} #3 \dashv #4}
+
+%\NewDocumentCommand{\substctx}{m m}{#1\left[#2\right]}
+\NewDocumentCommand{\substctx}{m m}{\langle#1\rangle#2}
+
+\NewDocumentCommand{\holectx}{m m}{#1\left[#2\right]}
+
+\NewDocumentCommand{\marker}{m}{\blacktriangleright_{#1}}
+
+\NewDocumentCommand{\extendmarker}{m m}{#1, \marker{#2}}
+
+\NewDocumentCommand{\var}{o m m o}{\IfValueTF{#1}{#1\,}{} #2 : #3 \IfValueTF{#4}{:= #4}{}}
+
+\NewDocumentCommand{\evar}{m}{\hat{#1}}
+
+\begin{document}
+
+\begin{frame}{Variables and annotations}
+
+\begin{center}
+  $\infrule{\findvar{\Gamma}{x}{A} \quad \compat{\scalectx{\Zero}{\Gamma} + x}{\substctx{\scalectx{\Zero}{\Gamma} + x}{A}}{B}{\Gamma'}}{\infer{\Gamma}[\computable]{x}{B}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\findvar{\Gamma}{x}{A} \quad \compat{\scalectx{\Zero}{\Gamma}}{\substctx{\scalectx{\Zero}{\Gamma}}{A}}{B}{\Gamma'}}{\infer{\Gamma}[\noncomputable]{x}{B}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\inferkind{\Gamma}{A}[r]{\Gamma_1} \quad \begin{array}{l} \infer{\scalectx{\Zero}{\Gamma_1}, \scalectx{\Zero}{\Delta}, \typehint{A}}{e}{A'}{\Gamma_2} \\ \compat{\Gamma_2}{\substctx{\Gamma_2}{A'}}{B}{\Gamma_3} \end{array}}{\infer{\Gamma, \emptyhint, \Delta}{\annot{e}{A}}{B}{\addctx{\Gamma_3}{\Gamma_1, \Delta}}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Stationary rules}
+
+\begin{center}
+  $\infrule{\infer{\Gamma, \Delta, a, \typehint{A}}{e}{A'}{\Gamma', a, \Theta}}{\infer{\findhint{\Gamma}{\typehint{\ForallI{a}{A}}}{\Delta}}{e}{\ForallI{a}{A}}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\infer{\scalectx{\Zero}{\Gamma}, \scalectx{\Zero}{\Delta}, \typehint{A}}{e}{A'}{\Gamma'}}{\infer{\Gamma, \typehint{\Box[r]{A}}, \Delta}{e}{\Box[r]{A}}{\addctx{\scalectx{r}{\Gamma'}}{\Gamma, \Delta}}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Functions}
+
+\begin{center}
+
+  \vspace{2em}
+
+  $\infrule{\infer{\Gamma, \Delta, \var[\Zero]{x}{A}, \typehint{B}}{e}{B'}{\Gamma_1, \var[r]{x}{A}, \Theta} \quad \checkkind{\Gamma_1}{A}[r]{\Gamma_2}}{\infer{\Gamma, \typehint{\Fun{A}{B}}, \Delta}{\fun{x}{e}}{\Fun{A}{B}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\begin{array}{l} \infer{\holectx{\Gamma}{\evar{a}_1, \evar{a}_2, \evar{a} = \Fun{\evar{a}_1}{\evar{a}_2}}, \Delta, \var[\Zero]{x}{\evar{a}_1}, \typehint{\evar{a}_2}}{e}{A}{\Gamma_1, \var[r]{x}{\evar{a}_1}, \Theta} \\ \checkkind{\Gamma_1}{\evar{a}_1}[r]{\Gamma_2} \end{array}}{\infer{\holectx{\Gamma}{\evar{a}}, \typehint{\evar{a}}, \Delta}{\fun{x}{e}}{\evar{a}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\begin{array}{l} \infer{\Gamma, \marker{\evar{a}}, \evar{a}, \var[\Zero]{x}{\evar{a}}, \emptyhint}{e}{A}{\Gamma_1, \var[r]{x}{\evar{a}}, \Gamma_4} \\ \checkkind{\Gamma_1}{\evar{a}}[r]{\Gamma_2, \marker{\evar{a}}, \Gamma_3} \\ B = \ForallI{\texttt{unsolved}(\Gamma_3)} \substctx{\Gamma_3}{(\Fun{\evar{a}}{\ForallI{\texttt{unsolved}(\Gamma_4)}{\substctx{\Gamma_4}{A}}})} \end{array}}{\infer{\Gamma, \emptyhint, \Delta}{\fun{x}{e}}{B}{\Gamma_2}}$
+\end{center}
+
+\end{frame}
+
+\end{document}
