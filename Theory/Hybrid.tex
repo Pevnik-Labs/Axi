@@ -12,12 +12,12 @@
 
 \NewDocumentCommand{\emptyhint}{}{\square}
 \NewDocumentCommand{\typehint}{m}{\square : #1}
-\NewDocumentCommand{\arghint}{m m}{\square #2}
+\NewDocumentCommand{\arghint}{m}{\app{\square}{#1}}
 
 \NewDocumentCommand{\findhint}{m m m}{#1, #2, #3}
 \NewDocumentCommand{\movehint}{m m m}{#1, #2, #3}
 
-\NewDocumentCommand{\compat}{m m m m}{#1 \vdash #2 \mathcolor{red}{\leadsto} #3 \dashv #4}
+\NewDocumentCommand{\matching}{m m m m}{#1 \vdash #2 \mathcolor{red}{\leadsto} #3 \dashv #4}
 
 %\NewDocumentCommand{\substctx}{m m}{#1\left[#2\right]}
 \NewDocumentCommand{\substctx}{m m}{\langle#1\rangle#2}
@@ -32,20 +32,22 @@
 
 \NewDocumentCommand{\evar}{m}{\hat{#1}}
 
+\NewDocumentCommand{\subtyping}{m m m m m m}{#1 \vdash #2 \mathcolor{blue}{\Rightarrow} #3 <: #4 \mathcolor{red}{\Rightarrow} #5 \dashv #6}
+
 \begin{document}
 
 \begin{frame}{Variables and annotations}
 
 \begin{center}
-  $\infrule{\findvar{\Gamma}{x}{A} \quad \compat{\scalectx{\Zero}{\Gamma} + x}{\substctx{\scalectx{\Zero}{\Gamma} + x}{A}}{B}{\Gamma'}}{\infer{\Gamma}[\computable]{x}{B}{\Gamma'}}$
+  $\infrule{\findvar{\Gamma}{x}{A} \quad \matching{\scalectx{\Zero}{\Gamma} + x}{\substctx{\scalectx{\Zero}{\Gamma} + x}{A}}{B}{\Gamma'}}{\infer{\Gamma}[\computable]{x}{B}{\addctx{\Gamma'}{\Gamma}}}$
 
   \vspace{2em}
 
-  $\infrule{\findvar{\Gamma}{x}{A} \quad \compat{\scalectx{\Zero}{\Gamma}}{\substctx{\scalectx{\Zero}{\Gamma}}{A}}{B}{\Gamma'}}{\infer{\Gamma}[\noncomputable]{x}{B}{\Gamma'}}$
+  $\infrule{\findvar{\Gamma}{x}{A} \quad \matching{\Gamma}{\substctx{\Gamma}{A}}{B}{\Gamma'}}{\infer{\Gamma}[\noncomputable]{x}{B}{\Gamma'}}$
 
   \vspace{2em}
 
-  $\infrule{\inferkind{\Gamma}{A}[r]{\Gamma_1} \quad \begin{array}{l} \infer{\scalectx{\Zero}{\Gamma_1}, \scalectx{\Zero}{\Delta}, \typehint{A}}{e}{A'}{\Gamma_2} \\ \compat{\Gamma_2}{\substctx{\Gamma_2}{A'}}{B}{\Gamma_3} \end{array}}{\infer{\Gamma, \emptyhint, \Delta}{\annot{e}{A}}{B}{\addctx{\Gamma_3}{\Gamma_1, \Delta}}}$
+  $\infrule{\inferkind{\Gamma}{A}[r]{\Gamma_1} \quad \begin{array}{l} \infer{\scalectx{\Zero}{\Gamma_1}, \typehint{A}}{e}{A'}{\Gamma_2} \\ \matching{\Gamma_2}{\substctx{\Gamma_2}{A'}}{B}{\Gamma_3} \end{array}}{\infer{\Gamma}{\annot{e}{A}}{B}{\addctx{\Gamma_3}{\Gamma_1}}}$
 \end{center}
 
 \end{frame}
@@ -62,21 +64,123 @@
 
 \end{frame}
 
+\begin{frame}{Application}
+
+\begin{center}
+  $\infrule{\infer{\Gamma, \arghint{e_2}}{e_1}{\Fun{A}{B}}{\Gamma'}}{\infer{\Gamma}{\app{e_1}{e_2}}{B}{\Gamma'}}$
+\end{center}
+
+\end{frame}
+
 \begin{frame}{Functions}
 
 \begin{center}
-
-  \vspace{2em}
-
   $\infrule{\infer{\Gamma, \Delta, \var[\Zero]{x}{A}, \typehint{B}}{e}{B'}{\Gamma_1, \var[r]{x}{A}, \Theta} \quad \checkkind{\Gamma_1}{A}[r]{\Gamma_2}}{\infer{\Gamma, \typehint{\Fun{A}{B}}, \Delta}{\fun{x}{e}}{\Fun{A}{B}}{\Gamma_2}}$
 
-  \vspace{2em}
+  \vspace{1em}
+
+  $\infrule{\begin{array}{l} \infer{\Gamma}{e'}{A}{\Gamma_1} \quad \infer{\Gamma_1, \Delta, \var[\Zero]{x}{A}}{e}{B}{\Gamma_2, \var[r]{x}{A}, \Theta} \\ \checkkind{\Gamma_2}{A}[r]{\Gamma_3} \end{array}}{\infer{\Gamma, \arghint{e'}, \Delta}{\fun{x}{e}}{\Fun{A}{B}}{\Gamma_3}}$
+
+  \vspace{1em}
 
   $\infrule{\begin{array}{l} \infer{\holectx{\Gamma}{\evar{a}_1, \evar{a}_2, \evar{a} = \Fun{\evar{a}_1}{\evar{a}_2}}, \Delta, \var[\Zero]{x}{\evar{a}_1}, \typehint{\evar{a}_2}}{e}{A}{\Gamma_1, \var[r]{x}{\evar{a}_1}, \Theta} \\ \checkkind{\Gamma_1}{\evar{a}_1}[r]{\Gamma_2} \end{array}}{\infer{\holectx{\Gamma}{\evar{a}}, \typehint{\evar{a}}, \Delta}{\fun{x}{e}}{\evar{a}}{\Gamma_2}}$
 
-  \vspace{2em}
+  \vspace{1em}
 
   $\infrule{\begin{array}{l} \infer{\Gamma, \marker{\evar{a}}, \evar{a}, \var[\Zero]{x}{\evar{a}}, \emptyhint}{e}{A}{\Gamma_1, \var[r]{x}{\evar{a}}, \Gamma_4} \\ \checkkind{\Gamma_1}{\evar{a}}[r]{\Gamma_2, \marker{\evar{a}}, \Gamma_3} \\ B = \ForallI{\texttt{unsolved}(\Gamma_3)} \substctx{\Gamma_3}{(\Fun{\evar{a}}{\ForallI{\texttt{unsolved}(\Gamma_4)}{\substctx{\Gamma_4}{A}}})} \end{array}}{\infer{\Gamma, \emptyhint, \Delta}{\fun{x}{e}}{B}{\Gamma_2}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Matching}
+
+\begin{center}
+  $\infrule{}{\matching{\Gamma, \emptyhint, \Delta}{A}{A}{\Gamma, \Delta}}$
+
+  \vspace{2em}
+
+  $\infrule{\subtyping{\Gamma, \Delta}{\One}{A}{B}{r}{\Gamma'}}{\matching{\Gamma, \typehint{B}, \Delta}{A}{B}{\scalectx{r}{\Gamma'}}}$
+
+  \vspace{2em}
+
+  $\infrule{\infer{\Gamma, \typehint{A}}{e}{A'}{\Gamma_1} \quad \matching{\Gamma_1, \Delta}{B}{B'}{\Gamma_2}}{\matching{\Gamma, \arghint{e}, \Delta}{\Fun{A}{B}}{\Fun{A}{B'}}{\Gamma_2}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Matching}
+
+\begin{center}
+  $\infrule{\matching{\Gamma, \arghint{e}, \Delta}{A}{B}{\Gamma'}}{\matching{\Gamma, \arghint{e}, \Delta}{\Box[r]{A}}{B}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\matching{\Gamma, \Delta, \arghint{e}, \evar{a}}{\subst{A}{a}{\evar{a}}}{B}{\Gamma'}}{\matching{\Gamma, \arghint{e}, \Delta}{\ForallI{a}{A}}{B}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\inferkind{\Gamma}{B}[r]{\Gamma_1} \quad \matching{\Gamma_1, \Delta}{\subst{A}{a}{B}}{C}{\Gamma'}}{\matching{\Gamma, \arghint{B}, \Delta}{\ForallE{a}{A}}{\ForallE{a}{C}}{\Gamma'}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Subtyping}
+
+\begin{center}
+  $\infrule{}{\subtyping{\Gamma}{r}{\Unit}{\Unit}{\One}{\Gamma}}$
+
+  \vspace{2em}
+
+  $\infrule{}{\subtyping{\Gamma}{r}{\Empty}{\Empty}{\One}{\Gamma}}$
+
+  \vspace{2em}
+
+  $\infrule{\subtyping{\Gamma}{r}{A_1}{A_2}{s_A}{\Gamma_1} \quad \subtyping{\Gamma_1}{r}{B_1}{B_2}{s_B}{\Gamma_2}}{\subtyping{\Gamma}{r}{\Prod{A_1}{B_1}}{\Prod{A_2}{B_2}}{\glbqty{s_A}{s_B}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\subtyping{\Gamma}{r}{A_1}{A_2}{s_A}{\Gamma_1} \quad \subtyping{\Gamma_1}{r}{B_1}{B_2}{s_B}{\Gamma_2}}{\subtyping{\Gamma}{r}{\Sum{A_1}{B_1}}{\Sum{A_2}{B_2}}{\glbqty{s_A}{s_B}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\subtyping{\Gamma}{\One}{A_2}{A_1}{\One}{\Gamma_1} \quad \subtyping{\Gamma_1}{\One}{B_1}{B_2}{\One}{\Gamma_2}}{\subtyping{\Gamma}{r}{\Fun{A_1}{B_1}}{\Fun{A_2}{B_2}}{r}{\Gamma_2}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Subtyping}
+
+\begin{center}
+  $\infrule{}{\subtyping{\holectx{\Gamma}{\evar{a}}}{r}{\evar{a}}{\evar{a}}{r}{\holectx{\Gamma}{\evar{a}}}}$
+
+  \vspace{2em}
+
+  $\infrule{}{\subtyping{\holectx{\Gamma}{\var{a}{\Type[s]}}}{r}{a}{a}{\divqty{r}{s}}{\holectx{\Gamma}{\var{a}{\Type[s]}}}}$
+
+  \vspace{2em}
+
+  $\infrule{\subtyping{\Gamma, \var{a}{\Type[s]}}{r}{A}{B}{t}{\Gamma', \var{a}{\Type[s]}, \Theta}}{\subtyping{\Gamma}{r}{A}{\ForallI{a}[s]{B}}{t}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\subtyping{\Gamma, \marker{\evar{a}}, \evar{a}}{r}{\subst{A}{a}{\Box[s]{\evar{a}}}}{B}{t}{\Gamma', \marker{\evar{a}}, \Theta}}{\subtyping{\Gamma}{r}{\ForallI{a}[s]{A}}{B}{t}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\subtyping{\Gamma, \var{a}{\Type[s]}}{r}{A}{B}{t}{\Gamma', \var{a}{\Type[s]}, \Theta}}{\subtyping{\Gamma}{r}{\ForallE{a}[s]{A}}{\ForallE{a}[s]{B}}{t}{\Gamma'}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Subtyping}
+
+\begin{center}
+
+  $\infrule{\subtyping{\Gamma}{\mulqty{r}{s}}{A}{B}{t}{\Gamma'}}{\subtyping{\Gamma}{r}{A}{\Box[s]{B}}{t}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{B \neq \Box[\_]{B'} \quad \subtyping{\Gamma}{\divqty{r}{s}}{A}{B}{t}{\Gamma'}}{\subtyping{\Gamma}{r}{\Box[s]{A}}{B}{t}{\Gamma'}}$
 \end{center}
 
 \end{frame}
