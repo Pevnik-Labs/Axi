@@ -6,7 +6,7 @@
 
 \usetheme{Darmstadt}
 
-\title{Complete and Easy Contextual Typing}
+\title{Complete and Easy Quantitative Contextual Typing}
 
 \NewDocumentCommand{\infer}{m O{i} m m m}{#1 \vdash_{#2} #3 \mathcolor{red}{\Rightarrow} #4 \dashv #5}
 
@@ -34,7 +34,25 @@
 
 \NewDocumentCommand{\subtyping}{m m m m m m}{#1 \vdash #2 \mathcolor{blue}{\Rightarrow} #3 <: #4 \mathcolor{red}{\Rightarrow} #5 \dashv #6}
 
+\NewDocumentCommand{\instantiatel}{m m m m m m}{#1 \vdash #2 \mathcolor{blue}{\Rightarrow} #3 <: #4 \mathcolor{red}{\Rightarrow} #5 \dashv #6}
+
+\NewDocumentCommand{\instantiater}{m m m m m m}{#1 \vdash #2 \mathcolor{blue}{\Rightarrow} #3 <: #4 \mathcolor{red}{\Rightarrow} #5 \dashv #6}
+
 \begin{document}
+
+\section{Complete and Easy Quantitative Contextual Typing}
+
+\begin{frame}{Judgements}
+
+\begin{itemize}
+  \item $\infer{\Gamma}{e}{A}{\Gamma'}$ -- in context $\Gamma$, term $e$ infers type $A$, with output context $\Gamma'$
+  \item $\matching{\Gamma}{A}{B}{\Gamma'}$ -- in context $\Gamma$, type $A$ matches (output) type $B$, with output context $\Gamma'$
+  \item $\subtyping{\Gamma}{r}{A}{B}{s}{\Gamma'}$ -- in context $\Gamma$, $s$ copies of subtype $A$ are needed to produce $r$ copies of supertype $B$, with output context $\Gamma'$.
+  \item $\instantiatel{\Gamma}{r}{\evar{a}}{A}{s}{\Gamma'}$ -- in context $\Gamma$, instantiate the existential variable $\evar{a}$ to a subtype of $\Box[r]{A}$, lacking $s$, returning context $\Gamma'$
+  \item $\instantiater{\Gamma}{r}{A}{\evar{a}}{s}{\Gamma'}$ -- in context $\Gamma$, instantiate the existential variable $\evar{a}$, so that $A <: \Box[r]{\evar{a}}$, lacking $s$, returning context $\Gamma$
+\end{itemize}
+
+\end{frame}
 
 \begin{frame}{Variables and annotations}
 
@@ -119,7 +137,7 @@
 
   \vspace{2em}
 
-  $\infrule{\inferkind{\Gamma}{B}[r]{\Gamma_1} \quad \matching{\Gamma_1, \Delta}{\subst{A}{a}{B}}{C}{\Gamma'}}{\matching{\Gamma, \arghint{B}, \Delta}{\ForallE{a}{A}}{\ForallE{a}{C}}{\Gamma'}}$
+  $\infrule{\inferkind{\Gamma}{B}[r]{\Gamma_1} \quad \matching{\Gamma_1, \Delta}{\subst{A}{a}{B}}{C}{\Gamma'}}{\matching{\Gamma, \arghint{B}, \Delta}{\ForallE{a}{A}}{C}{\Gamma'}}$
 \end{center}
 
 \end{frame}
