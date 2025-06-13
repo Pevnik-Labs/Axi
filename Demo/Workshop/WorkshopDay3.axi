@@ -100,7 +100,7 @@ qed
 // Prop - propositions
 // Nat -> Prop - predicates on `Nat`
 // Nat -> Nat -> Prop // Binary relations on `Nat`
-// forall {A}, A -> A -> Prop - Polymorphic binary relations
+// forall A, A -> A -> Prop - Polymorphic binary relations
 // Type -> Prop - Predicate types
 
 // Existential higher-order quantification.
@@ -123,7 +123,7 @@ qed
 
 // Defining connectives and equality.
 
-myeq {A} (x y : A) : Prop =
+myeq A (x y : A) : Prop =
   forall P : A -> Prop, P x --> P y
 
 my-type-eq (A B : Type) : Prop =

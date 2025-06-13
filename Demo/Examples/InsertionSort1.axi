@@ -8,12 +8,12 @@ data List A where
   nil
   cons : A -> List A -> List A
 
-isSorted {A} (r : A -> A -> Bool) : List A -> Bool
+isSorted A (r : A -> A -> Bool) : List A -> Bool
 | nil => true
 | cons _ nil => true
 | cons x (cons y l) => andb (r x y) (isSorted r (cons y l))
 
-insert {A} (r : A -> A -> Bool) (x : A) : List A -> List A
+insert A (r : A -> A -> Bool) (x : A) : List A -> List A
 | nil => cons x nil
 | cons h t =>
   if r x h

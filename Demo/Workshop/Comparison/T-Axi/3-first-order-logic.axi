@@ -60,8 +60,8 @@ proof
   assumption
 qed
 
-pq {A} (P Q : A -> Prop) : A -> Prop =
+pq A (P Q : A -> Prop) : A -> Prop =
   \ (x : A) -> P x /\ Q x
 
-self-comp {A} (f : A -> A) (x : A) : A =
+self-comp A (f : A -> A) (x : A) : A =
   f (f x)

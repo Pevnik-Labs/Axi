@@ -1,11 +1,11 @@
 // TODO: finish, update to new typeclass syntax/semantics.
 
 class Functor (F : Type -> Type) where
-  fmap : forall {A B}, (A -> B) -> F A -> F B
+  fmap : forall A B, (A -> B) -> F A -> F B
 
 class LawfulFunctor (F : Type -> Type) <= Functor F where
-  fmap-id : forall {A}, fmap id === id
-  fmap-comp : forall {A B C} (f : A -> B) (g : B -> C), fmap (comp f g) === comp (fmap f) (fmap g)
+  fmap-id : forall A, fmap id === id
+  fmap-comp : forall A B C (f : A -> B) (g : B -> C), fmap (comp f g) === comp (fmap f) (fmap g)
 
 instance Functor List where
   fmap (f : A -> B) : List A -> List B

@@ -175,15 +175,57 @@ const : Int32 -> String -> Int32 =
 constInt32 : Int32 -> Int32 -> Int32 =
   \ (x y : Int32) -> x
 
-// To define a polymorphic function, we use the quantifier `forall {A}`
+// To define a polymorphic function, we use the quantifier `forall A`
 // in the function's type. Note that in the term, we don't need to bind the
 // type with `\` - type abstractions are implicit by default.
-id : forall {A}, A -> A =
+id : forall A, A -> A =
   \ x : A -> x
 
-// To state a theorem about a polymorphic function, we can use `forall` as
-// a quantifier in the logic. Note that we write `id x`, without mentioning
-// the type `A` - type applications are implicit by default.
+// Just as for monomorphic functions, we can put all the arguments on the
+// left-hand side to make the definition much shorter.
+id' A (x : A) : A = x
+
+// When using a polymorphic function, we don't need to provide the type
+// argument explicitly - it is inferred automatically. So to apply `id`
+// to an argument `n`, we write just `id n`.
+idNat-from-id : Nat -> Nat =
+  \ n : Nat -> id n
+
+// However, we can apply the type argument explicitly if we want to.
+// To do so, we prefix it with the symbol `@`.
+idNat-from-id' : Nat -> Nat =
+  id @Nat
+
+// Alternatively, we can prefix the function `id` itself with `@@` to turn
+// all implicit arguments into explicit arguments.
+idNat-from-id'' : Nat -> Nat =
+  \ n : Nat -> @@id Nat n
+
+// Last but not least, note that implicit arguments can also be inferred from
+// context, even when the function is not applied to any (explicit) arguments.
+idNat-from-id''' : Nat -> Nat =
+  id
+
+// If we don't want to make an argument implicit, we can make it explicit
+// by prefixing it with `@` in the quantifier. However, in such a case we
+// need to also explicitly bind it in the definition body.
+explicit-id : forall @A, A -> A =
+  \ @A (x : A) -> x
+
+// When using `explicit-id`, we need to provide the type argument explicitly.
+idNat-from-explicit-id : Nat -> Nat
+  explicit-id Nat
+
+// Note that the explicit argument can be annotated.
+explicit-id-annotated : forall @A, A -> A =
+  \ @(A : Type) (x : A) -> x
+
+// If we want to avoid binding `A` in the body, but we still want it explicit,
+// we can move it to the left of the colon.
+explicit-id-args @A (x : A) : A = x
+
+// To state a theorem about a polymorphic function,
+// we can use `forall` as a quantifier in the logic.
 theorem id-spec :
   forall {A} (x : A),
     id x === x
@@ -191,10 +233,6 @@ proof
   pick-any A x
   refl
 qed
-
-// Just as for monomorphic functions, we can put all the arguments on the
-// left-hand side to make the definition much shorter.
-id' {A} (x : A) : A = x
 
 // Functions enjoy definitional extensionality, i.e. a function
 // `f` is equal to `\ x -> f x` and this can be proved with `refl`.
@@ -360,25 +398,25 @@ tupleSyntaxExample : Prod Int32 Float32 = (42, 3.14)
 
 // As an alternative way of eliminating records, we can
 // pattern match on them (using record literal syntax).
-swapRecord {A B} : Prod A B -> Prod B A
+swapRecord A B : Prod A B -> Prod B A
 | record {fst = x; snd = y} => record {fst = y; snd = x}
 
 // Since a typical record pattern repeats all the field names twice,
 // like in `record {x1 = x1; ...; xn = xn}`, it makes sense to have some
 // special syntax to avoid this (it is a feature known as "record puns").
-swapRecord' {A B} : Prod A B -> Prod B A
+swapRecord' A B : Prod A B -> Prod B A
 | record {fst; snd} => record {fst = snd; snd = fst}
 
 // Pattern matching is also allowed using the tuple syntax.
-swapTuple {A B} : Prod A B -> Prod B A
+swapTuple A B : Prod A B -> Prod B A
 | (x, y) => (y, x)
 
 // We can also pattern match on a record in a `let` binding.
-swapLet {A B} (p : Prod A B) : Prod B A =
+swapLet A B (p : Prod A B) : Prod B A =
   let (x, y) = p in (y, x)
 
 // `let`s support all pattern matching syntaxes for records.
-swapLet' {A B} (p : Prod A B) : Prod B A =
+swapLet' A B (p : Prod A B) : Prod B A =
   let record {fst; snd} = p in (snd, fst)
 
 // We can define data types using the keyword `data type`.
@@ -504,13 +542,13 @@ data type Option A where
 
 // For a data type `T` with a constructor `c of A`,
 // `c` is a function of type `A -> T`.
-constructorTypeExample : forall {A}, A -> Option A = some
+constructorTypeExample : forall A, A -> Option A = some
 
 // We can use `if` not only with `Bool`, but with any two-constructor data type.
 // Moreover, there's a special version of `if`, `if t is pat then t1 else t2`,
 // which acts like pattern matching with a single branch, including binding variables
 // in the `then`-branch of the `if`.
-orElse {A} (x : Option A) (default : A) : A =
+orElse A (x : Option A) (default : A) : A =
   if x is some a then a else default
 
 // Proving theorems about this fancy `if` is still done using `cases`.
@@ -571,7 +609,7 @@ data type Sum A B where
 // style guide for copilot AIs.
 
 // An example function on sums.
-swapSum {A B} : Sum A B -> Sum B A
+swapSum A B : Sum A B -> Sum B A
 | inl a => inr a
 | inr b => inl b
 
@@ -595,7 +633,7 @@ data type List A where
 
 // There's nothing special about defining recursive functions.
 // We can perform a recursive call whenever we want.
-map {A B} (f : A -> B) : List A -> List B
+map A B (f : A -> B) : List A -> List B
 | nil      => nil
 | cons h t => cons (f h) (map f t)
 
@@ -696,7 +734,7 @@ qed
 // When we want to do recursion on an argument which is followed by more
 // arguments, we can't use our convenience syntax and must resort to the
 // more primitive `match`.
-app {A} (l1 l2 : List A) : List A =
+app A (l1 l2 : List A) : List A =
   match l1 with
   | nil      => l2
   | cons h t => cons h (app t l2)
@@ -721,7 +759,7 @@ proof
 qed
 
 // Reversing a list.
-rev {A} : List A -> List A
+rev A : List A -> List A
 | nil      => nil
 | cons h t => app (rev t) (cons h nil)
 
@@ -800,12 +838,12 @@ instance Eq (List A) <= Eq A where
 // instances are put in square brackets.
 // As an example, we can define a function that checks if two elements of a
 // type are not equal, provided that the type supports the `Eq` class.
-neqb {A} [Eq A] (x y : A) : Bool =
+neqb A [Eq A] (x y : A) : Bool =
   notb (eqb x y)
 
 // When not on the left-hand side of the colon, class instances are put in
 // a `forall`, also with square brackets.
-neqb : forall {A} [Eq A], A -> A -> Bool =
+neqb : forall A [Eq A], A -> A -> Bool =
   \ x y : A -> notb (eqb x y)
 
 // Now, a question arises: what can we prove about functions that make

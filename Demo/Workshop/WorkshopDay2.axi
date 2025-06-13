@@ -68,16 +68,16 @@ float-example : Float16 = 1.0e-8
 
 // Functions.
 
-id {A} (x : A) : A = x
+id A (x : A) : A = x
 
-comp {A B C} (f : A -> B) (g : B -> C) (x : A) : C =
+comp A B C (f : A -> B) (g : B -> C) (x : A) : C =
   g (f x)
 
-// (==) : forall {A} [Eq A], A -> A -> Bool
+// (==) : forall A [Eq A], A -> A -> Bool
 
 // 5 == 6 // computes to no
 
-// (===) : forall {A}, A -> A -> Prop
+// (===) : forall A, A -> A -> Prop
 
 // 5 === 6 : Prop
 
@@ -200,7 +200,7 @@ data type List A where
   nil : List A
   cons : A -> List A -> List A
 
-append {A} : List A -> List A -> List A
+append A : List A -> List A -> List A
 | nil, l2 => l2
 | cons h t, l2 => cons h (append t l2)
 
@@ -224,7 +224,7 @@ proof
       === append (cons h t) (append l2 l3)
 qed
 
-filter {A} (p : A -> Bool) : List A -> List A
+filter A (p : A -> Bool) : List A -> List A
 | nil => nil
 | cons h t => if p h then cons h (filter p t) else filter p t
 

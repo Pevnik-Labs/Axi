@@ -120,7 +120,7 @@ abort
 
 // t : A (t total)
 // --------------------------------------------
-// prefl {t} : t =?= t
+// prefl @t : t =?= t
 
 // t1 : A   t2 : A   (t1, t2 total)   e : t1 =?= t2
 // ------------------------------------------------
@@ -315,7 +315,7 @@ proof                                  // |- forall n : Nat, exists r : Nat, sea
       =?= succ n
 qed
 
-interleave {A} (l1 l2 : List A) : List A =
+interleave A (l1 l2 : List A) : List A =
   match l1 with
   | nil => l2
   | cons h t => cons h (interleave l2 t)
@@ -354,7 +354,7 @@ proof                                  // |- forall {A} (l1 l2 : List A), exists
 qed
 
 // Termination by syntactic check.
-interleave' {A} : List A -> List A -> List A
+interleave' A : List A -> List A -> List A
 | nil, l2 => l2
 | l1, nil => l1
 | cons h1 t1, cons h2 t2 => cons h1 (cons h2 (interleave' t1 t2))
@@ -485,7 +485,7 @@ qed
 // `<<` is backward function composition
 // `|>` is forward function application
 
-funpow {A} (f : A -> A) : Nat -> A -> A
+funpow A (f : A -> A) : Nat -> A -> A
 | zero => id
 | succ n => f >> funpow f n
 
@@ -683,7 +683,7 @@ data FreeMon A where
   i  : A -> FreeMon A
   op : FreeMon A -> FreeMon A -> FreeMon A
 
-norm {A} : FreeMon A -> FreeMon A
+norm A : FreeMon A -> FreeMon A
 | e => e
 | i a => op (i a) e
 | op l r =>
@@ -731,11 +731,11 @@ abort
 data type Tree A where
   node : A -> List (Tree A) -> Tree A
 
-tmap {A B} (f : A -> B) : Tree A -> Tree B
+tmap A B (f : A -> B) : Tree A -> Tree B
 | node x ts => node (f x) (map (tmap f) ts)
 // WARNING: Cannot establish the totality of `tmap` with a syntactic check.
 
-forall-list {A} (P : A -> Prop) : List A -> Prop
+forall-list A (P : A -> Prop) : List A -> Prop
 | nil => True
 | cons h t => P h /\ forall-list P t
 
@@ -831,6 +831,6 @@ data type Bush A where
   nil  : Bush A
   cons : A -> Bush (Bush A) -> Bush A
 
-bushmap {A B} (f : A -> B) : Bush A -> Bush B
+bushmap A B (f : A -> B) : Bush A -> Bush B
 | nil => nil
 | cons h t => cons (f h) (bushmap (bushmap f) t)

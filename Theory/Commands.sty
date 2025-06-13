@@ -41,8 +41,8 @@
 \NewDocumentCommand{\Sum}{m m}{#1 \oplus #2}
 \NewDocumentCommand{\Unit}{}{\texttt{Unit}}
 \NewDocumentCommand{\Empty}{}{\texttt{Empty}}
-\NewDocumentCommand{\ForallE}{m o m}{\forall #1 \IfValueTF{#2}{: \Type[#2]}{} .\, #3}
-\NewDocumentCommand{\ForallI}{m o m}{\forall \{#1 \IfValueTF{#2}{: \Type[#2]}{}\} .\, #3}
+\NewDocumentCommand{\ForallE}{m o m}{\forall @#1 \IfValueTF{#2}{: \Type[#2]}{} .\, #3}
+\NewDocumentCommand{\ForallI}{m o m}{\forall #1 \IfValueTF{#2}{: \Type[#2]}{} .\, #3}
 
 % An optional type annotation.
 \NewDocumentCommand{\optionalannot}{m}{\IfValueTF{#1}{: #1}{}}
