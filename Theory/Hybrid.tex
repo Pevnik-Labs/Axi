@@ -217,4 +217,112 @@
 
 \end{frame}
 
+\begin{frame}{Subtyping -- switch to instantiation}
+
+\begin{center}
+  $\infrule{\subinst{\holectx{\Gamma}{\evar{a}}}{r}{\evar{a}}{A}{s}{\Gamma'} \quad \evar{a}\ \texttt{fresh in}\ A}{\subtyping{\holectx{\Gamma}{\evar{a}}}{r}{\evar{a}}{A}{s}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\superinst{\holectx{\Gamma}{\evar{a}}}{r}{A}{\evar{a}}{s}{\Gamma'} \quad \evar{a}\ \texttt{fresh in}\ A}{\subtyping{\holectx{\Gamma}{\evar{a}}}{r}{A}{\evar{a}}{s}{\Gamma'}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Sub-instantiation}
+
+\begin{center}
+  $\infrule{\newkinding{\Gamma}{r}{\tau}{s}{\Gamma_1}}{\subinst{\Gamma, \evar{a}, \Gamma'}{r}{\evar{a}}{\tau}{\One}{\Gamma_1, \evar{a}[\Box[s]{\tau}], \Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{}{\subinst{\holectx{\holectx{\Gamma}{\evar{a}}}{\evar{b}}}{r}{\evar{a}}{\evar{b}}{r}{\holectx{\holectx{\Gamma}{\evar{a}}}{\evar{b}[\evar{a}]}}}$
+
+  \vspace{2em}
+
+  $\infrule{}{\subinst{\holectx{\holectx{\Gamma}{\var{b}{\Type[s]}}}{\evar{a}}}{r}{\evar{a}}{b}{\One}{\holectx{\holectx{\Gamma}{\var{b}{\Type[s]}}}{\evar{a}[\Box[\divqty{r}{s}]{b}]}}}$
+
+  \vspace{2em}
+
+  $\infrule{\subinst{\holectx{\Gamma}{\evar{a}}}{\mulqty{r}{s}}{\evar{a}}{A}{t}{\Gamma'}}{\subinst{\holectx{\Gamma}{\evar{a}}}{r}{\evar{a}}{\Box[s]{A}}{t}{\Gamma'}}$
+
+  \vspace{2em}
+
+  Note: no rule for implicit quantifier.
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Sub-instantiation}
+
+\begin{center}
+  $\infrule{}{\subinst{\holectx{\Gamma}{\evar{a}}}{r}{\evar{a}}{\Unit}{\One}{\holectx{\Gamma}{\evar{a}[\Unit]}}}$
+
+  \vspace{1em}
+
+  $\infrule{}{\subinst{\holectx{\Gamma}{\evar{a}}}{r}{\evar{a}}{\Empty}{\One}{\holectx{\Gamma}{\evar{a}[\Empty]}}}$
+
+  \vspace{1em}
+
+  $\infrule{\begin{array}{l} \subinst{\holectx{\Gamma}{\evar{a_1}, \evar{a_2}, \evar{a}[\Prod{\evar{a_1}}{\evar{a_2}}]}}{r}{\evar{a_1}}{A}{s_1}{\Gamma_1} \\ \subinst{\Gamma_1}{r}{\evar{a_2}}{\substctx{\Gamma_1}{B}}{s_2}{\Gamma_2} \end{array}}{\subinst{\holectx{\Gamma}{\evar{a}}}{r}{\evar{a}}{\Prod{A}{B}}{\glbqty{s_1}{s_2}}{\Gamma_2}}$
+
+  \vspace{1em}
+
+  $\infrule{\begin{array}{l} \subinst{\holectx{\Gamma}{\evar{a_1}, \evar{a_2}, \evar{a}[\Sum{\evar{a_1}}{\evar{a_2}}]}}{r}{\evar{a_1}}{A}{s_1}{\Gamma_1} \\ \subinst{\Gamma_1}{r}{\evar{a_2}}{\substctx{\Gamma_1}{B}}{s_2}{\Gamma_2} \end{array}}{\subinst{\holectx{\Gamma}{\evar{a}}}{r}{\evar{a}}{\Sum{A}{B}}{\glbqty{s_1}{s_2}}{\Gamma_2}}$
+
+  \vspace{1em}
+
+  $\infrule{\begin{array}{l} \superinst{\holectx{\Gamma}{\evar{a_1}, \evar{a_2}, \evar{a}[\Box[r]{(\Fun{\evar{a_1}}{\evar{a_2}})}]}}{\One}{A}{\evar{a_1}}{\One}{\Gamma_1} \\ \subinst{\Gamma_1}{\One}{\evar{a_2}}{\substctx{\Gamma_1}{B}}{\One}{\Gamma_2} \end{array}}{\subinst{\holectx{\Gamma}{\evar{a}}}{r}{\evar{a}}{\Fun{A}{B}}{\One}{\Gamma_2}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Super-instantiation}
+
+\begin{center}
+  $\infrule{\newkinding{\Gamma}{r}{\tau}{s}{\Gamma_1}}{\superinst{\Gamma, \evar{a}, \Gamma'}{r}{\tau}{\evar{a}}{s}{\Gamma_1, \evar{a}[\tau], \Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{}{\superinst{\holectx{\holectx{\Gamma}{\evar{a}}}{\evar{b}}}{r}{\evar{b}}{\evar{a}}{\One}{\holectx{\holectx{\Gamma}{\evar{a}}}{\evar{b}[\Box[r]{\evar{a}}]}}}$
+
+  \vspace{2em}
+
+  $\infrule{}{\superinst{\holectx{\holectx{\Gamma}{\var{b}{\Type[s]}}}{\evar{a}}}{r}{b}{\evar{a}}{\divqty{r}{s}}{\holectx{\holectx{\Gamma}{\var{b}{\Type[s]}}}{\evar{a}[b]}}}$
+
+  \vspace{2em}
+
+  $\infrule{\superinst{\holectx{\Gamma}{\evar{a}}, \marker{b}, \evar{b}}{r}{\subst{B}{b}{\evar{b}}}{\evar{a}}{s}{\Gamma', \marker{b}, \Theta}}{\superinst{\holectx{\Gamma}{\evar{a}}}{r}{\ForallI{b}{B}}{\evar{a}}{s}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\superinst{\holectx{\Gamma}{\evar{a}}}{\divqty{r}{s}}{A}{\evar{a}}{t}{\Gamma'}}{\superinst{\holectx{\Gamma}{\evar{a}}}{r}{\Box[s]{A}}{\evar{a}}{t}{\Gamma'}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Super-instantiation}
+
+\begin{center}
+  $\infrule{}{\superinst{\holectx{\Gamma}{\evar{a}}}{r}{\Unit}{\evar{a}}{\One}{\holectx{\Gamma}{\evar{a}[\Unit]}}}$
+
+  \vspace{1em}
+
+  $\infrule{}{\superinst{\holectx{\Gamma}{\evar{a}}}{r}{\Empty}{\evar{a}}{\One}{\holectx{\Gamma}{\evar{a}[\Empty]}}}$
+
+  \vspace{1em}
+
+  $\infrule{\begin{array}{l} \superinst{\holectx{\Gamma}{\evar{a_1}, \evar{a_2}, \evar{a}[\Prod{\evar{a_1}}{\evar{a_2}}]}}{r}{A}{\evar{a_1}}{s_1}{\Gamma_1} \\ \superinst{\Gamma_1}{r}{\substctx{\Gamma_1}{B}}{\evar{a_2}}{s_2}{\Gamma_2} \end{array}}{\superinst{\holectx{\Gamma}{\evar{a}}}{r}{\Prod{A}{B}}{\evar{a}}{\glbqty{s_1}{s_2}}{\Gamma_2}}$
+
+  \vspace{1em}
+
+  $\infrule{\begin{array}{l} \superinst{\holectx{\Gamma}{\evar{a_1}, \evar{a_2}, \evar{a}[\Sum{\evar{a_1}}{\evar{a_2}}]}}{r}{A}{\evar{a_1}}{s_1}{\Gamma_1} \\ \superinst{\Gamma_1}{r}{\substctx{\Gamma_1}{B}}{\evar{a_2}}{s_2}{\Gamma_2} \end{array}}{\superinst{\holectx{\Gamma}{\evar{a}}}{r}{\Sum{A}{B}}{\evar{a}}{\glbqty{s_1}{s_2}}{\Gamma_2}}$
+
+  \vspace{1em}
+
+  $\infrule{\begin{array}{l} \subinst{\holectx{\Gamma}{\evar{a_1}, \evar{a_2}, \evar{a}[\Fun{\evar{a_1}}{\evar{a_2}}]}}{\One}{\evar{a_1}}{A}{\One}{\Gamma_1} \\ \superinst{\Gamma_1}{\One}{\substctx{\Gamma_1}{B}}{\evar{a_2}}{\One}{\Gamma_2} \end{array}}{\superinst{\holectx{\Gamma}{\evar{a}}}{r}{\Fun{A}{B}}{\evar{a}}{r}{\Gamma_2}}$
+\end{center}
+
+\end{frame}
+
 \end{document}
