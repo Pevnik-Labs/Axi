@@ -107,19 +107,19 @@
 \begin{frame}{Functions}
 
 \begin{center}
-  $\infrule{\infer{\Gamma, \Delta, \var[\Zero]{x}{A}, \typehint{B}}{e}{B'}{\Gamma_1, \var[r]{x}{A}, \Theta} \quad \newkinding{\Gamma_1}{r}{A}{\One}{\Gamma_2}}{\infer{\Gamma, \typehint{\Fun{A}{B}}, \Delta}{\fun{x}{e}}{\Fun{A}{B}}{\Gamma_2}}$
+  $\infrule{\infer{\Gamma, \Delta, \var[\Zero]{x}{A}, \typehint{B}}{e}{B'}{\Gamma_1, \var[r]{x}{A}, \Theta} \quad \newkinding{\Gamma_1}{r}{\substctx{\Gamma_1}{A}}{\One}{\Gamma_2}}{\infer{\Gamma, \typehint{\Fun{A}{B}}, \Delta}{\fun{x}{e}}{\Fun{A}{B}}{\Gamma_2}}$
 
   \vspace{1em}
 
-  $\infrule{\begin{array}{l} \infer{\Gamma}{e'}{A}{\Gamma_1} \quad \infer{\Gamma_1, \Delta, \var[\Zero]{x}{A}}{e}{B}{\Gamma_2, \var[r]{x}{A}, \Theta} \\ \newkinding{\Gamma_2}{r}{A}{\One}{\Gamma_3} \end{array}}{\infer{\Gamma, \arghint{e'}, \Delta}{\fun{x}{e}}{B}{\Gamma_3}}$
+  $\infrule{\begin{array}{l} \infer{\Gamma}{e'}{A}{\Gamma_1} \quad \infer{\Gamma_1, \Delta, \var[\Zero]{x}{A}}{e}{B}{\Gamma_2, \var[r]{x}{A}, \Theta} \\ \newkinding{\Gamma_2}{r}{\substctx{\Gamma_2}{A}}{\One}{\Gamma_3} \end{array}}{\infer{\Gamma, \arghint{e'}, \Delta}{\fun{x}{e}}{B}{\Gamma_3}}$
 
   \vspace{1em}
 
-  $\infrule{\begin{array}{l} \infer{\holectx{\Gamma}{\evar{a}_1, \evar{a}_2, \evar{a}[\Fun{\evar{a}_1}{\evar{a}_2}]}, \Delta, \var[\Zero]{x}{\evar{a}_1}, \typehint{\evar{a}_2}}{e}{A}{\Gamma_1, \var[r]{x}{\evar{a}_1}, \Theta} \\ \newkinding{\Gamma_1}{r}{\evar{a}_1}{\One}{\Gamma_2} \end{array}}{\infer{\holectx{\Gamma}{\evar{a}}, \typehint{\evar{a}}, \Delta}{\fun{x}{e}}{\evar{a}}{\Gamma_2}}$
+  $\infrule{\begin{array}{l} \infer{\holectx{\Gamma}{\evar{a}_1, \evar{a}_2, \evar{a}[\Fun{\evar{a}_1}{\evar{a}_2}]}, \Delta, \var[\Zero]{x}{\evar{a}_1}, \typehint{\evar{a}_2}}{e}{A}{\Gamma_1, \var[r]{x}{\evar{a}_1}, \Theta} \\ \newkinding{\Gamma_1}{r}{\substctx{\Gamma_1}{\evar{a}_1}}{\One}{\Gamma_2} \end{array}}{\infer{\holectx{\Gamma}{\evar{a}}, \typehint{\evar{a}}, \Delta}{\fun{x}{e}}{\evar{a}}{\Gamma_2}}$
 
   \vspace{1em}
 
-  $\infrule{\begin{array}{l} \infer{\Gamma, \marker{\evar{a}}, \evar{a}, \var[\Zero]{x}{\evar{a}}, \emptyhint}{e}{A}{\Gamma_1, \var[r]{x}{\evar{a}}, \Gamma_4} \\ \newkinding{\Gamma_1}{r}{\evar{a}}{\One}{\Gamma_2, \marker{\evar{a}}, \Gamma_3} \\ B = \ForallI{\texttt{unsolved}(\Gamma_3)} \substctx{\Gamma_3}{(\Fun{\evar{a}}{\ForallI{\texttt{unsolved}(\Gamma_4)}{\substctx{\Gamma_4}{A}}})} \end{array}}{\infer{\Gamma, \emptyhint, \Delta}{\fun{x}{e}}{B}{\Gamma_2}}$
+  $\infrule{\begin{array}{l} \infer{\Gamma, \Delta \marker{\evar{a}}, \evar{a}, \var[\Zero]{x}{\evar{a}}, \emptyhint}{e}{A}{\Gamma_1, \var[r]{x}{\evar{a}}, \Gamma_4} \\ \newkinding{\Gamma_1}{r}{\substctx{\Gamma_1}{\evar{a}}}{\One}{\Gamma_2, \marker{\evar{a}}, \Gamma_3} \\ B = \ForallI{\texttt{unsolved}(\Gamma_3)} \substctx{\Gamma_3}{(\Fun{\evar{a}}{\ForallI{\texttt{unsolved}(\Gamma_4)}{\substctx{\Gamma_4}{A}}})} \end{array}}{\infer{\Gamma, \emptyhint, \Delta}{\fun{x}{e}}{B}{\Gamma_2}}$
 \end{center}
 
 \end{frame}
@@ -147,7 +147,7 @@
 
   \vspace{2em}
 
-  $\infrule{\matching{\Gamma, \Delta, \arghint{e}, \evar{a}}{\subst{A}{a}{\Box[r]{\evar{a}}}}{B}{\Gamma'}}{\matching{\Gamma, \arghint{e}, \Delta}{\ForallI{a}[r]{A}}{B}{\Gamma'}}$
+  $\infrule{\matching{\Gamma, \arghint{e}, \Delta, \evar{a}}{\subst{A}{a}{\Box[r]{\evar{a}}}}{B}{\Gamma'}}{\matching{\Gamma, \arghint{e}, \Delta}{\ForallI{a}[r]{A}}{B}{\Gamma'}}$
 
   \vspace{2em}
 
@@ -292,7 +292,7 @@
 
   \vspace{2em}
 
-  $\infrule{\superinst{\holectx{\Gamma}{\evar{a}}, \marker{b}, \evar{b}}{r}{\subst{B}{b}{\evar{b}}}{\evar{a}}{s}{\Gamma', \marker{b}, \Theta}}{\superinst{\holectx{\Gamma}{\evar{a}}}{r}{\ForallI{b}{B}}{\evar{a}}{s}{\Gamma'}}$
+  $\infrule{\superinst{\holectx{\Gamma}{\evar{a}}, \marker{\evar{b}}, \evar{b}}{r}{\subst{B}{b}{\evar{b}}}{\evar{a}}{s}{\Gamma', \marker{\evar{b}}, \Theta}}{\superinst{\holectx{\Gamma}{\evar{a}}}{r}{\ForallI{b}{B}}{\evar{a}}{s}{\Gamma'}}$
 
   \vspace{2em}
 
