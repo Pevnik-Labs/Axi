@@ -31,6 +31,7 @@
 \NewDocumentCommand{\var}{o m m o}{\IfValueTF{#1}{#1\,}{} #2 : #3 \IfValueTF{#4}{:= #4}{}}
 
 \NewDocumentCommand{\evar}{m o}{\hat{#1} \IfValueTF{#2}{= #2}{}}
+\NewDocumentCommand{\stvar}{m o}{\tilde{#1} \IfValueTF{#2}{: \Type[#2]}{}}
 
 \NewDocumentCommand{\subtyping}{m m m m m m}{#1 \vdash #2 \mathcolor{blue}{\Rightarrow} #3 <: #4 \mathcolor{red}{\Rightarrow} #5 \dashv #6}
 
@@ -39,6 +40,8 @@
 \NewDocumentCommand{\superinst}{m m m m m m}{#1 \vdash #2 \mathcolor{blue}{\Rightarrow} #3 <: #4 \mathcolor{red}{\Rightarrow} #5 \dashv #6}
 
 \NewDocumentCommand{\newkinding}{m O{i} m m m m}{#1 \vdash_{#2} #3 \mathcolor{blue}{\Rightarrow} #4 \mathcolor{red}{\Rightarrow} #5 \dashv #6}
+
+\NewDocumentCommand{\FV}{m}{\texttt{FV}(#1)}
 
 \begin{document}
 
@@ -107,7 +110,7 @@
 \begin{frame}{Functions}
 
 \begin{center}
-  $\infrule{\infer{\Gamma, \Delta, \var[\Zero]{x}{A}, \typehint{B}}{e}{B'}{\Gamma_1, \var[r]{x}{A}, \Theta} \quad \newkinding{\Gamma_1}{r}{\substctx{\Gamma_1}{A}}{\One}{\Gamma_2}}{\infer{\Gamma, \typehint{\Fun{A}{B}}, \Delta}{\fun{x}{e}}{\Fun{A}{B}}{\Gamma_2}}$
+  $\infrule{\begin{array}{l} \infer{\Gamma, \Delta, \var[\Zero]{x}{A}, \typehint{B}}{e}{B'}{\Gamma_1, \var[r]{x}{A}, \Theta} \\ \newkinding{\Gamma_1}{r}{\substctx{\Gamma_1}{A}}{\One}{\Gamma_2} \end{array}}{\infer{\Gamma, \typehint{\Fun{A}{B}}, \Delta}{\fun{x}{e}}{\Fun{A}{B}}{\Gamma_2}}$
 
   \vspace{1em}
 
@@ -156,7 +159,52 @@
 
 \end{frame}
 
-\begin{frame}{Subtyping}
+\begin{frame}{Subtyping -- variables}
+
+\begin{center}
+  $\infrule{}{\subtyping{\holectx{\Gamma}{\evar{a}}}{r}{\evar{a}}{\evar{a}}{r}{\holectx{\Gamma}{\evar{a}}}}$
+
+  \vspace{2em}
+
+  $\infrule{}{\subtyping{\holectx{\Gamma}{\var{a}{\Type[s]}}}{r}{a}{a}{\divqty{r}{s}}{\holectx{\Gamma}{\var{a}{\Type[s]}}}}$
+
+  \vspace{2em}
+
+  $\infrule{}{\subtyping{\holectx{\Gamma}{\stvar{a}[s]}}{r}{\stvar{a}}{\stvar{a}}{\divqty{r}{s}}{\holectx{\Gamma}{\stvar{a}[s]}}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Subtyping -- quantifiers}
+
+\begin{center}
+  $\infrule{\subtyping{\Gamma, \stvar{a}[s]}{r}{\subst{A}{a}{\stvar{a}}}{\subst{B}{a}{\stvar{a}}}{t}{\Gamma', \stvar{a}, \Theta}}{\subtyping{\Gamma}{r}{\ForallI{a}[s]{A}}{\ForallI{a}[s]{B}}{t}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\begin{array}{l} B \neq \ForallI{\_}{B'} \\ a \in \FV{A} \end{array} \quad \subtyping{\Gamma, \marker{\evar{a}}, \evar{a}}{r}{\subst{A}{a}{\Box[s]{\evar{a}}}}{B}{t}{\Gamma', \marker{\evar{a}}, \Theta}}{\subtyping{\Gamma}{r}{\ForallI{a}[s]{A}}{B}{t}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\subtyping{\Gamma, \var{a}{\Type[s]}}{r}{A}{B}{t}{\Gamma', \var{a}{\Type[s]}, \Theta}}{\subtyping{\Gamma}{r}{\ForallE{a}[s]{A}}{\ForallE{a}[s]{B}}{t}{\Gamma'}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Subtyping -- boxes}
+
+\begin{center}
+
+  $\infrule{\subtyping{\Gamma}{\mulqty{r}{s}}{A}{B}{t}{\Gamma'}}{\subtyping{\Gamma}{r}{A}{\Box[s]{B}}{t}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{B \neq \Box[\_]{B'} \quad \subtyping{\Gamma}{\divqty{r}{s}}{A}{B}{t}{\Gamma'}}{\subtyping{\Gamma}{r}{\Box[s]{A}}{B}{t}{\Gamma'}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Subtyping -- type formers}
 
 \begin{center}
   $\infrule{}{\subtyping{\Gamma}{r}{\Unit}{\Unit}{\One}{\Gamma}}$
@@ -180,51 +228,14 @@
 
 \end{frame}
 
-\begin{frame}{Subtyping}
-
-\begin{center}
-  $\infrule{}{\subtyping{\holectx{\Gamma}{\evar{a}}}{r}{\evar{a}}{\evar{a}}{r}{\holectx{\Gamma}{\evar{a}}}}$
-
-  \vspace{2em}
-
-  $\infrule{}{\subtyping{\holectx{\Gamma}{\var{a}{\Type[s]}}}{r}{a}{a}{\divqty{r}{s}}{\holectx{\Gamma}{\var{a}{\Type[s]}}}}$
-
-  \vspace{2em}
-
-  $\infrule{\subtyping{\Gamma, \var{a}{\Type[s]}}{r}{A}{B}{t}{\Gamma', \var{a}{\Type[s]}, \Theta}}{\subtyping{\Gamma}{r}{A}{\ForallI{a}[s]{B}}{t}{\Gamma'}}$
-
-  \vspace{2em}
-
-  $\infrule{\subtyping{\Gamma, \marker{\evar{a}}, \evar{a}}{r}{\subst{A}{a}{\Box[s]{\evar{a}}}}{B}{t}{\Gamma', \marker{\evar{a}}, \Theta}}{\subtyping{\Gamma}{r}{\ForallI{a}[s]{A}}{B}{t}{\Gamma'}}$
-
-  \vspace{2em}
-
-  $\infrule{\subtyping{\Gamma, \var{a}{\Type[s]}}{r}{A}{B}{t}{\Gamma', \var{a}{\Type[s]}, \Theta}}{\subtyping{\Gamma}{r}{\ForallE{a}[s]{A}}{\ForallE{a}[s]{B}}{t}{\Gamma'}}$
-\end{center}
-
-\end{frame}
-
-\begin{frame}{Subtyping}
-
-\begin{center}
-
-  $\infrule{\subtyping{\Gamma}{\mulqty{r}{s}}{A}{B}{t}{\Gamma'}}{\subtyping{\Gamma}{r}{A}{\Box[s]{B}}{t}{\Gamma'}}$
-
-  \vspace{2em}
-
-  $\infrule{B \neq \Box[\_]{B'} \quad \subtyping{\Gamma}{\divqty{r}{s}}{A}{B}{t}{\Gamma'}}{\subtyping{\Gamma}{r}{\Box[s]{A}}{B}{t}{\Gamma'}}$
-\end{center}
-
-\end{frame}
-
 \begin{frame}{Subtyping -- switch to instantiation}
 
 \begin{center}
-  $\infrule{\subinst{\holectx{\Gamma}{\evar{a}}}{r}{\evar{a}}{A}{s}{\Gamma'} \quad \evar{a}\ \texttt{fresh in}\ A}{\subtyping{\holectx{\Gamma}{\evar{a}}}{r}{\evar{a}}{A}{s}{\Gamma'}}$
+  $\infrule{\evar{a} \notin \FV{A} \quad \subinst{\holectx{\Gamma}{\evar{a}}}{r}{\evar{a}}{A}{s}{\Gamma'}}{\subtyping{\holectx{\Gamma}{\evar{a}}}{r}{\evar{a}}{A}{s}{\Gamma'}}$
 
   \vspace{2em}
 
-  $\infrule{\superinst{\holectx{\Gamma}{\evar{a}}}{r}{A}{\evar{a}}{s}{\Gamma'} \quad \evar{a}\ \texttt{fresh in}\ A}{\subtyping{\holectx{\Gamma}{\evar{a}}}{r}{A}{\evar{a}}{s}{\Gamma'}}$
+  $\infrule{\evar{a} \notin \FV{A} \quad \superinst{\holectx{\Gamma}{\evar{a}}}{r}{A}{\evar{a}}{s}{\Gamma'}}{\subtyping{\holectx{\Gamma}{\evar{a}}}{r}{A}{\evar{a}}{s}{\Gamma'}}$
 \end{center}
 
 \end{frame}
@@ -292,7 +303,7 @@
 
   \vspace{2em}
 
-  $\infrule{\superinst{\holectx{\Gamma}{\evar{a}}, \marker{\evar{b}}, \evar{b}}{r}{\subst{B}{b}{\evar{b}}}{\evar{a}}{s}{\Gamma', \marker{\evar{b}}, \Theta}}{\superinst{\holectx{\Gamma}{\evar{a}}}{r}{\ForallI{b}{B}}{\evar{a}}{s}{\Gamma'}}$
+  $\infrule{b \in \FV{B} \quad \superinst{\holectx{\Gamma}{\evar{a}}, \marker{\evar{b}}, \evar{b}}{r}{\subst{B}{b}{\evar{b}}}{\evar{a}}{s}{\Gamma', \marker{\evar{b}}, \Theta}}{\superinst{\holectx{\Gamma}{\evar{a}}}{r}{\ForallI{b}{B}}{\evar{a}}{s}{\Gamma'}}$
 
   \vspace{2em}
 
