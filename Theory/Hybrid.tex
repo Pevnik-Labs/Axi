@@ -71,7 +71,7 @@
 
 \end{frame}
 
-\begin{frame}{Variables and annotations}
+\begin{frame}{Typing -- variables and annotations}
 
 \begin{center}
   $\infrule{\findvar{\Gamma}{x}{A} \quad \matching{\scalectx{\Zero}{\Gamma} + x}{\substctx{\scalectx{\Zero}{\Gamma} + x}{A}}{B}{\Gamma'}}{\infer{\Gamma}[\computable]{x}{B}{\addctx{\Gamma'}{\Gamma}}}$
@@ -87,7 +87,7 @@
 
 \end{frame}
 
-\begin{frame}{Stationary rules}
+\begin{frame}{Typing -- stationary rules}
 
 \begin{center}
   $\infrule{\infer{\Gamma, \Delta, a, \typehint{A}}{e}{A'}{\Gamma', a, \Theta}}{\infer{\findhint{\Gamma}{\typehint{\ForallI{a}{A}}}{\Delta}}{e}{\ForallI{a}{A}}{\Gamma'}}$
@@ -99,7 +99,7 @@
 
 \end{frame}
 
-\begin{frame}{Application}
+\begin{frame}{Typing -- application}
 
 \begin{center}
   $\infrule{\infer{\Gamma, \arghint{e_2}}{e_1}{A}{\Gamma'}}{\infer{\Gamma}{\app{e_1}{e_2}}{A}{\Gamma'}}$
@@ -107,14 +107,14 @@
 
 \end{frame}
 
-\begin{frame}{Functions}
+\begin{frame}{Typing -- functions}
 
 \begin{center}
   $\infrule{\begin{array}{l} \infer{\Gamma, \Delta, \var[\Zero]{x}{A}, \typehint{B}}{e}{B'}{\Gamma_1, \var[r]{x}{A}, \Theta} \\ \newkinding{\Gamma_1}{r}{\substctx{\Gamma_1}{A}}{\One}{\Gamma_2} \end{array}}{\infer{\Gamma, \typehint{\Fun{A}{B}}, \Delta}{\fun{x}{e}}{\Fun{A}{B}}{\Gamma_2}}$
 
   \vspace{1em}
 
-  $\infrule{\begin{array}{l} \infer{\Gamma}{e'}{A}{\Gamma_1} \quad \infer{\Gamma_1, \Delta, \var[\Zero]{x}{A}}{e}{B}{\Gamma_2, \var[r]{x}{A}, \Theta} \\ \newkinding{\Gamma_2}{r}{\substctx{\Gamma_2}{A}}{\One}{\Gamma_3} \end{array}}{\infer{\Gamma, \arghint{e'}, \Delta}{\fun{x}{e}}{B}{\Gamma_3}}$
+  $\infrule{\begin{array}{l} \infer{\Gamma, \emptyhint}{e'}{A}{\Gamma_1} \quad \infer{\Gamma_1, \Delta, \var[\Zero]{x}{A}}{e}{B}{\Gamma_2, \var[r]{x}{A}, \Theta} \\ \newkinding{\Gamma_2}{r}{\substctx{\Gamma_2}{A}}{\One}{\Gamma_3} \end{array}}{\infer{\Gamma, \arghint{e'}, \Delta}{\fun{x}{e}}{B}{\Gamma_3}}$
 
   \vspace{1em}
 
@@ -123,6 +123,70 @@
   \vspace{1em}
 
   $\infrule{\begin{array}{l} \infer{\Gamma, \Delta \marker{\evar{a}}, \evar{a}, \var[\Zero]{x}{\evar{a}}, \emptyhint}{e}{A}{\Gamma_1, \var[r]{x}{\evar{a}}, \Gamma_4} \\ \newkinding{\Gamma_1}{r}{\substctx{\Gamma_1}{\evar{a}}}{\One}{\Gamma_2, \marker{\evar{a}}, \Gamma_3} \\ B = \ForallI{\texttt{unsolved}(\Gamma_3)} \substctx{\Gamma_3}{(\Fun{\evar{a}}{\ForallI{\texttt{unsolved}(\Gamma_4)}{\substctx{\Gamma_4}{A}}})} \end{array}}{\infer{\Gamma, \emptyhint, \Delta}{\fun{x}{e}}{B}{\Gamma_2}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Typing -- Unit}
+
+\begin{center}
+  $\infrule{\matching{\Gamma}{\Unit}{\_}{\Gamma'}}{\infer{\Gamma}{\unit}{\Unit}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\infer{\Gamma, \typehint{\Unit}}{e_1}{\_}{\Gamma_1} \quad \infer{\Gamma_1}{e_2}{A}{\Gamma_2}}{\infer{\Gamma}{\unitelim{e_1}{e_2}}{A}{\Gamma_2}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Typing -- Empty}
+
+\begin{center}
+  $\infrule{\infer{\Gamma, \Delta, \typehint{\Empty}}{e}{\_}{\Gamma'}}{\infer{\Gamma, \typehint{A}, \Delta}{\emptyelim{e}}{A}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\infer{\Gamma, \emptyhint}{e'}{A}{\Gamma_1} \quad \infer{\Gamma_1, \Delta}{\emptyelim{e}}{B}{\Gamma_2}}{\infer{\Gamma, \arghint{e'}, \Delta}{\emptyelim{e}}{B}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\inferkind{\Gamma}{A}[r]{\Gamma_1} \quad \infer{\Gamma_1, \Delta}{\emptyelim{e}}{B}{\Gamma_2}}{\infer{\Gamma, \arghint{A}, \Delta}{\emptyelim{e}}{B}{\Gamma_2}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Typing -- Product}
+
+\begin{center}
+  $\infrule{\infer{\Gamma, \Delta, \typehint{A}}{e_1}{\_}{\Gamma_1} \quad \infer{\Gamma_1, \typehint{B}}{e_2}{\_}{\Gamma_2}}{\infer{\Gamma, \typehint{\Prod{A}{B}}, \Delta}{\pair{e_1}{e_2}}{\Prod{A}{B}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\infer{\Gamma, \Delta, \emptyhint}{e_1}{A}{\Gamma_1} \quad \infer{\Gamma_1, \emptyhint}{e_2}{B}{\Gamma_2}}{\infer{\Gamma, \emptyhint, \Delta}{\pair{e_1}{e_2}}{\Prod{A}{B}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\begin{array}{l} \infer{\holectx{\Gamma}{\evar{a_1}, \evar{a_2}, \evar{a}[\Prod{\evar{a_1}}{\evar{a_2}}]}, \Delta, \typehint{\evar{a_1}}}{e_1}{\_}{\Gamma_1} \\ \infer{\Gamma_1, \typehint{\evar{a_2}}}{e_2}{\_}{\Gamma_2} \end{array}}{\infer{\holectx{\Gamma}{\evar{a}}, \typehint{\evar{a}}, \Delta}{\pair{e_1}{e_2}}{\evar{a}}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\begin{array}{l} \infer{\Gamma, \emptyhint}{e_1}{\Prod{A}{B}}{\Gamma_1} \\ \infer{\Gamma_1, \var[\Zero]{x}{A}, \var[\Zero]{y}{B}}{e_2}{C}{\Gamma_2, \var[r_A]{x}{A}, \var[r_B]{y}{B}} \\ \newkinding{\Gamma_2}{r_A}{A}{\One}{\Gamma_3} \quad \newkinding{\Gamma_3}{r_B}{B}{\One}{\Gamma_4} \end{array}}{\infer{\Gamma}{\letpair{x}{y}{e_1}{e_2}}{C}{\Gamma_4}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Typing -- Sum}
+
+\begin{center}
+  $\infrule{\infer{\Gamma, \Delta, \typehint{A}}{e}{\_}{\Gamma'}}{\infer{\Gamma, \typehint{\Sum{A}{B}}, \Delta}{\inl{e}}{\Sum{A}{B}}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\infer{\Gamma, \Delta, \typehint{B}}{e}{\_}{\Gamma'}}{\infer{\Gamma, \typehint{\Sum{A}{B}}, \Delta}{\inr{e}}{\Sum{A}{B}}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\begin{array}{l} \infer{\scalectx{\Zero}{\Gamma}, \emptyhint}{e}{\Sum{A}{B}}{\Gamma_1} \\  \infer{\scalectx{\Zero}{\Gamma_1}, \var[\Zero]{x}{A}}{e_1}{C}{\Gamma_2, \var[r_A]{x}{A}} \\ \infer{\scalectx{\Zero}{\Gamma_2}, \var[\Zero]{y}{B}}{e_2}{C}{\Gamma_3, \var[r_B]{y}{B}} \end{array} \begin{array}{l} \Gamma_4 = \glbctx{\Gamma_2}{\Gamma_3} \\ \newkinding{\Gamma_4}{r_A}{A}{s_A}{\Gamma_5} \\ \newkinding{\Gamma_5}{r_B}{B}{s_B}{\Gamma_6} \end{array}}{\infer{\Gamma}{\newcase{e}{x}{e_1}{y}{e_2}}{C}{\addctx{\Gamma_6}{\addctx{\scalectx{(\glbqty{s_A}{s_B})}{\Gamma_1}}{\Gamma}}}}$
 \end{center}
 
 \end{frame}
