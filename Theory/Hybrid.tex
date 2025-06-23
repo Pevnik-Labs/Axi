@@ -191,6 +191,28 @@
 
 \end{frame}
 
+\NewDocumentCommand{\funpair}{}{\texttt{pair}}
+
+\begin{frame}{Typing -- alternative rules}
+
+\begin{center}
+  $\infrule{\matching{\Gamma}{\Fun{\Empty}{\ForallI{a}{a}}}{C}{\Gamma'}}{\infer{\Gamma}{\emptyelim{}}{C}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\matching{\Gamma}{\ForallI{a}{\ForallI{b}{\Fun{a}{\Fun{b}{\Prod{a}{b}}}}}}{C}{\Gamma'}}{\infer{\Gamma}{\funpair}{C}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\matching{\Gamma}{\ForallI{a}{\ForallI{b}{\Fun{a}{\Sum{a}{b}}}}}{C}{\Gamma'}}{\infer{\Gamma}{\inl{}}{C}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\matching{\Gamma}{\ForallI{a}{\ForallI{b}{\Fun{b}{\Sum{a}{b}}}}}{C}{\Gamma'}}{\infer{\Gamma}{\inr{}}{C}{\Gamma'}}$
+\end{center}
+
+\end{frame}
+
 \begin{frame}{Matching}
 
 \begin{center}
