@@ -13,9 +13,7 @@
 \NewDocumentCommand{\emptyhint}{}{\square}
 \NewDocumentCommand{\typehint}{m}{\square : #1}
 \NewDocumentCommand{\arghint}{m}{\app{\square}{#1}}
-
-\NewDocumentCommand{\findhint}{m m m}{#1, #2, #3}
-\NewDocumentCommand{\movehint}{m m m}{#1, #2, #3}
+\NewDocumentCommand{\typearghint}{m}{\app{\square}{#1}}
 
 \NewDocumentCommand{\matching}{m m m m}{#1 \vdash #2 \mathcolor{red}{\leadsto} #3 \dashv #4}
 
@@ -46,30 +44,95 @@
 
 \begin{document}
 
-\section{Complete and Easy Quantitative Contextual Typing}
+\maketitle{}
+\author
+{
+  Wojciech Kołowski\\
+  \and
+  Mateusz Pyzik\\
+}
+\date{}
+
+\section{Intro}
+
+\begin{frame}{Types}
+
+Types: \\
+$A, B ::=$ \\
+\qquad $\Fun{A}{B} \pipe \Box[r]{A} \pipe \Prod{A}{B} \pipe \Sum{A}{B} \pipe \Unit \pipe \Empty \pipe$ \\
+\qquad $\tvar{a} \pipe \stvar{a} \pipe \evar{a} \pipe \ForallE{a}[r]{A} \pipe \ForallE{a}{A} \pipe \ForallI{a}[r]{A} \pipe \ForallI{a}{A}$
+
+\vspace{2em}
+
+Monotypes: \\
+$\tau ::=$ \\
+\qquad $\Fun{\tau_1}{\tau_2} \pipe \Box[r]{\tau} \pipe \Prod{\tau_1}{\tau_2} \pipe \Sum{\tau_1}{\tau_2} \pipe \Unit \pipe \Empty \pipe$ \\
+\qquad $\tvar{a} \pipe \evar{a} \pipe \ForallE{a}[r]{\tau} \pipe \ForallE{a}{\tau}$
+
+\end{frame}
+
+\begin{frame}{Terms}
+
+Terms: \\
+$e ::=$ \\
+\qquad $\annot{e}{A} \pipe x \pipe \fun{x}{e} \pipe \app{e_1}{e_2} \pipe$ \\
+\qquad $\tfun{a}{e} \pipe \tapp{e}{A} \pipe \itapp{e}{A} \pipe$ \\
+\qquad $\pair{e_1}{e_2} \pipe \letpair{x}{y}{e_1}{e_2} \pipe$ \\
+\qquad $\inl{e} \pipe \inr{e} \pipe \newcase{e}{x}{e_1}{y}{e_2} \pipe$ \\
+\qquad $\unit \pipe \unitelim{e_1}{e_2} \pipe$ \\
+\qquad $\emptyelim{e} \pipe$ \\
+\qquad $\letin[r]{x}{e_1}{e_2} \pipe$
+
+\end{frame}
+
+\begin{frame}{Contexts}
+
+Contexts: \\
+$\Gamma ::=$ \\
+\qquad $\emptyctx \pipe \Gamma, \var[r]{x}{A} \pipe \Gamma, \tvar{a}[r] \pipe \Gamma, \stvar{a}[r] \pipe \Gamma, \evar{a} \pipe \Gamma, \evar{a}[\tau] \pipe$ \\
+\qquad $\Gamma, \emptyhint \pipe \Gamma, \typehint{A} \pipe \Gamma, \arghint{e} \pipe \Gamma, \typearghint{A}$
+
+\vspace{2em}
+
+$\Gamma, \emptyhint, \Delta$ is a notation which means that $\Delta$ does not contain any hints. It works not only for $\emptyhint$, but for all kinds of hints.
+
+\end{frame}
 
 \begin{frame}{Judgements}
 
 \begin{itemize}
-  \item Kinding: $\newkinding{\Gamma}{r}{A}{s}{\Gamma'}$ -- in context $\Gamma$, check if type $A$ is of kind $\Type[r]$, returning $s$ (which are capabilities $A$ is missing to be in $r$) and $\Gamma'$
-  \item Typing: $\infer{\Gamma}{e}{A}{\Gamma'}$ -- in context $\Gamma$, term $e$ infers type $A$, with output context $\Gamma'$
-  \item Matching: $\matching{\Gamma}{A}{B}{\Gamma'}$ -- in context $\Gamma$, type $A$ matches (output) type $B$, with output context $\Gamma'$
-  \item Subtyping: $\subtyping{\Gamma}{r}{A}{B}{s}{\Gamma'}$ -- in context $\Gamma$, $s$ copies of subtype $A$ are needed to produce $r$ copies of supertype $B$, with output context $\Gamma'$.
-  \item Sub-instantiation: $\subinst{\Gamma}{r}{\evar{a}}{A}{s}{\Gamma'}$ -- in context $\Gamma$, instantiate the existential variable $\evar{a}$ to a subtype of $\Box[r]{A}$, lacking $s$, returning context $\Gamma'$
-  \item Super-instantiation: $\superinst{\Gamma}{r}{A}{\evar{a}}{s}{\Gamma'}$ -- in context $\Gamma$, instantiate the existential variable $\evar{a}$, so that $A <: \Box[r]{\evar{a}}$, lacking $s$, returning context $\Gamma$
+  \item $\newkinding{\Gamma}{r}{A}{s}{\Gamma'}$ -- kinding
+  \item $\infer{\Gamma}{e}{A}{\Gamma'}$ -- typing
+  \item $\matching{\Gamma}{A}{B}{\Gamma'}$ -- matching
+  \item $\subtyping{\Gamma}{r}{A}{B}{s}{\Gamma'}$ -- subtyping
+  \item $\subinst{\Gamma}{r}{\evar{a}}{A}{s}{\Gamma'}$ -- sub-instantiation
+  \item $\superinst{\Gamma}{r}{A}{\evar{a}}{s}{\Gamma'}$ -- super-instantiation
+
 \end{itemize}
 
 \end{frame}
 
-\begin{frame}{New kinding}
+\section{Kinding}
 
-\begin{center}
-  $\infrule{\inferkind{\Gamma}{A}[s]{\Gamma'}}{\newkinding{\Gamma}[\noncomputable]{r}{A}{\One}{\Gamma'}}$
+\NewDocumentCommand{\newcheckkind}{m O{i} m m m}{#1 \vdash_{#2} #3 \mathcolor{blue}{\Rightarrow} #4 \dashv #5}
 
-  \vspace{2em}
+\NewDocumentCommand{\newinferkind}{m O{i} m m m}{#1 \vdash_{#2} #3 \mathcolor{red}{\Rightarrow} #4 \dashv #5}
 
-  $\infrule{\inferkind{\Gamma}{A}[s]{\Gamma'}}{\newkinding{\Gamma}[\computable]{r}{A}{\divqty{r}{s}}{\Gamma'}}$
-\end{center}
+\begin{frame}{Kinding judgement}
+
+$\newkinding{\Gamma}{r}{A}{s}{\Gamma'}$ -- in context $\Gamma$, check if type $A$ is of kind $\Type[r]$. If it is, $s$ will be $\One$. If it is not, $s$ indicates how much $A$ is missing to be in $\Type[r]$, i.e. $A$ is in $\Type[\divqty{r}{s}]$. Return output context $\Gamma'$.
+
+\vspace{2em}
+
+Note: $\Gamma$ and $r$ are inputs. $A$ is subject. $s$ and $\Gamma'$ are outputs.
+
+\vspace{2em}
+
+$\newcheckkind{\Gamma}{r}{A}{\Gamma'}$ -- kind checking is a notation for $\newkinding{\Gamma}{r}{A}{\One}{\Gamma'}$.
+
+\vspace{1em}
+
+$\newinferkind{\Gamma}{A}{r}{\Gamma'}$ -- kind inference is a notation for $\newkinding{\Gamma}{\Any}{A}{s}{\Gamma'}$ with $r = \divqty{\Any}{s}$
 
 \end{frame}
 
@@ -113,7 +176,7 @@
 
 \end{frame}
 
-\begin{frame}{Kinding -- boring type formers}
+\begin{frame}{Kinding -- remaining type formers}
 
 \begin{center}
   $\infrule{}{\newkinding{\Gamma}{r}{\Unit}{\One}{\Gamma}}$ \quad
@@ -130,6 +193,26 @@
 
 \end{frame}
 
+\section{Typing}
+
+\begin{frame}{Typing judgement}
+
+$\infer{\Gamma}{e}{A}{\Gamma'}$ -- in context $\Gamma$, term $e$ infers type $A$, returning output context $\Gamma'$
+
+\vspace{2em}
+
+Note: $\Gamma$ is input. $e$ is subject. $A$ and $\Gamma'$ are outputs.
+
+\vspace{2em}
+
+Note: ``inference mode'' is $\infer{\Gamma, \emptyhint}{e}{A}{\Gamma'}$, as it requires the empty hint.
+
+\vspace{2em}
+
+Note: ``checking mode'' is $\infer{\Gamma, \typehint{A}}{e}{\_}{\Gamma'}$, as it requires a type hint $\typehint{A}$, but does not use the inferred type.
+
+\end{frame}
+
 \begin{frame}{Typing -- variables and annotations}
 
 \begin{center}
@@ -141,7 +224,7 @@
 
   \vspace{2em}
 
-  $\infrule{\newkinding{\Gamma}{\One}{A}{\One}{\Gamma_1} \quad \begin{array}{l} \infer{\scalectx{\Zero}{\Gamma_1}, \typehint{A}}{e}{A'}{\Gamma_2} \\ \matching{\Gamma_2}{\substctx{\Gamma_2}{A'}}{B}{\Gamma_3} \end{array}}{\infer{\Gamma}{\annot{e}{A}}{B}{\addctx{\Gamma_3}{\Gamma_1}}}$
+  $\infrule{\newinferkind{\Gamma}{A}{r}{\Gamma_1} \quad \infer{\scalectx{\Zero}{\Gamma_1}, \typehint{A}}{e}{\_}{\Gamma_2} \quad \matching{\Gamma_2}{\substctx{\Gamma_2}{A}}{B}{\Gamma_3}}{\infer{\Gamma}{\annot{e}{A}}{B}{\addctx{\Gamma_3}{\Gamma_1}}}$
 \end{center}
 
 \end{frame}
@@ -149,19 +232,23 @@
 \begin{frame}{Typing -- stationary rules}
 
 \begin{center}
-  $\infrule{\infer{\Gamma, \Delta, \tvar{a}[r], \typehint{A}}{e}{A'}{\Gamma', \tvar{a}[r], \Theta}}{\infer{\findhint{\Gamma}{\typehint{\ForallI{a}[r]{A}}}{\Delta}}{e}{\ForallI{a}[r]{A}}{\Gamma'}}$
+  $\infrule{\infer{\Gamma, \Delta, \tvar{a}[r], \typehint{A}}{e}{\_}{\Gamma', \tvar{a}[r], \Theta}}{\infer{\Gamma, \typehint{\ForallI{a}[r]{A}}, \Delta}{e}{\ForallI{a}[r]{A}}{\Gamma'}}$
 
   \vspace{2em}
 
-  $\infrule{\infer{\scalectx{\Zero}{\Gamma}, \scalectx{\Zero}{\Delta}, \typehint{A}}{e}{A'}{\Gamma'}}{\infer{\Gamma, \typehint{\Box[r]{A}}, \Delta}{e}{\Box[r]{A}}{\addctx{\scalectx{r}{\Gamma'}}{(\Gamma, \Delta)}}}$
+  $\infrule{\infer{\scalectx{\Zero}{\Gamma}, \scalectx{\Zero}{\Delta}, \typehint{A}}{e}{\_}{\Gamma'}}{\infer{\Gamma, \typehint{\Box[r]{A}}, \Delta}{e}{\Box[r]{A}}{\addctx{\scalectx{r}{\Gamma'}}{(\Gamma, \Delta)}}}$
 \end{center}
 
 \end{frame}
 
-\begin{frame}{Typing -- application}
+\begin{frame}{Typing -- application(s)}
 
 \begin{center}
   $\infrule{\infer{\Gamma, \arghint{e_2}}{e_1}{A}{\Gamma'}}{\infer{\Gamma}{\app{e_1}{e_2}}{A}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\infer{\Gamma, \typearghint{A}}{e}{B}{\Gamma'}}{\infer{\Gamma}{\app{e}{A}}{B}{\Gamma'}}$
 \end{center}
 
 \end{frame}
@@ -169,7 +256,11 @@
 \begin{frame}{Typing -- functions}
 
 \begin{center}
-  $\infrule{\begin{array}{l} \infer{\Gamma, \Delta, \var[\Zero]{x}{A}, \typehint{B}}{e}{B'}{\Gamma_1, \var[r]{x}{A}, \Theta} \\ \newkinding{\Gamma_1}{r}{\substctx{\Gamma_1}{A}}{\One}{\Gamma_2} \end{array}}{\infer{\Gamma, \typehint{\Fun{A}{B}}, \Delta}{\fun{x}{e}}{\Fun{A}{B}}{\Gamma_2}}$
+  $\infrule{\begin{array}{l} \infer{\Gamma, \Delta, \var[\Zero]{x}{A}, \typehint{B}}{e}{\_}{\Gamma_1, \var[r]{x}{A}, \Theta} \\ \newkinding{\Gamma_1}{r}{\substctx{\Gamma_1}{A}}{\One}{\Gamma_2} \end{array}}{\infer{\Gamma, \typehint{\Fun{A}{B}}, \Delta}{\fun{x}{e}}{\Fun{A}{B}}{\Gamma_2}}$
+
+  \vspace{1em}
+
+  $\infrule{\begin{array}{l} \infer{\holectx{\Gamma}{\evar{a}_1, \evar{a}_2, \evar{a}[\Fun{\evar{a}_1}{\evar{a}_2}]}, \Delta, \var[\Zero]{x}{\evar{a}_1}, \typehint{\evar{a}_2}}{e}{\_}{\Gamma_1, \var[r]{x}{\evar{a}_1}, \Theta} \\ \newkinding{\Gamma_1}{r}{\substctx{\Gamma_1}{\evar{a}_1}}{\One}{\Gamma_2} \end{array}}{\infer{\holectx{\Gamma}{\evar{a}}, \typehint{\evar{a}}, \Delta}{\fun{x}{e}}{\evar{a}}{\Gamma_2}}$
 
   \vspace{1em}
 
@@ -177,11 +268,7 @@
 
   \vspace{1em}
 
-  $\infrule{\begin{array}{l} \infer{\holectx{\Gamma}{\evar{a}_1, \evar{a}_2, \evar{a}[\Fun{\evar{a}_1}{\evar{a}_2}]}, \Delta, \var[\Zero]{x}{\evar{a}_1}, \typehint{\evar{a}_2}}{e}{A}{\Gamma_1, \var[r]{x}{\evar{a}_1}, \Theta} \\ \newkinding{\Gamma_1}{r}{\substctx{\Gamma_1}{\evar{a}_1}}{\One}{\Gamma_2} \end{array}}{\infer{\holectx{\Gamma}{\evar{a}}, \typehint{\evar{a}}, \Delta}{\fun{x}{e}}{\evar{a}}{\Gamma_2}}$
-
-  \vspace{1em}
-
-  $\infrule{\begin{array}{l} \infer{\Gamma, \Delta \marker{\evar{a}}, \evar{a}, \var[\Zero]{x}{\evar{a}}, \emptyhint}{e}{A}{\Gamma_1, \var[r]{x}{\evar{a}}, \Gamma_4} \\ \newkinding{\Gamma_1}{r}{\substctx{\Gamma_1}{\evar{a}}}{\One}{\Gamma_2, \marker{\evar{a}}, \Gamma_3} \\ B = \ForallI{\texttt{unsolved}(\Gamma_3)} \substctx{\Gamma_3}{(\Fun{\evar{a}}{\ForallI{\texttt{unsolved}(\Gamma_4)}{\substctx{\Gamma_4}{A}}})} \end{array}}{\infer{\Gamma, \emptyhint, \Delta}{\fun{x}{e}}{B}{\Gamma_2}}$
+  $\infrule{\begin{array}{l} \infer{\Gamma, \Delta \marker{\evar{a}}, \evar{a}, \var[\Zero]{x}{\evar{a}}, \emptyhint}{e}{\_}{\Gamma_1, \var[r]{x}{\evar{a}}, \Gamma_4} \\ \newkinding{\Gamma_1}{r}{\substctx{\Gamma_1}{\evar{a}}}{\One}{\Gamma_2, \marker{\evar{a}}, \Gamma_3} \\ B = \ForallI{\texttt{unsolved}(\Gamma_3)} \substctx{\Gamma_3}{(\Fun{\evar{a}}{\ForallI{\texttt{unsolved}(\Gamma_4)}{\substctx{\Gamma_4}{A}}})} \end{array}}{\infer{\Gamma, \emptyhint, \Delta}{\fun{x}{e}}{B}{\Gamma_2}}$
 \end{center}
 
 \end{frame}
@@ -209,7 +296,11 @@
 
   \vspace{2em}
 
-  $\infrule{\newkinding{\Gamma}{\One}{A}{\One}{\Gamma_1} \quad \infer{\Gamma_1, \Delta}{\emptyelim{e}}{B}{\Gamma_2}}{\infer{\Gamma, \arghint{A}, \Delta}{\emptyelim{e}}{B}{\Gamma_2}}$
+  $\infrule{\newkinding{\Gamma}{\One}{A}{\One}{\Gamma_1} \quad \infer{\Gamma_1, \Delta}{\emptyelim{e}}{B}{\Gamma_2}}{\infer{\Gamma, \typearghint{A}, \Delta}{\emptyelim{e}}{B}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule[Dubious]{\matching{\Gamma}{\Fun{\Empty}{\ForallI{a}{a}}}{C}{\Gamma'}}{\infer{\Gamma}{\emptyelim{}}{C}{\Gamma'}}$
 \end{center}
 
 \end{frame}
@@ -221,15 +312,29 @@
 
   \vspace{2em}
 
-  $\infrule{\infer{\Gamma, \Delta, \emptyhint}{e_1}{A}{\Gamma_1} \quad \infer{\Gamma_1, \emptyhint}{e_2}{B}{\Gamma_2}}{\infer{\Gamma, \emptyhint, \Delta}{\pair{e_1}{e_2}}{\Prod{A}{B}}{\Gamma_2}}$
-
-  \vspace{2em}
-
   $\infrule{\begin{array}{l} \infer{\holectx{\Gamma}{\evar{a_1}, \evar{a_2}, \evar{a}[\Prod{\evar{a_1}}{\evar{a_2}}]}, \Delta, \typehint{\evar{a_1}}}{e_1}{\_}{\Gamma_1} \\ \infer{\Gamma_1, \typehint{\evar{a_2}}}{e_2}{\_}{\Gamma_2} \end{array}}{\infer{\holectx{\Gamma}{\evar{a}}, \typehint{\evar{a}}, \Delta}{\pair{e_1}{e_2}}{\evar{a}}{\Gamma_2}}$
 
   \vspace{2em}
 
+  $\infrule{\infer{\Gamma, \Delta, \emptyhint}{e_1}{A}{\Gamma_1} \quad \infer{\Gamma_1, \emptyhint}{e_2}{B}{\Gamma_2}}{\infer{\Gamma, \emptyhint, \Delta}{\pair{e_1}{e_2}}{\Prod{A}{B}}{\Gamma_2}}$
+
+  \vspace{2em}
+
   $\infrule{\begin{array}{l} \infer{\Gamma, \emptyhint}{e_1}{\Prod{A}{B}}{\Gamma_1} \\ \infer{\Gamma_1, \var[\Zero]{x}{A}, \var[\Zero]{y}{B}}{e_2}{C}{\Gamma_2, \var[r_A]{x}{A}, \var[r_B]{y}{B}} \\ \newkinding{\Gamma_2}{r_A}{A}{\One}{\Gamma_3} \quad \newkinding{\Gamma_3}{r_B}{B}{\One}{\Gamma_4} \end{array}}{\infer{\Gamma}{\letpair{x}{y}{e_1}{e_2}}{C}{\Gamma_4}}$
+\end{center}
+
+\end{frame}
+
+\NewDocumentCommand{\funpair}{}{\texttt{pair}}
+
+\begin{frame}{Typing -- alternative rules for products}
+
+\begin{center}
+  $\infrule[Dubious]{\matching{\Gamma}{\ForallI{a}{\Fun{a}{\ForallI{b}{\Fun{b}{\Prod{a}{b}}}}}}{C}{\Gamma'}}{\infer{\Gamma}{\funpair}{C}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\begin{array}{l} \infer{\scalectx{\Zero}{\Gamma}, \emptyhint}{e_1}{\Prod{A}{B}}{\Gamma_1} \\ \infer{(\addctx{\scalectx{\Zero}{\Gamma_1}}{\Gamma}), \var[\Zero]{x}{A}, \var[\Zero]{y}{B}}{e_2}{C}{\Gamma_2, \var[r_A]{x}{A}, \var[r_B]{y}{B}} \\ \newkinding{\Gamma_2}{r_A}{A}{s_A}{\Gamma_3} \\ \newkinding{\Gamma_3}{r_B}{B}{s_B}{\Gamma_4} \end{array}}{\infer{\Gamma}{\letpair{x}{y}{e_1}{e_2}}{C}{\addctx{\Gamma_4}{\scalectx{(\glbqty{s_A}{s_B})}{\Gamma_1}}}}$
 \end{center}
 
 \end{frame}
@@ -245,34 +350,39 @@
 
   \vspace{2em}
 
-  $\infrule{\begin{array}{l} \infer{\scalectx{\Zero}{\Gamma}, \emptyhint}{e}{\Sum{A}{B}}{\Gamma_1} \\  \infer{\scalectx{\Zero}{\Gamma_1}, \var[\Zero]{x}{A}}{e_1}{C}{\Gamma_2, \var[r_A]{x}{A}} \\ \infer{\scalectx{\Zero}{\Gamma_2}, \var[\Zero]{y}{B}}{e_2}{C}{\Gamma_3, \var[r_B]{y}{B}} \end{array} \begin{array}{l} \Gamma_4 = \glbctx{\Gamma_2}{\Gamma_3} \\ \newkinding{\Gamma_4}{r_A}{A}{s_A}{\Gamma_5} \\ \newkinding{\Gamma_5}{r_B}{B}{s_B}{\Gamma_6} \end{array}}{\infer{\Gamma}{\newcase{e}{x}{e_1}{y}{e_2}}{C}{\addctx{\Gamma_6}{\addctx{\scalectx{(\glbqty{s_A}{s_B})}{\Gamma_1}}{\Gamma}}}}$
+  $\infrule{\begin{array}{l} \infer{\scalectx{\Zero}{\Gamma}, \emptyhint}{e}{\Sum{A}{B}}{\Gamma_1} \\ \infer{\scalectx{\Zero}{\Gamma_1}, \var[\Zero]{x}{A}}{e_1}{C_1}{\Gamma_2, \var[r_A]{x}{A}} \\ \infer{\scalectx{\Zero}{\Gamma_1}, \var[\Zero]{y}{B}}{e_2}{C_2}{\Gamma_3, \var[r_B]{y}{B}} \\ \Gamma_4 = \glbctx{\Gamma_2}{\Gamma_3} \quad C_1 = C_2 \\ \newkinding{\Gamma_4}{r_A}{A}{s_A}{\Gamma_5} \\ \newkinding{\Gamma_5}{r_B}{B}{s_B}{\Gamma_6} \end{array}}{\infer{\Gamma}{\newcase{e}{x}{e_1}{y}{e_2}}{C_1}{\addctx{\Gamma_6}{\addctx{\scalectx{(\glbqty{s_A}{s_B})}{\Gamma_1}}{\Gamma}}}}$
 \end{center}
 
 \end{frame}
 
-\NewDocumentCommand{\funpair}{}{\texttt{pair}}
-
-\begin{frame}{Typing -- alternative rules}
+\begin{frame}{Typing -- alternative rules for sums}
 
 \begin{center}
-  $\infrule{\matching{\Gamma}{\Fun{\Empty}{\ForallI{a}{a}}}{C}{\Gamma'}}{\infer{\Gamma}{\emptyelim{}}{C}{\Gamma'}}$
+  $\infrule[Dubious]{\matching{\Gamma}{\ForallI{a}{\Fun{a}{\ForallI{b}{\Sum{a}{b}}}}}{C}{\Gamma'}}{\infer{\Gamma}{\inl{}}{C}{\Gamma'}}$
 
   \vspace{2em}
 
-  $\infrule{\matching{\Gamma}{\ForallI{a}{\ForallI{b}{\Fun{a}{\Fun{b}{\Prod{a}{b}}}}}}{C}{\Gamma'}}{\infer{\Gamma}{\funpair}{C}{\Gamma'}}$
+  $\infrule[Dubious]{\matching{\Gamma}{\ForallI{b}{\Fun{b}{\ForallI{a}{\Sum{a}{b}}}}}{C}{\Gamma'}}{\infer{\Gamma}{\inr{}}{C}{\Gamma'}}$
 
   \vspace{2em}
 
-  $\infrule{\matching{\Gamma}{\ForallI{a}{\ForallI{b}{\Fun{a}{\Sum{a}{b}}}}}{C}{\Gamma'}}{\infer{\Gamma}{\inl{}}{C}{\Gamma'}}$
-
-  \vspace{2em}
-
-  $\infrule{\matching{\Gamma}{\ForallI{a}{\ForallI{b}{\Fun{b}{\Sum{a}{b}}}}}{C}{\Gamma'}}{\infer{\Gamma}{\inr{}}{C}{\Gamma'}}$
+  $\infrule{\begin{array}{l} \infer{\scalectx{\Zero}{\Gamma}, \emptyhint}{e}{\Sum{A}{B}}{\Gamma_1} \\  \infer{\scalectx{\Zero}{\Gamma_1}, \var[\Zero]{x}{A}}{e_1}{C}{\Gamma_2, \var[r_A]{x}{A}} \\ \infer{\scalectx{\Zero}{\Gamma_2}, \var[\Zero]{y}{B}, \typehint{C}}{e_2}{\_}{\Gamma_3, \var[r_B]{y}{B}} \\ \Gamma_4 = \glbctx{\Gamma_2}{\Gamma_3} \\ \newkinding{\Gamma_4}{r_A}{A}{s_A}{\Gamma_5} \\ \newkinding{\Gamma_5}{r_B}{B}{s_B}{\Gamma_6} \end{array}}{\infer{\Gamma}{\newcase{e}{x}{e_1}{y}{e_2}}{C}{\addctx{\Gamma_6}{\addctx{\scalectx{(\glbqty{s_A}{s_B})}{\Gamma_1}}{\Gamma}}}}$
 \end{center}
 
 \end{frame}
 
-\begin{frame}{Matching}
+\section{Matching}
+
+\begin{frame}{Matching judgement}
+
+Matching: $\matching{\Gamma}{A}{B}{\Gamma'}$ -- type $A$ matches context $\Gamma$, with output type $B$ and output context $\Gamma'$
+
+\vspace{2em}
+
+Note: $\Gamma$ and $A$ are inputs. $B$ and $\Gamma'$ are outputs.
+\end{frame}
+
+\begin{frame}{Matching -- inference and checking}
 
 \begin{center}
   $\infrule{}{\matching{\Gamma, \emptyhint, \Delta}{A}{A}{\Gamma, \Delta}}$
@@ -280,17 +390,17 @@
   \vspace{2em}
 
   $\infrule{\subtyping{\Gamma, \Delta}{\One}{A}{B}{r}{\Gamma'}}{\matching{\Gamma, \typehint{B}, \Delta}{A}{B}{\scalectx{r}{\Gamma'}}}$
-
-  \vspace{2em}
-
-  $\infrule{\infer{\Gamma, \typehint{A}}{e}{A'}{\Gamma_1} \quad \matching{\Gamma_1, \Delta}{B}{B'}{\Gamma_2}}{\matching{\Gamma, \arghint{e}, \Delta}{\Fun{A}{B}}{B'}{\Gamma_2}}$
 \end{center}
 
 \end{frame}
 
-\begin{frame}{Matching}
+\begin{frame}{Matching -- hints}
 
 \begin{center}
+  $\infrule{\infer{\Gamma, \typehint{A}}{e}{\_}{\Gamma_1} \quad \matching{\Gamma_1, \Delta}{B}{C}{\Gamma_2}}{\matching{\Gamma, \arghint{e}, \Delta}{\Fun{A}{B}}{C}{\Gamma_2}}$
+
+  \vspace{2em}
+
   $\infrule{\matching{\Gamma, \arghint{e}, \Delta}{A}{B}{\Gamma'}}{\matching{\Gamma, \arghint{e}, \Delta}{\Box[r]{A}}{B}{\Gamma'}}$
 
   \vspace{2em}
@@ -299,8 +409,24 @@
 
   \vspace{2em}
 
-  $\infrule{\newkinding{\Gamma}{r}{B}{\One}{\Gamma_1} \quad \matching{\Gamma_1, \Delta}{\subst{A}{a}{B}}{C}{\Gamma_2}}{\matching{\Gamma, \arghint{B}, \Delta}{\ForallE{a}[r]{A}}{C}{\Gamma_2}}$
+  $\infrule{\newkinding{\Gamma}{r}{B}{\One}{\Gamma_1} \quad \matching{\Gamma_1, \Delta}{\subst{A}{a}{B}}{C}{\Gamma_2}}{\matching{\Gamma, \typearghint{B}, \Delta}{\ForallE{a}[r]{A}}{C}{\Gamma_2}}$
 \end{center}
+
+\end{frame}
+
+\section{Subtyping}
+
+\begin{frame}{Subtyping judgement}
+
+$\subtyping{\Gamma}{r}{A}{B}{s}{\Gamma'}$ -- in context $\Gamma$, $A$ is a subtype of $\Box[\divqty{r}{s}]{B}$, with output context $\Gamma'$.
+
+\vspace{2em}
+
+Note: $\Gamma$, $r$, $A$ and $B$ are inputs. $s$ and $\Gamma'$ are outputs.
+
+\vspace{2em}
+
+Note: If $A$ is a subtype of $\Box[r]{B}$, then $s$ is $\One$. If it is not, then $s$ indicates how much is missing for the subtyping to be the case.
 
 \end{frame}
 
@@ -327,7 +453,7 @@
 
   \vspace{2em}
 
-  $\infrule{\begin{array}{l} B \neq \ForallI{\_}{B'} \\ a \in \FV{A} \end{array} \quad \subtyping{\Gamma, \marker{\evar{a}}, \evar{a}}{r}{\subst{A}{a}{\Box[s]{\evar{a}}}}{B}{t}{\Gamma', \marker{\evar{a}}, \Theta}}{\subtyping{\Gamma}{r}{\ForallI{a}[s]{A}}{B}{t}{\Gamma'}}$
+  $\infrule{\begin{array}{l} a \in \FV{A} \\ B \neq \ForallI{\_}{B'} \end{array} \quad \subtyping{\Gamma, \marker{\evar{a}}, \evar{a}}{r}{\subst{A}{a}{\Box[s]{\evar{a}}}}{B}{t}{\Gamma', \marker{\evar{a}}, \Theta}}{\subtyping{\Gamma}{r}{\ForallI{a}[s]{A}}{B}{t}{\Gamma'}}$
 
   \vspace{2em}
 
@@ -382,6 +508,22 @@
 
   $\infrule{\evar{a} \notin \FV{A} \quad \superinst{\holectx{\Gamma}{\evar{a}}}{r}{A}{\evar{a}}{s}{\Gamma'}}{\subtyping{\holectx{\Gamma}{\evar{a}}}{r}{A}{\evar{a}}{s}{\Gamma'}}$
 \end{center}
+
+\end{frame}
+
+\section{Instantiation}
+
+\begin{frame}{Instantiation judgements}
+
+$\subinst{\Gamma}{r}{\evar{a}}{A}{s}{\Gamma'}$ -- in context $\Gamma$, instantiate the existential variable $\evar{a}$ to a subtype of $\Box[\divqty{r}{s}]{A}$, with output context $\Gamma'$.
+
+\vspace{2em}
+
+$\superinst{\Gamma}{r}{A}{\evar{a}}{s}{\Gamma'}$ -- in context $\Gamma$, instantiate the existential variable $\evar{a}$, so that $A <: \Box[\divqty{r}{s}]{\evar{a}}$, with output context $\Gamma$.
+
+\vspace{2em}
+
+Note: in both cases, $\Gamma$, $r$, $\evar{a}$ and $A$ are inputs, whereas $s$ and $\Gamma'$ are outputs.
 
 \end{frame}
 
