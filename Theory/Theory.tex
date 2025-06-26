@@ -7,13 +7,22 @@
 \usetheme{Darmstadt}
 
 \title{Complete and Easy Quantitative Contextual Typing}
+\author
+{
+  Wojciech Kołowski\\
+  \and
+  Mateusz Pyzik\\
+}
+
+\RenewDocumentCommand{\Fun}{m m}{#1 \multimap #2}
 
 \NewDocumentCommand{\infer}{m O{i} m m m}{#1 \vdash_{#2} #3 \mathcolor{red}{\Rightarrow} #4 \dashv #5}
 
 \NewDocumentCommand{\emptyhint}{}{\square}
 \NewDocumentCommand{\typehint}{m}{\square : #1}
 \NewDocumentCommand{\arghint}{m}{\app{\square}{#1}}
-\NewDocumentCommand{\typearghint}{m}{\app{\square}{#1}}
+\NewDocumentCommand{\implicithint}{m}{\app{\square}{@#1}}
+\NewDocumentCommand{\explicithint}{m}{\app{\square}{#1}}
 
 \NewDocumentCommand{\matching}{m m m m}{#1 \vdash #2 \mathcolor{red}{\leadsto} #3 \dashv #4}
 
@@ -44,14 +53,7 @@
 
 \begin{document}
 
-\maketitle{}
-\author
-{
-  Wojciech Kołowski\\
-  \and
-  Mateusz Pyzik\\
-}
-\date{}
+\frame{\titlepage}
 
 \section{Intro}
 
@@ -75,8 +77,8 @@ $\tau ::=$ \\
 
 Terms: \\
 $e ::=$ \\
-\qquad $\annot{e}{A} \pipe x \pipe \fun{x}{e} \pipe \app{e_1}{e_2} \pipe$ \\
-\qquad $\tfun{a}{e} \pipe \tapp{e}{A} \pipe \itapp{e}{A} \pipe$ \\
+\qquad $\annot{e}{A} \pipe x \pipe \fun{x}{e} \pipe \app{e_1}{e_2} \pipe \itapp{e}{A} \pipe$ \\
+\qquad $\tfun{a}{e} \pipe \tfun{a}[r]{e} \pipe \tapp{e}{A} \pipe$ \\
 \qquad $\pair{e_1}{e_2} \pipe \letpair{x}{y}{e_1}{e_2} \pipe$ \\
 \qquad $\inl{e} \pipe \inr{e} \pipe \newcase{e}{x}{e_1}{y}{e_2} \pipe$ \\
 \qquad $\unit \pipe \unitelim{e_1}{e_2} \pipe$ \\
@@ -90,7 +92,7 @@ $e ::=$ \\
 Contexts: \\
 $\Gamma ::=$ \\
 \qquad $\emptyctx \pipe \Gamma, \var[r]{x}{A} \pipe \Gamma, \tvar{a}[r] \pipe \Gamma, \stvar{a}[r] \pipe \Gamma, \evar{a} \pipe \Gamma, \evar{a}[\tau] \pipe$ \\
-\qquad $\Gamma, \emptyhint \pipe \Gamma, \typehint{A} \pipe \Gamma, \arghint{e} \pipe \Gamma, \typearghint{A}$
+\qquad $\Gamma, \emptyhint \pipe \Gamma, \typehint{A} \pipe \Gamma, \arghint{e} \pipe \Gamma, \implicithint{A} \pipe \Gamma, \explicithint{A}$
 
 \vspace{2em}
 
@@ -248,12 +250,12 @@ Note: ``checking mode'' is $\infer{\Gamma, \typehint{A}}{e}{\_}{\Gamma'}$, as it
 
   \vspace{2em}
 
-  $\infrule{\infer{\Gamma, \typearghint{A}}{e}{B}{\Gamma'}}{\infer{\Gamma}{\app{e}{A}}{B}{\Gamma'}}$
+  $\infrule{\infer{\Gamma, \implicithint{A}}{e}{B}{\Gamma'}}{\infer{\Gamma}{\itapp{e}{A}}{B}{\Gamma'}}$
 \end{center}
 
 \end{frame}
 
-\begin{frame}{Typing -- functions}
+\begin{frame}{Typing -- function abstraction}
 
 \begin{center}
   $\infrule{\begin{array}{l} \infer{\Gamma, \Delta, \var[\Zero]{x}{A}, \typehint{B}}{e}{\_}{\Gamma_1, \var[r]{x}{A}, \Theta} \\ \newkinding{\Gamma_1}{r}{\substctx{\Gamma_1}{A}}{\One}{\Gamma_2} \end{array}}{\infer{\Gamma, \typehint{\Fun{A}{B}}, \Delta}{\fun{x}{e}}{\Fun{A}{B}}{\Gamma_2}}$
@@ -268,7 +270,23 @@ Note: ``checking mode'' is $\infer{\Gamma, \typehint{A}}{e}{\_}{\Gamma'}$, as it
 
   \vspace{1em}
 
-  $\infrule{\begin{array}{l} \infer{\Gamma, \Delta \marker{\evar{a}}, \evar{a}, \var[\Zero]{x}{\evar{a}}, \emptyhint}{e}{\_}{\Gamma_1, \var[r]{x}{\evar{a}}, \Gamma_4} \\ \newkinding{\Gamma_1}{r}{\substctx{\Gamma_1}{\evar{a}}}{\One}{\Gamma_2, \marker{\evar{a}}, \Gamma_3} \\ B = \ForallI{\texttt{unsolved}(\Gamma_3)} \substctx{\Gamma_3}{(\Fun{\evar{a}}{\ForallI{\texttt{unsolved}(\Gamma_4)}{\substctx{\Gamma_4}{A}}})} \end{array}}{\infer{\Gamma, \emptyhint, \Delta}{\fun{x}{e}}{B}{\Gamma_2}}$
+  $\infrule{\begin{array}{l} \infer{\Gamma, \Delta \marker{\evar{a}}, \evar{a}, \var[\Zero]{x}{\evar{a}}, \emptyhint}{e}{A}{\Gamma_1, \var[r]{x}{\evar{a}}, \Gamma_4} \\ \newkinding{\Gamma_1}{r}{\substctx{\Gamma_1}{\evar{a}}}{\One}{\Gamma_2, \marker{\evar{a}}, \Gamma_3} \\ B = \ForallI{\texttt{unsolved}(\Gamma_3)} \substctx{\Gamma_3}{(\Fun{\evar{a}}{\ForallI{\texttt{unsolved}(\Gamma_4)}{\substctx{\Gamma_4}{A}}})} \end{array}}{\infer{\Gamma, \emptyhint, \Delta}{\fun{x}{e}}{B}{\Gamma_2}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Typing -- explicit quantification}
+
+\begin{center}
+  $\infrule{\infer{\Gamma, \Delta, \tvar{a}[r], \typehint{A}}{e}{\_}{\Gamma'}}{\infer{\Gamma, \typehint{\ForallE{a}[r]{A}}, \Delta}{\tfun{a}{e}}{\ForallE{a}[r]{A}}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\infer{\Gamma, \Delta, \tvar{a}[r], \emptyhint}{e}{A}{\Gamma'}}{\infer{\Gamma, \emptyhint, \Delta}{\tfun{a}[r]{e}}{\ForallE{a}[r]{A}}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\infer{\Gamma, \explicithint{A}}{e}{B}{\Gamma'}}{\infer{\Gamma}{\tapp{e}{A}}{B}{\Gamma'}}$
 \end{center}
 
 \end{frame}
@@ -296,7 +314,11 @@ Note: ``checking mode'' is $\infer{\Gamma, \typehint{A}}{e}{\_}{\Gamma'}$, as it
 
   \vspace{2em}
 
-  $\infrule{\newkinding{\Gamma}{\One}{A}{\One}{\Gamma_1} \quad \infer{\Gamma_1, \Delta}{\emptyelim{e}}{B}{\Gamma_2}}{\infer{\Gamma, \typearghint{A}, \Delta}{\emptyelim{e}}{B}{\Gamma_2}}$
+  $\infrule{\newkinding{\Gamma}{\One}{A}{\One}{\Gamma_1} \quad \infer{\Gamma_1, \Delta}{\emptyelim{e}}{B}{\Gamma_2}}{\infer{\Gamma, \implicithint{A}, \Delta}{\emptyelim{e}}{B}{\Gamma_2}}$
+
+  \vspace{1em}
+
+  $\infrule{\newkinding{\Gamma}{\One}{A}{\One}{\Gamma_1} \quad \infer{\Gamma_1, \Delta}{\emptyelim{e}}{B}{\Gamma_2}}{\infer{\Gamma, \explicithint{A}, \Delta}{\emptyelim{e}}{B}{\Gamma_2}}$
 
   \vspace{2em}
 
@@ -371,6 +393,14 @@ Note: ``checking mode'' is $\infer{\Gamma, \typehint{A}}{e}{\_}{\Gamma'}$, as it
 
 \end{frame}
 
+\begin{frame}{Typing -- let}
+
+\begin{center}
+  $\infrule{\begin{array}{l} \infer{\scalectx{\Zero}{\Gamma}, \emptyhint}{e_1}{A}{\Gamma_1} \quad \infer{(\addctx{\scalectx{\Zero}{\Gamma_1}}{\Gamma}), \var[\Zero]{x}{A}}{e_2}{B}{\Gamma_2, \var[r]{x}{A}} \\ \newkinding{\Gamma_2}{r}{A}{s}{\Gamma_3} \end{array}}{\infer{\Gamma}{\letin{x}{e_1}{e_2}}{B}{\addctx{\Gamma_3}{\scalectx{s}{\Gamma_1}}}}$
+\end{center}
+
+\end{frame}
+
 \section{Matching}
 
 \begin{frame}{Matching judgement}
@@ -394,22 +424,46 @@ Note: $\Gamma$ and $A$ are inputs. $B$ and $\Gamma'$ are outputs.
 
 \end{frame}
 
-\begin{frame}{Matching -- hints}
+\begin{frame}{Matching -- term argument hints}
 
 \begin{center}
   $\infrule{\infer{\Gamma, \typehint{A}}{e}{\_}{\Gamma_1} \quad \matching{\Gamma_1, \Delta}{B}{C}{\Gamma_2}}{\matching{\Gamma, \arghint{e}, \Delta}{\Fun{A}{B}}{C}{\Gamma_2}}$
 
   \vspace{2em}
 
-  $\infrule{\matching{\Gamma, \arghint{e}, \Delta}{A}{B}{\Gamma'}}{\matching{\Gamma, \arghint{e}, \Delta}{\Box[r]{A}}{B}{\Gamma'}}$
+  $\infrule{\matching{\Gamma, \arghint{e}, \Delta}{A}{C}{\Gamma'}}{\matching{\Gamma, \arghint{e}, \Delta}{\Box[r]{A}}{C}{\Gamma'}}$
 
   \vspace{2em}
 
-  $\infrule{\matching{\Gamma, \arghint{e}, \Delta, \evar{a}}{\subst{A}{a}{\Box[r]{\evar{a}}}}{B}{\Gamma'}}{\matching{\Gamma, \arghint{e}, \Delta}{\ForallI{a}[r]{A}}{B}{\Gamma'}}$
+  $\infrule{\matching{\Gamma, \arghint{e}, \Delta, \evar{a}}{\subst{A}{a}{\Box[r]{\evar{a}}}}{C}{\Gamma'}}{\matching{\Gamma, \arghint{e}, \Delta}{\ForallI{a}[r]{A}}{C}{\Gamma'}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Matching -- implicit type argument hints}
+
+\begin{center}
+  $\infrule{\newkinding{\Gamma}{r}{B}{\One}{\Gamma_1} \quad \matching{\Gamma_1, \Delta}{\subst{A}{a}{B}}{C}{\Gamma_2}}{\matching{\Gamma, \implicithint{B}, \Delta}{\ForallI{a}[r]{A}}{C}{\Gamma_2}}$
 
   \vspace{2em}
 
-  $\infrule{\newkinding{\Gamma}{r}{B}{\One}{\Gamma_1} \quad \matching{\Gamma_1, \Delta}{\subst{A}{a}{B}}{C}{\Gamma_2}}{\matching{\Gamma, \typearghint{B}, \Delta}{\ForallE{a}[r]{A}}{C}{\Gamma_2}}$
+  $\infrule{\matching{\Gamma, \implicithint{B}, \Delta}{A}{C}{\Gamma'}}{\matching{\Gamma, \implicithint{B}, \Delta}{\Box[r]{A}}{C}{\Gamma'}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Matching -- explicit type argument hints}
+
+\begin{center}
+  $\infrule{\newkinding{\Gamma}{r}{B}{\One}{\Gamma_1} \quad \matching{\Gamma_1, \Delta}{\subst{A}{a}{B}}{C}{\Gamma_2}}{\matching{\Gamma, \explicithint{B}, \Delta}{\ForallE{a}[r]{A}}{C}{\Gamma_2}}$
+
+  \vspace{2em}
+
+  $\infrule{\matching{\Gamma, \explicithint{B}, \Delta}{A}{C}{\Gamma'}}{\matching{\Gamma, \explicithint{B}, \Delta}{\Box[r]{A}}{C}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\matching{\Gamma, \explicithint{B}, \Delta, \evar{a}}{\subst{A}{a}{\Box[r]{\evar{a}}}}{C}{\Gamma'}}{\matching{\Gamma, \explicithint{B}, \Delta}{\ForallI{a}[r]{A}}{C}{\Gamma'}}$
 \end{center}
 
 \end{frame}
@@ -619,6 +673,21 @@ Note: in both cases, $\Gamma$, $r$, $\evar{a}$ and $A$ are inputs, whereas $s$ a
   \vspace{1em}
 
   $\infrule{\begin{array}{l} \subinst{\holectx{\Gamma}{\evar{a_1}, \evar{a_2}, \evar{a}[\Fun{\evar{a_1}}{\evar{a_2}}]}}{\One}{\evar{a_1}}{A}{\One}{\Gamma_1} \\ \superinst{\Gamma_1}{\One}{\substctx{\Gamma_1}{B}}{\evar{a_2}}{\One}{\Gamma_2} \end{array}}{\superinst{\holectx{\Gamma}{\evar{a}}}{r}{\Fun{A}{B}}{\evar{a}}{r}{\Gamma_2}}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Monotypes and explicit quantifiers}
+
+Note: we use the monotype rule to handle the difficult case when $\tau = \ForallE{a}[r]{A}$. If we had a separate rule for this, then the monotype rule would be admissible. Alternatively, we can write down separate rules to handle the explicit quantifier in a naive way.
+
+\vspace{2em}
+
+\begin{center}
+  $\infrule{\newkinding{\Gamma}{r}{\ForallE{a}[s]{\tau}}{t}{\Gamma_1}}{\subinst{\Gamma, \evar{a}, \Gamma'}{r}{\evar{a}}{\ForallE{a}[s]{\tau}}{\One}{\Gamma_1, \evar{a}[\Box[t]{\ForallE{a}[s]{\tau}}], \Gamma'}}$
+
+  \vspace{2em}
+  $\infrule{\newkinding{\Gamma}{r}{\ForallE{a}[s]{\tau}}{t}{\Gamma_1}}{\superinst{\Gamma, \evar{a}, \Gamma'}{r}{\ForallE{a}[s]{\tau}}{\evar{a}}{t}{\Gamma_1, \evar{a}[\ForallE{a}[s]{\tau}], \Gamma'}}$
 \end{center}
 
 \end{frame}
