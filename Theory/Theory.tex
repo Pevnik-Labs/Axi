@@ -13,10 +13,18 @@
   \and
   Mateusz Pyzik\\
 }
+\date{}
 
 \RenewDocumentCommand{\Fun}{m m}{#1 \multimap #2}
 
-\NewDocumentCommand{\infer}{m O{i} m m m}{#1 \vdash_{#2} #3 \mathcolor{red}{\Rightarrow} #4 \dashv #5}
+\NewDocumentCommand{\funpair}{}{\texttt{pair}}
+
+\NewDocumentCommand{\var}{o m m o}{\IfValueTF{#1}{#1\,}{} #2 : #3 \IfValueTF{#4}{:= #4}{}}
+\NewDocumentCommand{\tvar}{m o}{#1 \IfValueTF{#2}{: \Type[#2]}{}}
+\NewDocumentCommand{\stvar}{m o}{\tilde{#1} \IfValueTF{#2}{: \Type[#2]}{}}
+\NewDocumentCommand{\evar}{m o}{\hat{#1} \IfValueTF{#2}{= #2}{}}
+
+\NewDocumentCommand{\marker}{m}{\blacktriangleright_{#1}}
 
 \NewDocumentCommand{\emptyhint}{}{\square}
 \NewDocumentCommand{\typehint}{m}{\square : #1}
@@ -24,32 +32,26 @@
 \NewDocumentCommand{\implicithint}{m}{\app{\square}{@#1}}
 \NewDocumentCommand{\explicithint}{m}{\app{\square}{#1}}
 
-\NewDocumentCommand{\matching}{m m m m}{#1 \vdash #2 \mathcolor{red}{\leadsto} #3 \dashv #4}
-
-%\NewDocumentCommand{\substctx}{m m}{#1\left[#2\right]}
 \NewDocumentCommand{\substctx}{m m}{\langle#1\rangle#2}
-
 \NewDocumentCommand{\holectx}{m m}{#1[#2]}
 
-\NewDocumentCommand{\marker}{m}{\blacktriangleright_{#1}}
+\NewDocumentCommand{\FV}{m}{\texttt{FV}(#1)}
 
-\NewDocumentCommand{\extendmarker}{m m}{#1, \marker{#2}}
+\NewDocumentCommand{\newkinding}{m o m m m m}{#1 \vdash_{\IfValueTF{#2}{#2}{}} #3 \mathcolor{blue}{\Rightarrow} #4 \mathcolor{red}{\Rightarrow} #5 \dashv #6}
 
-\NewDocumentCommand{\var}{o m m o}{\IfValueTF{#1}{#1\,}{} #2 : #3 \IfValueTF{#4}{:= #4}{}}
+\NewDocumentCommand{\newcheckkind}{m o m m m}{#1 \vdash_{\IfValueTF{#2}{#2}{}} #3 \mathcolor{blue}{\Rightarrow} #4 \dashv #5}
 
-\NewDocumentCommand{\tvar}{m o}{#1 \IfValueTF{#2}{: \Type[#2]}{}}
-\NewDocumentCommand{\evar}{m o}{\hat{#1} \IfValueTF{#2}{= #2}{}}
-\NewDocumentCommand{\stvar}{m o}{\tilde{#1} \IfValueTF{#2}{: \Type[#2]}{}}
+\NewDocumentCommand{\newinferkind}{m o m m m}{#1 \vdash_{\IfValueTF{#2}{#2}{}} #3 \mathcolor{red}{\Rightarrow} #4 \dashv #5}
+
+\NewDocumentCommand{\infer}{m o m m m}{#1 \vdash_{\IfValueTF{#2}{#2}{}} #3 \mathcolor{red}{\Rightarrow} #4 \dashv #5}
+
+\NewDocumentCommand{\matching}{m m m m}{#1 \vdash #2 \mathcolor{red}{\leadsto} #3 \dashv #4}
 
 \NewDocumentCommand{\subtyping}{m m m m m m}{#1 \vdash #2 \mathcolor{blue}{\Rightarrow} #3 <: #4 \mathcolor{red}{\Rightarrow} #5 \dashv #6}
 
-\NewDocumentCommand{\subinst}{m m m m m m}{#1 \vdash #2 \mathcolor{blue}{\Rightarrow} #3 <: #4 \mathcolor{red}{\Rightarrow} #5 \dashv #6}
+\NewDocumentCommand{\subinst}{m m m m m m}{#1 \vdash #2 \mathcolor{blue}{\Rightarrow} #3 := #4 \mathcolor{red}{\Rightarrow} #5 \dashv #6}
 
-\NewDocumentCommand{\superinst}{m m m m m m}{#1 \vdash #2 \mathcolor{blue}{\Rightarrow} #3 <: #4 \mathcolor{red}{\Rightarrow} #5 \dashv #6}
-
-\NewDocumentCommand{\newkinding}{m O{i} m m m m}{#1 \vdash_{#2} #3 \mathcolor{blue}{\Rightarrow} #4 \mathcolor{red}{\Rightarrow} #5 \dashv #6}
-
-\NewDocumentCommand{\FV}{m}{\texttt{FV}(#1)}
+\NewDocumentCommand{\superinst}{m m m m m m}{#1 \vdash #2 \mathcolor{blue}{\Rightarrow} #3 =: #4 \mathcolor{red}{\Rightarrow} #5 \dashv #6}
 
 \begin{document}
 
@@ -77,13 +79,13 @@ $\tau ::=$ \\
 
 Terms: \\
 $e ::=$ \\
-\qquad $\annot{e}{A} \pipe x \pipe \fun{x}{e} \pipe \app{e_1}{e_2} \pipe \itapp{e}{A} \pipe$ \\
+\qquad $\annot{e}{A} \pipe x \pipe \fun{x}{e} \pipe \fun{x}[A]{e} \pipe \app{e_1}{e_2} \pipe \itapp{e}{A} \pipe$ \\
 \qquad $\tfun{a}{e} \pipe \tfun{a}[r]{e} \pipe \tapp{e}{A} \pipe$ \\
 \qquad $\pair{e_1}{e_2} \pipe \letpair{x}{y}{e_1}{e_2} \pipe$ \\
 \qquad $\inl{e} \pipe \inr{e} \pipe \newcase{e}{x}{e_1}{y}{e_2} \pipe$ \\
 \qquad $\unit \pipe \unitelim{e_1}{e_2} \pipe$ \\
 \qquad $\emptyelim{e} \pipe$ \\
-\qquad $\letin[r]{x}{e_1}{e_2} \pipe$
+\qquad $\letin{x}{e_1}{e_2} \pipe \letin{x}[A]{e_1}{e_2} \pipe$
 
 \end{frame}
 
@@ -91,12 +93,19 @@ $e ::=$ \\
 
 Contexts: \\
 $\Gamma ::=$ \\
-\qquad $\emptyctx \pipe \Gamma, \var[r]{x}{A} \pipe \Gamma, \tvar{a}[r] \pipe \Gamma, \stvar{a}[r] \pipe \Gamma, \evar{a} \pipe \Gamma, \evar{a}[\tau] \pipe$ \\
+\qquad $\emptyctx \pipe \Gamma, \var[r]{x}{A} \pipe \Gamma, \tvar{a}[r] \pipe \Gamma, \stvar{a}[r] \pipe$ \\
+\qquad $\Gamma, \evar{a} \pipe \Gamma, \evar{a}[\tau] \pipe \Gamma, \marker{a} \pipe$ \\
 \qquad $\Gamma, \emptyhint \pipe \Gamma, \typehint{A} \pipe \Gamma, \arghint{e} \pipe \Gamma, \implicithint{A} \pipe \Gamma, \explicithint{A}$
 
-\vspace{2em}
+\end{frame}
 
-$\Gamma, \emptyhint, \Delta$ is a notation which means that $\Delta$ does not contain any hints. It works not only for $\emptyhint$, but for all kinds of hints.
+\begin{frame}{Context operations and notations}
+
+\begin{itemize}
+  \item $\Gamma, \emptyhint, \Delta$ is a notation which means that $\Delta$ does not contain any hints. It works not only for $\emptyhint$, but for all kinds of hints.
+  \item $\holectx{\Gamma}{\evar{a}}$ is a notation for $\Gamma, \evar{a}, \Gamma'$. We use it for checking variable presence and for updating existential variables in the context.
+  \item $\substctx{\Gamma}{A}$ substitues all equations $\evar{a} = \tau$ from $\Gamma$ in $A$.
+\end{itemize}
 
 \end{frame}
 
@@ -115,10 +124,6 @@ $\Gamma, \emptyhint, \Delta$ is a notation which means that $\Delta$ does not co
 \end{frame}
 
 \section{Kinding}
-
-\NewDocumentCommand{\newcheckkind}{m O{i} m m m}{#1 \vdash_{#2} #3 \mathcolor{blue}{\Rightarrow} #4 \dashv #5}
-
-\NewDocumentCommand{\newinferkind}{m O{i} m m m}{#1 \vdash_{#2} #3 \mathcolor{red}{\Rightarrow} #4 \dashv #5}
 
 \begin{frame}{Kinding judgement}
 
@@ -275,6 +280,30 @@ Note: ``checking mode'' is $\infer{\Gamma, \typehint{A}}{e}{\_}{\Gamma'}$, as it
 
 \end{frame}
 
+\begin{frame}{Typing -- smarter hint rule for functions}
+
+\begin{center}
+  $\infrule{\begin{array}{l} \infer{\scalectx{\Zero}{\Gamma}, \emptyhint}{e'}{A}{\Gamma_1} \\ \infer{(\addctx{\scalectx{\Zero}{\Gamma_1}}{\Gamma}), \Delta, \var[\Zero]{x}{A}}{e}{B}{\Gamma_2, \var[r]{x}{A}, \Theta} \\ \newkinding{\Gamma_2}{r}{\substctx{\Gamma_2}{A}}{s}{\Gamma_3} \end{array}}{\infer{\Gamma, \arghint{e'}, \Delta}{\fun{x}{e}}{B}{\addctx{\Gamma_3}{\scalectx{s}{\Gamma_1}}}}$
+\end{center}
+
+\vspace{2em}
+
+Note: this rule is equivalent to the rule for let expressions which automatically takes care of boxing.
+
+\end{frame}
+
+\begin{frame}{Typing -- functions with annotation}
+
+\begin{center}
+  $\infrule{\begin{array}{l} \infer{\Gamma, \typehint{A}}{e'}{\_}{\Gamma_1} \\ \infer{\Gamma_1, \Delta, \var[\Zero]{x}{A}}{e}{B}{\Gamma_2, \var[r]{x}{A}, \Theta} \\ \newkinding{\Gamma_2}{r}{\substctx{\Gamma_2}{A}}{\One}{\Gamma_3} \end{array}}{\infer{\Gamma, \arghint{e'}, \Delta}{\fun{x}[A]{e}}{B}{\Gamma_3}}$
+
+  \vspace{2em}
+
+  $\infrule{\begin{array}{l} \infer{\Gamma, \Delta, \var[\Zero]{x}{A}, \emptyhint}{e}{B}{\Gamma_1, \var[r]{x}{A}, \Theta} \\ \newkinding{\Gamma_1}{r}{A}{\One}{\Gamma_2} \end{array}}{\infer{\Gamma, \emptyhint, \Delta}{\fun{x}[A]{e}}{\Fun{A}{B}}{\Gamma_2}}$
+\end{center}
+
+\end{frame}
+
 \begin{frame}{Typing -- explicit quantification}
 
 \begin{center}
@@ -283,6 +312,10 @@ Note: ``checking mode'' is $\infer{\Gamma, \typehint{A}}{e}{\_}{\Gamma'}$, as it
   \vspace{2em}
 
   $\infrule{\infer{\Gamma, \Delta, \tvar{a}[r], \emptyhint}{e}{A}{\Gamma'}}{\infer{\Gamma, \emptyhint, \Delta}{\tfun{a}[r]{e}}{\ForallE{a}[r]{A}}{\Gamma'}}$
+
+  \vspace{2em}
+
+  $\infrule{\newkinding{\Gamma}{\Any}{B}{r}{\Gamma_1} \quad \infer{\Gamma_1, \Delta, \tvar{a}[\divqty{\Any}{r}]}{e}{A}{\Gamma_2}}{\infer{\Gamma, \explicithint{B}, \Delta}{\tfun{a}{e}}{\ForallE{a}[\divqty{\Any}{r}]{A}}{\Gamma_2}}$
 
   \vspace{2em}
 
@@ -347,8 +380,6 @@ Note: ``checking mode'' is $\infer{\Gamma, \typehint{A}}{e}{\_}{\Gamma'}$, as it
 
 \end{frame}
 
-\NewDocumentCommand{\funpair}{}{\texttt{pair}}
-
 \begin{frame}{Typing -- alternative rules for products}
 
 \begin{center}
@@ -396,7 +427,11 @@ Note: ``checking mode'' is $\infer{\Gamma, \typehint{A}}{e}{\_}{\Gamma'}$, as it
 \begin{frame}{Typing -- let}
 
 \begin{center}
-  $\infrule{\begin{array}{l} \infer{\scalectx{\Zero}{\Gamma}, \emptyhint}{e_1}{A}{\Gamma_1} \quad \infer{(\addctx{\scalectx{\Zero}{\Gamma_1}}{\Gamma}), \var[\Zero]{x}{A}}{e_2}{B}{\Gamma_2, \var[r]{x}{A}} \\ \newkinding{\Gamma_2}{r}{A}{s}{\Gamma_3} \end{array}}{\infer{\Gamma}{\letin{x}{e_1}{e_2}}{B}{\addctx{\Gamma_3}{\scalectx{s}{\Gamma_1}}}}$
+  $\infrule{\begin{array}{l} \infer{\scalectx{\Zero}{\Gamma}, \emptyhint}{e_1}{A}{\Gamma_1} \\ \infer{(\addctx{\scalectx{\Zero}{\Gamma_1}}{\Gamma}), \var[\Zero]{x}{A}}{e_2}{B}{\Gamma_2, \var[r]{x}{A}} \\ \newkinding{\Gamma_2}{r}{A}{s}{\Gamma_3} \end{array}}{\infer{\Gamma}{\letin{x}{e_1}{e_2}}{B}{\addctx{\Gamma_3}{\scalectx{s}{\Gamma_1}}}}$
+
+  \vspace{2em}
+
+  $\infrule{\begin{array}{l} \infer{\scalectx{\Zero}{\Gamma}, \typehint{A}}{e_1}{\_}{\Gamma_1} \\ \infer{(\addctx{\scalectx{\Zero}{\Gamma_1}}{\Gamma}), \var[\Zero]{x}{A}}{e_2}{B}{\Gamma_2, \var[r]{x}{A}} \\ \newkinding{\Gamma_2}{r}{A}{s}{\Gamma_3} \end{array}}{\infer{\Gamma}{\letin{x}[A]{e_1}{e_2}}{B}{\addctx{\Gamma_3}{\scalectx{s}{\Gamma_1}}}}$
 \end{center}
 
 \end{frame}
