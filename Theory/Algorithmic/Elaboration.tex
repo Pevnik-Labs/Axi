@@ -1,20 +1,8 @@
-\documentclass{beamer}
-\usepackage[utf8]{inputenc}
-\usepackage{babel}
-\usepackage{xcolor}
-\usepackage{Commands}
-
-\usetheme{Darmstadt}
+\section{Elaboration}
 
 \NewDocumentCommand{\checkelab}{m O{i} m m m m}{#1 \vdash_{\optional{#2}} #3 \mathcolor{blue}{\Leftarrow} #4 \mathcolor{red}{\Rightarrow} #5 \dashv #6}
 
 \NewDocumentCommand{\inferelab}{m O{i} m m m m}{#1 \vdash_{\optional{#2}} #3 \mathcolor{red}{\Rightarrow} #4 : #5 \dashv #6}
-
-\title{Elaboration (billing-style)}
-
-\begin{document}
-
-\section{Elaboration}
 
 \begin{frame}{Judgements}
 
@@ -93,9 +81,7 @@ $\inferelab{\Gamma}{e}{e'}{A}{\Gamma'}$ -- in context $\Gamma$ infer that $A$ is
 
   \vspace{2em}
 
-  $\infrule{\inferelab{\Gamma}{e}{e'}{\Sum{A}{B}}{\Gamma_1} \quad \begin{array}{l} \checkelab{\extend{\Gamma}[\Zero]{x}{A}}{e_1}{e_1'}{C}{\extend{\Gamma_2}[r_1]{x}{A}} \\ \checkelab{\extend{\Gamma}[\Zero]{y}{B}}{e_2}{e_2'}{C}{\extend{\Gamma_3}[r_2]{y}{B}} \\ r = \glbqty{(\divqty{r_1}{\totalqty{\One}{A}})}{(\divqty{r_2}{\totalqty{\One}{B}})} \end{array}}{\checkelab{\Gamma}{\newcase{e}{x}{e_1}{y}{e_2}}{C}{\newcase{e'}{x}{e_1'}{y}{e_2'}[C]}{\addctx{\scalectx{r}{\Gamma_1}}{(\glbctx{\Gamma_2}{\Gamma_3})}}}$
+  $\infrule{\begin{array}{l} \inferelab{\Gamma}{e}{e'}{\Sum{A}{B}}{\Gamma_1} \\  \checkelab{\extend{\Gamma}[\Zero]{x}{A}}{e_1}{e_1'}{C}{\extend{\Gamma_2}[r_1]{x}{A}} \\ \checkelab{\extend{\Gamma}[\Zero]{y}{B}}{e_2}{e_2'}{C}{\extend{\Gamma_3}[r_2]{y}{B}} \\ r = \glbqty{(\divqty{r_1}{\totalqty{\One}{A}})}{(\divqty{r_2}{\totalqty{\One}{B}})} \\ \Gamma_4 = \addctx{\scalectx{r}{\Gamma_1}}{(\glbctx{\Gamma_2}{\Gamma_3})} \end{array}}{\checkelab{\Gamma}{\newcase{e}{x}{e_1}{y}{e_2}}{C}{\newcase{e'}{x}{e_1'}{y}{e_2'}[C]}{\Gamma_4}}$
 \end{center}
 
 \end{frame}
-
-\end{document}

@@ -182,7 +182,7 @@ $\infertype{\extend{\Gamma}[r]{x}{A}}{e}{A}{\extend{\Gamma'}[\Zero]{x}{A}}$ is a
 
     \vspace{2em}
 
-    $\infrule{\infertype{\Gamma}{e_1}{\Prod{A}{B}}{\Gamma_1} \quad \infertype{\extend{\extend{\Gamma_1}[\totalqty{\One}{A}]{x}{A}}[\totalqty{\One}{B}]{y}{B}}{e_2}{C}{\extend{\extend{\Gamma_2}[\Zero]{x}{A}}[\Zero]{y}{B}}}{\infertype{\Gamma}{\letpair{x}{y}{e_1}{e_2}}{C}{\Gamma_2}}$
+    $\infrule{\begin{array}{l} \infertype{\Gamma}{e_1}{\Prod{A}{B}}{\Gamma_1} \\ \infertype{\extend{\extend{\Gamma_1}[\totalqty{\One}{A}]{x}{A}}[\totalqty{\One}{B}]{y}{B}}{e_2}{C}{\extend{\extend{\Gamma_2}[\Zero]{x}{A}}[\Zero]{y}{B}} \end{array}}{\infertype{\Gamma}{\letpair{x}{y}{e_1}{e_2}}{C}{\Gamma_2}}$
 \end{center}
 
 \end{frame}
@@ -207,7 +207,7 @@ $\infertype{\extend{\Gamma}[r]{x}{A}}{e}{A}{\extend{\Gamma'}[\Zero]{x}{A}}$ is a
 \begin{frame}{Let}
 
 \begin{center}
-  $\infrule{\divctx{\Gamma}{r} = (\Gamma_1, \Gamma_2) \quad \infertype{\Gamma_1}{e_1}{A}{\Gamma_3} \quad \infertype{\extend{(\addctx{\Gamma_2}{\scalectx{r}{\Gamma_3}})}[\totalqty{r}{A}]{x}{A}}{e_2}{B}{\extend{\Gamma_4}[\Zero]{x}{A}}}{\infertype{\Gamma}{\letin[r]{x}{e_1}{e_2}}{B}{\Gamma_4}}$
+  $\infrule{\divctx{\Gamma}{r} = (\Gamma_1, \Gamma_2) \quad \begin{array}{l} \infertype{\Gamma_1}{e_1}{A}{\Gamma_3} \\ \infertype{\extend{(\addctx{\Gamma_2}{\scalectx{r}{\Gamma_3}})}[\totalqty{r}{A}]{x}{A}}{e_2}{B}{\extend{\Gamma_4}[\Zero]{x}{A}} \end{array}}{\infertype{\Gamma}{\letin[r]{x}{e_1}{e_2}}{B}{\Gamma_4}}$
 \end{center}
 
 \end{frame}
