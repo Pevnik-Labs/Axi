@@ -1,5 +1,5 @@
 {- LBNF Axi grammar -}
-entrypoints [Dec] ;
+entrypoints [Dec], Repl ;
 
 comment "#!" ;
 comment "//" ;
@@ -17,18 +17,17 @@ layout "where" ;
 layout stop "in" ;
 layout stop "qed" ;
 
-position
 token Number '-'? digit+ ('.' digit+)? ('e' '-'? digit+)? ;
-position
 token Chr '\'' (char - ["'\\"] | '\\' (["abefnrtv\\\'\"?"] | ["xuU"]? (digit | letter)+)) '\'' ;
-position
 token Str '"' (char - ["\"\\"] | '\\' (["abefnrtv\\\'\"?"] | ["xuU"]? (digit | letter)+))* '"' ;
-position
-token Hole '?' (letter | '_') (digit | letter | ["-_'"])* ;
-position
+token Hole '?' letter (digit | letter | ["-_'"])* ;
 token Id
   ((letter | '_') (digit | letter | ["-_'"])* '.')*
   ((letter | '_') (digit | letter | ["-_'"])* | ["-,;:!?.'\"@*/\\&#%^+<=>|~$"]+) ;
+
+LetR. Repl ::= "let" "{" [Dec] "}" ;
+ExpR. Repl ::= Exp ;
+RequireR. Repl ::= "require" Str ;
 
 separator Dec ";" ;
 
@@ -90,7 +89,7 @@ RightArrowCO. ChainOp ::= "->" ;
 EqCO. ChainOp ::= "=" ;
 EqualCO. ChainOp ::= "===" ;
 EquivCO. ChainOp ::= "<-->" ;
-ExpCO. ChainOp ::= Exp11;
+ExpCO. ChainOp ::= Exp11 ;
 
 separator nonempty RewriteItem "," ;
 
@@ -104,19 +103,19 @@ MkP. Patterns ::= [Param] TypeAnnOpt ;
 
 terminator Param "" ;
 
-ExplicitP. Param ::= Pat11 ;
-ImplicitP. Param ::= "{" Pat "}" ;
-InstanceP. Param ::= "{{" Pat "}}" ;
+BareP. Param ::= Pat11 ;
+ExplicitP. Param ::= "@" Pat11 ;
+InvisibleP. Param ::= "{" Pat "}" ;
 
 separator nonempty Pat2 "," ;
 
 NoncomputableP. Pat ::= "noncomputable" Pat1 ;
 TypeP. Pat ::= "type" Pat1 ;
-PropositionP. Pat ::= "proposition" Pat1 ;
+PropP. Pat ::= "proposition" Pat1 ;
 CtorAnnP. Pat1 ::= Pat2 "of" [Exp1] ;
 SuperAnnP. Pat1 ::= Pat2 ":>" [Exp1] ;
 SubAnnP. Pat1 ::= Pat2 "<:" [Exp1] ;
-TypeAnnP. Pat2 ::= Pat3 TypeAnn ;
+AnnP. Pat2 ::= Pat3 ":" Exp1 ;
 OrP. Pat3 ::= Pat4 "|" Pat3 ;
 AndP. Pat4 ::= Pat5 "&" Pat4 ;
 IndP. Pat10 ::= "ind" Pat11 ;
@@ -137,10 +136,8 @@ separator FieldPat ";" ;
 PunP. FieldPat ::= Id ;
 FieldP. FieldPat ::= Id "=" Pat ;
 
-HasTAO. TypeAnnOpt ::= TypeAnn ;
+HasTAO. TypeAnnOpt ::= ":" Exp1 ;
 NoTAO. TypeAnnOpt ::= ;
-
-MkTA. TypeAnn ::= ":" Exp1 ;
 
 HasEO. ExpOpt ::= Exp ;
 NoEO. ExpOpt ::= ;
@@ -153,7 +150,7 @@ ApplyE. Exp ::= "apply" Exp ;
 ProofDecInE. Exp ::= ProofDec "in" Exp ;
 WitnessSuchThatE. Exp1 ::= "witness" [Exp] "such-that" Exp1 ;
 AnnE. Exp1 ::= Exp2 ":" Exp1 ;
-LamE. Exp1 ::= "\\" Clause ;
+FunE. Exp1 ::= "\\" [Param] "->" Exp1 ;
 ProvingByE. Exp1 ::= "proving" ExpOpt "by" "{" [ProofStep] "}" ;
 SufficesByE. Exp1 ::= "suffices" Exp "by" "{" [ProofStep] "}" ;
 ExistsE. Exp1 ::= "exists" Patterns "," Exp1 ;
@@ -166,21 +163,22 @@ ConjunctionE. Exp4 ::= Exp5 "/\\" Exp4 ;
 NegationE. Exp5 ::= "~" Exp5 ;
 EqualE. Exp5 ::= Exp6 "===" Exp6 ;
 CallE. Exp10 ::= Exp11 [Arg] ;
-LamCasesE. Exp11 ::= "\\" Patterns "where" "{" [Clause] "}" ;
-CaseE. Exp11 ::= "case" Exp "where" "{" [Clause] "}" ;
-MatchWith. Exp11 ::= "match" Exp "with" [PipeClause] ;
-InstantiateWithE. Exp11 ::= "instantiate" Exp "with" ;
-UnitE. Exp11 ::= "(" ")" ;
-TupleE. Exp11 ::= "(" Exp "," [Exp] ")" ;
-RecordE. Exp11 ::= "record" "{" [Dec] "}" ;
-RecordUpdateE. Exp11 ::= "record" Exp "where" "{" [Dec] "}" ;
-AssumptionE. Exp11 ::= "assumption" ;
-NumberE. Exp11 ::= Number ;
-CharE. Exp11 ::= Chr ;
-StringE. Exp11 ::= Str ;
-HoleE. Exp11 ::= Hole ;
-VarE. Exp11 ::= Id ;
-coercions Exp 11 ;
+ExplicitE. Exp11 ::= "@" Id ;
+LamCasesE. Exp12 ::= "\\" Patterns "where" "{" [Clause] "}" ;
+CaseE. Exp12 ::= "case" Exp "where" "{" [Clause] "}" ;
+MatchWith. Exp12 ::= "match" Exp "with" [PipeClause] ;
+InstantiateWithE. Exp12 ::= "instantiate" Exp "with" ;
+UnitE. Exp12 ::= "(" ")" ;
+TupleE. Exp12 ::= "(" Exp "," [Exp] ")" ;
+RecordE. Exp12 ::= "record" "{" [Dec] "}" ;
+RecordUpdateE. Exp12 ::= "record" Exp "where" "{" [Dec] "}" ;
+AssumptionE. Exp12 ::= "assumption" ;
+NumberE. Exp12 ::= Number ;
+CharE. Exp12 ::= Chr ;
+StringE. Exp12 ::= Str ;
+HoleE. Exp12 ::= Hole ;
+VarE. Exp12 ::= Id ;
+coercions Exp 12 ;
 
 separator Clause ";" ;
 
@@ -192,5 +190,5 @@ MkPC. PipeClause ::= "|" [Pat2] "=>" "{" [ProofStep] "}" ;
 
 separator nonempty Arg "" ;
 
-ExplicitA. Arg ::= Exp11 ;
-ImplicitA. Arg ::= "{" Exp "}" ;
+BareA. Arg ::= Exp12 ;
+ExplicitA. Arg ::= "@" Exp11 ;

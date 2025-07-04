@@ -1,0 +1,92 @@
+# This YAML file describes your package. See the hpack website for help with
+# this file: <https://github.com/sol/hpack>.
+name: axii
+version: "0.0.0"
+category: Data
+github: mpyzik/axii
+author: Mateusz Pyzik
+maintainer: mateusz.pyzik@outlook.com
+license: ISC
+
+extra-source-files:
+  - .envrc
+  - default.nix
+  - hie.yaml
+  - Makefile
+  - Prelude.txt
+  - README.md
+  - shell.nix
+
+ghc-options: -Wall
+dependencies: &deps
+  base:
+  array:
+  bytestring:
+  containers:
+  generic-data:
+  hashable:
+  integer-gmp:
+  lens:
+  linear-base:
+  mtl:
+  pretty:
+  profunctors:
+  random:
+  syb:
+  template-haskell:
+  text:
+  transformers:
+  unordered-containers:
+  vector:
+default-extensions:
+  - ImportQualifiedPost
+other-extensions:
+  - BangPatterns
+  - BlockArguments
+  - DataKinds
+  - DeriveDataTypeable
+  - DeriveFoldable
+  - DeriveFunctor
+  - DeriveTraversable
+  - EmptyCase
+  - ExistentialQuantification
+  - FlexibleInstances
+  - FunctionalDependencies
+  - GADTs
+  - LambdaCase
+  - MultiParamTypeClasses
+  - NoStarIsType
+  - PatternSynonyms
+  - PatternSynonyms
+  - PolyKinds
+  - QuasiQuotes
+  - RankNTypes
+  - ScopedTypeVariables
+  - StandaloneDeriving
+  - StandaloneKindSignatures
+  - StrictData
+  - TemplateHaskell
+  - TypeApplications
+  - TypeFamilyDependencies
+  - TypeOperators
+  - ViewPatterns
+
+_exec: &exec
+  main: Main.hs
+  ghc-options:
+    - -rtsopts
+    - -threaded
+    - -with-rtsopts=-N
+
+executables:
+  axii:
+    <<: *exec
+    source-dirs: executable
+    dependencies:
+      <<: *deps
+  grammar:
+    <<: *exec
+    source-dirs: grammar
+    main: Syntax/Test.hs  
+    dependencies:
+      <<: *deps

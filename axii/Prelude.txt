@@ -1,0 +1,85 @@
+id x = x
+unit k (u : forall r, r -> r) = u k
+auto (u : forall r, r -> r) = u u
+
+const x _ = x
+comp x y z = x (y z)
+flip x y z = x z y
+ap x y z = x z (y z)
+
+absurd (x : forall r, r) = x
+
+if (b : bool) = b
+not b = if b false true
+imp = flip not true
+and = flip not false
+or = flip if true
+xor = flip (comp ap not) not
+
+pair x y k = k x y
+curry f x y = f (pair x y)
+uncurry f (p : forall r, (a -> b -> r) -> r) = p f
+fst = uncurry const
+snd = uncurry (const id)
+prodMap f g = uncurry (\x y -> pair (f x) (g y))
+
+nothing (n : r) (j : a -> r) = n
+just (x : a) (n : r) (j : a -> r) = j x
+maybe n j (m : forall r, r -> (a -> r) -> r) = m n j
+maybeMap f = maybe nothing (comp just f)
+
+left x (l : a -> r) (r : b -> r) = l x
+right x (l : a -> r) (r : b -> r) = r x
+either l r (e : forall r, (a -> r) -> (b -> r) -> r) = e l r
+eitherMap f g = either (comp left f) (comp right g)
+
+zero (s : r -> r) (z : r) = z
+succ (n : forall r, (r -> r) -> r -> r) s z = s (n s z)
+iter s z (n : forall r, (r -> r) -> r -> r) = n s z
+nat z s n =
+  snd (iter (uncurry (\n ih -> pair (succ n) (s n ih))) (pair zero z) n)
+pred = nat zero const
+nat_ z s = nat z (comp const s)
+add (m : forall r, (r -> r) -> r -> r) (n : forall r, (r -> r) -> r -> r) s z =
+  n s (m s z)
+sub = iter pred
+mul (m : forall r, (r -> r) -> r -> r) (n : forall r, (r -> r) -> r -> r) s =
+  n (m s)
+pow (m : forall r, (r -> r) -> r -> r) (n : forall r, (r -> r) -> r -> r) =
+  n m
+one = succ zero
+two = succ one
+three = succ two
+four = succ three
+five = succ four
+six = succ five
+seven = succ six
+eight = succ seven
+nine = succ eight
+ten = succ nine
+tetrate m = iter (pow m) one
+pentate m = iter (tetrate m) one
+step = iter (const id) (const id)
+hyper = nat (const succ) (\k f m -> iter (f m) (nat_ m step k))
+ifzero = iter (const false) true
+leqn m n = ifzero (sub m n)
+eqn m n = and (leqn m n) (leqn n m)
+show = iter (\n -> n + 1) 0
+
+nil (c : a -> r -> r) (n : r) = n
+cons x (xs : forall r, (a -> r -> r) -> r -> r) c n = c x (xs c n)
+foldr c n (xs : forall r, (a -> r -> r) -> r -> r) = xs c n
+foldl c n xs = foldr (\x k acc -> k (c acc x)) id xs n
+list n c xs =
+  snd
+    (foldr
+      (\x -> uncurry (\xs ih -> pair (cons x xs) (c x xs ih)))
+      (pair nil n)
+      xs)
+sing = flip cons nil
+head = foldr (\x _ -> just x) nothing
+tail = list nothing (\_ xs _ -> just xs)
+uncons = list nothing (\x xs _ -> just (cons x xs))
+map f = foldr (\x ys -> cons (f x) ys) nil
+append xs ys = foldr cons ys xs
+concat = foldr append nil

@@ -1,0 +1,6 @@
+.direnv
+.stack-work/
+dist-newstyle/
+result
+*.bak
+*.info

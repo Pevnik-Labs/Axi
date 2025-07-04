@@ -1,0 +1,6 @@
+cradle:
+  cabal:
+    - path: "./executable"
+      component: "exe:axii"
+    - path: "./grammar"
+      component: "exe:grammar"
