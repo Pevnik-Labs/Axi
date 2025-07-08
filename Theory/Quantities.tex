@@ -35,8 +35,6 @@ $\Any$ is the default quantity, so when there's nothing to indicate quantity, it
 
 \end{frame}
 
-\section{Declarative}
-
 \begin{frame}{Subusage ordering}
 
 $\subusage{r_1}{r_2}$ means that a resource with quantity $r_1$ may be used when quantity $r_2$ is expected. This ordering is called sub-usaging. The definition below is just the skeleton, the full ordering is the reflexive-transitive closure of it.
@@ -107,27 +105,6 @@ Quantities $\qty$ form a positive ordered commutative semiring with no zero divi
 
 \end{frame}
 
-\section{Algorithmic}
-
-\begin{frame}{Trait-checking Division}
-
-$\divqty{r_1}{r_2} = \sup \{s \in \qty \pipe \subusage{\mulqty{s}{r_2}}{r_1} \}$
-
-\begin{table}[ht]
-  \centering
-  \begin{tabular}{|c|c|c|c|c|c|}
-  \hline
-  $\divqty{r_1}{r_2}$ & $\Zero$ & $\One$  & $\Few$   & $\Many$ & $\Any$  \\ \hline
-  $\Zero$             & $\Zero$ & $\Zero$ & $\Zero$  & $\Zero$ & $\Zero$ \\ \hline
-  $\One$              &         & $\One$  & $\One$   & $\One$  & $\One$  \\ \hline
-  $\Few$              &         & $\Few$  & $\One$   & $\Few$  & $\One$  \\ \hline
-  $\Many$             &         & $\Many$ & $\Many$  & $\One$  & $\One$  \\ \hline
-  $\Any$              &         & $\Any$  & $\Many$  & $\Few$  & $\One$  \\ \hline
-  \end{tabular}
-\end{table}
-
-\end{frame}
-
 \begin{frame}{Subtraction of quantities}
 
 $\subqty{r_1}{r_2}$ is the least $r'$ such that $\subusage{r_1}{\addqty{r'}{r_2}}$.
@@ -164,6 +141,10 @@ Explicitly: $\Zero \lesubqty{}{} \One \lesubqty{}{} \Few \lesubqty{}{} \Many \le
 $\ledecqty{r_1}{r_2}$ holds when $\subqty{r_2}{\One} = r_1$.
 
 \begin{center}
+  $\infrule{}{\ledecqty{\Any}{\Any}}$
+
+  \vspace{2em}
+
   $\infrule{}{\ledecqty{\Any}{\Many}}$
 
   \vspace{2em}
@@ -180,6 +161,25 @@ $\ledecqty{r_1}{r_2}$ holds when $\subqty{r_2}{\One} = r_1$.
 \begin{frame}{Arithmetic order on quantities}
 
 The arithmetic order on quantities is $\Zero \learithqty \One \learithqty \Few \learithqty \Many \learithqty \Any$. The idea is to compare the quantities by how ``big'' they are.
+
+\end{frame}
+
+\begin{frame}{Trait-checking Division}
+
+$\divqty{r_1}{r_2} = \sup \{s \in \qty \pipe \subusage{\mulqty{s}{r_2}}{r_1} \}$
+
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{|c|c|c|c|c|c|}
+  \hline
+  $\divqty{r_1}{r_2}$ & $\Zero$ & $\One$  & $\Few$   & $\Many$ & $\Any$  \\ \hline
+  $\Zero$             & $\Zero$ & $\Zero$ & $\Zero$  & $\Zero$ & $\Zero$ \\ \hline
+  $\One$              &         & $\One$  & $\One$   & $\One$  & $\One$  \\ \hline
+  $\Few$              &         & $\Few$  & $\One$   & $\Few$  & $\One$  \\ \hline
+  $\Many$             &         & $\Many$ & $\Many$  & $\One$  & $\One$  \\ \hline
+  $\Any$              &         & $\Any$  & $\Many$  & $\Few$  & $\One$  \\ \hline
+  \end{tabular}
+\end{table}
 
 \end{frame}
 
