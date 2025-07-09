@@ -1,305 +1,103 @@
-(** * Quantities *)
-Require Import Bool Coq.Classes.RelationClasses.
+(** * Quantity *)
 
-Inductive Qty : Type :=
+Require Export
+  Bool
+  Coq.Classes.RelationClasses
+  Coq.Classes.DecidableClass.
+
+(**
+  [Quantity] is the type of quantities. Quantities express a crude measure of
+  resource usage:
+  - [Zero] means <<0>> uses
+  - [One] means <<1>> use
+  - [Few] means <<0>> or <<1>> use
+  - [Many] means <<1>> or more uses
+  - [Any] means <<0>> or more uses
+*)
+
+Inductive Quantity : Type :=
 | Zero
 | One
 | Few
 | Many
 | Any.
 
-Definition qty_eq_dec (r s : Qty) : bool :=
-match r, s with
-| Zero, Zero => true
-| One , One  => true
-| Few , Few  => true
-| Many, Many => true
-| Any , Any  => true
-| _   , _    => false
-end.
+(** [Quantity] has decidable equality. *)
 
-Lemma qty_eq_dec_spec :
-  forall r s : Qty,
-    reflect (r = s) (qty_eq_dec r s).
+#[refine, export] Instance Decidable_eq_Quantity :
+  forall r s : Quantity,
+    Decidable (r = s) :=
+{
+  Decidable_witness :=
+    match r, s with
+    | Zero, Zero => true
+    | One , One  => true
+    | Few , Few  => true
+    | Many, Many => true
+    | Any , Any  => true
+    | _   , _    => false
+    end;
+}.
 Proof.
-  now intros [] []; cbn; constructor;
-    match goal with
-    | |- _ = _ => reflexivity
-    | |- _ <> _ => inversion 1
-    end.
-Qed.
+  now destruct r, s; cbn.
+Defined.
 
 (** * Subusage ordering *)
 
-Inductive subusage : Qty -> Qty -> Prop :=
-| subusage_refl : forall r : Qty, subusage r r
-| subusage_Any_l : forall r : Qty, subusage Any r
-| subusage_Many_One : subusage Many One
-| subusage_Few_One : subusage Few One
-| subusage_Few_Zero : subusage Few Zero.
+(** A picture is worth a thousand words: *)
 
-#[export] Instance Reflexive_subusage :
-  Reflexive subusage.
+(*
+    0     1
+     \   / \
+      \ /   \
+       ?     +
+        \   /
+         \ /
+          *
+*)
+Inductive Subusage : Quantity -> Quantity -> Prop :=
+| Subusage_refl     : forall r : Quantity, Subusage r r
+| Subusage_Any_l    : forall r : Quantity, Subusage Any r
+| Subusage_Many_One : Subusage Many One
+| Subusage_Few_One  : Subusage Few One
+| Subusage_Few_Zero : Subusage Few Zero.
+
+#[export] Hint Constructors Subusage : core.
+
+#[export] Instance PreOrder_Subusage :
+  PreOrder Subusage.
 Proof.
-  now constructor.
+  split; red.
+  - easy.
+  - now do 2 inversion 1.
 Qed.
 
-#[export] Instance Transitive_subusage :
-  Transitive subusage.
+#[export] Instance Antisymmetric_Subusage :
+  Antisymmetric _ eq Subusage.
 Proof.
-  now intros r s t []; inversion 1; constructor.
+  now do 2 inversion 1.
 Qed.
 
-#[export] Instance Antisymmetric_subusage :
-  Antisymmetric _ eq subusage.
+#[refine, export] Instance Decidable_Subusage :
+  forall r s : Quantity,
+    Decidable (Subusage r s) :=
+{
+  Decidable_witness :=
+    match r, s with
+    | Any , _    => true
+    | Many, One  => true
+    | Few , One  => true
+    | Few , Zero => true
+    | _   , _    => decide (r = s)
+    end;
+}.
 Proof.
-  now intros r s []; inversion 1.
-Qed.
+  now destruct r, s; cbn.
+Defined.
 
-Definition subusageb (r s : Qty) : bool :=
-match r, s with
-| Any , _    => true
-| Many, One  => true
-| Few , One  => true
-| Few , Zero => true
-| _   , _    => qty_eq_dec r s
-end.
+(** ** Infimum *)
 
-Lemma subusageb_spec :
-  forall r s : Qty,
-    reflect (subusage r s) (subusageb r s).
-Proof.
-  now intros [] []; cbn; constructor;
-    match goal with
-    | |- ~ _ => inversion 1
-    | _ => constructor
-    end.
-Qed.
-
-Inductive subusage' : Qty -> Qty -> Prop :=
-| subusage'_refl : forall r : Qty, subusage' r r
-| subusage'_Any_l : forall r : Qty, subusage' Any r
-| subusage'_One_r : forall r : Qty, r <> Zero -> subusage' r One
-| subusage'_Few_Zero : subusage' Few Zero.
-
-Lemma subusage'_spec :
-  forall r s : Qty,
-    subusage' r s <-> subusage r s.
-Proof.
-  split.
-  - inversion 1; subst; try constructor.
-    now destruct r; [congruence | constructor..].
-  - now inversion 1; subst; constructor; congruence.
-Qed.
-
-(** * Addition *)
-
-Definition add (r s : Qty) : Qty :=
-match r, s with
-| Zero, _    => s
-| _   , Zero => r
-| Few , Few  => Any
-| Few , Any  => Any
-| Any , Few  => Any
-| Any , Any  => Any
-| _   , _    => Many
-end.
-
-Lemma add_assoc :
-  forall r s t : Qty,
-    add (add r s) t = add r (add s t).
-Proof.
-  now intros [] [] []; cbn; easy.
-Qed.
-
-Lemma add_comm :
-  forall r s : Qty,
-    add r s = add s r.
-Proof.
-  now intros [] []; cbn.
-Qed.
-
-Lemma add_Zero_l :
-  forall r : Qty,
-    add Zero r = r.
-Proof.
-  easy.
-Qed.
-
-Lemma add_Zero_r :
-  forall r : Qty,
-    add r Zero = r.
-Proof.
-  now intros [].
-Qed.
-
-Lemma add_Many_l :
-  forall r : Qty,
-    add Many r = Many.
-Proof.
-  now intros []; cbn.
-Qed.
-
-Lemma add_Many_r :
-  forall r : Qty,
-    add r Many = Many.
-Proof.
-  now intros []; cbn.
-Qed.
-
-Lemma add_Zero_inv :
-  forall r s : Qty,
-    add r s = Zero -> r = Zero /\ s = Zero.
-Proof.
-  now intros [] []; cbn.
-Qed.
-
-#[export] Hint Rewrite add_Zero_l add_Zero_r add_Many_l add_Many_r : qty.
-
-Lemma subusage_add_l :
-  forall r1 r2 s : Qty,
-    subusage r1 r2 -> subusage (add r1 s) (add r2 s).
-Proof.
-  intros r1 r2 []; inversion 1; subst; cbn; try constructor.
-  - now destruct r2; constructor.
-  - now destruct r2; constructor.
-Qed.
-
-Lemma subusage'_add_l :
-  forall r1 r2 s : Qty,
-    subusage' r1 r2 -> subusage' (add r1 s) (add r2 s).
-Proof.
-  inversion 1; subst.
-  - now constructor.
-  - now destruct r2, s; cbn; constructor; congruence.
-  - now destruct r1, s; cbn; try constructor; congruence.
-  - now destruct s; cbn; constructor.
-Qed.
-
-Lemma subusage_add_r :
-  forall r s1 s2 : Qty,
-    subusage s1 s2 -> subusage (add r s1) (add r s2).
-Proof.
-  intros [] s1 s2; inversion 1; subst; cbn; try constructor.
-  - now destruct s2; cbn; constructor.
-  - now destruct s2; cbn; constructor.
-Qed.
-
-Lemma subusage_add :
-  forall r1 r2 s1 s2 : Qty,
-    subusage r1 r2 -> subusage s1 s2 -> subusage (add r1 s1) (add r2 s2).
-Proof.
-  intros.
-  transitivity (add r2 s1).
-  - now apply subusage_add_l.
-  - now apply subusage_add_r.
-Qed.
-
-(** * Multiplication *)
-
-Definition mul (r s : Qty) : Qty :=
-match r, s with
-| Zero, _    => Zero
-| _   , Zero => Zero
-| One , _    => s
-| _   , One  => r
-| Few , Few  => Few
-| Many, Many => Many
-| _   , _    => Any
-end.
-
-Lemma mul_assoc :
-  forall r s t : Qty,
-    mul (mul r s) t = mul r (mul s t).
-Proof.
-  now intros [] [] []; cbn; easy.
-Qed.
-
-Lemma mul_comm :
-  forall r s : Qty,
-    mul r s = mul s r.
-Proof.
-  now intros [] []; cbn.
-Qed.
-
-Lemma mul_One_l :
-  forall r : Qty,
-    mul One r = r.
-Proof.
-  now intros [].
-Qed.
-
-Lemma mul_One_r :
-  forall r : Qty,
-    mul r One = r.
-Proof.
-  now intros [].
-Qed.
-
-Lemma mul_Zero_l :
-  forall r : Qty,
-    mul Zero r = Zero.
-Proof.
-  now intros [].
-Qed.
-
-Lemma mul_Zero_r :
-  forall r : Qty,
-    mul r Zero = Zero.
-Proof.
-  now intros [].
-Qed.
-
-Lemma mul_add_l :
-  forall r s t : Qty,
-    mul r (add s t) = add (mul r s) (mul r t).
-Proof.
-  now intros [] [] []; cbn.
-Qed.
-
-Lemma mul_add_r :
-  forall r s t : Qty,
-    mul (add r s) t = add (mul r t) (mul s t).
-Proof.
-  now intros [] [] []; cbn.
-Qed.
-
-Lemma mul_Zero_inv :
-  forall r s : Qty,
-    mul r s = Zero -> r = Zero \/ s = Zero.
-Proof.
-  now intros [] []; cbn; inversion 1; auto.
-Qed.
-
-Lemma subusage_mul_l :
-  forall r1 r2 s : Qty,
-    subusage r1 r2 -> subusage (mul r1 s) (mul r2 s).
-Proof.
-  intros r1 r2 []; inversion 1; subst; cbn; try constructor.
-  rewrite mul_Zero_r.
-  now constructor.
-Qed.
-
-Lemma subusage_mul_r :
-  forall r s1 s2 : Qty,
-    subusage s1 s2 -> subusage (mul r s1) (mul r s2).
-Proof.
-  intros [] s1 s2; inversion 1; subst; cbn; try constructor.
-Qed.
-
-Lemma subusage_mul :
-  forall r1 r2 s1 s2 : Qty,
-    subusage r1 r2 -> subusage s1 s2 -> subusage (mul r1 s1) (mul r2 s2).
-Proof.
-  intros.
-  transitivity (mul r2 s1).
-  - now apply subusage_mul_l.
-  - now apply subusage_mul_r.
-Qed.
-
-(** * Greatest lower bound *)
-
-Definition glb (r s : Qty) : Qty :=
+Definition inf (r s : Quantity) : Quantity :=
 match r, s with
 | Any , _    => Any
 | _   , Any  => Any
@@ -315,118 +113,115 @@ match r, s with
 | Zero, _    => s
 end.
 
-Lemma glb_Any_l :
-  forall r : Qty,
-    glb Any r = Any.
+(**
+  [inf] is associative, commutative and idempotent.
+  [Any] is its absorbing element.
+*)
+
+Lemma inf_Any_l :
+  forall r : Quantity,
+    inf Any r = Any.
 Proof.
   easy.
 Qed.
 
-Lemma glb_Any_r :
-  forall r : Qty,
-    glb r Any = Any.
+Lemma inf_Any_r :
+  forall r : Quantity,
+    inf r Any = Any.
 Proof.
   now intros []; cbn.
 Qed.
 
-Lemma glb_idem :
-  forall r : Qty,
-    glb r r = r.
+Lemma inf_idem :
+  forall r : Quantity,
+    inf r r = r.
 Proof.
   now intros []; cbn.
 Qed.
 
-Lemma glb_comm :
-  forall r s : Qty,
-    glb r s = glb s r.
+Lemma inf_comm :
+  forall r s : Quantity,
+    inf r s = inf s r.
 Proof.
   now intros [] []; cbn.
 Qed.
 
-Lemma glb_assoc :
-  forall r s t : Qty,
-    glb (glb r s) t = glb r (glb s t).
+Lemma inf_assoc :
+  forall r s t : Quantity,
+    inf (inf r s) t = inf r (inf s t).
 Proof.
   now intros [] [] []; cbn.
 Qed.
 
-Lemma subusage_glb_glb_l :
-  forall r1 r2 s : Qty,
-    subusage r1 r2 -> subusage (glb r1 s) (glb r2 s).
+(** [inf] truly is the infimum in the [Subusage] ordering. *)
+
+Lemma Subusage_inf_l_l :
+  forall r s : Quantity,
+    Subusage (inf r s) r.
 Proof.
-  now intros [] [] []; cbn; inversion 1; constructor.
+  now intros [] []; cbn.
 Qed.
 
-Lemma subusage_glb_glb_r :
-  forall r s1 s2 : Qty,
-    subusage s1 s2 -> subusage (glb r s1) (glb r s2).
+Lemma Subusage_inf_l_r :
+  forall r s : Quantity,
+    Subusage (inf r s) s.
 Proof.
-  now intros [] [] []; cbn; inversion 1; constructor.
+  now intros [] []; cbn.
 Qed.
 
-Lemma subusage_glb_glb :
-  forall r1 r2 s1 s2 : Qty,
-    subusage r1 r2 -> subusage s1 s2 -> subusage (glb r1 s1) (glb r2 s2).
+Lemma Subusage_inf_r :
+  forall q r s : Quantity,
+    Subusage q r -> Subusage q s -> Subusage q (inf r s).
 Proof.
-  intros.
-  transitivity (glb r2 s1).
-  - now apply subusage_glb_glb_l.
-  - now apply subusage_glb_glb_r.
+  now do 2 inversion 1; only 1: destruct s; cbn.
 Qed.
 
-Lemma subusage_glb_l_l :
-  forall r s : Qty,
-    subusage (glb r s) r.
-Proof.
-  now intros [] []; cbn; constructor.
-Qed.
-
-Lemma subusage_glb_l_r :
-  forall r s : Qty,
-    subusage (glb r s) s.
-Proof.
-  now intros [] []; cbn; constructor.
-Qed.
-
-Lemma subusage_glb_r :
-  forall r s t : Qty,
-    subusage r s -> subusage r t -> subusage r (glb s t).
-Proof.
-  now intros [] [] []; do 2 inversion 1; subst; cbn; constructor.
-Qed.
-
-Lemma glb_spec :
-  forall r s rs : Qty,
-    glb r s = rs
+Lemma inf_spec :
+  forall r s rs : Quantity,
+    inf r s = rs
       <->
-    subusage rs r /\
-    subusage rs s /\
-    forall t : Qty, subusage t r -> subusage t s -> subusage t rs.
+    Subusage rs r /\
+    Subusage rs s /\
+    forall q : Quantity, Subusage q r -> Subusage q s -> Subusage q rs.
 Proof.
   split.
   - intros <-.
-    repeat split.
-    + now apply subusage_glb_l_l.
-    + now apply subusage_glb_l_r.
-    + now intros; apply subusage_glb_r.
+    split; [| split].
+    + now apply Subusage_inf_l_l.
+    + now apply Subusage_inf_l_r.
+    + now intros; apply Subusage_inf_r.
   - intros (Htr & Hts & Huniq).
-    apply Antisymmetric_subusage.
+    apply Antisymmetric_Subusage.
     + apply Huniq.
-      * now apply subusage_glb_l_l.
-      * now apply subusage_glb_l_r.
-    + now apply subusage_glb_r.
+      * now apply Subusage_inf_l_l.
+      * now apply Subusage_inf_l_r.
+    + now apply Subusage_inf_r.
 Qed.
 
-Lemma subusageb_glb :
-  forall r s : Qty,
-    subusageb r s = true <-> glb r s = r.
+(** [inf] preserves [Subusage] in both arguments. *)
+
+Lemma Subusage_inf_inf :
+  forall r1 r2 s1 s2 : Quantity,
+    Subusage r1 r2 -> Subusage s1 s2 -> Subusage (inf r1 s1) (inf r2 s2).
 Proof.
-  now intros [] []; cbn; firstorder congruence.
+  intros r1 r2 s1 s2 Hr Hs.
+  transitivity (inf r2 s1).
+  - now destruct s1; inversion Hr; subst; cbn.
+  - now destruct r2; inversion Hs; subst; cbn.
 Qed.
 
-(** * Least upper bound *)
+(** The algebraic and order structures are related in the usual way. *)
 
-Definition lub (r s : Qty) : option Qty :=
+Lemma Subusage_iff_inf_eq :
+  forall r s : Quantity,
+    Subusage r s <-> inf r s = r.
+Proof.
+  now intros [] []; cbn.
+Qed.
+
+(** ** Supremum *)
+
+Definition sup (r s : Quantity) : option Quantity :=
 match r, s with
 | Any , _    => Some s
 | _   , Any  => Some r
@@ -442,162 +237,374 @@ match r, s with
 | Zero, _    => None
 end.
 
-Lemma lub_Any_l :
-  forall r : Qty,
-    lub Any r = Some r.
+(**
+  [sup] is commutative, idempotent and its identity element is [Any].
+  When all subexpressions are defined, [sup] is also associative.
+*)
+
+Lemma sup_Any_l :
+  forall r : Quantity,
+    sup Any r = Some r.
 Proof.
   easy.
 Qed.
 
-Lemma lub_Any_r :
-  forall r : Qty,
-    lub r Any = Some r.
+Lemma sup_Any_r :
+  forall r : Quantity,
+    sup r Any = Some r.
 Proof.
   now intros []; cbn.
 Qed.
 
-Lemma lub_idem :
-  forall r : Qty,
-    lub r r = Some r.
+Lemma sup_idem :
+  forall r : Quantity,
+    sup r r = Some r.
 Proof.
   now intros []; cbn.
 Qed.
 
-Lemma lub_comm :
-  forall r s : Qty,
-    lub r s = lub s r.
+Lemma sup_comm :
+  forall r s : Quantity,
+    sup r s = sup s r.
 Proof.
   now intros [] []; cbn.
 Qed.
 
-Lemma lub_assoc :
-  forall r s t rs st : Qty,
-    lub r s = Some rs -> lub s t = Some st ->
-      lub rs t = lub r st.
+Lemma sup_assoc :
+  forall r s t rs st : Quantity,
+    sup r s = Some rs -> sup s t = Some st ->
+      sup rs t = sup r st.
 Proof.
-  now intros [] [] [] rs st; cbn; do 2 inversion 1; cbn.
+  now intros [] [] [] rs st; do 2 inversion 1; cbn.
 Qed.
 
-Lemma subusage_lub_lub_l :
-  forall r1 r2 s r1s r2s : Qty,
-    lub r1 s = Some r1s -> lub r2 s = Some r2s ->
-      subusage r1 r2 -> subusage r1s r2s.
+(** When [sup] is defined, it truly is the supremum in the [Subusage] ordering. *)
+
+Lemma Subusage_sup_r_l :
+  forall r s rs : Quantity,
+    sup r s = Some rs ->
+      Subusage r rs.
 Proof.
-  now intros [] [] []; cbn; do 3 inversion 1; constructor.
+  now intros [] [] rs; inversion 1; cbn.
 Qed.
 
-Lemma subusage_lub_lub_r :
-  forall r s1 s2 rs1 rs2 : Qty,
-    lub r s1 = Some rs1 -> lub r s2 = Some rs2 ->
-      subusage s1 s2 -> subusage rs1 rs2.
+Lemma Subusage_sup_r_r :
+  forall r s rs : Quantity,
+    sup r s = Some rs ->
+      Subusage s rs.
 Proof.
-  now intros [] [] []; cbn; do 3 inversion 1; constructor.
+  now intros [] [] rs; inversion 1; cbn.
 Qed.
 
-Lemma lub_defined_subusage :
-  forall r1 r2 s r2s : Qty,
-    lub r2 s = Some r2s -> subusage r1 r2 ->
-      exists r1s : Qty, lub r1 s = Some r1s.
+Lemma Subusage_sup_l :
+  forall r s t rs : Quantity,
+    sup r s = Some rs ->
+      Subusage r t -> Subusage s t -> Subusage rs t.
+Proof.
+  now intros [] [] t; do 3 inversion 1; subst; cbn.
+Qed.
+
+Lemma sup_spec :
+  forall r s rs : Quantity,
+    sup r s = Some rs
+      <->
+    Subusage r rs /\
+    Subusage s rs /\
+    forall t : Quantity, Subusage r t -> Subusage s t -> Subusage rs t.
+Proof.
+  split.
+  - intros Hsup.
+    split; [| split].
+    + now apply Subusage_sup_r_l in Hsup.
+    + now apply Subusage_sup_r_r in Hsup.
+    + now intros; apply Subusage_sup_l with r s.
+  - intros (Htr & Hts & Huniq).
+    destruct r, s; cbn;
+      inversion Htr; subst; try congruence;
+      inversion Hts; subst; try congruence;
+      try match goal with
+      | Huniq : forall _, _ -> _ -> Subusage One _ |- _ =>
+          now cut (Subusage One Zero); [inversion 1 | apply Huniq]
+      | Huniq : forall _, _ -> _ -> Subusage One _ |- _ =>
+          now cut (Subusage One Many); [inversion 1 | apply Huniq]
+      | Huniq : forall _, _ -> _ -> Subusage Zero _ |- _ =>
+          now cut (Subusage Zero One); [inversion 1 | apply Huniq]
+      end.
+    now f_equal; apply Antisymmetric_Subusage; [| apply Huniq].
+Qed.
+
+(** When two quantities have a supremum, smaller quantities also do. *)
+
+Lemma sup_defined_Subusage :
+  forall r1 r2 s r2s : Quantity,
+    sup r2 s = Some r2s -> Subusage r1 r2 ->
+      exists r1s : Quantity, sup r1 s = Some r1s.
 Proof.
   now intros r1 [] []; cbn; do 2 inversion 1; subst; cbn; eauto.
 Qed.
 
-Lemma subusage_lub_lub :
-  forall r1 r2 s1 s2 r1s1 r2s2 : Qty,
-    lub r1 s1 = Some r1s1 -> lub r2 s2 = Some r2s2 ->
-      subusage r1 r2 -> subusage s1 s2 -> subusage r1s1 r2s2.
+(** [sup] preserves [Subusage] in both arguments. *)
+
+Lemma Subusage_sup_sup :
+  forall r1 r2 s1 s2 r1s1 r2s2 : Quantity,
+    sup r1 s1 = Some r1s1 -> sup r2 s2 = Some r2s2 ->
+      Subusage r1 r2 -> Subusage s1 s2 -> Subusage r1s1 r2s2.
 Proof.
-  intros * H1 H2 Hr Hs.
-  destruct (lub_defined_subusage r1 r2 s2 _ H2 Hr) as [r1s2 H].
+  intros r1 r2 s1 s2 r1s1 r2s2 H1 H2 Hr Hs.
+  destruct (sup_defined_Subusage r1 r2 s2 _ H2 Hr) as [r1s2 H].
   transitivity r1s2.
-  - now eapply subusage_lub_lub_r; eauto.
-  - now eapply subusage_lub_lub_l; eauto.
+  - now destruct r1, s1, s2; inversion H1; inversion H2; inversion H; cbn.
+  - now destruct r1, r2, s2; inversion H1; inversion H2; inversion H; cbn.
 Qed.
 
-Lemma subusage_lub_r_l :
-  forall r s rs : Qty,
-    lub r s = Some rs ->
-      subusage r rs.
-Proof.
-  now intros [] [] rs; inversion 1; cbn; constructor.
-Qed.
+(** The algebraic and order structures are related in the usual way. *)
 
-Lemma subusage_lub_r_r :
-  forall r s rs : Qty,
-    lub r s = Some rs ->
-      subusage s rs.
-Proof.
-  now intros [] [] rs; inversion 1; cbn; constructor.
-Qed.
-
-Lemma subusage_lub_l :
-  forall r s t rs : Qty,
-    lub r s = Some rs ->
-      subusage r t -> subusage s t -> subusage rs t.
-Proof.
-  now intros [] [] []; do 3 inversion 1; subst; cbn; constructor.
-Qed.
-
-Lemma lub_spec :
-  forall r s rs : Qty,
-    lub r s = Some rs
-      <->
-    subusage r rs /\
-    subusage s rs /\
-    forall t : Qty, subusage r t -> subusage s t -> subusage rs t.
-Proof.
-  split.
-  - intros Hlub; repeat split.
-    + now apply subusage_lub_r_l in Hlub.
-    + now apply subusage_lub_r_r in Hlub.
-    + now intros; apply subusage_lub_l with r s.
-  - intros (Htr & Hts & Huniq).
-    destruct r, s; cbn; inversion Htr; inversion Hts; subst; try congruence;
-      try match goal with
-      | H : forall _, _ -> _ -> subusage One _ |- _ =>
-        now cut (subusage One Zero); [inversion 1 | apply H; constructor]
-      | H : forall _, _ -> _ -> subusage One _ |- _ =>
-        now cut (subusage One Many); [inversion 1 | apply H; constructor]
-      | H : forall _, _ -> _ -> subusage Zero _ |- _ =>
-        now cut (subusage Zero One); [inversion 1 | apply H; constructor]
-      end.
-    f_equal.
-    apply Antisymmetric_subusage; [easy |].
-    now apply Huniq; constructor.
-Qed.
-
-Lemma subusageb_lub :
-  forall r s : Qty,
-    subusageb r s = true <-> lub r s = Some s.
-Proof.
-  now intros [] []; cbn; firstorder congruence.
-Qed.
-
-Lemma lub_glb_l :
-  forall r s : Qty,
-    lub (glb r s) s = Some s.
+Lemma Subusage_iff_sup_eq :
+  forall r s : Quantity,
+    Subusage r s <-> sup r s = Some s.
 Proof.
   now intros [] []; cbn.
 Qed.
 
-Lemma lub_glb_r :
-  forall r s : Qty,
-    lub r (glb r s) = Some r.
+(** ** [inf] and [sup] *)
+
+(** Absorption laws for [sup]. *)
+
+Lemma sup_inf_l :
+  forall r s : Quantity,
+    sup (inf r s) s = Some s.
 Proof.
   now intros [] []; cbn.
 Qed.
 
-Lemma glb_lub_r :
-  forall r s rs : Qty,
-    lub r s = Some rs ->
-      glb rs s = s.
+Lemma sup_inf_r :
+  forall r s : Quantity,
+    sup r (inf r s) = Some r.
 Proof.
-  now intros [] [] rs; cbn; inversion 1; subst; cbn.
+  now intros [] []; cbn.
+Qed.
+
+(** Absorption laws for [inf]. *)
+
+Lemma inf_sup_l :
+  forall r s rs : Quantity,
+    sup r s = Some rs ->
+      inf rs s = s.
+Proof.
+  now intros [] [] rs; inversion 1; subst; cbn.
+Qed.
+
+Lemma inf_sup_r :
+  forall r s rs : Quantity,
+    sup r s = Some rs ->
+      inf r rs = r.
+Proof.
+  now intros [] [] rs; inversion 1; subst; cbn.
+Qed.
+
+(** Distributivity laws. *)
+
+Lemma sup_inf_inf_l :
+  forall r s t st,
+    sup s t = Some st ->
+      sup (inf r s) (inf r t) = Some (inf r st).
+Proof.
+  now intros [] [] []; cbn; inversion 1; subst; cbn.
+Qed.
+
+Lemma sup_inf_inf_r :
+  forall r s t rs,
+    sup r s = Some rs ->
+      sup (inf r t) (inf s t) = Some (inf rs t).
+Proof.
+  now intros [] [] []; cbn; inversion 1; subst; cbn.
+Qed.
+
+(** * Ordered semiring structure *)
+
+(** ** Addition *)
+
+Definition add (r s : Quantity) : Quantity :=
+match r, s with
+| Zero, _    => s
+| _   , Zero => r
+| Few , Few  => Any
+| Few , Any  => Any
+| Any , Few  => Any
+| Any , Any  => Any
+| _   , _    => Many
+end.
+
+(**
+  [add] is associative and commutative.
+  [Zero] is its identity and [Many] is its absorbing element.
+*)
+
+Lemma add_Zero_l :
+  forall r : Quantity,
+    add Zero r = r.
+Proof.
+  easy.
+Qed.
+
+Lemma add_Zero_r :
+  forall r : Quantity,
+    add r Zero = r.
+Proof.
+  now intros []; cbn.
+Qed.
+
+Lemma add_Many_l :
+  forall r : Quantity,
+    add Many r = Many.
+Proof.
+  now intros []; cbn.
+Qed.
+
+Lemma add_Many_r :
+  forall r : Quantity,
+    add r Many = Many.
+Proof.
+  now intros []; cbn.
+Qed.
+
+Lemma add_comm :
+  forall r s : Quantity,
+    add r s = add s r.
+Proof.
+  now intros [] []; cbn.
+Qed.
+
+Lemma add_assoc :
+  forall r s t : Quantity,
+    add (add r s) t = add r (add s t).
+Proof.
+  now intros [] [] []; cbn; easy.
+Qed.
+
+(** When the result of [add] is [Zero], both arguments also are [Zero]. *)
+
+Lemma add_Zero_inv :
+  forall r s : Quantity,
+    add r s = Zero -> r = Zero /\ s = Zero.
+Proof.
+  now intros [] []; cbn.
+Qed.
+
+(** [add] preserves [Subusage] in both arguments. *)
+
+Lemma Subusage_add :
+  forall r1 r2 s1 s2 : Quantity,
+    Subusage r1 r2 -> Subusage s1 s2 -> Subusage (add r1 s1) (add r2 s2).
+Proof.
+  intros r1 r2 s1 s2 H1 H2.
+  transitivity (add r2 s1).
+  - now destruct r2, s1; inversion H1; subst; cbn.
+  - now destruct r2, s2; inversion H2; subst; cbn.
+Qed.
+
+(** ** Multiplication *)
+
+Definition mul (r s : Quantity) : Quantity :=
+match r, s with
+| Zero, _    => Zero
+| _   , Zero => Zero
+| One , _    => s
+| _   , One  => r
+| Few , Few  => Few
+| Many, Many => Many
+| _   , _    => Any
+end.
+
+(**
+  [mul] is associative and commutative.
+  [One] is its identity and [Zero] is its absorbing element.
+*)
+
+Lemma mul_One_l :
+  forall r : Quantity,
+    mul One r = r.
+Proof.
+  now intros []; cbn.
+Qed.
+
+Lemma mul_One_r :
+  forall r : Quantity,
+    mul r One = r.
+Proof.
+  now intros []; cbn.
+Qed.
+
+Lemma mul_Zero_l :
+  forall r : Quantity,
+    mul Zero r = Zero.
+Proof.
+  now intros []; cbn.
+Qed.
+
+Lemma mul_Zero_r :
+  forall r : Quantity,
+    mul r Zero = Zero.
+Proof.
+  now intros []; cbn.
+Qed.
+
+Lemma mul_comm :
+  forall r s : Quantity,
+    mul r s = mul s r.
+Proof.
+  now intros [] []; cbn.
+Qed.
+
+Lemma mul_assoc :
+  forall r s t : Quantity,
+    mul (mul r s) t = mul r (mul s t).
+Proof.
+  now intros [] [] []; cbn.
+Qed.
+
+(** When the result of [mul] is [Zero], one of the arguments also is [Zero]. *)
+
+Lemma mul_Zero_inv :
+  forall r s : Quantity,
+    mul r s = Zero -> r = Zero \/ s = Zero.
+Proof.
+  now intros [] []; cbn; inversion 1; intuition.
+Qed.
+
+(** [mul] preserves [Subusage] in both arguments. *)
+
+Lemma Subusage_mul :
+  forall r1 r2 s1 s2 : Quantity,
+    Subusage r1 r2 -> Subusage s1 s2 -> Subusage (mul r1 s1) (mul r2 s2).
+Proof.
+  intros r1 r2 s1 s2 H1 H2.
+  transitivity (mul r2 s1).
+  - now destruct r2, s1; inversion H1; subst; cbn.
+  - now destruct r2, s2; inversion H2; subst; cbn.
+Qed.
+
+(** ** [add] and [mul] *)
+
+(** [mul] distributes over [add] on both sides. *)
+
+Lemma mul_add_l :
+  forall r s t : Quantity,
+    mul r (add s t) = add (mul r s) (mul r t).
+Proof.
+  now intros [] [] []; cbn.
+Qed.
+
+Lemma mul_add_r :
+  forall r s t : Quantity,
+    mul (add r s) t = add (mul r t) (mul s t).
+Proof.
+  now intros [] [] []; cbn.
 Qed.
 
 (** * Subtraction *)
 
-Definition sub (r s : Qty) : option Qty :=
+Definition sub (r s : Quantity) : option Quantity :=
 match r, s with
 | Any , _    => Some Any
 | _   , Zero => Some r
@@ -614,69 +621,211 @@ match r, s with
 end.
 
 Lemma sub_spec_ex :
-  forall r s rs : Qty,
+  forall r s rs : Quantity,
     sub r s = Some rs ->
-      subusage r (add rs s).
+      Subusage r (add rs s).
 Proof.
-  now intros [] [] rs; cbn; inversion 1; subst; cbn; constructor.
+  now intros [] [] rs; inversion 1; subst; cbn.
 Qed.
 
 Lemma sub_spec_uniq :
-  forall r s rs : Qty,
+  forall r s rs : Quantity,
     sub r s = Some rs ->
-      forall t : Qty, subusage r (add t s) -> subusage rs t.
+      forall t : Quantity, Subusage r (add t s) -> Subusage rs t.
 Proof.
-  now intros [] [] rs; inversion 1; intros []; inversion 1; subst; cbn; constructor.
+  now intros [] [] rs; inversion 1; intros []; inversion 1; subst; cbn.
 Qed.
 
-Lemma subusage_sub_Zero :
-  forall r rr : Qty,
+Lemma Subusage_sub_Zero :
+  forall r rr : Quantity,
     sub r r = Some rr ->
-      subusage rr Zero.
+      Subusage rr Zero.
 Proof.
-  now intros [] rr; inversion 1; constructor.
+  now intros [] rr; inversion 1.
 Qed.
 
 (** * Miscellaneous orderings *)
 
-Inductive SubtractionOrder : Qty -> Qty -> Prop :=
-| SubtractionOrder_refl    : forall r : Qty, SubtractionOrder r r
-| SubtractionOrder_Zero_l  : forall r : Qty, SubtractionOrder Zero r
-| SubtractionOrder_Many_r  : forall r : Qty, SubtractionOrder r Many
-| SubtractionOrder_Any_r   : forall r : Qty, SubtractionOrder r Any
+(** ** Subtraction order
+
+  [SubtractionOrder] is a decidable total preorder that arises from subtraction,
+  i.e. <<r <= s>> if and only if <<s - r>> is defined.
+
+  We define it explicitly as <<Zero <= One <= Few <= Many <= Any <= Many>>.
+
+  Note that according to this order, [Many] and [Any] are equivalent, therefore
+  it is not antisymmetric and thus not a partial order.
+*)
+
+Inductive SubtractionOrder : Quantity -> Quantity -> Prop :=
+| SubtractionOrder_refl    : forall r : Quantity, SubtractionOrder r r
+| SubtractionOrder_Zero_l  : forall r : Quantity, SubtractionOrder Zero r
+| SubtractionOrder_Many_r  : forall r : Quantity, SubtractionOrder r Many
+| SubtractionOrder_Any_r   : forall r : Quantity, SubtractionOrder r Any
 | SubtractionOrder_One_Few : SubtractionOrder One Few.
 
+#[export] Hint Constructors SubtractionOrder : core.
+
 Lemma SubtractionOrder_spec :
-  forall r s : Qty,
+  forall r s : Quantity,
     SubtractionOrder r s <-> sub s r <> None.
 Proof.
-  now intros [] []; cbn; (split; [inversion 1 |]); congruence + constructor.
+  now intros [] []; cbn.
 Qed.
 
-Inductive DecrementationOrder : Qty -> Qty -> Prop :=
+#[export] Instance PreOrder_SubtractionOrder :
+  PreOrder SubtractionOrder.
+Proof.
+  split; red.
+  - easy.
+  - now do 2 inversion 1.
+Qed.
+
+Lemma Total_SubtractionOrder :
+  forall r s : Quantity,
+    SubtractionOrder r s \/ SubtractionOrder s r.
+Proof.
+  now intros [] []; cbn; firstorder.
+Qed.
+
+#[refine, export] Instance Decidable_SubtractionOrder :
+  forall r s : Quantity,
+    Decidable (SubtractionOrder r s) :=
+{
+  Decidable_witness :=
+    match r, s with
+    | Zero, _    => true
+    | One , Zero => false
+    | One , _    => true
+    | _   , Many => true
+    | _   , Any  => true
+    | _   , _    => decide (r = s)
+    end;
+}.
+Proof.
+  now destruct r, s; cbn.
+Defined.
+
+(** ** Decrementation order
+
+  [DecrementationOrder] is a decidable transitive relation (which is not
+  reflexive, hence not an actual "order") that arises from decrementation,
+  i.e. <<r <= s>> if and only if <<r = s - One>>.
+
+  We define it explicitly as:
+  - <<Zero <= One>>
+  - <<Zero <= Few>>
+  - <<Any <= Many>>
+  - <<Any <= Any>>
+*)
+
+Inductive DecrementationOrder : Quantity -> Quantity -> Prop :=
 | DecrementationOrder_Zero_One : DecrementationOrder Zero One
 | DecrementationOrder_Zero_Few : DecrementationOrder Zero Few
 | DecrementationOrder_Any_Many : DecrementationOrder Any Many
-| DecrementationOrder_Any_Any : DecrementationOrder Any Any.
+| DecrementationOrder_Any_Any  : DecrementationOrder Any Any.
+
+#[export] Hint Constructors DecrementationOrder : core.
 
 Lemma DecrementationOrder_spec :
-  forall r s : Qty,
+  forall r s : Quantity,
     DecrementationOrder r s <-> sub s One = Some r.
 Proof.
-  intros [] []; cbn; (split; [inversion 1 |]); congruence + constructor.
+  now intros [] []; cbn.
 Qed.
 
-Inductive ArithmeticOrder : Qty -> Qty -> Prop :=
-| ArithmeticOrder_refl     : forall r : Qty, ArithmeticOrder r r
-| ArithmeticOrder_Zero_l   : forall r : Qty, ArithmeticOrder Zero r
-| ArithmeticOrder_Any_r    : forall r : Qty, ArithmeticOrder r Any
+#[export] Instance Transitive_DecrementationOrder :
+  Transitive DecrementationOrder.
+Proof.
+  now do 2 inversion 1; subst.
+Qed.
+
+#[refine, export] Instance Decidable_DecrementationOrder :
+  forall r s : Quantity,
+    Decidable (DecrementationOrder r s) :=
+{
+  Decidable_witness :=
+    match r, s with
+    | Any , Any  => true
+    | Any , Many => true
+    | Zero, One  => true
+    | Zero, Few  => true
+    | _   , _    => false
+    end;
+}.
+Proof.
+  now destruct r, s; cbn.
+Defined.
+
+(** ** Arithmetic order
+
+  [ArithmeticOrder] is a decidable total order that orders quantities
+  by how big (in some sense) they are. The idea is as follows:
+
+  We define it explicitly as: <<Zero <= One <= Few <= Many <= Any>>.
+
+*)
+
+Inductive ArithmeticOrder : Quantity -> Quantity -> Prop :=
+| ArithmeticOrder_refl     : forall r : Quantity, ArithmeticOrder r r
+| ArithmeticOrder_Zero_l   : forall r : Quantity, ArithmeticOrder Zero r
+| ArithmeticOrder_Any_r    : forall r : Quantity, ArithmeticOrder r Any
 | ArithmeticOrder_One_Few  : ArithmeticOrder One Few
 | ArithmeticOrder_One_Many : ArithmeticOrder One Many
 | ArithmeticOrder_Few_Many : ArithmeticOrder Few Many.
 
+#[export] Hint Constructors ArithmeticOrder : core.
+
+#[export] Instance Reflexive_ArithmeticOrder :
+  Reflexive ArithmeticOrder.
+Proof.
+  easy.
+Qed.
+
+#[export] Instance Transitive_ArithmeticOrder :
+  Transitive ArithmeticOrder.
+Proof.
+  now do 2 inversion 1; subst.
+Qed.
+
+#[export] Instance Antisymmetric_ArithmeticOrder :
+  Antisymmetric _ eq ArithmeticOrder.
+Proof.
+  now do 2 inversion 1; subst.
+Qed.
+
+Lemma Total_ArithmeticOrder :
+  forall r s : Quantity,
+    ArithmeticOrder r s \/ ArithmeticOrder s r.
+Proof.
+  now intros [] []; cbn; firstorder.
+Qed.
+
+#[refine, export] Instance Decidable_ArithmeticOrder :
+  forall r s : Quantity,
+    Decidable (ArithmeticOrder r s) :=
+{
+  Decidable_witness :=
+    match r, s with
+    | Zero, _    => true
+    | One , Zero => false
+    | One , _    => true
+    | Few , Zero => false
+    | Few , One  => false
+    | Few , _    => true
+    | Any , Many => false
+    | _   , Many => true
+    | _   , Any  => true
+    | _   , _    => decide (r = s)
+    end;
+}.
+Proof.
+  now destruct r, s; cbn.
+Defined.
+
 (** * Trait-checking division *)
 
-Definition div (r s : Qty) : option Qty :=
+Definition div (r s : Quantity) : option Quantity :=
 match r, s with
 | Zero, _    => Some Zero
 | _   , Zero => None
@@ -689,3 +838,5 @@ match r, s with
 | Many, Few  => Some Many
 | Many, _    => Some One
 end.
+
+(** * Another division *)
