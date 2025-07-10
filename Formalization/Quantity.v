@@ -5,22 +5,30 @@ Require Export
   Coq.Classes.RelationClasses
   Coq.Classes.DecidableClass.
 
-(**
-  [Quantity] is the type of quantities. Quantities express a crude measure of
-  resource usage:
-  - [Zero] means <<0>> uses
-  - [One] means <<1>> use
-  - [Few] means <<0>> or <<1>> use
-  - [Many] means <<1>> or more uses
-  - [Any] means <<0>> or more uses
-*)
-
 Inductive Quantity : Type :=
 | Zero
 | One
 | Few
 | Many
 | Any.
+
+(**
+  Quantities keep track of resource usage. They are a crude measure,
+  best though of in the following terms:
+  - [Zero] means <<0>> uses
+  - [One] means <<1>> use
+  - [Few] means <<0>> or <<1>> use
+  - [Many] means <<1>> or more uses
+  - [Any] means <<0>> or more uses
+
+  In code the quantity names are words, but on paper, the following symbols
+  are used:
+  - [Zero] is <<0>>
+  - [One] is <<1>>
+  - [Few] is <<?>>
+  - [Many] is <<+>>
+  - [Any] is <<*>>
+*)
 
 (** [Quantity] has decidable equality. *)
 
@@ -42,9 +50,18 @@ Proof.
   now destruct r, s; cbn.
 Defined.
 
-(** * Subusage ordering *)
+(** * Subusage ordering
 
-(** A picture is worth a thousand words: *)
+  The [Subusage] ordering represents the following idea: quantity <<r>> is
+  a subusage of quantity <<s>> when a resource that must be used <<r>> times
+  can also be used whenever a resource that must be used <<s>> times is expected.
+
+  For example, when we must use a resource [Many] times, i.e. 1 or more, but a
+  resource which must be used [One] time is expected, then we have enough, so
+  [Many] is a [Subusage] of [One].
+
+  A picture is worth a thousand words:
+*)
 
 (*
     0     1
@@ -55,6 +72,26 @@ Defined.
          \ /
           *
 *)
+
+(**
+  The diagram is read as usual, with smaller elements at the bottom,
+  and going upwards we move towards bigger elements. Explicitly:
+  - [Any] is the bottom element of the [Subusage] ordering, as it means
+    0 or more, placing no constraint on resource usage whatsoever.
+  - Above [Any] we have [Few] (meaning 0 or 1) and [Many] (meaning 1 or more).
+    Clearly when we must use a resource [Any] number of times, i.e. 0 or more,
+    we have enough to use it 0 or 1 times, as well as enough to use it 1 or more
+    times. Therefore [Any] is a [Subusage] of both [Few] and [Many].
+  - Above [Few] we have [Zero] and [One]. Clearly if we must use a resource [Few]
+    (meaning 0 or 1) times, then we have enough to use it 0 times or 1 times,
+    hence [Few] is a [Subusage] of [Zero] and [One].
+  - Above [Many] we have [One]. Clearly, if we must use a resource [Many]
+    (i.e. 1 or more) times, then we have enough to use it 1 time, thus [Many]
+    is a [Subusage] of [One].
+  - Not directly depicted is the fact that [Subusage] is reflexive, i.e. any
+    quantity is a [Subusage] of itself, which should be obvious.
+*)
+
 Inductive Subusage : Quantity -> Quantity -> Prop :=
 | Subusage_refl     : forall r : Quantity, Subusage r r
 | Subusage_Any_l    : forall r : Quantity, Subusage Any r
@@ -63,6 +100,55 @@ Inductive Subusage : Quantity -> Quantity -> Prop :=
 | Subusage_Few_Zero : Subusage Few Zero.
 
 #[export] Hint Constructors Subusage : core.
+
+(**
+  It is also worth pointing out the relationship between [One] and [Zero].
+  Clearly if we must use a resource [One] time, then we cannot use it [Zero]
+  times, so [One] is not a [Subusage] of [Zero].
+*)
+
+Lemma not_Subusage_One_Zero :
+  ~ Subusage One Zero.
+Proof.
+  now inversion 1.
+Qed.
+
+(**
+  Similarly, if we must use a resource [Zero] times, then we cannot use it
+  [One] time, so [Zero] is not a [Subusage] of [One].
+*)
+
+Lemma not_Subusage_Zero_One :
+  ~ Subusage Zero One.
+Proof.
+  now inversion 1.
+Qed.
+
+(**
+  If we must use a resource [Many] (i.e. 1 or more) times, we are not allowed
+  to use it 0 times, which is required for a resource that is expected to be
+  used [Few] times. Hence [Many] is not a [Subusage] of [Few].
+*)
+
+Lemma not_Subusage_Many_Few :
+  ~ Subusage Many Few.
+Proof.
+  now inversion 1.
+Qed.
+
+(**
+  Similarly: if we must use a resource [Few] (i.e. 0 or 1) times, then we
+  cannot use it more than once, which is required of a resource that is
+  expected to be used [Many] times, so [Few] is not a [Subusage] of [Many]
+*)
+
+Lemma not_Subusage_Few_Many :
+  ~ Subusage Few Many.
+Proof.
+  now inversion 1.
+Qed.
+
+(** [Subusage] is a decidable partial order. *)
 
 #[export] Instance PreOrder_Subusage :
   PreOrder Subusage.
@@ -319,18 +405,20 @@ Proof.
     + now apply Subusage_sup_r_r in Hsup.
     + now intros; apply Subusage_sup_l with r s.
   - intros (Htr & Hts & Huniq).
-    destruct r, s; cbn;
+    now destruct r, s; cbn;
       inversion Htr; subst; try congruence;
       inversion Hts; subst; try congruence;
-      try match goal with
-      | Huniq : forall _, _ -> _ -> Subusage One _ |- _ =>
-          now cut (Subusage One Zero); [inversion 1 | apply Huniq]
-      | Huniq : forall _, _ -> _ -> Subusage One _ |- _ =>
-          now cut (Subusage One Many); [inversion 1 | apply Huniq]
-      | Huniq : forall _, _ -> _ -> Subusage Zero _ |- _ =>
-          now cut (Subusage Zero One); [inversion 1 | apply Huniq]
+      match goal with
+      | H : forall _, Subusage _ _ -> Subusage _ _ -> Subusage One _ |- _ =>
+        specialize (H Zero ltac:(easy)); inversion H
+      | H : forall _, Subusage _ _ -> Subusage _ _ -> Subusage _ _ |- _ =>
+        specialize (H Any  ltac:(easy) ltac:(easy)) +
+        specialize (H Many ltac:(easy) ltac:(easy)) +
+        specialize (H Few  ltac:(easy) ltac:(easy)) +
+        specialize (H One  ltac:(easy) ltac:(easy)) +
+        specialize (H Zero ltac:(easy));
+          now inversion H
       end.
-    now f_equal; apply Antisymmetric_Subusage; [| apply Huniq].
 Qed.
 
 (** When two quantities have a supremum, smaller quantities also do. *)
@@ -366,7 +454,7 @@ Proof.
   now intros [] []; cbn.
 Qed.
 
-(** ** [inf] and [sup] *)
+(** ** Absorbption and distributivity laws *)
 
 (** Absorption laws for [sup]. *)
 
@@ -422,22 +510,29 @@ Qed.
 
 (** * Ordered semiring structure *)
 
-(** ** Addition *)
+(** ** Addition
+
+  Because quantities are a very crude way of counting, addition is very simple
+  Let's assume we have a quantity <<r>> of some resource:
+  - When we add [Zero], then we still have <<r>>
+  - When <<r>> is not [Zero] and we add [One] or [Many], then we have [Many]
+  - In all other cases, the result is [Any]
+*)
 
 Definition add (r s : Quantity) : Quantity :=
 match r, s with
-| Zero, _    => s
-| _   , Zero => r
-| Few , Few  => Any
-| Few , Any  => Any
-| Any , Few  => Any
-| Any , Any  => Any
-| _   , _    => Many
+| Zero, s    => s
+| r   , Zero => r
+| One , _    => Many
+| _   , One  => Many
+| Many, _    => Many
+| _   , Many => Many
+| _, _       => Any
 end.
 
 (**
-  [add] is associative and commutative.
-  [Zero] is its identity and [Many] is its absorbing element.
+  [add] is associative and commutative. [Zero] is its identity and [Many] is
+  its absorbing element.
 *)
 
 Lemma add_Zero_l :
@@ -491,6 +586,30 @@ Proof.
   now intros [] []; cbn.
 Qed.
 
+(**
+  When the result of [add] is [One], one argument must be [One]
+  and the other must be [Zero].
+*)
+
+Lemma add_One_inv :
+  forall r s : Quantity,
+    add r s = One -> (r = One /\ s = Zero) \/ (r = Zero /\ s = One).
+Proof.
+  now intros [] []; cbn; firstorder.
+Qed.
+
+(**
+  When the result of [add] is [Few], one argument must be [Few]
+  and the other must be [Few].
+*)
+
+Lemma add_Few_inv :
+  forall r s : Quantity,
+    add r s = Few -> (r = Few /\ s = Zero) \/ (r = Zero /\ s = Few).
+Proof.
+  now intros [] []; cbn; firstorder.
+Qed.
+
 (** [add] preserves [Subusage] in both arguments. *)
 
 Lemma Subusage_add :
@@ -503,13 +622,33 @@ Proof.
   - now destruct r2, s2; inversion H2; subst; cbn.
 Qed.
 
+(** *** Alternative definition of addition *)
+
+Definition add' (r s : Quantity) : Quantity :=
+match r, s with
+| Zero, _    => s
+| _   , Zero => r
+| Few , Few  => Any
+| Few , Any  => Any
+| Any , Few  => Any
+| Any , Any  => Any
+| _   , _    => Many
+end.
+
+Lemma add'_spec :
+  forall r s : Quantity,
+    add' r s = add r s.
+Proof.
+  now intros [] [].
+Qed.
+
 (** ** Multiplication *)
 
 Definition mul (r s : Quantity) : Quantity :=
 match r, s with
 | Zero, _    => Zero
-| _   , Zero => Zero
 | One , _    => s
+| _   , Zero => Zero
 | _   , One  => r
 | Few , Few  => Few
 | Many, Many => Many
@@ -525,7 +664,7 @@ Lemma mul_One_l :
   forall r : Quantity,
     mul One r = r.
 Proof.
-  now intros []; cbn.
+  easy.
 Qed.
 
 Lemma mul_One_r :
@@ -539,7 +678,7 @@ Lemma mul_Zero_l :
   forall r : Quantity,
     mul Zero r = Zero.
 Proof.
-  now intros []; cbn.
+  easy.
 Qed.
 
 Lemma mul_Zero_r :
@@ -584,7 +723,7 @@ Proof.
   - now destruct r2, s2; inversion H2; subst; cbn.
 Qed.
 
-(** ** [add] and [mul] *)
+(** ** Distributivity laws *)
 
 (** [mul] distributes over [add] on both sides. *)
 
@@ -634,6 +773,29 @@ Lemma sub_spec_uniq :
       forall t : Quantity, Subusage r (add t s) -> Subusage rs t.
 Proof.
   now intros [] [] rs; inversion 1; intros []; inversion 1; subst; cbn.
+Qed.
+
+Lemma sub_spec :
+  forall r s rs : Quantity,
+    sub r s = Some rs
+      <->
+    Subusage r (add rs s) /\
+    forall t : Quantity, Subusage r (add t s) -> Subusage rs t.
+Proof.
+  split.
+  - split.
+    + now apply sub_spec_ex.
+    + now apply sub_spec_uniq.
+  - intros [Hex Huniq].
+    now destruct r, s, rs; cbn in *; try easy;
+      match goal with
+      | H : forall _, Subusage _ _ -> Subusage _ _ |- _ =>
+        specialize (H Any  ltac:(easy)) +
+        specialize (H Many ltac:(easy)) +
+        specialize (H One  ltac:(easy)) +
+        specialize (H Zero ltac:(easy));
+          now inversion H
+      end.
 Qed.
 
 Lemma Subusage_sub_Zero :
@@ -776,16 +938,12 @@ Inductive ArithmeticOrder : Quantity -> Quantity -> Prop :=
 
 #[export] Hint Constructors ArithmeticOrder : core.
 
-#[export] Instance Reflexive_ArithmeticOrder :
-  Reflexive ArithmeticOrder.
+#[export] Instance PreOrder_ArithmeticOrder :
+  PreOrder ArithmeticOrder.
 Proof.
-  easy.
-Qed.
-
-#[export] Instance Transitive_ArithmeticOrder :
-  Transitive ArithmeticOrder.
-Proof.
-  now do 2 inversion 1; subst.
+  split; red.
+  - easy.
+  - now do 2 inversion 1; subst.
 Qed.
 
 #[export] Instance Antisymmetric_ArithmeticOrder :
@@ -823,20 +981,287 @@ Proof.
   now destruct r, s; cbn.
 Defined.
 
+(** ** Trait ordering *)
+
+Inductive TraitOrder : Quantity -> Quantity -> Prop :=
+| TraitOrder_refl     : forall r : Quantity, TraitOrder r r
+| TraitOrder_Any_l    : forall r : Quantity, TraitOrder Any r
+| TraitOrder_Zero_r   : forall r : Quantity, TraitOrder r Zero
+| TraitOrder_Few_One  : TraitOrder Few One
+| TraitOrder_Many_One : TraitOrder Many One
+| TraitOrder_One_Zero : TraitOrder One Zero.
+
+#[export] Hint Constructors TraitOrder : core.
+
+#[export] Instance PreOrder_TraitOrder :
+  PreOrder TraitOrder.
+Proof.
+  split; red.
+  - easy.
+  - now do 2 inversion 1; subst.
+Qed.
+
+#[export] Instance Antisymmetric_TraitOrder :
+  Antisymmetric _ eq TraitOrder.
+Proof.
+  now do 2 inversion 1; subst.
+Qed.
+
+#[refine, export] Instance Decidable_TraitOrder :
+  forall r s : Quantity,
+    Decidable (TraitOrder r s) :=
+{
+  Decidable_witness :=
+    match r, s with
+    | Any , _    => true
+    | Few , Any  => false
+    | Few , Many => false
+    | Few , _    => true
+    | Many, Any  => false
+    | Many, Few  => false
+    | Many, _    => true
+    | One , Zero => true
+    | _   , _    => decide (r = s)
+    end;
+}.
+Proof.
+  now destruct r, s; cbn.
+Defined.
+
+(** * Complement *)
+
+Definition complement (r : Quantity) : Quantity :=
+match r with
+| Zero => Zero
+| One  => Any
+| Few  => Many
+| Many => Few
+| Any  => One
+end.
+
+Lemma complement_complement :
+  forall r : Quantity,
+    complement (complement r) = r.
+Proof.
+  now intros []; cbn.
+Qed.
+
+Lemma sup_is_complement :
+  forall r s rs : Quantity,
+    sup r s = Some rs ->
+      rs = complement (mul (complement r) (complement s)).
+Proof.
+  now intros [] [] rs; inversion 1; subst; cbn.
+Qed.
+
+Lemma sup_complement :
+  forall r s rs : Quantity,
+    sup (complement r) (complement s) = Some rs ->
+      rs = complement (mul r s).
+Proof.
+  now intros [] [] rs; inversion 1; subst; cbn.
+Qed.
+
+(** ** Alternative definition of [sup] *)
+
+Definition inf' (r s : Quantity) : Quantity :=
+match r, s with
+| Zero, One  => Few
+| Zero, Many => Any
+| Zero, _    => s
+| One , Zero => Few
+| Many, Zero => Any
+| _   , Zero => r
+| _   , _    => mul r s
+end.
+
+Lemma inf'_spec :
+  forall r s : Quantity,
+    inf' r s = inf r s.
+Proof.
+  now intros [] [].
+Qed.
+
+Lemma Subusage_inf'_l_l :
+  forall r s : Quantity,
+    Subusage (inf' r s) r.
+Proof.
+  now intros [] []; cbn.
+Qed.
+
+Lemma Subusage_inf'_l_r :
+  forall r s : Quantity,
+    Subusage (inf' r s) s.
+Proof.
+  now intros [] []; cbn.
+Qed.
+
+Lemma Subusage_inf'_r :
+  forall q r s : Quantity,
+    Subusage q r -> Subusage q s -> Subusage q (inf' r s).
+Proof.
+  now do 2 inversion 1; only 1: destruct s; cbn.
+Qed.
+
+Lemma inf'_spec' :
+  forall r s rs : Quantity,
+    inf' r s = rs
+      <->
+    Subusage rs r /\
+    Subusage rs s /\
+    forall q : Quantity, Subusage q r -> Subusage q s -> Subusage q rs.
+Proof.
+  split.
+  - intros <-.
+    split; [| split].
+    + now apply Subusage_inf'_l_l.
+    + now apply Subusage_inf'_l_r.
+    + now intros; apply Subusage_inf'_r.
+  - intros (Htr & Hts & Huniq).
+    apply Antisymmetric_Subusage.
+    + apply Huniq.
+      * now apply Subusage_inf'_l_l.
+      * now apply Subusage_inf'_l_r.
+    + now apply Subusage_inf'_r.
+Qed.
+
+Require Import FunInd.
+
+Function sup' (r s : Quantity) : option Quantity :=
+match r, s with
+| Zero, One  => None
+| Zero, Many => None
+| One , Zero => None
+| Many, Zero => None
+| _   , _    => Some (complement (mul (complement r) (complement s)))
+end.
+
+Lemma sup'_spec :
+  forall r s : Quantity,
+    sup' r s = sup r s.
+Proof.
+  now intros [] []; cbn.
+Qed.
+
+Lemma Subusage_sup'_r_l :
+  forall r s rs : Quantity,
+    sup' r s = Some rs ->
+      Subusage r rs.
+Proof.
+  now intros [] [] rs; inversion 1; cbn.
+Qed.
+
+Lemma Subusage_sup'_r_r :
+  forall r s rs : Quantity,
+    sup' r s = Some rs ->
+      Subusage s rs.
+Proof.
+  now intros [] [] rs; inversion 1; cbn.
+Qed.
+
+Lemma Subusage_sup'_l :
+  forall r s t rs : Quantity,
+    sup' r s = Some rs ->
+      Subusage r t -> Subusage s t -> Subusage rs t.
+Proof.
+  now intros [] [] t; do 3 inversion 1; subst; cbn.
+Qed.
+
+Lemma sup'_spec' :
+  forall r s rs : Quantity,
+    sup' r s = Some rs
+      <->
+    Subusage r rs /\
+    Subusage s rs /\
+    forall t : Quantity, Subusage r t -> Subusage s t -> Subusage rs t.
+Proof.
+  split.
+  - intros Hsup.
+    split; [| split].
+    + now apply Subusage_sup'_r_l in Hsup.
+    + now apply Subusage_sup'_r_r in Hsup.
+    + now intros; apply Subusage_sup'_l with r s.
+  - intros (Htr & Hts & Huniq).
+    now destruct r, s; cbn;
+      inversion Htr; subst; try congruence;
+      inversion Hts; subst; try congruence;
+      match goal with
+      | H : forall _, Subusage _ _ -> Subusage _ _ -> Subusage One _ |- _ =>
+        specialize (H Zero ltac:(easy)); inversion H
+      | H : forall _, Subusage _ _ -> Subusage _ _ -> Subusage _ _ |- _ =>
+        specialize (H Any  ltac:(easy) ltac:(easy)) +
+        specialize (H Many ltac:(easy) ltac:(easy)) +
+        specialize (H Few  ltac:(easy) ltac:(easy)) +
+        specialize (H One  ltac:(easy) ltac:(easy)) +
+        specialize (H Zero ltac:(easy));
+          now inversion H
+      end.
+Qed.
+
 (** * Trait-checking division *)
 
-Definition div (r s : Quantity) : option Quantity :=
+Definition div (r s : Quantity) : option Quantity :=match r, s with
+| Zero, _    => Some Zero
+| _   , Zero => None
+| Any , r    => Some (complement r)
+| _   , _    => if decide (TraitOrder s r) then Some One else Some r
+end.
+
+Definition div' (r s : Quantity) : option Quantity :=match r, s with
+| Zero, _    => Some Zero
+| _   , Zero => None
+| Any , r    => Some (complement r)
+| _   , _    => if decide (Subusage s r) then Some One else Some r
+end.
+
+Definition div'' (r s : Quantity) : option Quantity :=
 match r, s with
 | Zero, _    => Some Zero
 | _   , Zero => None
+| Any , r    => Some (complement r)
 | One , _    => Some One
-| Any , _    => Some s
-| Few , One  => Some Few
-| Few , Many => Some Few
-| Few , _    => Some One
-| Many, One  => Some Many
-| Many, Few  => Some Many
-| Many, _    => Some One
+| Few , Any  => Some One
+| Few , Few  => Some One
+| Many, Any  => Some One
+| Many, Many => Some One
+| _   , _    => Some r
 end.
+
+Lemma div'_spec :
+  forall r s : Quantity,
+    div' r s = div r s.
+Proof.
+  now intros [] []; cbn.
+Qed.
+
+Lemma complement_div :
+  forall r s rs : Quantity,
+    div r s = Some rs ->
+      div r (complement s) = div (complement r) s.
+Proof.
+  intros [] []; inversion 1; subst; cbn in *; try easy.
+Abort.
+
+Lemma div_spec :
+  forall r s rs : Quantity,
+    div r s = Some rs
+      <->
+    TraitOrder (mul rs s) r /\
+    forall t : Quantity, TraitOrder (mul t s) r -> TraitOrder t rs.
+Proof.
+  split.
+  - split.
+    + now destruct r, s; inversion H; subst; cbn.
+    + now destruct r, s, t; inversion H; subst; cbn in *.
+  - intros [Hex Huniq].
+    now destruct r, s, rs; cbn in *; try easy;
+      try match goal with
+      | H : forall _, TraitOrder _ _ -> TraitOrder _ _ |- _ =>
+        specialize (H Many ltac:(easy)) +
+        specialize (H Few  ltac:(easy)) +
+        specialize (H Zero ltac:(easy));
+          now inversion H
+      end.
+Qed.
 
 (** * Another division *)
