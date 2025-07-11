@@ -14,7 +14,7 @@ Inductive Quantity : Type :=
 
 (**
   Quantities keep track of resource usage. They are a crude measure,
-  best though of in the following terms:
+  best thought of in the following terms:
   - [Zero] means <<0>> uses
   - [One] means <<1>> use
   - [Few] means <<0>> or <<1>> use
@@ -22,7 +22,7 @@ Inductive Quantity : Type :=
   - [Any] means <<0>> or more uses
 
   In code the quantity names are words, but on paper, the following symbols
-  are used:
+  (inspired by regular expression syntax) are used:
   - [Zero] is <<0>>
   - [One] is <<1>>
   - [Few] is <<?>>
@@ -181,6 +181,268 @@ Proof.
   now destruct r, s; cbn.
 Defined.
 
+(** * Semiring structure
+
+  Quantities form an ordered commutative semiring with no zero divisors and
+  with the additional property that if the result of addition is [Zero], then
+  so are the arguments.
+
+  We define quantity addition and multiplication below and spend the rest of
+  this section proving that the above sentence is indeed true.
+*)
+
+(** ** Addition
+
+  Because quantities are a very crude way of counting, addition is very simple.
+  Let's assume we have a quantity <<r>> (of some resource, perhaps):
+  - When we add [Zero], then we still have <<r>>.
+  - When <<r>> is not [Zero] and we add [One] or [Many], then we have [Many].
+    Yes, quantity arithmetic is this crude!
+  - In all other cases, the result is [Any].
+*)
+
+Definition add (r s : Quantity) : Quantity :=
+match r, s with
+| Zero, s    => s
+| r   , Zero => r
+| One , _    => Many
+| _   , One  => Many
+| Many, _    => Many
+| _   , Many => Many
+| _, _       => Any
+end.
+
+(** [Zero] is the identity element of [add]. *)
+
+Lemma add_Zero_l :
+  forall r : Quantity,
+    add Zero r = r.
+Proof.
+  easy.
+Qed.
+
+Lemma add_Zero_r :
+  forall r : Quantity,
+    add r Zero = r.
+Proof.
+  now intros []; cbn.
+Qed.
+
+(**
+  [Many] is the absorbing element of [add], i.e. adding [Many] to anything
+  results in [Many].
+*)
+
+Lemma add_Many_l :
+  forall r : Quantity,
+    add Many r = Many.
+Proof.
+  now intros []; cbn.
+Qed.
+
+Lemma add_Many_r :
+  forall r : Quantity,
+    add r Many = Many.
+Proof.
+  now intros []; cbn.
+Qed.
+
+(** [add] is associative and commutative. *)
+
+Lemma add_comm :
+  forall r s : Quantity,
+    add r s = add s r.
+Proof.
+  now intros [] []; cbn.
+Qed.
+
+Lemma add_assoc :
+  forall r s t : Quantity,
+    add (add r s) t = add r (add s t).
+Proof.
+  now intros [] [] []; cbn; easy.
+Qed.
+
+(**
+  When the result of [add] is [Zero], both arguments also are [Zero]. This
+  means that there are no "negative" quantities, so quantities are, in some
+  sense, more like natural numbers than like integers.
+*)
+
+Lemma add_Zero_inv :
+  forall r s : Quantity,
+    add r s = Zero -> r = Zero /\ s = Zero.
+Proof.
+  now intros [] []; cbn.
+Qed.
+
+(** [add] preserves [Subusage] in both arguments. *)
+
+Lemma Subusage_add :
+  forall r1 r2 s1 s2 : Quantity,
+    Subusage r1 r2 -> Subusage s1 s2 -> Subusage (add r1 s1) (add r2 s2).
+Proof.
+  intros r1 r2 s1 s2 H1 H2.
+  transitivity (add r2 s1).
+  - now destruct r2, s1; inversion H1; subst; cbn.
+  - now destruct r2, s2; inversion H2; subst; cbn.
+Qed.
+
+(** *** Alternative definition of addition
+
+  When defining addition, besides the [Zero] cases, we highlighted the cases
+  when the result is [Many] and then said that in all other cases the result
+  is [Any].
+
+  We could have given an alternative definition, which highlights the cases
+  when the result is [Any], and then says that in all other cases the result
+  is [Many]. Both definitions are equivalent. However, we believe the original
+  definition is more intuitive.
+*)
+
+Definition add' (r s : Quantity) : Quantity :=
+match r, s with
+| Zero, _    => s
+| _   , Zero => r
+| Few , Few  => Any
+| Few , Any  => Any
+| Any , Few  => Any
+| Any , Any  => Any
+| _   , _    => Many
+end.
+
+Lemma add'_spec :
+  forall r s : Quantity,
+    add' r s = add r s.
+Proof.
+  now intros [] [].
+Qed.
+
+(** ** Multiplication
+
+  Multiplication of quantities, like addition, is rather unsophisticated:
+  - Multiplying by [Zero] gives [Zero], like for ordinary numbers
+  - Multiplying by [One] doesn't change the result
+  - [Few] times [Few] is [Few] and [Many] times [Many] is [Many]
+  - In all other cases, the result is [Any]
+*)
+
+Definition mul (r s : Quantity) : Quantity :=
+match r, s with
+| Zero, _    => Zero
+| One , _    => s
+| _   , Zero => Zero
+| _   , One  => r
+| Few , Few  => Few
+| Many, Many => Many
+| _   , _    => Any
+end.
+
+(** [One] is the identity element of [mul]. *)
+
+Lemma mul_One_l :
+  forall r : Quantity,
+    mul One r = r.
+Proof.
+  easy.
+Qed.
+
+Lemma mul_One_r :
+  forall r : Quantity,
+    mul r One = r.
+Proof.
+  now intros []; cbn.
+Qed.
+
+(** [Zero] is the absorbing element of [mul]. *)
+
+Lemma mul_Zero_l :
+  forall r : Quantity,
+    mul Zero r = Zero.
+Proof.
+  easy.
+Qed.
+
+Lemma mul_Zero_r :
+  forall r : Quantity,
+    mul r Zero = Zero.
+Proof.
+  now intros []; cbn.
+Qed.
+
+(** [mul] is associative and commutative. *)
+
+Lemma mul_comm :
+  forall r s : Quantity,
+    mul r s = mul s r.
+Proof.
+  now intros [] []; cbn.
+Qed.
+
+Lemma mul_assoc :
+  forall r s t : Quantity,
+    mul (mul r s) t = mul r (mul s t).
+Proof.
+  now intros [] [] []; cbn.
+Qed.
+
+(**
+  When the result of [mul] is [Zero], one of the arguments must also be [Zero].
+  In this way quantities are similar to ordinary numbers.
+*)
+
+Lemma mul_Zero_inv :
+  forall r s : Quantity,
+    mul r s = Zero -> r = Zero \/ s = Zero.
+Proof.
+  now intros [] []; cbn; inversion 1; intuition.
+Qed.
+
+(** [mul] preserves [Subusage] in both arguments. *)
+
+Lemma Subusage_mul :
+  forall r1 r2 s1 s2 : Quantity,
+    Subusage r1 r2 -> Subusage s1 s2 -> Subusage (mul r1 s1) (mul r2 s2).
+Proof.
+  intros r1 r2 s1 s2 H1 H2.
+  transitivity (mul r2 s1).
+  - now destruct r2, s1; inversion H1; subst; cbn.
+  - now destruct r2, s2; inversion H2; subst; cbn.
+Qed.
+
+(** ** Distributivity laws *)
+
+(** [mul] distributes over [add] on both sides. *)
+
+Lemma mul_add_l :
+  forall r s t : Quantity,
+    mul r (add s t) = add (mul r s) (mul r t).
+Proof.
+  now intros [] [] []; cbn.
+Qed.
+
+Lemma mul_add_r :
+  forall r s t : Quantity,
+    mul (add r s) t = add (mul r t) (mul s t).
+Proof.
+  now intros [] [] []; cbn.
+Qed.
+
+(** * Structure of the subusage ordering
+
+  In this section we'll study the [Subusage] ordering in a bit more depth.
+  Our goal will be to define the infimum and supremum operations, prove their
+  specifications and find a nice intuitive characterization.
+
+  The key to finding this intuitive characterization will be to change
+  perspective. Until now we have though about quantities as a crude kind
+  of arithmetic. But we can view them differently: quantities are traits
+  (i.e. interfaces) that a resource type may have (i.e. implement) or not.
+  Well, at least that's the case for the non-zero quantities - zero is special
+  in this view and is not a trait, but rather information that a resource has
+  been used up.
+*)
+
 (** ** Infimum *)
 
 Definition inf (r s : Quantity) : Quantity :=
@@ -198,6 +460,24 @@ match r, s with
 | Zero, Many => Any
 | Zero, _    => s
 end.
+
+Definition inf' (r s : Quantity) : Quantity :=
+match r, s with
+| Zero, One  => Few
+| Zero, Many => Any
+| Zero, _    => s
+| One , Zero => Few
+| Many, Zero => Any
+| _   , Zero => r
+| _   , _    => mul r s
+end.
+
+Lemma inf'_spec :
+  forall r s : Quantity,
+    inf' r s = inf r s.
+Proof.
+  now intros [] [].
+Qed.
 
 (**
   [inf] is associative, commutative and idempotent.
@@ -305,6 +585,36 @@ Proof.
   now intros [] []; cbn.
 Qed.
 
+(** ** Complement
+
+  But before we delve into infima and suprema, let's stop for a moment to
+  define an operation called 
+
+*)
+
+Definition complement (r : Quantity) : Quantity :=
+match r with
+| Zero => Zero
+| One  => Any
+| Few  => Many
+| Many => Few
+| Any  => One
+end.
+
+Lemma complement_complement :
+  forall r : Quantity,
+    complement (complement r) = r.
+Proof.
+  now intros []; cbn.
+Qed.
+
+Lemma Subusage_complement :
+  forall r s : Quantity,
+    Subusage r s -> s = Zero \/ Subusage (complement s) (complement r).
+Proof.
+  now intros r []; inversion 1; cbn; firstorder.
+Qed.
+
 (** ** Supremum *)
 
 Definition sup (r s : Quantity) : option Quantity :=
@@ -322,6 +632,24 @@ match r, s with
 | Zero, Zero => Some Zero
 | Zero, _    => None
 end.
+
+
+
+Lemma sup_is_complement :
+  forall r s rs : Quantity,
+    sup r s = Some rs ->
+      rs = complement (mul (complement r) (complement s)).
+Proof.
+  now intros [] [] rs; inversion 1; subst; cbn.
+Qed.
+
+Lemma sup_complement :
+  forall r s rs : Quantity,
+    sup (complement r) (complement s) = Some rs ->
+      rs = complement (mul r s).
+Proof.
+  now intros [] [] rs; inversion 1; subst; cbn.
+Qed.
 
 (**
   [sup] is commutative, idempotent and its identity element is [Any].
@@ -508,239 +836,6 @@ Proof.
   now intros [] [] []; cbn; inversion 1; subst; cbn.
 Qed.
 
-(** * Ordered semiring structure *)
-
-(** ** Addition
-
-  Because quantities are a very crude way of counting, addition is very simple
-  Let's assume we have a quantity <<r>> of some resource:
-  - When we add [Zero], then we still have <<r>>
-  - When <<r>> is not [Zero] and we add [One] or [Many], then we have [Many]
-  - In all other cases, the result is [Any]
-*)
-
-Definition add (r s : Quantity) : Quantity :=
-match r, s with
-| Zero, s    => s
-| r   , Zero => r
-| One , _    => Many
-| _   , One  => Many
-| Many, _    => Many
-| _   , Many => Many
-| _, _       => Any
-end.
-
-(**
-  [add] is associative and commutative. [Zero] is its identity and [Many] is
-  its absorbing element.
-*)
-
-Lemma add_Zero_l :
-  forall r : Quantity,
-    add Zero r = r.
-Proof.
-  easy.
-Qed.
-
-Lemma add_Zero_r :
-  forall r : Quantity,
-    add r Zero = r.
-Proof.
-  now intros []; cbn.
-Qed.
-
-Lemma add_Many_l :
-  forall r : Quantity,
-    add Many r = Many.
-Proof.
-  now intros []; cbn.
-Qed.
-
-Lemma add_Many_r :
-  forall r : Quantity,
-    add r Many = Many.
-Proof.
-  now intros []; cbn.
-Qed.
-
-Lemma add_comm :
-  forall r s : Quantity,
-    add r s = add s r.
-Proof.
-  now intros [] []; cbn.
-Qed.
-
-Lemma add_assoc :
-  forall r s t : Quantity,
-    add (add r s) t = add r (add s t).
-Proof.
-  now intros [] [] []; cbn; easy.
-Qed.
-
-(** When the result of [add] is [Zero], both arguments also are [Zero]. *)
-
-Lemma add_Zero_inv :
-  forall r s : Quantity,
-    add r s = Zero -> r = Zero /\ s = Zero.
-Proof.
-  now intros [] []; cbn.
-Qed.
-
-(**
-  When the result of [add] is [One], one argument must be [One]
-  and the other must be [Zero].
-*)
-
-Lemma add_One_inv :
-  forall r s : Quantity,
-    add r s = One -> (r = One /\ s = Zero) \/ (r = Zero /\ s = One).
-Proof.
-  now intros [] []; cbn; firstorder.
-Qed.
-
-(**
-  When the result of [add] is [Few], one argument must be [Few]
-  and the other must be [Few].
-*)
-
-Lemma add_Few_inv :
-  forall r s : Quantity,
-    add r s = Few -> (r = Few /\ s = Zero) \/ (r = Zero /\ s = Few).
-Proof.
-  now intros [] []; cbn; firstorder.
-Qed.
-
-(** [add] preserves [Subusage] in both arguments. *)
-
-Lemma Subusage_add :
-  forall r1 r2 s1 s2 : Quantity,
-    Subusage r1 r2 -> Subusage s1 s2 -> Subusage (add r1 s1) (add r2 s2).
-Proof.
-  intros r1 r2 s1 s2 H1 H2.
-  transitivity (add r2 s1).
-  - now destruct r2, s1; inversion H1; subst; cbn.
-  - now destruct r2, s2; inversion H2; subst; cbn.
-Qed.
-
-(** *** Alternative definition of addition *)
-
-Definition add' (r s : Quantity) : Quantity :=
-match r, s with
-| Zero, _    => s
-| _   , Zero => r
-| Few , Few  => Any
-| Few , Any  => Any
-| Any , Few  => Any
-| Any , Any  => Any
-| _   , _    => Many
-end.
-
-Lemma add'_spec :
-  forall r s : Quantity,
-    add' r s = add r s.
-Proof.
-  now intros [] [].
-Qed.
-
-(** ** Multiplication *)
-
-Definition mul (r s : Quantity) : Quantity :=
-match r, s with
-| Zero, _    => Zero
-| One , _    => s
-| _   , Zero => Zero
-| _   , One  => r
-| Few , Few  => Few
-| Many, Many => Many
-| _   , _    => Any
-end.
-
-(**
-  [mul] is associative and commutative.
-  [One] is its identity and [Zero] is its absorbing element.
-*)
-
-Lemma mul_One_l :
-  forall r : Quantity,
-    mul One r = r.
-Proof.
-  easy.
-Qed.
-
-Lemma mul_One_r :
-  forall r : Quantity,
-    mul r One = r.
-Proof.
-  now intros []; cbn.
-Qed.
-
-Lemma mul_Zero_l :
-  forall r : Quantity,
-    mul Zero r = Zero.
-Proof.
-  easy.
-Qed.
-
-Lemma mul_Zero_r :
-  forall r : Quantity,
-    mul r Zero = Zero.
-Proof.
-  now intros []; cbn.
-Qed.
-
-Lemma mul_comm :
-  forall r s : Quantity,
-    mul r s = mul s r.
-Proof.
-  now intros [] []; cbn.
-Qed.
-
-Lemma mul_assoc :
-  forall r s t : Quantity,
-    mul (mul r s) t = mul r (mul s t).
-Proof.
-  now intros [] [] []; cbn.
-Qed.
-
-(** When the result of [mul] is [Zero], one of the arguments also is [Zero]. *)
-
-Lemma mul_Zero_inv :
-  forall r s : Quantity,
-    mul r s = Zero -> r = Zero \/ s = Zero.
-Proof.
-  now intros [] []; cbn; inversion 1; intuition.
-Qed.
-
-(** [mul] preserves [Subusage] in both arguments. *)
-
-Lemma Subusage_mul :
-  forall r1 r2 s1 s2 : Quantity,
-    Subusage r1 r2 -> Subusage s1 s2 -> Subusage (mul r1 s1) (mul r2 s2).
-Proof.
-  intros r1 r2 s1 s2 H1 H2.
-  transitivity (mul r2 s1).
-  - now destruct r2, s1; inversion H1; subst; cbn.
-  - now destruct r2, s2; inversion H2; subst; cbn.
-Qed.
-
-(** ** Distributivity laws *)
-
-(** [mul] distributes over [add] on both sides. *)
-
-Lemma mul_add_l :
-  forall r s t : Quantity,
-    mul r (add s t) = add (mul r s) (mul r t).
-Proof.
-  now intros [] [] []; cbn.
-Qed.
-
-Lemma mul_add_r :
-  forall r s t : Quantity,
-    mul (add r s) t = add (mul r t) (mul s t).
-Proof.
-  now intros [] [] []; cbn.
-Qed.
-
 (** * Subtraction *)
 
 Definition sub (r s : Quantity) : option Quantity :=
@@ -857,10 +952,9 @@ Qed.
   Decidable_witness :=
     match r, s with
     | Zero, _    => true
-    | One , Zero => false
-    | One , _    => true
     | _   , Many => true
     | _   , Any  => true
+    | One , Few  => true
     | _   , _    => decide (r = s)
     end;
 }.
@@ -908,10 +1002,10 @@ Qed.
 {
   Decidable_witness :=
     match r, s with
-    | Any , Any  => true
-    | Any , Many => true
     | Zero, One  => true
     | Zero, Few  => true
+    | Any , Many => true
+    | Any , Any  => true
     | _   , _    => false
     end;
 }.
@@ -966,14 +1060,10 @@ Qed.
   Decidable_witness :=
     match r, s with
     | Zero, _    => true
-    | One , Zero => false
-    | One , _    => true
-    | Few , Zero => false
-    | Few , One  => false
-    | Few , _    => true
-    | Any , Many => false
-    | _   , Many => true
     | _   , Any  => true
+    | One , Few  => true
+    | One , Many => true
+    | Few , Many => true
     | _   , _    => decide (r = s)
     end;
 }.
@@ -981,7 +1071,7 @@ Proof.
   now destruct r, s; cbn.
 Defined.
 
-(** ** Trait ordering *)
+(** ** Trait order *)
 
 Inductive TraitOrder : Quantity -> Quantity -> Prop :=
 | TraitOrder_refl     : forall r : Quantity, TraitOrder r r
@@ -1014,13 +1104,9 @@ Qed.
   Decidable_witness :=
     match r, s with
     | Any , _    => true
-    | Few , Any  => false
-    | Few , Many => false
-    | Few , _    => true
-    | Many, Any  => false
-    | Many, Few  => false
-    | Many, _    => true
-    | One , Zero => true
+    | _   , Zero => true
+    | Few , One  => true
+    | Many, One  => true
     | _   , _    => decide (r = s)
     end;
 }.
@@ -1028,106 +1114,39 @@ Proof.
   now destruct r, s; cbn.
 Defined.
 
-(** * Complement *)
-
-Definition complement (r : Quantity) : Quantity :=
-match r with
-| Zero => Zero
-| One  => Any
-| Few  => Many
-| Many => Few
-| Any  => One
-end.
-
-Lemma complement_complement :
-  forall r : Quantity,
-    complement (complement r) = r.
+Lemma TraitOrder_complement :
+  forall r s : Quantity,
+    TraitOrder r s -> s = Zero \/ TraitOrder (complement s) (complement r).
 Proof.
-  now intros []; cbn.
+  now intros r []; inversion 1; cbn; firstorder.
 Qed.
 
-Lemma sup_is_complement :
-  forall r s rs : Quantity,
-    sup r s = Some rs ->
-      rs = complement (mul (complement r) (complement s)).
+(** ** Relationships between orders *)
+
+Lemma TraitOrder_Subusage :
+  forall r s : Quantity,
+    Subusage r s -> TraitOrder r s.
 Proof.
-  now intros [] [] rs; inversion 1; subst; cbn.
+  now inversion 1.
 Qed.
 
-Lemma sup_complement :
-  forall r s rs : Quantity,
-    sup (complement r) (complement s) = Some rs ->
-      rs = complement (mul r s).
+Lemma SubtractionOrder_ArithmeticOrder :
+  forall r s : Quantity,
+    ArithmeticOrder r s -> SubtractionOrder r s.
 Proof.
-  now intros [] [] rs; inversion 1; subst; cbn.
+  now inversion 1.
+Qed.
+
+Lemma SubtractionOrder_DecrementationOrder :
+  forall r s : Quantity,
+    DecrementationOrder r s -> SubtractionOrder r s.
+Proof.
+  now inversion 1.
 Qed.
 
 (** ** Alternative definition of [sup] *)
 
-Definition inf' (r s : Quantity) : Quantity :=
-match r, s with
-| Zero, One  => Few
-| Zero, Many => Any
-| Zero, _    => s
-| One , Zero => Few
-| Many, Zero => Any
-| _   , Zero => r
-| _   , _    => mul r s
-end.
-
-Lemma inf'_spec :
-  forall r s : Quantity,
-    inf' r s = inf r s.
-Proof.
-  now intros [] [].
-Qed.
-
-Lemma Subusage_inf'_l_l :
-  forall r s : Quantity,
-    Subusage (inf' r s) r.
-Proof.
-  now intros [] []; cbn.
-Qed.
-
-Lemma Subusage_inf'_l_r :
-  forall r s : Quantity,
-    Subusage (inf' r s) s.
-Proof.
-  now intros [] []; cbn.
-Qed.
-
-Lemma Subusage_inf'_r :
-  forall q r s : Quantity,
-    Subusage q r -> Subusage q s -> Subusage q (inf' r s).
-Proof.
-  now do 2 inversion 1; only 1: destruct s; cbn.
-Qed.
-
-Lemma inf'_spec' :
-  forall r s rs : Quantity,
-    inf' r s = rs
-      <->
-    Subusage rs r /\
-    Subusage rs s /\
-    forall q : Quantity, Subusage q r -> Subusage q s -> Subusage q rs.
-Proof.
-  split.
-  - intros <-.
-    split; [| split].
-    + now apply Subusage_inf'_l_l.
-    + now apply Subusage_inf'_l_r.
-    + now intros; apply Subusage_inf'_r.
-  - intros (Htr & Hts & Huniq).
-    apply Antisymmetric_Subusage.
-    + apply Huniq.
-      * now apply Subusage_inf'_l_l.
-      * now apply Subusage_inf'_l_r.
-    + now apply Subusage_inf'_r.
-Qed.
-
-Require Import FunInd.
-
-Function sup' (r s : Quantity) : option Quantity :=
+Definition sup' (r s : Quantity) : option Quantity :=
 match r, s with
 | Zero, One  => None
 | Zero, Many => None
@@ -1143,71 +1162,18 @@ Proof.
   now intros [] []; cbn.
 Qed.
 
-Lemma Subusage_sup'_r_l :
-  forall r s rs : Quantity,
-    sup' r s = Some rs ->
-      Subusage r rs.
-Proof.
-  now intros [] [] rs; inversion 1; cbn.
-Qed.
-
-Lemma Subusage_sup'_r_r :
-  forall r s rs : Quantity,
-    sup' r s = Some rs ->
-      Subusage s rs.
-Proof.
-  now intros [] [] rs; inversion 1; cbn.
-Qed.
-
-Lemma Subusage_sup'_l :
-  forall r s t rs : Quantity,
-    sup' r s = Some rs ->
-      Subusage r t -> Subusage s t -> Subusage rs t.
-Proof.
-  now intros [] [] t; do 3 inversion 1; subst; cbn.
-Qed.
-
-Lemma sup'_spec' :
-  forall r s rs : Quantity,
-    sup' r s = Some rs
-      <->
-    Subusage r rs /\
-    Subusage s rs /\
-    forall t : Quantity, Subusage r t -> Subusage s t -> Subusage rs t.
-Proof.
-  split.
-  - intros Hsup.
-    split; [| split].
-    + now apply Subusage_sup'_r_l in Hsup.
-    + now apply Subusage_sup'_r_r in Hsup.
-    + now intros; apply Subusage_sup'_l with r s.
-  - intros (Htr & Hts & Huniq).
-    now destruct r, s; cbn;
-      inversion Htr; subst; try congruence;
-      inversion Hts; subst; try congruence;
-      match goal with
-      | H : forall _, Subusage _ _ -> Subusage _ _ -> Subusage One _ |- _ =>
-        specialize (H Zero ltac:(easy)); inversion H
-      | H : forall _, Subusage _ _ -> Subusage _ _ -> Subusage _ _ |- _ =>
-        specialize (H Any  ltac:(easy) ltac:(easy)) +
-        specialize (H Many ltac:(easy) ltac:(easy)) +
-        specialize (H Few  ltac:(easy) ltac:(easy)) +
-        specialize (H One  ltac:(easy) ltac:(easy)) +
-        specialize (H Zero ltac:(easy));
-          now inversion H
-      end.
-Qed.
-
 (** * Trait-checking division *)
 
-Definition div (r s : Quantity) : option Quantity :=match r, s with
+Definition div (r s : Quantity) : option Quantity :=
+match r, s with
 | Zero, _    => Some Zero
 | _   , Zero => None
 | Any , r    => Some (complement r)
 | _   , _    => if decide (TraitOrder s r) then Some One else Some r
 end.
 
-Definition div' (r s : Quantity) : option Quantity :=match r, s with
+Definition div' (r s : Quantity) : option Quantity :=
+match r, s with
 | Zero, _    => Some Zero
 | _   , Zero => None
 | Any , r    => Some (complement r)
@@ -1234,14 +1200,6 @@ Proof.
   now intros [] []; cbn.
 Qed.
 
-Lemma complement_div :
-  forall r s rs : Quantity,
-    div r s = Some rs ->
-      div r (complement s) = div (complement r) s.
-Proof.
-  intros [] []; inversion 1; subst; cbn in *; try easy.
-Abort.
-
 Lemma div_spec :
   forall r s rs : Quantity,
     div r s = Some rs
@@ -1264,4 +1222,92 @@ Proof.
       end.
 Qed.
 
-(** * Another division *)
+(** * Division with remainder *)
+
+Definition divmod (r s : Quantity) : Quantity * Quantity :=
+match r, s with
+| _   , Zero => (Any , r)
+| _   , One  => (r   , Zero)
+| Zero, _    => (Zero, Zero)
+| One , _    => (Zero, One)
+| Any , _    => (Any , Zero)
+| Few , Few  => (Few , Zero)
+| Few , _    => (Zero, Few)
+| Many, Few  => (Any , One)
+| Many, Many => (Many, Zero)
+| Many, Any  => (Any , One)
+end.
+
+Lemma divmod_Zero_r :
+  forall r : Quantity,
+    divmod r Zero = (Any, r).
+Proof.
+  now intros []; cbn.
+Qed.
+
+Lemma divmod_One_r :
+  forall r : Quantity,
+    divmod r One = (r, Zero).
+Proof.
+  now intros []; cbn.
+Qed.
+
+Lemma divmod_spec :
+  forall r s a b : Quantity,
+    divmod r s = (a, b) ->
+      r = add (mul a s) b.
+Proof.
+  now intros [] [] a b [= <- <-]; cbn.
+Qed.
+
+Lemma SubtractionOrder_divmod_1 :
+  forall r s a b : Quantity,
+    divmod r s = (a, b) ->
+    forall a' b' : Quantity,
+      r = add (mul a' s) b' -> SubtractionOrder a' a.
+Proof.
+  now intros [] [] a b [= <- <-] [] []; cbn.
+Qed.
+
+Lemma SubtractionOrder_divmod_2 :
+  forall r s a b : Quantity,
+    divmod r s = (a, b) ->
+    forall a' b' : Quantity,
+      r = add (mul a' s) b' -> SubtractionOrder b b'.
+Proof.
+  now intros [] [] a b [= <- <-] [] []; cbn.
+Qed.
+
+Lemma SubtractionOrder_divmod_2' :
+  forall r s a b : Quantity,
+    divmod r s = (a, b) ->
+    forall a' b' : Quantity,
+      r = add (mul a' s) b' ->
+        SubtractionOrder a' a /\ SubtractionOrder b b'.
+Proof.
+   now intros [] [] a b [= <- <-] [] []; cbn; firstorder.
+Qed.
+
+Lemma divmod_spec' :
+  forall r s a b : Quantity,
+    divmod r s = (a, b)
+      <->
+    r = add (mul a s) b /\
+    forall a' b' : Quantity,
+      r = add (mul a' s) b' ->
+        SubtractionOrder a' a /\ SubtractionOrder b b'.
+Proof.
+  split.
+  - split; [| split].
+    + now apply divmod_spec.
+    + now eapply SubtractionOrder_divmod_1; eauto.
+    + now eapply SubtractionOrder_divmod_2; eauto.
+  - intros [-> H].
+    destruct s.
+    + specialize (H Any b).
+      rewrite !mul_Zero_r, add_Zero_l in H.
+      specialize (H eq_refl).
+      rewrite mul_Zero_r, add_Zero_l.
+      rewrite divmod_Zero_r.
+      destruct H.
+Abort.
