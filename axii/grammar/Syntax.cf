@@ -21,13 +21,14 @@ token Number '-'? digit+ ('.' digit+)? ('e' '-'? digit+)? ;
 token Chr '\'' (char - ["'\\"] | '\\' (["abefnrtv\\\'\"?"] | ["xuU"]? (digit | letter)+)) '\'' ;
 token Str '"' (char - ["\"\\"] | '\\' (["abefnrtv\\\'\"?"] | ["xuU"]? (digit | letter)+))* '"' ;
 token Hole '?' letter (digit | letter | ["-_'"])* ;
+position
 token Id
   ((letter | '_') (digit | letter | ["-_'"])* '.')*
   ((letter | '_') (digit | letter | ["-_'"])* | ["-,;:!?.'\"@*/\\&#%^+<=>|~$"]+) ;
 
-LetR. Repl ::= "let" "{" [Dec] "}" ;
-ExpR. Repl ::= Exp ;
-RequireR. Repl ::= "require" Str ;
+LetR. Repl ::= "let" "{" [Dec] "}" ";" ;
+ExpR. Repl ::= Exp ";" ;
+RequireR. Repl ::= "require" Str ";" ;
 
 separator Dec ";" ;
 
@@ -67,7 +68,7 @@ WitnessPS. ProofStep ::= "witness" ExpOpt ;
 ExpPS. ProofStep ::= Exp ;
 
 AssumePD. ProofDec ::= "assume" Patterns ;
-ByContradictionPD. ProofDec ::= "by-contradiction" Pat11 TypeAnnOpt ;
+ByContradictionPD. ProofDec ::= "by-contradiction" Pat11 AnnOpt ;
 LetPD. ProofDec ::= "let" "{" [Dec] "}" ;
 LemmaPD. ProofDec ::= "lemma" Rule ;
 OpenPD. ProofDec ::= "open" Id ;
@@ -99,13 +100,13 @@ LeftDO. DirectionOpt ::= "<-" ;
 RightDO. DirectionOpt ::= "->" ;
 NoDO. DirectionOpt ::= ;
 
-MkP. Patterns ::= [Param] TypeAnnOpt ;
+MkP. Patterns ::= [Param] AnnOpt ;
 
 terminator Param "" ;
 
 BareP. Param ::= Pat11 ;
-ExplicitP. Param ::= "@" Pat11 ;
-InvisibleP. Param ::= "{" Pat "}" ;
+AtP. Param ::= "@" Pat11 ;
+HashP. Param ::= "#" Pat11 ;
 
 separator nonempty Pat2 "," ;
 
@@ -136,11 +137,11 @@ separator FieldPat ";" ;
 PunP. FieldPat ::= Id ;
 FieldP. FieldPat ::= Id "=" Pat ;
 
-HasTAO. TypeAnnOpt ::= ":" Exp1 ;
-NoTAO. TypeAnnOpt ::= ;
+HasAnn. AnnOpt ::= ":" Exp1 ;
+NoAnn. AnnOpt ::= ;
 
-HasEO. ExpOpt ::= Exp ;
-NoEO. ExpOpt ::= ;
+HasExp. ExpOpt ::= Exp ;
+NoExp. ExpOpt ::= ;
 
 separator nonempty Exp "," ;
 separator nonempty Exp1 "&" ;
@@ -191,4 +192,4 @@ MkPC. PipeClause ::= "|" [Pat2] "=>" "{" [ProofStep] "}" ;
 separator nonempty Arg "" ;
 
 BareA. Arg ::= Exp12 ;
-ExplicitA. Arg ::= "@" Exp11 ;
+AtA. Arg ::= "@" Exp11 ;

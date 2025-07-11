@@ -3,4 +3,7 @@ cradle:
     - path: "./executable"
       component: "exe:axii"
     - path: "./grammar"
-      component: "exe:grammar"
+      component: "lib:axi-grammar"
+    - path: "./test-parse"
+      component: "exe:axi-test-parse"
+

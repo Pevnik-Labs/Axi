@@ -13,22 +13,20 @@ configure : all
 
 # Default goal.
 
-all : executable/Syntax/Abs.hs executable/Syntax/Layout.hs executable/Syntax/Lex.hs executable/Syntax/Par.hs executable/Syntax/Print.hs grammar/Syntax/Doc.txt grammar/Syntax/Abs.hs grammar/Syntax/Layout.hs grammar/Syntax/Lex.hs grammar/Syntax/Par.hs grammar/Syntax/Print.hs grammar/Syntax/Par.info grammar/Syntax/Test.hs
+all : grammar/Syntax/Doc.txt grammar/Syntax/Abs.hs grammar/Syntax/Layout.hs grammar/Syntax/Lex.hs grammar/Syntax/Par.hs grammar/Syntax/Print.hs grammar/Syntax/Par.info grammar/Syntax/Test.hs
 
 # Rules for building the parser.
 
 %/Test.hs %/Skel.hs %/Abs.hs %/Layout.hs %/Lex.x %/Par.y %/Print.hs %/Doc.txt : %.cf
-	cd $(dir $<); bnfc --haskell -d --text-token --functor --generic $(notdir $<)
+	cd $(dir $<); bnfc --haskell -d --text-token --generic $(notdir $<)
 	-rm -f $(basename $<)/ErrM.hs
+	sed -i '5s/Main/Syntax.Test/' $(basename $<)/Test.hs
 
 %.hs %.info : %.y
 	${HAPPY} ${HAPPY_OPTS} $<
 
 %.hs : %.x
 	${ALEX} ${ALEX_OPTS} $<
-
-executable/Syntax/%.hs : grammar/Syntax/%.hs
-	cp $< executable/Syntax/
 
 # Rules for cleaning generated files.
 

@@ -43,20 +43,29 @@ default-extensions:
 other-extensions:
   - BangPatterns
   - BlockArguments
+  - CPP
   - DataKinds
   - DeriveDataTypeable
-  - DeriveFoldable
-  - DeriveFunctor
+  - DeriveGeneric
   - DeriveTraversable
+  - DerivingVia
   - EmptyCase
   - ExistentialQuantification
+  - FlexibleContexts
   - FlexibleInstances
   - FunctionalDependencies
   - GADTs
+  - GeneralizedNewtypeDeriving
   - LambdaCase
+  - LambdaCase
+  - MagicHash
   - MultiParamTypeClasses
-  - NoStarIsType
-  - PatternSynonyms
+  - NoStrictData
+  - OverlappingInstances
+  - OverloadedLists
+  - OverloadedStrings
+  - PartialTypeSignatures
+  - PatternGuards
   - PatternSynonyms
   - PolyKinds
   - QuasiQuotes
@@ -66,9 +75,11 @@ other-extensions:
   - StandaloneKindSignatures
   - StrictData
   - TemplateHaskell
+  - TupleSections
   - TypeApplications
   - TypeFamilyDependencies
   - TypeOperators
+  - TypeSynonymInstances
   - ViewPatterns
 
 _exec: &exec
@@ -78,15 +89,22 @@ _exec: &exec
     - -threaded
     - -with-rtsopts=-N
 
+internal-libraries:
+  axi-grammar:
+    source-dirs: grammar
+    dependencies:
+      <<: *deps
+
 executables:
+  axi-test-parse:
+    <<: *exec
+    source-dirs: test-parse
+    dependencies:
+      <<: *deps
+      axi-grammar:
   axii:
     <<: *exec
     source-dirs: executable
     dependencies:
       <<: *deps
-  grammar:
-    <<: *exec
-    source-dirs: grammar
-    main: Syntax/Test.hs  
-    dependencies:
-      <<: *deps
+      axi-grammar:

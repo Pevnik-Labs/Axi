@@ -28,36 +28,36 @@ data LayoutDelimiters
 
 layoutWords :: [(TokSymbol, LayoutDelimiters)]
 layoutWords =
-  [ ( TokSymbol "." 7
-    , LayoutDelimiters (TokSymbol ";" 11) (Just (TokSymbol "{" 66)) (Just (TokSymbol "}" 68))
+  [ ( TokSymbol "." 8
+    , LayoutDelimiters (TokSymbol ";" 12) (Just (TokSymbol "{" 67)) (Just (TokSymbol "}" 69))
     )
-  , ( TokSymbol "=>" 18
-    , LayoutDelimiters (TokSymbol ";" 11) (Just (TokSymbol "{" 66)) (Just (TokSymbol "}" 68))
+  , ( TokSymbol "=>" 19
+    , LayoutDelimiters (TokSymbol ";" 12) (Just (TokSymbol "{" 67)) (Just (TokSymbol "}" 69))
     )
-  , ( TokSymbol "by" 26
-    , LayoutDelimiters (TokSymbol ";" 11) (Just (TokSymbol "{" 66)) (Just (TokSymbol "}" 68))
+  , ( TokSymbol "by" 27
+    , LayoutDelimiters (TokSymbol ";" 12) (Just (TokSymbol "{" 67)) (Just (TokSymbol "}" 69))
     )
-  , ( TokSymbol "chaining" 30
-    , LayoutDelimiters (TokSymbol ";" 11) (Just (TokSymbol "{" 66)) (Just (TokSymbol "}" 68))
+  , ( TokSymbol "chaining" 31
+    , LayoutDelimiters (TokSymbol ";" 12) (Just (TokSymbol "{" 67)) (Just (TokSymbol "}" 69))
     )
-  , ( TokSymbol "let" 43
-    , LayoutDelimiters (TokSymbol ";" 11) (Just (TokSymbol "{" 66)) (Just (TokSymbol "}" 68))
+  , ( TokSymbol "let" 44
+    , LayoutDelimiters (TokSymbol ";" 12) (Just (TokSymbol "{" 67)) (Just (TokSymbol "}" 69))
     )
-  , ( TokSymbol "proof" 51
-    , LayoutDelimiters (TokSymbol ";" 11) (Just (TokSymbol "{" 66)) (Just (TokSymbol "}" 68))
+  , ( TokSymbol "proof" 52
+    , LayoutDelimiters (TokSymbol ";" 12) (Just (TokSymbol "{" 67)) (Just (TokSymbol "}" 69))
     )
-  , ( TokSymbol "record" 55
-    , LayoutDelimiters (TokSymbol ";" 11) (Just (TokSymbol "{" 66)) (Just (TokSymbol "}" 68))
+  , ( TokSymbol "record" 56
+    , LayoutDelimiters (TokSymbol ";" 12) (Just (TokSymbol "{" 67)) (Just (TokSymbol "}" 69))
     )
-  , ( TokSymbol "where" 63
-    , LayoutDelimiters (TokSymbol ";" 11) (Just (TokSymbol "{" 66)) (Just (TokSymbol "}" 68))
+  , ( TokSymbol "where" 64
+    , LayoutDelimiters (TokSymbol ";" 12) (Just (TokSymbol "{" 67)) (Just (TokSymbol "}" 69))
     )
   ]
 
 layoutStopWords :: [TokSymbol]
 layoutStopWords =
-  [ TokSymbol "in" 37
-  , TokSymbol "qed" 54
+  [ TokSymbol "in" 38
+  , TokSymbol "qed" 55
   ]
 
 -- layout separators
@@ -65,11 +65,11 @@ layoutStopWords =
 layoutOpen, layoutClose, layoutSep :: [TokSymbol]
 layoutOpen  = List.nub $ mapMaybe (delimOpen  . snd) layoutWords
 layoutClose = List.nub $ mapMaybe (delimClose . snd) layoutWords
-layoutSep   = List.nub $ TokSymbol ";" 11 : map (delimSep . snd) layoutWords
+layoutSep   = List.nub $ TokSymbol ";" 12 : map (delimSep . snd) layoutWords
 
 parenOpen, parenClose :: [TokSymbol]
-parenOpen  = [TokSymbol "(" 2]
-parenClose = [TokSymbol ")" 3]
+parenOpen  = [TokSymbol "(" 3]
+parenClose = [TokSymbol ")" 4]
 
 -- | Report an error during layout resolution.
 layoutError
@@ -96,7 +96,7 @@ resolveLayout topLayout =
   res Nothing [if topLayout then Implicit topDelim Definitive 1 else Explicit]
   where
   topDelim :: LayoutDelimiters
-  topDelim = LayoutDelimiters (TokSymbol ";" 11) Nothing Nothing
+  topDelim = LayoutDelimiters (TokSymbol ";" 12) Nothing Nothing
 
   res :: Maybe Token -- ^ The previous token, if any.
       -> [Block]     -- ^ A stack of layout blocks.

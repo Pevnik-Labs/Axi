@@ -12,15 +12,20 @@ import Control.Monad.Reader.Class (MonadReader (..), asks)
 import Control.Monad.State.Class (MonadState (..), put)
 import Control.Monad.State.Strict (StateT, runStateT)
 import Data.Foldable qualified as F
+import Data.Functor ((<&>))
 import Data.HashMap.Internal.Strict qualified as HM
 import Data.IORef (IORef, newIORef, readIORef, writeIORef)
+import Data.List (intersperse)
+import Data.Map.Strict qualified as M
 import Data.Maybe (fromMaybe)
 import Data.Sequence (Seq (..))
 import Data.Sequence qualified as S
+import Data.String (IsString (fromString))
 import Data.Text qualified as T
 import Data.Text qualified as Text
 import Data.Text.IO qualified as TIO
-import Qty
+import Numeric.Natural (Natural)
+import Qty (Qty, suffixQty)
 import Syntax.Abs
 import Syntax.Layout (resolveLayout)
 import Syntax.Lex (Token, mkPosToken)
@@ -41,21 +46,21 @@ desugarDecs :: (MonadError TcErr m) => [Dec] -> m [(Name, Exp)]
 desugarDecs = traverse desugarDec
 
 desugarDec :: (MonadError TcErr m) => Dec -> m (Name, Exp)
-desugarDec (ConstantD _ (ValueR p pat e)) = case patToNameParamsAnn pat of
+desugarDec (ConstantD (ValueR pat e)) = case patToNameParamsAnn pat of
   Nothing -> todo Empty "desugarDec"
-  Just (x, params, Nothing) -> pure (x, FunE p params e)
-  Just (x, params, Just t) -> pure (x, FunE p params (AnnE p e t))
+  Just (x, params, Nothing) -> pure (x, FunE params e)
+  Just (x, params, Just t) -> pure (x, FunE params (AnnE e t))
 desugarDec _ = todo Empty "desugarDec"
 
 patToNameParamsAnn :: Pat -> Maybe (Name, [Param], Maybe Exp)
-patToNameParamsAnn (AnnP _ pat t) =
+patToNameParamsAnn (AnnP pat t) =
   patToNameParams pat [] (Just t)
 patToNameParamsAnn pat = patToNameParams pat [] Nothing
 
 patToNameParams :: Pat -> [Param] -> c -> Maybe (Name, [Param], c)
-patToNameParams (CallP _ p param params) acc t =
+patToNameParams (CallP p param params) acc t =
   patToNameParams p (param : params ++ acc) t
-patToNameParams (VarP px x) acc t = Just (mkName px x, acc, t)
+patToNameParams (VarP x) acc t = Just (idName x, acc, t)
 patToNameParams _ _ _ = Nothing
 
 data RbCtx = RbCtx
@@ -64,141 +69,137 @@ data RbCtx = RbCtx
   }
 
 extendRb :: RbCtx -> Name -> (Int, Name, RbCtx)
-extendRb RbCtx {next = n, used = u} (Name p x) =
-  let i = fromMaybe 0 (HM.lookup x n)
-      n' = HM.insert x (i + 1) n
-      x' = x <> T.pack (show i)
-      name = Name p x'
+extendRb RbCtx {next = n, used = u} x =
+  let i = fromMaybe 0 (HM.lookup (nameText x) n)
+      n' = HM.insert (nameText x) (i + 1) n
+      x' = x {nameText = nameText x <> T.pack (show i)}
       d = S.length u
-      u' = u :|> Just name
-   in (d, name, RbCtx {next = n', used = u'})
+      u' = u :|> Just x'
+   in (d, x, RbCtx {next = n', used = u'})
 
-withName :: (MonadReader RbCtx m) => Name -> (Int -> Name -> m a) -> m a
-withName (Name p x) action = do
+withName :: (MonadReader RbCtx m) => OptName -> (Int -> Name -> m a) -> m a
+withName Nothing action = withName (Just "x") action
+withName (Just x) action = do
   rbCtx <- ask
-  let (d, name, rbCtx') = extendRb rbCtx (Name p x)
+  let (d, name, rbCtx') = extendRb rbCtx x
   local (const rbCtx') (action d name)
 
 nameE :: Name -> Exp
-nameE (Name p x) = VarE p (Id x)
+nameE x = VarE (nameId x)
+
+numberE :: Natural -> Exp
+numberE n = NumberE (Number (T.pack (show n)))
 
 callE :: Exp -> [Arg] -> Exp
 callE e [] = e
-callE (CallE p e args) args' = CallE p e (args ++ args')
-callE e args = CallE (hasPosition e) e args
+callE (CallE e args) args' = CallE e (args ++ args')
+callE e args = CallE e args
+
+appE :: [Exp] -> Maybe Exp
+appE [] = Nothing
+appE (e : es) = Just (callE e (argA Bare <$> es))
+
+infixlE :: Exp -> Exp -> [Exp] -> Exp
+infixlE e' e es = fromMaybe e' (appE (intersperse e es))
 
 nameP :: Name -> Pat
-nameP (Name p x) = VarP p (Id x)
+nameP x = VarP (nameId x)
 
 tupleE :: [Exp] -> Exp
-tupleE [] = UnitE BNFC'NoPosition
-tupleE (e : es) = TupleE (hasPosition e) e es
+tupleE [] = UnitE
+tupleE (e : es) = TupleE e es
 
-argA :: ArgKind -> Exp -> Arg
-argA Bare e = BareA (hasPosition e) e
-argA Explicit e = ExplicitA (hasPosition e) e
+argA :: ArgFlavour -> Exp -> Arg
+argA Bare e = BareA e
+argA _ e = AtA e
+
+argP :: ArgFlavour -> Pat -> Param
+argP Bare p = BareP p
+argP At p = AtP p
+argP Hash p = HashP p
 
 readbackVar :: (MonadReader RbCtx m) => Index -> m Exp
 readbackVar (Here i) =
-  asks (nameE . fromMaybe (mkName Nothing "??") . flip S.index i . used)
-readbackVar _ = pure (nameE (mkName Nothing "??"))
+  asks (nameE . fromMaybe "??" . flip S.index i . used)
+readbackVar _ = pure (nameE "??")
 
-readbackExp :: (MonadReader RbCtx m) => Ty -> m Exp
+readbackExp :: (MonadReader RbCtx m) => Tm -> m Exp
 readbackExp (Bot k) =
-  AnnE BNFC'NoPosition (VarE BNFC'NoPosition "Core.Bot") <$> readbackExp k
+  AnnE (nameE "Bot") <$> readbackExp k
 readbackExp (Top k) =
-  AnnE BNFC'NoPosition (VarE BNFC'NoPosition "Core.Top") <$> readbackExp k
-readbackExp (Type r l) =
+  AnnE (nameE "Top") <$> readbackExp k
+readbackExp Level = pure (nameE "Level")
+readbackExp (Max vs Zero) = do
+  vs' <- traverse (readbackExp . (\(ix, (f, t)) -> Var f ix t)) (M.toList vs)
+  pure (infixlE (numberE 0) (nameE "⊔") vs')
+readbackExp (Max vs u) = do
+  vs' <- traverse (readbackExp . (\(ix, (f, t)) -> Var f ix t)) (M.toList vs)
+  u' <- readbackExp u
+  pure (infixlE undefined (nameE "⊔") (vs' ++ [u']))
+readbackExp Nat = pure (nameE "Nat")
+readbackExp Zero = pure (numberE 0)
+readbackExp (t :+$ n) = readbackPlus t (succ n)
+readbackExp (Type r (Small l)) = do
+  t' <- readbackExp l
+  pure $ callE (readbackSort r) [argA At t']
+readbackExp (Type r (Big l)) =
   pure $
     callE
-      (VarE BNFC'NoPosition (readbackSort r))
-      [ ExplicitA BNFC'NoPosition $
-          NumberE BNFC'NoPosition (Number (T.pack (show l)))
-      ]
+      (readbackSort r)
+      [argA At (infixlE undefined (nameE "+") [nameE "ω", numberE l])]
 readbackExp (Var _ ix k) = do
-  AnnE BNFC'NoPosition <$> readbackVar ix <*> readbackExp k
+  AnnE <$> readbackVar ix <*> readbackExp k
 readbackExp (t :-> u) =
-  ArrowE BNFC'NoPosition <$> readbackExp t <*> readbackExp u
+  ArrowE <$> readbackExp t <*> readbackExp u
 readbackExp (Con x k ts) = do
   k' <- readbackExp k
   ts' <- traverse readbackArg ts
   pure $
     callE
-      (AnnE BNFC'NoPosition (ExplicitE BNFC'NoPosition (Id x)) k')
+      (AnnE (ExplicitE (nameId x)) k')
       (F.toList ts')
-readbackExp (Product ts) = tupleE . F.toList <$> traverse readbackExp ts
+readbackExp (Product ts) =
+  infixlE (nameE "Unit") (nameE "*") <$> traverse readbackExp (F.toList ts)
+readbackExp (Tuple ts) = tupleE . F.toList <$> traverse readbackExp ts
 readbackExp (Sum t u) = do
   t' <- readbackExp t
   u' <- readbackExp u
   pure $
     callE
-      (VarE BNFC'NoPosition "Core.Either")
-      [ ExplicitA BNFC'NoPosition t',
-        ExplicitA BNFC'NoPosition u'
+      (nameE "Either")
+      [ argA At t',
+        argA At u'
       ]
-readbackExp (Box r t) = do
-  t' <- readbackExp t
-  pure $
-    callE
-      (VarE BNFC'NoPosition (readbackSort r))
-      [ ExplicitA BNFC'NoPosition t'
-      ]
-readbackExp (Forall Bare x k t) = do
+readbackExp (Box r t) =
+  readbackExp t <&> \t' ->
+    callE (readbackBox r) [BareA t']
+readbackExp (Forall a x k t) = do
   k' <- readbackExp k
   withName x $ \i x' -> do
-    ForallE
-      BNFC'NoPosition
-      ( MkP
-          BNFC'NoPosition
-          [ BareP BNFC'NoPosition $
-              AnnP BNFC'NoPosition (nameP x') k'
-          ]
-          (NoTAO BNFC'NoPosition)
-      )
-      <$> readbackExp (enter i (var i k) t)
-readbackExp (Forall Explicit x k t) = do
+    ForallE (MkP [argP a (AnnP (nameP x') k')] NoAnn)
+      <$> readbackExp (enter (var i k) t)
+readbackExp (Fun a x k t) = do
   k' <- readbackExp k
   withName x $ \i x' -> do
-    ForallE
-      BNFC'NoPosition
-      ( MkP
-          BNFC'NoPosition
-          [ ExplicitP BNFC'NoPosition $
-              AnnP BNFC'NoPosition (nameP x') k'
-          ]
-          (NoTAO BNFC'NoPosition)
-      )
-      <$> readbackExp (enter i (var i k) t)
-readbackExp (Generalised k t) = do
-  k' <- readbackExp k
-  withName (mkName Nothing "x") $ \i x' -> do
-    ForallE
-      BNFC'NoPosition
-      ( MkP
-          BNFC'NoPosition
-          [ InvisibleP BNFC'NoPosition $
-              AnnP BNFC'NoPosition (nameP x') k'
-          ]
-          (NoTAO BNFC'NoPosition)
-      )
-      <$> readbackExp (enter i (var i k) t)
+    FunE
+      [argP a (AnnP (nameP x') k')]
+      <$> readbackExp (enter (var i k) t)
 
-readbackSort :: Qty -> Id
-readbackSort r = Id ("Core.Type" <> printQty r)
+readbackPlus :: (MonadReader RbCtx m) => Tm -> Natural -> m Exp
+readbackPlus Zero n = pure (numberE n)
+readbackPlus (t :+$ m) n = readbackPlus t (succ m + n)
+readbackPlus t n =
+  readbackExp t <&> \t' -> infixlE undefined (nameE "+") [t', numberE n]
 
-readbackBox :: Qty -> Id
-readbackBox r = Id ("Core.Box" <> printQty r)
+readbackSort :: Qty -> Exp
+readbackSort r = nameE (fromString ("Type" <> suffixQty r))
 
-printQty :: Qty -> T.Text
-printQty O = "0"
-printQty I = "1"
-printQty (:?) = "?"
-printQty (:+) = "+"
-printQty (:*) = ""
+readbackBox :: Qty -> Exp
+readbackBox r = nameE (fromString ("Box" <> suffixQty r))
 
-readbackArg :: (MonadReader RbCtx m) => (ArgKind, Ty) -> m Arg
-readbackArg (Bare, t) = BareA BNFC'NoPosition <$> readbackExp t
-readbackArg (Explicit, t) = ExplicitA BNFC'NoPosition <$> readbackExp t
+readbackArg :: (MonadReader RbCtx m) => (ArgFlavour, Tm) -> m Arg
+readbackArg (Bare, t) = BareA <$> readbackExp t
+readbackArg (_, t) = argA At <$> readbackExp t
 
 type Parser a = [Token] -> Either String a
 
@@ -280,12 +281,12 @@ evalAndPrint :: IORef SemEnv -> IORef Ctx -> Repl -> IO ()
 evalAndPrint ref ctx entry = do
   env <- readIORef ref
   case entry of
-    LetR _ decs -> do
+    LetR decs -> do
       ok <- checkDecsIO ctx decs
       when ok $ do
         let (_, env') = evalDecs decs env
         writeIORef ref env'
-    ExpR _ e -> do
+    ExpR e -> do
       ctx0 <- readIORef ctx
       case runTc ctx0 (infer e >>= runRb . readbackExp) of
         Left err -> printTcErr err
@@ -295,7 +296,7 @@ evalAndPrint ref ctx entry = do
           let (e', env') = evalExp e env
           writeIORef ref env'
           putStrLn (printTree e')
-    RequireR _ str ->
+    RequireR str ->
       case fromStrToString str of
         Nothing -> putStrLn "Syntax error: not a file name"
         Just fp -> loadFile ref ctx fp
@@ -309,14 +310,19 @@ printTcErr (Nested msg err) = do
   printTcErr err
 printTcErr (TypeError ctx t) = do
   mapM_ print ctx
-  putStrLn "|-"
+  TIO.putStrLn "|-"
   print t
 printTcErr (Anomaly msg) = TIO.putStrLn msg
 printTcErr (NotImplemented ctx msg) = do
   mapM_ print ctx
-  putStrLn "|-"
+  TIO.putStrLn "|-"
   TIO.putStr "Not implemented: "
   TIO.putStrLn msg
+
+printName :: Name -> T.Text
+printName x = case namePos x of
+  Nothing -> nameText x
+  Just (l, c) -> nameText x <> T.pack (':' : show l ++ ':' : show c)
 
 checkDecsIO :: IORef Ctx -> [Dec] -> IO Bool
 checkDecsIO ctx decs = do
@@ -325,8 +331,8 @@ checkDecsIO ctx decs = do
     Left err -> False <$ printTcErr err
     Right (sigs, ctx1) -> do
       writeIORef ctx ctx1
-      forM_ sigs $ \(Name _ x, t) ->
-        putStrLn (T.unpack x ++ " : " ++ printTree t)
+      forM_ sigs $ \(x, t) ->
+        TIO.putStrLn (nameText x <> " : " <> T.pack (printTree t))
       pure True
 
 checkDecs ::
@@ -341,9 +347,9 @@ checkDecs decs = do
         throwError (Nested ("Error at " <> printName x <> ":") err)
       (x,) <$> runRb (readbackExp s)
 
-infer :: (MonadState Ctx m, MonadError TcErr m) => Exp -> m Ty
+infer :: (MonadState Ctx m, MonadError TcErr m) => Exp -> m Tm
 infer e = do
   ctx <- get
-  (t, ctx') <- ctx |- Infer (Sj mempty e) []
+  (_, (t, ctx')) <- ctx |- Elab mempty e [] Infer
   put ctx'
   pure t

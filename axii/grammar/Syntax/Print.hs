@@ -147,241 +147,241 @@ instance Print Syntax.Abs.Str where
 instance Print Syntax.Abs.Hole where
   prt _ (Syntax.Abs.Hole i) = doc $ showString (Data.Text.unpack i)
 instance Print Syntax.Abs.Id where
-  prt _ (Syntax.Abs.Id i) = doc $ showString (Data.Text.unpack i)
-instance Print (Syntax.Abs.Repl' a) where
+  prt _ (Syntax.Abs.Id (_,i)) = doc $ showString (Data.Text.unpack i)
+instance Print Syntax.Abs.Repl where
   prt i = \case
-    Syntax.Abs.LetR _ decs -> prPrec i 0 (concatD [doc (showString "let"), doc (showString "{"), prt 0 decs, doc (showString "}")])
-    Syntax.Abs.ExpR _ exp -> prPrec i 0 (concatD [prt 0 exp])
-    Syntax.Abs.RequireR _ str -> prPrec i 0 (concatD [doc (showString "require"), prt 0 str])
+    Syntax.Abs.LetR decs -> prPrec i 0 (concatD [doc (showString "let"), doc (showString "{"), prt 0 decs, doc (showString "}"), doc (showString ";")])
+    Syntax.Abs.ExpR exp -> prPrec i 0 (concatD [prt 0 exp, doc (showString ";")])
+    Syntax.Abs.RequireR str -> prPrec i 0 (concatD [doc (showString "require"), prt 0 str, doc (showString ";")])
 
-instance Print [Syntax.Abs.Dec' a] where
+instance Print [Syntax.Abs.Dec] where
   prt _ [] = concatD []
   prt _ [x] = concatD [prt 0 x]
   prt _ (x:xs) = concatD [prt 0 x, doc (showString ";"), prt 0 xs]
 
-instance Print (Syntax.Abs.Dec' a) where
+instance Print Syntax.Abs.Dec where
   prt i = \case
-    Syntax.Abs.StructureD _ structurekwd rule -> prPrec i 0 (concatD [prt 0 structurekwd, prt 0 rule])
-    Syntax.Abs.ConstantD _ rule -> prPrec i 0 (concatD [prt 0 rule])
-    Syntax.Abs.ProofD _ proofsteps -> prPrec i 0 (concatD [doc (showString "proof"), doc (showString "{"), prt 0 proofsteps, doc (showString "}"), doc (showString "qed")])
-    Syntax.Abs.DeclarationD _ patterns -> prPrec i 0 (concatD [doc (showString "declaration"), prt 0 patterns])
-    Syntax.Abs.PipeClauseD _ pipeclause -> prPrec i 0 (concatD [prt 0 pipeclause])
+    Syntax.Abs.StructureD structurekwd rule -> prPrec i 0 (concatD [prt 0 structurekwd, prt 0 rule])
+    Syntax.Abs.ConstantD rule -> prPrec i 0 (concatD [prt 0 rule])
+    Syntax.Abs.ProofD proofsteps -> prPrec i 0 (concatD [doc (showString "proof"), doc (showString "{"), prt 0 proofsteps, doc (showString "}"), doc (showString "qed")])
+    Syntax.Abs.DeclarationD patterns -> prPrec i 0 (concatD [doc (showString "declaration"), prt 0 patterns])
+    Syntax.Abs.PipeClauseD pipeclause -> prPrec i 0 (concatD [prt 0 pipeclause])
 
-instance Print (Syntax.Abs.StructureKwd' a) where
+instance Print Syntax.Abs.StructureKwd where
   prt i = \case
-    Syntax.Abs.DataKwd _ -> prPrec i 0 (concatD [doc (showString "data")])
-    Syntax.Abs.RecordKwd _ -> prPrec i 0 (concatD [doc (showString "record")])
-    Syntax.Abs.ModuleKwd _ -> prPrec i 0 (concatD [doc (showString "module")])
-    Syntax.Abs.ClassKwd _ -> prPrec i 0 (concatD [doc (showString "class")])
-    Syntax.Abs.InstanceKwd _ -> prPrec i 0 (concatD [doc (showString "instance")])
-    Syntax.Abs.AxiomKwd _ -> prPrec i 0 (concatD [doc (showString "axiom")])
-    Syntax.Abs.TheoremKwd _ -> prPrec i 0 (concatD [doc (showString "theorem")])
+    Syntax.Abs.DataKwd -> prPrec i 0 (concatD [doc (showString "data")])
+    Syntax.Abs.RecordKwd -> prPrec i 0 (concatD [doc (showString "record")])
+    Syntax.Abs.ModuleKwd -> prPrec i 0 (concatD [doc (showString "module")])
+    Syntax.Abs.ClassKwd -> prPrec i 0 (concatD [doc (showString "class")])
+    Syntax.Abs.InstanceKwd -> prPrec i 0 (concatD [doc (showString "instance")])
+    Syntax.Abs.AxiomKwd -> prPrec i 0 (concatD [doc (showString "axiom")])
+    Syntax.Abs.TheoremKwd -> prPrec i 0 (concatD [doc (showString "theorem")])
 
-instance Print (Syntax.Abs.Rule' a) where
+instance Print Syntax.Abs.Rule where
   prt i = \case
-    Syntax.Abs.ByBlockR _ pat proofsteps -> prPrec i 0 (concatD [prt 0 pat, doc (showString "by"), doc (showString "{"), prt 0 proofsteps, doc (showString "}")])
-    Syntax.Abs.ProofR _ pat proofsteps -> prPrec i 0 (concatD [prt 0 pat, doc (showString "proof"), doc (showString "{"), prt 0 proofsteps, doc (showString "}"), doc (showString "qed")])
-    Syntax.Abs.ValueR _ pat exp -> prPrec i 0 (concatD [prt 0 pat, doc (showString "="), prt 0 exp])
-    Syntax.Abs.WhereR _ pat decs -> prPrec i 0 (concatD [prt 0 pat, doc (showString "where"), doc (showString "{"), prt 0 decs, doc (showString "}")])
-    Syntax.Abs.SigR _ pat -> prPrec i 0 (concatD [prt 0 pat])
+    Syntax.Abs.ByBlockR pat proofsteps -> prPrec i 0 (concatD [prt 0 pat, doc (showString "by"), doc (showString "{"), prt 0 proofsteps, doc (showString "}")])
+    Syntax.Abs.ProofR pat proofsteps -> prPrec i 0 (concatD [prt 0 pat, doc (showString "proof"), doc (showString "{"), prt 0 proofsteps, doc (showString "}"), doc (showString "qed")])
+    Syntax.Abs.ValueR pat exp -> prPrec i 0 (concatD [prt 0 pat, doc (showString "="), prt 0 exp])
+    Syntax.Abs.WhereR pat decs -> prPrec i 0 (concatD [prt 0 pat, doc (showString "where"), doc (showString "{"), prt 0 decs, doc (showString "}")])
+    Syntax.Abs.SigR pat -> prPrec i 0 (concatD [prt 0 pat])
 
-instance Print [Syntax.Abs.ProofStep' a] where
+instance Print [Syntax.Abs.ProofStep] where
   prt _ [] = concatD []
   prt _ [x] = concatD [prt 0 x]
   prt _ (x:xs) = concatD [prt 0 x, doc (showString ";"), prt 0 xs]
 
-instance Print (Syntax.Abs.ProofStep' a) where
+instance Print Syntax.Abs.ProofStep where
   prt i = \case
-    Syntax.Abs.ProofDecPS _ proofdec -> prPrec i 0 (concatD [prt 0 proofdec])
-    Syntax.Abs.BulletBlockPS _ proofsteps -> prPrec i 0 (concatD [doc (showString "."), doc (showString "{"), prt 0 proofsteps, doc (showString "}")])
-    Syntax.Abs.CasesPS _ exps -> prPrec i 0 (concatD [doc (showString "cases"), prt 0 exps])
-    Syntax.Abs.CasesWithPS _ exps -> prPrec i 0 (concatD [doc (showString "cases"), prt 0 exps, doc (showString "with")])
-    Syntax.Abs.InductionPS _ exps -> prPrec i 0 (concatD [doc (showString "induction"), prt 0 exps, doc (showString "with")])
-    Syntax.Abs.PipeClausePS _ pipeclause -> prPrec i 0 (concatD [prt 0 pipeclause])
-    Syntax.Abs.ProvingPS _ exp -> prPrec i 0 (concatD [doc (showString "proving"), prt 0 exp])
-    Syntax.Abs.ApplyPS _ exp exps -> prPrec i 0 (concatD [doc (showString "apply"), prt 0 exp, doc (showString ","), prt 0 exps])
-    Syntax.Abs.InstantiatePS _ exp -> prPrec i 0 (concatD [doc (showString "instantiate"), prt 0 exp])
-    Syntax.Abs.IntroPS _ patterns -> prPrec i 0 (concatD [doc (showString "\\"), prt 0 patterns])
-    Syntax.Abs.WitnessPS _ expopt -> prPrec i 0 (concatD [doc (showString "witness"), prt 0 expopt])
-    Syntax.Abs.ExpPS _ exp -> prPrec i 0 (concatD [prt 0 exp])
+    Syntax.Abs.ProofDecPS proofdec -> prPrec i 0 (concatD [prt 0 proofdec])
+    Syntax.Abs.BulletBlockPS proofsteps -> prPrec i 0 (concatD [doc (showString "."), doc (showString "{"), prt 0 proofsteps, doc (showString "}")])
+    Syntax.Abs.CasesPS exps -> prPrec i 0 (concatD [doc (showString "cases"), prt 0 exps])
+    Syntax.Abs.CasesWithPS exps -> prPrec i 0 (concatD [doc (showString "cases"), prt 0 exps, doc (showString "with")])
+    Syntax.Abs.InductionPS exps -> prPrec i 0 (concatD [doc (showString "induction"), prt 0 exps, doc (showString "with")])
+    Syntax.Abs.PipeClausePS pipeclause -> prPrec i 0 (concatD [prt 0 pipeclause])
+    Syntax.Abs.ProvingPS exp -> prPrec i 0 (concatD [doc (showString "proving"), prt 0 exp])
+    Syntax.Abs.ApplyPS exp exps -> prPrec i 0 (concatD [doc (showString "apply"), prt 0 exp, doc (showString ","), prt 0 exps])
+    Syntax.Abs.InstantiatePS exp -> prPrec i 0 (concatD [doc (showString "instantiate"), prt 0 exp])
+    Syntax.Abs.IntroPS patterns -> prPrec i 0 (concatD [doc (showString "\\"), prt 0 patterns])
+    Syntax.Abs.WitnessPS expopt -> prPrec i 0 (concatD [doc (showString "witness"), prt 0 expopt])
+    Syntax.Abs.ExpPS exp -> prPrec i 0 (concatD [prt 0 exp])
 
-instance Print (Syntax.Abs.ProofDec' a) where
+instance Print Syntax.Abs.ProofDec where
   prt i = \case
-    Syntax.Abs.AssumePD _ patterns -> prPrec i 0 (concatD [doc (showString "assume"), prt 0 patterns])
-    Syntax.Abs.ByContradictionPD _ pat typeannopt -> prPrec i 0 (concatD [doc (showString "by-contradiction"), prt 11 pat, prt 0 typeannopt])
-    Syntax.Abs.LetPD _ decs -> prPrec i 0 (concatD [doc (showString "let"), doc (showString "{"), prt 0 decs, doc (showString "}")])
-    Syntax.Abs.LemmaPD _ rule -> prPrec i 0 (concatD [doc (showString "lemma"), prt 0 rule])
-    Syntax.Abs.OpenPD _ id_ -> prPrec i 0 (concatD [doc (showString "open"), prt 0 id_])
-    Syntax.Abs.PickAnyPD _ patterns -> prPrec i 0 (concatD [doc (showString "pick-any"), prt 0 patterns])
-    Syntax.Abs.PickWitnessPD _ patterns exp -> prPrec i 0 (concatD [doc (showString "pick-witness"), prt 0 patterns, doc (showString "for"), prt 0 exp])
-    Syntax.Abs.ChainingPD _ chainlinks -> prPrec i 0 (concatD [doc (showString "chaining"), doc (showString "{"), prt 0 chainlinks, doc (showString "}")])
-    Syntax.Abs.RewritePD _ rewriteitems -> prPrec i 0 (concatD [doc (showString "rewrite"), prt 0 rewriteitems])
-    Syntax.Abs.UnfoldPD _ pats -> prPrec i 0 (concatD [doc (showString "unfold"), prt 2 pats])
+    Syntax.Abs.AssumePD patterns -> prPrec i 0 (concatD [doc (showString "assume"), prt 0 patterns])
+    Syntax.Abs.ByContradictionPD pat annopt -> prPrec i 0 (concatD [doc (showString "by-contradiction"), prt 11 pat, prt 0 annopt])
+    Syntax.Abs.LetPD decs -> prPrec i 0 (concatD [doc (showString "let"), doc (showString "{"), prt 0 decs, doc (showString "}")])
+    Syntax.Abs.LemmaPD rule -> prPrec i 0 (concatD [doc (showString "lemma"), prt 0 rule])
+    Syntax.Abs.OpenPD id_ -> prPrec i 0 (concatD [doc (showString "open"), prt 0 id_])
+    Syntax.Abs.PickAnyPD patterns -> prPrec i 0 (concatD [doc (showString "pick-any"), prt 0 patterns])
+    Syntax.Abs.PickWitnessPD patterns exp -> prPrec i 0 (concatD [doc (showString "pick-witness"), prt 0 patterns, doc (showString "for"), prt 0 exp])
+    Syntax.Abs.ChainingPD chainlinks -> prPrec i 0 (concatD [doc (showString "chaining"), doc (showString "{"), prt 0 chainlinks, doc (showString "}")])
+    Syntax.Abs.RewritePD rewriteitems -> prPrec i 0 (concatD [doc (showString "rewrite"), prt 0 rewriteitems])
+    Syntax.Abs.UnfoldPD pats -> prPrec i 0 (concatD [doc (showString "unfold"), prt 2 pats])
 
-instance Print [Syntax.Abs.ChainLink' a] where
+instance Print [Syntax.Abs.ChainLink] where
   prt _ [] = concatD []
   prt _ [x] = concatD [prt 0 x]
   prt _ (x:xs) = concatD [prt 0 x, doc (showString ";"), prt 0 xs]
 
-instance Print (Syntax.Abs.ChainLink' a) where
+instance Print Syntax.Abs.ChainLink where
   prt i = \case
-    Syntax.Abs.EasyCL _ chainop exp -> prPrec i 0 (concatD [prt 0 chainop, prt 11 exp])
-    Syntax.Abs.ByCL _ chainop exp proofsteps -> prPrec i 0 (concatD [prt 0 chainop, prt 11 exp, doc (showString "by"), doc (showString "{"), prt 0 proofsteps, doc (showString "}")])
+    Syntax.Abs.EasyCL chainop exp -> prPrec i 0 (concatD [prt 0 chainop, prt 11 exp])
+    Syntax.Abs.ByCL chainop exp proofsteps -> prPrec i 0 (concatD [prt 0 chainop, prt 11 exp, doc (showString "by"), doc (showString "{"), prt 0 proofsteps, doc (showString "}")])
 
-instance Print (Syntax.Abs.ChainOp' a) where
+instance Print Syntax.Abs.ChainOp where
   prt i = \case
-    Syntax.Abs.LeftLongArrowCO _ -> prPrec i 0 (concatD [doc (showString "<--")])
-    Syntax.Abs.LeftArrowCO _ -> prPrec i 0 (concatD [doc (showString "<-")])
-    Syntax.Abs.RightLongArrowCO _ -> prPrec i 0 (concatD [doc (showString "-->")])
-    Syntax.Abs.RightArrowCO _ -> prPrec i 0 (concatD [doc (showString "->")])
-    Syntax.Abs.EqCO _ -> prPrec i 0 (concatD [doc (showString "=")])
-    Syntax.Abs.EqualCO _ -> prPrec i 0 (concatD [doc (showString "===")])
-    Syntax.Abs.EquivCO _ -> prPrec i 0 (concatD [doc (showString "<-->")])
-    Syntax.Abs.ExpCO _ exp -> prPrec i 0 (concatD [prt 11 exp])
+    Syntax.Abs.LeftLongArrowCO -> prPrec i 0 (concatD [doc (showString "<--")])
+    Syntax.Abs.LeftArrowCO -> prPrec i 0 (concatD [doc (showString "<-")])
+    Syntax.Abs.RightLongArrowCO -> prPrec i 0 (concatD [doc (showString "-->")])
+    Syntax.Abs.RightArrowCO -> prPrec i 0 (concatD [doc (showString "->")])
+    Syntax.Abs.EqCO -> prPrec i 0 (concatD [doc (showString "=")])
+    Syntax.Abs.EqualCO -> prPrec i 0 (concatD [doc (showString "===")])
+    Syntax.Abs.EquivCO -> prPrec i 0 (concatD [doc (showString "<-->")])
+    Syntax.Abs.ExpCO exp -> prPrec i 0 (concatD [prt 11 exp])
 
-instance Print [Syntax.Abs.RewriteItem' a] where
+instance Print [Syntax.Abs.RewriteItem] where
   prt _ [] = concatD []
   prt _ [x] = concatD [prt 0 x]
   prt _ (x:xs) = concatD [prt 0 x, doc (showString ","), prt 0 xs]
 
-instance Print (Syntax.Abs.RewriteItem' a) where
+instance Print Syntax.Abs.RewriteItem where
   prt i = \case
-    Syntax.Abs.MkRI _ directionopt exp -> prPrec i 0 (concatD [prt 0 directionopt, prt 0 exp])
+    Syntax.Abs.MkRI directionopt exp -> prPrec i 0 (concatD [prt 0 directionopt, prt 0 exp])
 
-instance Print (Syntax.Abs.DirectionOpt' a) where
+instance Print Syntax.Abs.DirectionOpt where
   prt i = \case
-    Syntax.Abs.LeftDO _ -> prPrec i 0 (concatD [doc (showString "<-")])
-    Syntax.Abs.RightDO _ -> prPrec i 0 (concatD [doc (showString "->")])
-    Syntax.Abs.NoDO _ -> prPrec i 0 (concatD [])
+    Syntax.Abs.LeftDO -> prPrec i 0 (concatD [doc (showString "<-")])
+    Syntax.Abs.RightDO -> prPrec i 0 (concatD [doc (showString "->")])
+    Syntax.Abs.NoDO -> prPrec i 0 (concatD [])
 
-instance Print (Syntax.Abs.Patterns' a) where
+instance Print Syntax.Abs.Patterns where
   prt i = \case
-    Syntax.Abs.MkP _ params typeannopt -> prPrec i 0 (concatD [prt 0 params, prt 0 typeannopt])
+    Syntax.Abs.MkP params annopt -> prPrec i 0 (concatD [prt 0 params, prt 0 annopt])
 
-instance Print [Syntax.Abs.Param' a] where
+instance Print [Syntax.Abs.Param] where
   prt _ [] = concatD []
   prt _ (x:xs) = concatD [prt 0 x, prt 0 xs]
 
-instance Print (Syntax.Abs.Param' a) where
+instance Print Syntax.Abs.Param where
   prt i = \case
-    Syntax.Abs.BareP _ pat -> prPrec i 0 (concatD [prt 11 pat])
-    Syntax.Abs.ExplicitP _ pat -> prPrec i 0 (concatD [doc (showString "@"), prt 11 pat])
-    Syntax.Abs.InvisibleP _ pat -> prPrec i 0 (concatD [doc (showString "{"), prt 0 pat, doc (showString "}")])
+    Syntax.Abs.BareP pat -> prPrec i 0 (concatD [prt 11 pat])
+    Syntax.Abs.AtP pat -> prPrec i 0 (concatD [doc (showString "@"), prt 11 pat])
+    Syntax.Abs.HashP pat -> prPrec i 0 (concatD [doc (showString "#"), prt 11 pat])
 
-instance Print [Syntax.Abs.Pat' a] where
+instance Print [Syntax.Abs.Pat] where
   prt _ [] = concatD []
   prt _ [x] = concatD [prt 2 x]
   prt _ (x:xs) = concatD [prt 2 x, doc (showString ","), prt 2 xs]
 
-instance Print (Syntax.Abs.Pat' a) where
+instance Print Syntax.Abs.Pat where
   prt i = \case
-    Syntax.Abs.NoncomputableP _ pat -> prPrec i 0 (concatD [doc (showString "noncomputable"), prt 1 pat])
-    Syntax.Abs.TypeP _ pat -> prPrec i 0 (concatD [doc (showString "type"), prt 1 pat])
-    Syntax.Abs.PropP _ pat -> prPrec i 0 (concatD [doc (showString "proposition"), prt 1 pat])
-    Syntax.Abs.CtorAnnP _ pat exps -> prPrec i 1 (concatD [prt 2 pat, doc (showString "of"), prt 1 exps])
-    Syntax.Abs.SuperAnnP _ pat exps -> prPrec i 1 (concatD [prt 2 pat, doc (showString ":>"), prt 1 exps])
-    Syntax.Abs.SubAnnP _ pat exps -> prPrec i 1 (concatD [prt 2 pat, doc (showString "<:"), prt 1 exps])
-    Syntax.Abs.AnnP _ pat exp -> prPrec i 2 (concatD [prt 3 pat, doc (showString ":"), prt 1 exp])
-    Syntax.Abs.OrP _ pat1 pat2 -> prPrec i 3 (concatD [prt 4 pat1, doc (showString "|"), prt 3 pat2])
-    Syntax.Abs.AndP _ pat1 pat2 -> prPrec i 4 (concatD [prt 5 pat1, doc (showString "&"), prt 4 pat2])
-    Syntax.Abs.IndP _ pat -> prPrec i 10 (concatD [doc (showString "ind"), prt 11 pat])
-    Syntax.Abs.CallP _ pat param params -> prPrec i 10 (concatD [prt 11 pat, prt 0 param, prt 0 params])
-    Syntax.Abs.NumberP _ number -> prPrec i 11 (concatD [prt 0 number])
-    Syntax.Abs.CharP _ chr -> prPrec i 11 (concatD [prt 0 chr])
-    Syntax.Abs.StringP _ str -> prPrec i 11 (concatD [prt 0 str])
-    Syntax.Abs.HoleP _ hole -> prPrec i 11 (concatD [prt 0 hole])
-    Syntax.Abs.VarP _ id_ -> prPrec i 11 (concatD [prt 0 id_])
-    Syntax.Abs.RecordP _ fieldpats -> prPrec i 11 (concatD [doc (showString "record"), doc (showString "{"), prt 0 fieldpats, doc (showString "}")])
-    Syntax.Abs.TupleP _ pat pats -> prPrec i 11 (concatD [doc (showString "("), prt 2 pat, doc (showString ","), prt 2 pats, doc (showString ")")])
-    Syntax.Abs.UnitP _ -> prPrec i 11 (concatD [doc (showString "("), doc (showString ")")])
-    Syntax.Abs.WitnessP _ pat1 pat2 -> prPrec i 11 (concatD [doc (showString "("), doc (showString "witness"), prt 0 pat1, doc (showString "such-that"), prt 0 pat2, doc (showString ")")])
+    Syntax.Abs.NoncomputableP pat -> prPrec i 0 (concatD [doc (showString "noncomputable"), prt 1 pat])
+    Syntax.Abs.TypeP pat -> prPrec i 0 (concatD [doc (showString "type"), prt 1 pat])
+    Syntax.Abs.PropP pat -> prPrec i 0 (concatD [doc (showString "proposition"), prt 1 pat])
+    Syntax.Abs.CtorAnnP pat exps -> prPrec i 1 (concatD [prt 2 pat, doc (showString "of"), prt 1 exps])
+    Syntax.Abs.SuperAnnP pat exps -> prPrec i 1 (concatD [prt 2 pat, doc (showString ":>"), prt 1 exps])
+    Syntax.Abs.SubAnnP pat exps -> prPrec i 1 (concatD [prt 2 pat, doc (showString "<:"), prt 1 exps])
+    Syntax.Abs.AnnP pat exp -> prPrec i 2 (concatD [prt 3 pat, doc (showString ":"), prt 1 exp])
+    Syntax.Abs.OrP pat1 pat2 -> prPrec i 3 (concatD [prt 4 pat1, doc (showString "|"), prt 3 pat2])
+    Syntax.Abs.AndP pat1 pat2 -> prPrec i 4 (concatD [prt 5 pat1, doc (showString "&"), prt 4 pat2])
+    Syntax.Abs.IndP pat -> prPrec i 10 (concatD [doc (showString "ind"), prt 11 pat])
+    Syntax.Abs.CallP pat param params -> prPrec i 10 (concatD [prt 11 pat, prt 0 param, prt 0 params])
+    Syntax.Abs.NumberP number -> prPrec i 11 (concatD [prt 0 number])
+    Syntax.Abs.CharP chr -> prPrec i 11 (concatD [prt 0 chr])
+    Syntax.Abs.StringP str -> prPrec i 11 (concatD [prt 0 str])
+    Syntax.Abs.HoleP hole -> prPrec i 11 (concatD [prt 0 hole])
+    Syntax.Abs.VarP id_ -> prPrec i 11 (concatD [prt 0 id_])
+    Syntax.Abs.RecordP fieldpats -> prPrec i 11 (concatD [doc (showString "record"), doc (showString "{"), prt 0 fieldpats, doc (showString "}")])
+    Syntax.Abs.TupleP pat pats -> prPrec i 11 (concatD [doc (showString "("), prt 2 pat, doc (showString ","), prt 2 pats, doc (showString ")")])
+    Syntax.Abs.UnitP -> prPrec i 11 (concatD [doc (showString "("), doc (showString ")")])
+    Syntax.Abs.WitnessP pat1 pat2 -> prPrec i 11 (concatD [doc (showString "("), doc (showString "witness"), prt 0 pat1, doc (showString "such-that"), prt 0 pat2, doc (showString ")")])
 
-instance Print [Syntax.Abs.FieldPat' a] where
+instance Print [Syntax.Abs.FieldPat] where
   prt _ [] = concatD []
   prt _ [x] = concatD [prt 0 x]
   prt _ (x:xs) = concatD [prt 0 x, doc (showString ";"), prt 0 xs]
 
-instance Print (Syntax.Abs.FieldPat' a) where
+instance Print Syntax.Abs.FieldPat where
   prt i = \case
-    Syntax.Abs.PunP _ id_ -> prPrec i 0 (concatD [prt 0 id_])
-    Syntax.Abs.FieldP _ id_ pat -> prPrec i 0 (concatD [prt 0 id_, doc (showString "="), prt 0 pat])
+    Syntax.Abs.PunP id_ -> prPrec i 0 (concatD [prt 0 id_])
+    Syntax.Abs.FieldP id_ pat -> prPrec i 0 (concatD [prt 0 id_, doc (showString "="), prt 0 pat])
 
-instance Print (Syntax.Abs.TypeAnnOpt' a) where
+instance Print Syntax.Abs.AnnOpt where
   prt i = \case
-    Syntax.Abs.HasTAO _ exp -> prPrec i 0 (concatD [doc (showString ":"), prt 1 exp])
-    Syntax.Abs.NoTAO _ -> prPrec i 0 (concatD [])
+    Syntax.Abs.HasAnn exp -> prPrec i 0 (concatD [doc (showString ":"), prt 1 exp])
+    Syntax.Abs.NoAnn -> prPrec i 0 (concatD [])
 
-instance Print (Syntax.Abs.ExpOpt' a) where
+instance Print Syntax.Abs.ExpOpt where
   prt i = \case
-    Syntax.Abs.HasEO _ exp -> prPrec i 0 (concatD [prt 0 exp])
-    Syntax.Abs.NoEO _ -> prPrec i 0 (concatD [])
+    Syntax.Abs.HasExp exp -> prPrec i 0 (concatD [prt 0 exp])
+    Syntax.Abs.NoExp -> prPrec i 0 (concatD [])
 
-instance Print [Syntax.Abs.Exp' a] where
+instance Print [Syntax.Abs.Exp] where
   prt _ [] = concatD []
   prt 1 [x] = concatD [prt 1 x]
   prt 1 (x:xs) = concatD [prt 1 x, doc (showString "&"), prt 1 xs]
   prt _ [x] = concatD [prt 0 x]
   prt _ (x:xs) = concatD [prt 0 x, doc (showString ","), prt 0 xs]
 
-instance Print (Syntax.Abs.Exp' a) where
+instance Print Syntax.Abs.Exp where
   prt i = \case
-    Syntax.Abs.EqE _ exp1 exp2 -> prPrec i 0 (concatD [prt 1 exp1, doc (showString "="), prt 0 exp2])
-    Syntax.Abs.ApplyE _ exp -> prPrec i 0 (concatD [doc (showString "apply"), prt 0 exp])
-    Syntax.Abs.ProofDecInE _ proofdec exp -> prPrec i 0 (concatD [prt 0 proofdec, doc (showString "in"), prt 0 exp])
-    Syntax.Abs.WitnessSuchThatE _ exps exp -> prPrec i 1 (concatD [doc (showString "witness"), prt 0 exps, doc (showString "such-that"), prt 1 exp])
-    Syntax.Abs.AnnE _ exp1 exp2 -> prPrec i 1 (concatD [prt 2 exp1, doc (showString ":"), prt 1 exp2])
-    Syntax.Abs.FunE _ params exp -> prPrec i 1 (concatD [doc (showString "\\"), prt 0 params, doc (showString "->"), prt 1 exp])
-    Syntax.Abs.ProvingByE _ expopt proofsteps -> prPrec i 1 (concatD [doc (showString "proving"), prt 0 expopt, doc (showString "by"), doc (showString "{"), prt 0 proofsteps, doc (showString "}")])
-    Syntax.Abs.SufficesByE _ exp proofsteps -> prPrec i 1 (concatD [doc (showString "suffices"), prt 0 exp, doc (showString "by"), doc (showString "{"), prt 0 proofsteps, doc (showString "}")])
-    Syntax.Abs.ExistsE _ patterns exp -> prPrec i 1 (concatD [doc (showString "exists"), prt 0 patterns, doc (showString ","), prt 1 exp])
-    Syntax.Abs.ForallE _ patterns exp -> prPrec i 1 (concatD [doc (showString "forall"), prt 0 patterns, doc (showString ","), prt 1 exp])
-    Syntax.Abs.ArrowE _ exp1 exp2 -> prPrec i 1 (concatD [prt 2 exp1, doc (showString "->"), prt 1 exp2])
-    Syntax.Abs.ImplicationE _ exp1 exp2 -> prPrec i 1 (concatD [prt 2 exp1, doc (showString "-->"), prt 1 exp2])
-    Syntax.Abs.EquivalenceE _ exp1 exp2 -> prPrec i 2 (concatD [prt 3 exp1, doc (showString "<-->"), prt 3 exp2])
-    Syntax.Abs.DisjunctionE _ exp1 exp2 -> prPrec i 3 (concatD [prt 4 exp1, doc (showString "\\/"), prt 3 exp2])
-    Syntax.Abs.ConjunctionE _ exp1 exp2 -> prPrec i 4 (concatD [prt 5 exp1, doc (showString "/\\"), prt 4 exp2])
-    Syntax.Abs.NegationE _ exp -> prPrec i 5 (concatD [doc (showString "~"), prt 5 exp])
-    Syntax.Abs.EqualE _ exp1 exp2 -> prPrec i 5 (concatD [prt 6 exp1, doc (showString "==="), prt 6 exp2])
-    Syntax.Abs.CallE _ exp args -> prPrec i 10 (concatD [prt 11 exp, prt 0 args])
-    Syntax.Abs.ExplicitE _ id_ -> prPrec i 11 (concatD [doc (showString "@"), prt 0 id_])
-    Syntax.Abs.LamCasesE _ patterns clauses -> prPrec i 12 (concatD [doc (showString "\\"), prt 0 patterns, doc (showString "where"), doc (showString "{"), prt 0 clauses, doc (showString "}")])
-    Syntax.Abs.CaseE _ exp clauses -> prPrec i 12 (concatD [doc (showString "case"), prt 0 exp, doc (showString "where"), doc (showString "{"), prt 0 clauses, doc (showString "}")])
-    Syntax.Abs.MatchWith _ exp pipeclauses -> prPrec i 12 (concatD [doc (showString "match"), prt 0 exp, doc (showString "with"), prt 0 pipeclauses])
-    Syntax.Abs.InstantiateWithE _ exp -> prPrec i 12 (concatD [doc (showString "instantiate"), prt 0 exp, doc (showString "with")])
-    Syntax.Abs.UnitE _ -> prPrec i 12 (concatD [doc (showString "("), doc (showString ")")])
-    Syntax.Abs.TupleE _ exp exps -> prPrec i 12 (concatD [doc (showString "("), prt 0 exp, doc (showString ","), prt 0 exps, doc (showString ")")])
-    Syntax.Abs.RecordE _ decs -> prPrec i 12 (concatD [doc (showString "record"), doc (showString "{"), prt 0 decs, doc (showString "}")])
-    Syntax.Abs.RecordUpdateE _ exp decs -> prPrec i 12 (concatD [doc (showString "record"), prt 0 exp, doc (showString "where"), doc (showString "{"), prt 0 decs, doc (showString "}")])
-    Syntax.Abs.AssumptionE _ -> prPrec i 12 (concatD [doc (showString "assumption")])
-    Syntax.Abs.NumberE _ number -> prPrec i 12 (concatD [prt 0 number])
-    Syntax.Abs.CharE _ chr -> prPrec i 12 (concatD [prt 0 chr])
-    Syntax.Abs.StringE _ str -> prPrec i 12 (concatD [prt 0 str])
-    Syntax.Abs.HoleE _ hole -> prPrec i 12 (concatD [prt 0 hole])
-    Syntax.Abs.VarE _ id_ -> prPrec i 12 (concatD [prt 0 id_])
+    Syntax.Abs.EqE exp1 exp2 -> prPrec i 0 (concatD [prt 1 exp1, doc (showString "="), prt 0 exp2])
+    Syntax.Abs.ApplyE exp -> prPrec i 0 (concatD [doc (showString "apply"), prt 0 exp])
+    Syntax.Abs.ProofDecInE proofdec exp -> prPrec i 0 (concatD [prt 0 proofdec, doc (showString "in"), prt 0 exp])
+    Syntax.Abs.WitnessSuchThatE exps exp -> prPrec i 1 (concatD [doc (showString "witness"), prt 0 exps, doc (showString "such-that"), prt 1 exp])
+    Syntax.Abs.AnnE exp1 exp2 -> prPrec i 1 (concatD [prt 2 exp1, doc (showString ":"), prt 1 exp2])
+    Syntax.Abs.FunE params exp -> prPrec i 1 (concatD [doc (showString "\\"), prt 0 params, doc (showString "->"), prt 1 exp])
+    Syntax.Abs.ProvingByE expopt proofsteps -> prPrec i 1 (concatD [doc (showString "proving"), prt 0 expopt, doc (showString "by"), doc (showString "{"), prt 0 proofsteps, doc (showString "}")])
+    Syntax.Abs.SufficesByE exp proofsteps -> prPrec i 1 (concatD [doc (showString "suffices"), prt 0 exp, doc (showString "by"), doc (showString "{"), prt 0 proofsteps, doc (showString "}")])
+    Syntax.Abs.ExistsE patterns exp -> prPrec i 1 (concatD [doc (showString "exists"), prt 0 patterns, doc (showString ","), prt 1 exp])
+    Syntax.Abs.ForallE patterns exp -> prPrec i 1 (concatD [doc (showString "forall"), prt 0 patterns, doc (showString ","), prt 1 exp])
+    Syntax.Abs.ArrowE exp1 exp2 -> prPrec i 1 (concatD [prt 2 exp1, doc (showString "->"), prt 1 exp2])
+    Syntax.Abs.ImplicationE exp1 exp2 -> prPrec i 1 (concatD [prt 2 exp1, doc (showString "-->"), prt 1 exp2])
+    Syntax.Abs.EquivalenceE exp1 exp2 -> prPrec i 2 (concatD [prt 3 exp1, doc (showString "<-->"), prt 3 exp2])
+    Syntax.Abs.DisjunctionE exp1 exp2 -> prPrec i 3 (concatD [prt 4 exp1, doc (showString "\\/"), prt 3 exp2])
+    Syntax.Abs.ConjunctionE exp1 exp2 -> prPrec i 4 (concatD [prt 5 exp1, doc (showString "/\\"), prt 4 exp2])
+    Syntax.Abs.NegationE exp -> prPrec i 5 (concatD [doc (showString "~"), prt 5 exp])
+    Syntax.Abs.EqualE exp1 exp2 -> prPrec i 5 (concatD [prt 6 exp1, doc (showString "==="), prt 6 exp2])
+    Syntax.Abs.CallE exp args -> prPrec i 10 (concatD [prt 11 exp, prt 0 args])
+    Syntax.Abs.ExplicitE id_ -> prPrec i 11 (concatD [doc (showString "@"), prt 0 id_])
+    Syntax.Abs.LamCasesE patterns clauses -> prPrec i 12 (concatD [doc (showString "\\"), prt 0 patterns, doc (showString "where"), doc (showString "{"), prt 0 clauses, doc (showString "}")])
+    Syntax.Abs.CaseE exp clauses -> prPrec i 12 (concatD [doc (showString "case"), prt 0 exp, doc (showString "where"), doc (showString "{"), prt 0 clauses, doc (showString "}")])
+    Syntax.Abs.MatchWith exp pipeclauses -> prPrec i 12 (concatD [doc (showString "match"), prt 0 exp, doc (showString "with"), prt 0 pipeclauses])
+    Syntax.Abs.InstantiateWithE exp -> prPrec i 12 (concatD [doc (showString "instantiate"), prt 0 exp, doc (showString "with")])
+    Syntax.Abs.UnitE -> prPrec i 12 (concatD [doc (showString "("), doc (showString ")")])
+    Syntax.Abs.TupleE exp exps -> prPrec i 12 (concatD [doc (showString "("), prt 0 exp, doc (showString ","), prt 0 exps, doc (showString ")")])
+    Syntax.Abs.RecordE decs -> prPrec i 12 (concatD [doc (showString "record"), doc (showString "{"), prt 0 decs, doc (showString "}")])
+    Syntax.Abs.RecordUpdateE exp decs -> prPrec i 12 (concatD [doc (showString "record"), prt 0 exp, doc (showString "where"), doc (showString "{"), prt 0 decs, doc (showString "}")])
+    Syntax.Abs.AssumptionE -> prPrec i 12 (concatD [doc (showString "assumption")])
+    Syntax.Abs.NumberE number -> prPrec i 12 (concatD [prt 0 number])
+    Syntax.Abs.CharE chr -> prPrec i 12 (concatD [prt 0 chr])
+    Syntax.Abs.StringE str -> prPrec i 12 (concatD [prt 0 str])
+    Syntax.Abs.HoleE hole -> prPrec i 12 (concatD [prt 0 hole])
+    Syntax.Abs.VarE id_ -> prPrec i 12 (concatD [prt 0 id_])
 
-instance Print [Syntax.Abs.Clause' a] where
+instance Print [Syntax.Abs.Clause] where
   prt _ [] = concatD []
   prt _ [x] = concatD [prt 0 x]
   prt _ (x:xs) = concatD [prt 0 x, doc (showString ";"), prt 0 xs]
 
-instance Print (Syntax.Abs.Clause' a) where
+instance Print Syntax.Abs.Clause where
   prt i = \case
-    Syntax.Abs.MkC _ params exp -> prPrec i 0 (concatD [prt 0 params, doc (showString "->"), prt 1 exp])
+    Syntax.Abs.MkC params exp -> prPrec i 0 (concatD [prt 0 params, doc (showString "->"), prt 1 exp])
 
-instance Print [Syntax.Abs.PipeClause' a] where
+instance Print [Syntax.Abs.PipeClause] where
   prt _ [] = concatD []
   prt _ (x:xs) = concatD [prt 0 x, prt 0 xs]
 
-instance Print (Syntax.Abs.PipeClause' a) where
+instance Print Syntax.Abs.PipeClause where
   prt i = \case
-    Syntax.Abs.MkPC _ pats proofsteps -> prPrec i 0 (concatD [doc (showString "|"), prt 2 pats, doc (showString "=>"), doc (showString "{"), prt 0 proofsteps, doc (showString "}")])
+    Syntax.Abs.MkPC pats proofsteps -> prPrec i 0 (concatD [doc (showString "|"), prt 2 pats, doc (showString "=>"), doc (showString "{"), prt 0 proofsteps, doc (showString "}")])
 
-instance Print [Syntax.Abs.Arg' a] where
+instance Print [Syntax.Abs.Arg] where
   prt _ [] = concatD []
   prt _ [x] = concatD [prt 0 x]
   prt _ (x:xs) = concatD [prt 0 x, prt 0 xs]
 
-instance Print (Syntax.Abs.Arg' a) where
+instance Print Syntax.Abs.Arg where
   prt i = \case
-    Syntax.Abs.BareA _ exp -> prPrec i 0 (concatD [prt 12 exp])
-    Syntax.Abs.ExplicitA _ exp -> prPrec i 0 (concatD [doc (showString "@"), prt 11 exp])
+    Syntax.Abs.BareA exp -> prPrec i 0 (concatD [prt 12 exp])
+    Syntax.Abs.AtA exp -> prPrec i 0 (concatD [doc (showString "@"), prt 11 exp])

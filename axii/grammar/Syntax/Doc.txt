@@ -53,10 +53,10 @@ The symbols used in Syntax are the following:
   | . | , | \ | by-contradiction
   | pick-any | pick-witness | <-- | <-
   | --> | -> | === | <-->
-  | @ | :> | <: | :
-  | | | & | ( | )
-  | such-that | \/ | /\ | ~
-  | => |  |  |
+  | @ | # | :> | <:
+  | : | | | & | (
+  | ) | such-that | \/ | /\
+  | ~ | => |  |
 
 ===Comments===
 Single-line comments begin with #!, //.Multiple-line comments are  enclosed with /* and */.
@@ -67,9 +67,9 @@ The symbols -> (production),  **|**  (union)
 and **eps** (empty rule) belong to the BNF notation.
 All other symbols are terminals.
 
-  | //Repl// | -> | ``let`` ``{`` //[Dec]// ``}``
-  |  |  **|**  | //Exp//
-  |  |  **|**  | ``require`` //Str//
+  | //Repl// | -> | ``let`` ``{`` //[Dec]// ``}`` ``;``
+  |  |  **|**  | //Exp// ``;``
+  |  |  **|**  | ``require`` //Str// ``;``
   | //[Dec]// | -> | **eps**
   |  |  **|**  | //Dec//
   |  |  **|**  | //Dec// ``;`` //[Dec]//
@@ -106,7 +106,7 @@ All other symbols are terminals.
   |  |  **|**  | ``witness`` //ExpOpt//
   |  |  **|**  | //Exp//
   | //ProofDec// | -> | ``assume`` //Patterns//
-  |  |  **|**  | ``by-contradiction`` //Pat11// //TypeAnnOpt//
+  |  |  **|**  | ``by-contradiction`` //Pat11// //AnnOpt//
   |  |  **|**  | ``let`` ``{`` //[Dec]// ``}``
   |  |  **|**  | ``lemma`` //Rule//
   |  |  **|**  | ``open`` //Id//
@@ -134,12 +134,12 @@ All other symbols are terminals.
   | //DirectionOpt// | -> | ``<-``
   |  |  **|**  | ``->``
   |  |  **|**  | **eps**
-  | //Patterns// | -> | //[Param]// //TypeAnnOpt//
+  | //Patterns// | -> | //[Param]// //AnnOpt//
   | //[Param]// | -> | **eps**
   |  |  **|**  | //Param// //[Param]//
   | //Param// | -> | //Pat11//
   |  |  **|**  | ``@`` //Pat11//
-  |  |  **|**  | ``{`` //Pat// ``}``
+  |  |  **|**  | ``#`` //Pat11//
   | //[Pat2]// | -> | //Pat2//
   |  |  **|**  | //Pat2// ``,`` //[Pat2]//
   | //Pat// | -> | ``noncomputable`` //Pat1//
@@ -179,7 +179,7 @@ All other symbols are terminals.
   |  |  **|**  | //FieldPat// ``;`` //[FieldPat]//
   | //FieldPat// | -> | //Id//
   |  |  **|**  | //Id// ``=`` //Pat//
-  | //TypeAnnOpt// | -> | ``:`` //Exp1//
+  | //AnnOpt// | -> | ``:`` //Exp1//
   |  |  **|**  | **eps**
   | //ExpOpt// | -> | //Exp//
   |  |  **|**  | **eps**

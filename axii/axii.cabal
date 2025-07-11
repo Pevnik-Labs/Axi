@@ -1,4 +1,4 @@
-cabal-version: 1.12
+cabal-version: 2.0
 
 -- This file has been generated from package.yaml by hpack version 0.37.0.
 --
@@ -26,38 +26,49 @@ source-repository head
   type: git
   location: https://github.com/mpyzik/axii
 
-executable axii
-  main-is: Main.hs
-  other-modules:
-      Qty
+library axi-grammar
+  exposed-modules:
       Syntax.Abs
       Syntax.Layout
       Syntax.Lex
       Syntax.Par
       Syntax.Print
-      Tc
+      Syntax.Skel
+      Syntax.Test
+  other-modules:
+      Paths_axii
+  autogen-modules:
       Paths_axii
   hs-source-dirs:
-      executable
+      grammar
   default-extensions:
       ImportQualifiedPost
   other-extensions:
       BangPatterns
       BlockArguments
+      CPP
       DataKinds
       DeriveDataTypeable
-      DeriveFoldable
-      DeriveFunctor
+      DeriveGeneric
       DeriveTraversable
+      DerivingVia
       EmptyCase
       ExistentialQuantification
+      FlexibleContexts
       FlexibleInstances
       FunctionalDependencies
       GADTs
+      GeneralizedNewtypeDeriving
       LambdaCase
+      LambdaCase
+      MagicHash
       MultiParamTypeClasses
-      NoStarIsType
-      PatternSynonyms
+      NoStrictData
+      OverlappingInstances
+      OverloadedLists
+      OverloadedStrings
+      PartialTypeSignatures
+      PatternGuards
       PatternSynonyms
       PolyKinds
       QuasiQuotes
@@ -67,11 +78,13 @@ executable axii
       StandaloneKindSignatures
       StrictData
       TemplateHaskell
+      TupleSections
       TypeApplications
       TypeFamilyDependencies
       TypeOperators
+      TypeSynonymInstances
       ViewPatterns
-  ghc-options: -Wall -rtsopts -threaded -with-rtsopts=-N
+  ghc-options: -Wall
   build-depends:
       array
     , base
@@ -94,37 +107,42 @@ executable axii
     , vector
   default-language: Haskell2010
 
-executable grammar
-  main-is: Syntax/Test.hs
+executable axi-test-parse
+  main-is: Main.hs
   other-modules:
-      Syntax.Abs
-      Syntax.Layout
-      Syntax.Lex
-      Syntax.Par
-      Syntax.Print
-      Syntax.Skel
+      Paths_axii
+  autogen-modules:
       Paths_axii
   hs-source-dirs:
-      grammar
+      test-parse
   default-extensions:
       ImportQualifiedPost
   other-extensions:
       BangPatterns
       BlockArguments
+      CPP
       DataKinds
       DeriveDataTypeable
-      DeriveFoldable
-      DeriveFunctor
+      DeriveGeneric
       DeriveTraversable
+      DerivingVia
       EmptyCase
       ExistentialQuantification
+      FlexibleContexts
       FlexibleInstances
       FunctionalDependencies
       GADTs
+      GeneralizedNewtypeDeriving
       LambdaCase
+      LambdaCase
+      MagicHash
       MultiParamTypeClasses
-      NoStarIsType
-      PatternSynonyms
+      NoStrictData
+      OverlappingInstances
+      OverloadedLists
+      OverloadedStrings
+      PartialTypeSignatures
+      PatternGuards
       PatternSynonyms
       PolyKinds
       QuasiQuotes
@@ -134,13 +152,93 @@ executable grammar
       StandaloneKindSignatures
       StrictData
       TemplateHaskell
+      TupleSections
       TypeApplications
       TypeFamilyDependencies
       TypeOperators
+      TypeSynonymInstances
       ViewPatterns
   ghc-options: -Wall -rtsopts -threaded -with-rtsopts=-N
   build-depends:
       array
+    , axi-grammar
+    , base
+    , bytestring
+    , containers
+    , generic-data
+    , hashable
+    , integer-gmp
+    , lens
+    , linear-base
+    , mtl
+    , pretty
+    , profunctors
+    , random
+    , syb
+    , template-haskell
+    , text
+    , transformers
+    , unordered-containers
+    , vector
+  default-language: Haskell2010
+
+executable axii
+  main-is: Main.hs
+  other-modules:
+      Qty
+      Tc
+      Paths_axii
+  autogen-modules:
+      Paths_axii
+  hs-source-dirs:
+      executable
+  default-extensions:
+      ImportQualifiedPost
+  other-extensions:
+      BangPatterns
+      BlockArguments
+      CPP
+      DataKinds
+      DeriveDataTypeable
+      DeriveGeneric
+      DeriveTraversable
+      DerivingVia
+      EmptyCase
+      ExistentialQuantification
+      FlexibleContexts
+      FlexibleInstances
+      FunctionalDependencies
+      GADTs
+      GeneralizedNewtypeDeriving
+      LambdaCase
+      LambdaCase
+      MagicHash
+      MultiParamTypeClasses
+      NoStrictData
+      OverlappingInstances
+      OverloadedLists
+      OverloadedStrings
+      PartialTypeSignatures
+      PatternGuards
+      PatternSynonyms
+      PolyKinds
+      QuasiQuotes
+      RankNTypes
+      ScopedTypeVariables
+      StandaloneDeriving
+      StandaloneKindSignatures
+      StrictData
+      TemplateHaskell
+      TupleSections
+      TypeApplications
+      TypeFamilyDependencies
+      TypeOperators
+      TypeSynonymInstances
+      ViewPatterns
+  ghc-options: -Wall -rtsopts -threaded -with-rtsopts=-N
+  build-depends:
+      array
+    , axi-grammar
     , base
     , bytestring
     , containers

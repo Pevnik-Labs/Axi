@@ -35,185 +35,185 @@ transId :: Syntax.Abs.Id -> Result
 transId x = case x of
   Syntax.Abs.Id string -> failure x
 
-transRepl :: Show a => Syntax.Abs.Repl' a -> Result
+transRepl :: Syntax.Abs.Repl -> Result
 transRepl x = case x of
-  Syntax.Abs.LetR _ decs -> failure x
-  Syntax.Abs.ExpR _ exp -> failure x
-  Syntax.Abs.RequireR _ str -> failure x
+  Syntax.Abs.LetR decs -> failure x
+  Syntax.Abs.ExpR exp -> failure x
+  Syntax.Abs.RequireR str -> failure x
 
-transDec :: Show a => Syntax.Abs.Dec' a -> Result
+transDec :: Syntax.Abs.Dec -> Result
 transDec x = case x of
-  Syntax.Abs.StructureD _ structurekwd rule -> failure x
-  Syntax.Abs.ConstantD _ rule -> failure x
-  Syntax.Abs.ProofD _ proofsteps -> failure x
-  Syntax.Abs.DeclarationD _ patterns -> failure x
-  Syntax.Abs.PipeClauseD _ pipeclause -> failure x
+  Syntax.Abs.StructureD structurekwd rule -> failure x
+  Syntax.Abs.ConstantD rule -> failure x
+  Syntax.Abs.ProofD proofsteps -> failure x
+  Syntax.Abs.DeclarationD patterns -> failure x
+  Syntax.Abs.PipeClauseD pipeclause -> failure x
 
-transStructureKwd :: Show a => Syntax.Abs.StructureKwd' a -> Result
+transStructureKwd :: Syntax.Abs.StructureKwd -> Result
 transStructureKwd x = case x of
-  Syntax.Abs.DataKwd _ -> failure x
-  Syntax.Abs.RecordKwd _ -> failure x
-  Syntax.Abs.ModuleKwd _ -> failure x
-  Syntax.Abs.ClassKwd _ -> failure x
-  Syntax.Abs.InstanceKwd _ -> failure x
-  Syntax.Abs.AxiomKwd _ -> failure x
-  Syntax.Abs.TheoremKwd _ -> failure x
+  Syntax.Abs.DataKwd -> failure x
+  Syntax.Abs.RecordKwd -> failure x
+  Syntax.Abs.ModuleKwd -> failure x
+  Syntax.Abs.ClassKwd -> failure x
+  Syntax.Abs.InstanceKwd -> failure x
+  Syntax.Abs.AxiomKwd -> failure x
+  Syntax.Abs.TheoremKwd -> failure x
 
-transRule :: Show a => Syntax.Abs.Rule' a -> Result
+transRule :: Syntax.Abs.Rule -> Result
 transRule x = case x of
-  Syntax.Abs.ByBlockR _ pat proofsteps -> failure x
-  Syntax.Abs.ProofR _ pat proofsteps -> failure x
-  Syntax.Abs.ValueR _ pat exp -> failure x
-  Syntax.Abs.WhereR _ pat decs -> failure x
-  Syntax.Abs.SigR _ pat -> failure x
+  Syntax.Abs.ByBlockR pat proofsteps -> failure x
+  Syntax.Abs.ProofR pat proofsteps -> failure x
+  Syntax.Abs.ValueR pat exp -> failure x
+  Syntax.Abs.WhereR pat decs -> failure x
+  Syntax.Abs.SigR pat -> failure x
 
-transProofStep :: Show a => Syntax.Abs.ProofStep' a -> Result
+transProofStep :: Syntax.Abs.ProofStep -> Result
 transProofStep x = case x of
-  Syntax.Abs.ProofDecPS _ proofdec -> failure x
-  Syntax.Abs.BulletBlockPS _ proofsteps -> failure x
-  Syntax.Abs.CasesPS _ exps -> failure x
-  Syntax.Abs.CasesWithPS _ exps -> failure x
-  Syntax.Abs.InductionPS _ exps -> failure x
-  Syntax.Abs.PipeClausePS _ pipeclause -> failure x
-  Syntax.Abs.ProvingPS _ exp -> failure x
-  Syntax.Abs.ApplyPS _ exp exps -> failure x
-  Syntax.Abs.InstantiatePS _ exp -> failure x
-  Syntax.Abs.IntroPS _ patterns -> failure x
-  Syntax.Abs.WitnessPS _ expopt -> failure x
-  Syntax.Abs.ExpPS _ exp -> failure x
+  Syntax.Abs.ProofDecPS proofdec -> failure x
+  Syntax.Abs.BulletBlockPS proofsteps -> failure x
+  Syntax.Abs.CasesPS exps -> failure x
+  Syntax.Abs.CasesWithPS exps -> failure x
+  Syntax.Abs.InductionPS exps -> failure x
+  Syntax.Abs.PipeClausePS pipeclause -> failure x
+  Syntax.Abs.ProvingPS exp -> failure x
+  Syntax.Abs.ApplyPS exp exps -> failure x
+  Syntax.Abs.InstantiatePS exp -> failure x
+  Syntax.Abs.IntroPS patterns -> failure x
+  Syntax.Abs.WitnessPS expopt -> failure x
+  Syntax.Abs.ExpPS exp -> failure x
 
-transProofDec :: Show a => Syntax.Abs.ProofDec' a -> Result
+transProofDec :: Syntax.Abs.ProofDec -> Result
 transProofDec x = case x of
-  Syntax.Abs.AssumePD _ patterns -> failure x
-  Syntax.Abs.ByContradictionPD _ pat typeannopt -> failure x
-  Syntax.Abs.LetPD _ decs -> failure x
-  Syntax.Abs.LemmaPD _ rule -> failure x
-  Syntax.Abs.OpenPD _ id -> failure x
-  Syntax.Abs.PickAnyPD _ patterns -> failure x
-  Syntax.Abs.PickWitnessPD _ patterns exp -> failure x
-  Syntax.Abs.ChainingPD _ chainlinks -> failure x
-  Syntax.Abs.RewritePD _ rewriteitems -> failure x
-  Syntax.Abs.UnfoldPD _ pats -> failure x
+  Syntax.Abs.AssumePD patterns -> failure x
+  Syntax.Abs.ByContradictionPD pat annopt -> failure x
+  Syntax.Abs.LetPD decs -> failure x
+  Syntax.Abs.LemmaPD rule -> failure x
+  Syntax.Abs.OpenPD id -> failure x
+  Syntax.Abs.PickAnyPD patterns -> failure x
+  Syntax.Abs.PickWitnessPD patterns exp -> failure x
+  Syntax.Abs.ChainingPD chainlinks -> failure x
+  Syntax.Abs.RewritePD rewriteitems -> failure x
+  Syntax.Abs.UnfoldPD pats -> failure x
 
-transChainLink :: Show a => Syntax.Abs.ChainLink' a -> Result
+transChainLink :: Syntax.Abs.ChainLink -> Result
 transChainLink x = case x of
-  Syntax.Abs.EasyCL _ chainop exp -> failure x
-  Syntax.Abs.ByCL _ chainop exp proofsteps -> failure x
+  Syntax.Abs.EasyCL chainop exp -> failure x
+  Syntax.Abs.ByCL chainop exp proofsteps -> failure x
 
-transChainOp :: Show a => Syntax.Abs.ChainOp' a -> Result
+transChainOp :: Syntax.Abs.ChainOp -> Result
 transChainOp x = case x of
-  Syntax.Abs.LeftLongArrowCO _ -> failure x
-  Syntax.Abs.LeftArrowCO _ -> failure x
-  Syntax.Abs.RightLongArrowCO _ -> failure x
-  Syntax.Abs.RightArrowCO _ -> failure x
-  Syntax.Abs.EqCO _ -> failure x
-  Syntax.Abs.EqualCO _ -> failure x
-  Syntax.Abs.EquivCO _ -> failure x
-  Syntax.Abs.ExpCO _ exp -> failure x
+  Syntax.Abs.LeftLongArrowCO -> failure x
+  Syntax.Abs.LeftArrowCO -> failure x
+  Syntax.Abs.RightLongArrowCO -> failure x
+  Syntax.Abs.RightArrowCO -> failure x
+  Syntax.Abs.EqCO -> failure x
+  Syntax.Abs.EqualCO -> failure x
+  Syntax.Abs.EquivCO -> failure x
+  Syntax.Abs.ExpCO exp -> failure x
 
-transRewriteItem :: Show a => Syntax.Abs.RewriteItem' a -> Result
+transRewriteItem :: Syntax.Abs.RewriteItem -> Result
 transRewriteItem x = case x of
-  Syntax.Abs.MkRI _ directionopt exp -> failure x
+  Syntax.Abs.MkRI directionopt exp -> failure x
 
-transDirectionOpt :: Show a => Syntax.Abs.DirectionOpt' a -> Result
+transDirectionOpt :: Syntax.Abs.DirectionOpt -> Result
 transDirectionOpt x = case x of
-  Syntax.Abs.LeftDO _ -> failure x
-  Syntax.Abs.RightDO _ -> failure x
-  Syntax.Abs.NoDO _ -> failure x
+  Syntax.Abs.LeftDO -> failure x
+  Syntax.Abs.RightDO -> failure x
+  Syntax.Abs.NoDO -> failure x
 
-transPatterns :: Show a => Syntax.Abs.Patterns' a -> Result
+transPatterns :: Syntax.Abs.Patterns -> Result
 transPatterns x = case x of
-  Syntax.Abs.MkP _ params typeannopt -> failure x
+  Syntax.Abs.MkP params annopt -> failure x
 
-transParam :: Show a => Syntax.Abs.Param' a -> Result
+transParam :: Syntax.Abs.Param -> Result
 transParam x = case x of
-  Syntax.Abs.BareP _ pat -> failure x
-  Syntax.Abs.ExplicitP _ pat -> failure x
-  Syntax.Abs.InvisibleP _ pat -> failure x
+  Syntax.Abs.BareP pat -> failure x
+  Syntax.Abs.AtP pat -> failure x
+  Syntax.Abs.HashP pat -> failure x
 
-transPat :: Show a => Syntax.Abs.Pat' a -> Result
+transPat :: Syntax.Abs.Pat -> Result
 transPat x = case x of
-  Syntax.Abs.NoncomputableP _ pat -> failure x
-  Syntax.Abs.TypeP _ pat -> failure x
-  Syntax.Abs.PropP _ pat -> failure x
-  Syntax.Abs.CtorAnnP _ pat exps -> failure x
-  Syntax.Abs.SuperAnnP _ pat exps -> failure x
-  Syntax.Abs.SubAnnP _ pat exps -> failure x
-  Syntax.Abs.AnnP _ pat exp -> failure x
-  Syntax.Abs.OrP _ pat1 pat2 -> failure x
-  Syntax.Abs.AndP _ pat1 pat2 -> failure x
-  Syntax.Abs.IndP _ pat -> failure x
-  Syntax.Abs.CallP _ pat param params -> failure x
-  Syntax.Abs.NumberP _ number -> failure x
-  Syntax.Abs.CharP _ chr -> failure x
-  Syntax.Abs.StringP _ str -> failure x
-  Syntax.Abs.HoleP _ hole -> failure x
-  Syntax.Abs.VarP _ id -> failure x
-  Syntax.Abs.RecordP _ fieldpats -> failure x
-  Syntax.Abs.TupleP _ pat pats -> failure x
-  Syntax.Abs.UnitP _ -> failure x
-  Syntax.Abs.WitnessP _ pat1 pat2 -> failure x
+  Syntax.Abs.NoncomputableP pat -> failure x
+  Syntax.Abs.TypeP pat -> failure x
+  Syntax.Abs.PropP pat -> failure x
+  Syntax.Abs.CtorAnnP pat exps -> failure x
+  Syntax.Abs.SuperAnnP pat exps -> failure x
+  Syntax.Abs.SubAnnP pat exps -> failure x
+  Syntax.Abs.AnnP pat exp -> failure x
+  Syntax.Abs.OrP pat1 pat2 -> failure x
+  Syntax.Abs.AndP pat1 pat2 -> failure x
+  Syntax.Abs.IndP pat -> failure x
+  Syntax.Abs.CallP pat param params -> failure x
+  Syntax.Abs.NumberP number -> failure x
+  Syntax.Abs.CharP chr -> failure x
+  Syntax.Abs.StringP str -> failure x
+  Syntax.Abs.HoleP hole -> failure x
+  Syntax.Abs.VarP id -> failure x
+  Syntax.Abs.RecordP fieldpats -> failure x
+  Syntax.Abs.TupleP pat pats -> failure x
+  Syntax.Abs.UnitP -> failure x
+  Syntax.Abs.WitnessP pat1 pat2 -> failure x
 
-transFieldPat :: Show a => Syntax.Abs.FieldPat' a -> Result
+transFieldPat :: Syntax.Abs.FieldPat -> Result
 transFieldPat x = case x of
-  Syntax.Abs.PunP _ id -> failure x
-  Syntax.Abs.FieldP _ id pat -> failure x
+  Syntax.Abs.PunP id -> failure x
+  Syntax.Abs.FieldP id pat -> failure x
 
-transTypeAnnOpt :: Show a => Syntax.Abs.TypeAnnOpt' a -> Result
-transTypeAnnOpt x = case x of
-  Syntax.Abs.HasTAO _ exp -> failure x
-  Syntax.Abs.NoTAO _ -> failure x
+transAnnOpt :: Syntax.Abs.AnnOpt -> Result
+transAnnOpt x = case x of
+  Syntax.Abs.HasAnn exp -> failure x
+  Syntax.Abs.NoAnn -> failure x
 
-transExpOpt :: Show a => Syntax.Abs.ExpOpt' a -> Result
+transExpOpt :: Syntax.Abs.ExpOpt -> Result
 transExpOpt x = case x of
-  Syntax.Abs.HasEO _ exp -> failure x
-  Syntax.Abs.NoEO _ -> failure x
+  Syntax.Abs.HasExp exp -> failure x
+  Syntax.Abs.NoExp -> failure x
 
-transExp :: Show a => Syntax.Abs.Exp' a -> Result
+transExp :: Syntax.Abs.Exp -> Result
 transExp x = case x of
-  Syntax.Abs.EqE _ exp1 exp2 -> failure x
-  Syntax.Abs.ApplyE _ exp -> failure x
-  Syntax.Abs.ProofDecInE _ proofdec exp -> failure x
-  Syntax.Abs.WitnessSuchThatE _ exps exp -> failure x
-  Syntax.Abs.AnnE _ exp1 exp2 -> failure x
-  Syntax.Abs.FunE _ params exp -> failure x
-  Syntax.Abs.ProvingByE _ expopt proofsteps -> failure x
-  Syntax.Abs.SufficesByE _ exp proofsteps -> failure x
-  Syntax.Abs.ExistsE _ patterns exp -> failure x
-  Syntax.Abs.ForallE _ patterns exp -> failure x
-  Syntax.Abs.ArrowE _ exp1 exp2 -> failure x
-  Syntax.Abs.ImplicationE _ exp1 exp2 -> failure x
-  Syntax.Abs.EquivalenceE _ exp1 exp2 -> failure x
-  Syntax.Abs.DisjunctionE _ exp1 exp2 -> failure x
-  Syntax.Abs.ConjunctionE _ exp1 exp2 -> failure x
-  Syntax.Abs.NegationE _ exp -> failure x
-  Syntax.Abs.EqualE _ exp1 exp2 -> failure x
-  Syntax.Abs.CallE _ exp args -> failure x
-  Syntax.Abs.ExplicitE _ id -> failure x
-  Syntax.Abs.LamCasesE _ patterns clauses -> failure x
-  Syntax.Abs.CaseE _ exp clauses -> failure x
-  Syntax.Abs.MatchWith _ exp pipeclauses -> failure x
-  Syntax.Abs.InstantiateWithE _ exp -> failure x
-  Syntax.Abs.UnitE _ -> failure x
-  Syntax.Abs.TupleE _ exp exps -> failure x
-  Syntax.Abs.RecordE _ decs -> failure x
-  Syntax.Abs.RecordUpdateE _ exp decs -> failure x
-  Syntax.Abs.AssumptionE _ -> failure x
-  Syntax.Abs.NumberE _ number -> failure x
-  Syntax.Abs.CharE _ chr -> failure x
-  Syntax.Abs.StringE _ str -> failure x
-  Syntax.Abs.HoleE _ hole -> failure x
-  Syntax.Abs.VarE _ id -> failure x
+  Syntax.Abs.EqE exp1 exp2 -> failure x
+  Syntax.Abs.ApplyE exp -> failure x
+  Syntax.Abs.ProofDecInE proofdec exp -> failure x
+  Syntax.Abs.WitnessSuchThatE exps exp -> failure x
+  Syntax.Abs.AnnE exp1 exp2 -> failure x
+  Syntax.Abs.FunE params exp -> failure x
+  Syntax.Abs.ProvingByE expopt proofsteps -> failure x
+  Syntax.Abs.SufficesByE exp proofsteps -> failure x
+  Syntax.Abs.ExistsE patterns exp -> failure x
+  Syntax.Abs.ForallE patterns exp -> failure x
+  Syntax.Abs.ArrowE exp1 exp2 -> failure x
+  Syntax.Abs.ImplicationE exp1 exp2 -> failure x
+  Syntax.Abs.EquivalenceE exp1 exp2 -> failure x
+  Syntax.Abs.DisjunctionE exp1 exp2 -> failure x
+  Syntax.Abs.ConjunctionE exp1 exp2 -> failure x
+  Syntax.Abs.NegationE exp -> failure x
+  Syntax.Abs.EqualE exp1 exp2 -> failure x
+  Syntax.Abs.CallE exp args -> failure x
+  Syntax.Abs.ExplicitE id -> failure x
+  Syntax.Abs.LamCasesE patterns clauses -> failure x
+  Syntax.Abs.CaseE exp clauses -> failure x
+  Syntax.Abs.MatchWith exp pipeclauses -> failure x
+  Syntax.Abs.InstantiateWithE exp -> failure x
+  Syntax.Abs.UnitE -> failure x
+  Syntax.Abs.TupleE exp exps -> failure x
+  Syntax.Abs.RecordE decs -> failure x
+  Syntax.Abs.RecordUpdateE exp decs -> failure x
+  Syntax.Abs.AssumptionE -> failure x
+  Syntax.Abs.NumberE number -> failure x
+  Syntax.Abs.CharE chr -> failure x
+  Syntax.Abs.StringE str -> failure x
+  Syntax.Abs.HoleE hole -> failure x
+  Syntax.Abs.VarE id -> failure x
 
-transClause :: Show a => Syntax.Abs.Clause' a -> Result
+transClause :: Syntax.Abs.Clause -> Result
 transClause x = case x of
-  Syntax.Abs.MkC _ params exp -> failure x
+  Syntax.Abs.MkC params exp -> failure x
 
-transPipeClause :: Show a => Syntax.Abs.PipeClause' a -> Result
+transPipeClause :: Syntax.Abs.PipeClause -> Result
 transPipeClause x = case x of
-  Syntax.Abs.MkPC _ pats proofsteps -> failure x
+  Syntax.Abs.MkPC pats proofsteps -> failure x
 
-transArg :: Show a => Syntax.Abs.Arg' a -> Result
+transArg :: Syntax.Abs.Arg -> Result
 transArg x = case x of
-  Syntax.Abs.BareA _ exp -> failure x
-  Syntax.Abs.ExplicitA _ exp -> failure x
+  Syntax.Abs.BareA exp -> failure x
+  Syntax.Abs.AtA exp -> failure x
