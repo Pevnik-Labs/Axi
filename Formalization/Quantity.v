@@ -181,6 +181,50 @@ Proof.
   now destruct r, s; cbn.
 Defined.
 
+(**
+  We can also define a comparison function that checks the relationship between
+  its arguments in the [Subusage] ordering: whether the arguments are comparable,
+  whether the first argument is smaller or larger than the other, or whether they
+  are equal.
+*)
+
+Definition Subusage_cmp (r s : Quantity) : option comparison :=
+  if decide (r = s) then Some Eq
+  else if decide (Subusage r s) then Some Lt
+  else if decide (Subusage s r) then Some Gt
+  else None.
+
+Lemma Subusage_cmp_spec_Lt :
+  forall r s : Quantity,
+    Subusage_cmp r s = Some Lt <-> Subusage r s /\ r <> s.
+Proof.
+  now intros [] []; cbn.
+Qed.
+
+Lemma Subusage_cmp_spec_Eq :
+  forall r s : Quantity,
+    Subusage_cmp r s = Some Eq <-> r = s.
+Proof.
+  now intros [] []; cbn.
+Qed.
+
+Lemma Subusage_cmp_spec_Gt :
+  forall r s : Quantity,
+    Subusage_cmp r s = Some Gt <-> Subusage s r /\ r <> s.
+Proof.
+  now intros [] []; cbn.
+Qed.
+
+Lemma Subusage_cmp_spec_None :
+  forall r s : Quantity,
+    Subusage_cmp r s = None <-> ~ Subusage r s /\ ~ Subusage s r.
+Proof.
+  split.
+  - now destruct r, s; inversion 1.
+  - intros [Hrs Hsr].
+    now destruct r, s; cbn; try easy; contradict Hrs; try easy; contradict Hsr.
+Qed.
+
 (** * Semiring structure
 
   Quantities form an ordered commutative semiring with no zero divisors and
@@ -431,21 +475,42 @@ Qed.
 (** * Structure of the subusage ordering
 
   In this section we'll study the [Subusage] ordering in a bit more depth.
-  Our goal will be to define the infimum and supremum operations, prove their
-  specifications and find a nice intuitive characterization.
+  Our goal will be to define the infimum and supremum operations, find their
+  nice intuitive characterization and prove their specifications.
 
   The key to finding this intuitive characterization will be to change
   perspective. Until now we have though about quantities as a crude kind
-  of arithmetic. But we can view them differently: quantities are traits
-  (i.e. interfaces) that a resource type may have (i.e. implement) or not.
-  Well, at least that's the case for the non-zero quantities - zero is special
-  in this view and is not a trait, but rather information that a resource has
-  been used up.
+  of arithmetic. But we can view them differently: quantities represent
+  traits that a resource type may implement, or combinations of such traits,
+  or the lack of such traits:
+  - [One] means that a type has no special traits. Such types are called
+    linear. More intuitively, they can also be called "resource types".
+  - [Few] means that a type has the <<Drop>> trait. Elements of droppable
+    types may be deleted and not used at all (unlike elements of linear
+    types, which must be used exactly once).
+  - [Many] means that a type has the <<Copy>> trait. Elements of copiable
+    types may be copied and used multiple times (unlike elements of linear
+    types, which must be used exactly once).
+  - [Any] means that a type has both the <<Drop>> and <<Copy>> traits. Such
+    types are called cartesian (in math speak). More intuitively they can
+    also be called "data types", as this is how data behaves in ordinary
+    languages - it can be freely copied and deleted.
+
+  [Zero], however, is not a trait - it simpy means that, no matter what trait
+  this type has, the resource has been used up and is no longer available. The
+  fact that [Zero] is not a trait will be the key observation when finding a
+  nice characterization for infima and suprema.
 *)
 
-(** ** Infimum *)
+(** ** Infimum
 
-Definition inf (r s : Quantity) : Quantity :=
+  Here's an explicit definition of the infimum. To see what's going on, take
+  a look at the diagram of the [Subusage] ordering: to find the infimum, we
+  start at <<r>> and <<s>> and then keep going downwards until they meet in
+  the same point, which is the infimum.
+*)
+
+Definition explicit_inf (r s : Quantity) : Quantity :=
 match r, s with
 | Any , _    => Any
 | _   , Any  => Any
@@ -461,7 +526,30 @@ match r, s with
 | Zero, _    => s
 end.
 
-Definition inf' (r s : Quantity) : Quantity :=
+(**
+  The above definition is in some sense simple, as it directly follows the
+  diagram, but it's also long. To find a better characterization, we need
+  to think in terms of traits. The key is to observe how multiplication
+  works on traits: it turns out that if a type has traits <<r>> and <<s>>,
+  then it also has the trait <<mul r s>>, i.e. multiplication represents
+  combining traits!
+
+  As far as [Zero] is concerned, recall that there are no zero divisors,
+  i.e. when the result of [mul] is [Zero], one of its arguments must also
+  be [Zero]. When we take the contraposition of this, we see that when both
+  arguments of [mul] are non-zero, i.e. when both are traits, then the result
+  is also non-zero, i.e. also a trait.
+
+  So multiplication of traits represents a "composite" trait that subsumes
+  both its arguments, whereas multiplication by a non-trait results in a
+  non-trait.
+
+  Armed with this knowledge, we can now give a more intuitive definition of
+  the infimum: on traits, infimum is the same as multiplication, but on [Zero]
+  we still need to manually specify the result, just as last time.
+*)
+
+Definition inf (r s : Quantity) : Quantity :=
 match r, s with
 | Zero, One  => Few
 | Zero, Many => Any
@@ -472,9 +560,11 @@ match r, s with
 | _   , _    => mul r s
 end.
 
-Lemma inf'_spec :
+(** Both definitions are equivalent. *)
+
+Lemma inf_explicit_inf :
   forall r s : Quantity,
-    inf' r s = inf r s.
+    inf r s = explicit_inf r s.
 Proof.
   now intros [] [].
 Qed.
@@ -488,7 +578,7 @@ Lemma inf_Any_l :
   forall r : Quantity,
     inf Any r = Any.
 Proof.
-  easy.
+  now intros [].
 Qed.
 
 Lemma inf_Any_r :
@@ -587,9 +677,12 @@ Qed.
 
 (** ** Complement
 
-  But before we delve into infima and suprema, let's stop for a moment to
-  define an operation called 
-
+  Before we look at the suprema, let's stop for a moment and define a
+  complement operation which will turn out to be useful. Given a trait <<r>>,
+  we can define its complement as the trait that is needed to turn <<r>> into
+  [Any], i.e. into a data type. As for [Zero], which is not a trait, it's
+  complement will be [Zero] - this is the only sensible choice that makes
+  all the later theorems true :)
 *)
 
 Definition complement (r : Quantity) : Quantity :=
@@ -601,12 +694,16 @@ match r with
 | Any  => One
 end.
 
+(** [complement] is an involution. *)
+
 Lemma complement_complement :
   forall r : Quantity,
     complement (complement r) = r.
 Proof.
   now intros []; cbn.
 Qed.
+
+(** [complement] flips the [Subusage] ordering, but only on traits. *)
 
 Lemma Subusage_complement :
   forall r s : Quantity,
@@ -615,9 +712,17 @@ Proof.
   now intros r []; inversion 1; cbn; firstorder.
 Qed.
 
-(** ** Supremum *)
+(** ** Supremum
 
-Definition sup (r s : Quantity) : option Quantity :=
+  The first thing to notice regarding suprema is that in the [Subusage] ordering
+  they don't always exist. For example, [Zero] and [One] don't have a supremum,
+  as they're both maximum elements. Because of this, our supremum operation is
+  partial - it returns an [None] when there's no supremum.
+
+  The definition below is a direct translation of the [Subusage] ordering diagram.
+*)
+
+Definition explicit_sup (r s : Quantity) : option Quantity :=
 match r, s with
 | Any , _    => Some s
 | _   , Any  => Some r
@@ -633,15 +738,54 @@ match r, s with
 | Zero, _    => None
 end.
 
+(**
+  To find a simpler definition of the supremum, we need again to think in terms
+  of traits. The idea is this: since on traits infimum behaves like multiplication,
+  i.e. it finds a trait that has the same capabilities as both of its arguments,
+  supremum on traits should behave in the dual way, i.e. it should find a trait
+  that has neither of the capabilities that the arguments have.
 
+  Here is where the [complement] comes handy: <<complement r>> represents a
+  trait that <<r>> is missing to be a data type, but this trait is precisely
+  the same thing as the trait "lacks capability r". This is because having
+  trait [Any], i.e. having all capabilities, is the same as having capability
+  <<r>> and also having all the other capabilities except <<r>>.
 
-Lemma sup_is_complement :
-  forall r s rs : Quantity,
-    sup r s = Some rs ->
-      rs = complement (mul (complement r) (complement s)).
+  With this key insight, finding the supremum of <<r>> and <<s>> is easy:
+  - <<complement r>> and <<complement s>> represent the missing traits
+  - <<mul (complement r) (complement s)>> represents the trait that has
+    both traits that <<r>> and <<s>> are missing
+  - <<complement (mul (complement r) (complement s))>> represents the trait
+    that is missing what both <<r>> and <<s>> are missing, i.e. the trait
+    that has what neither of them have
+
+  The remaining thing to do is to patch the definition with cases for non-traits,
+  i.e. [Zero]. Luckily we don't need to list all of them, only the ones in which
+  the supremum doesn't exist.
+*)
+
+Definition sup (r s : Quantity) : option Quantity :=
+match r, s with
+| Zero, One  => None
+| Zero, Many => None
+| One , Zero => None
+| Many, Zero => None
+| _   , _    => Some (complement (mul (complement r) (complement s)))
+end.
+
+(** Both definitions are equivalent. *)
+
+Lemma sup_explicit_sup :
+  forall r s : Quantity,
+    sup r s = explicit_sup r s.
 Proof.
-  now intros [] [] rs; inversion 1; subst; cbn.
+  now intros [] []; cbn.
 Qed.
+
+(**
+  When the inputs to [sup] are [complement]ed, the multiplication is
+  "uncomplemented".
+*)
 
 Lemma sup_complement :
   forall r s rs : Quantity,
@@ -660,7 +804,7 @@ Lemma sup_Any_l :
   forall r : Quantity,
     sup Any r = Some r.
 Proof.
-  easy.
+  now intros [].
 Qed.
 
 Lemma sup_Any_r :
@@ -733,12 +877,11 @@ Proof.
     + now apply Subusage_sup_r_r in Hsup.
     + now intros; apply Subusage_sup_l with r s.
   - intros (Htr & Hts & Huniq).
+    (* The match finds a contradictory instantiation of the hypothesis. *)
     now destruct r, s; cbn;
       inversion Htr; subst; try congruence;
       inversion Hts; subst; try congruence;
       match goal with
-      | H : forall _, Subusage _ _ -> Subusage _ _ -> Subusage One _ |- _ =>
-        specialize (H Zero ltac:(easy)); inversion H
       | H : forall _, Subusage _ _ -> Subusage _ _ -> Subusage _ _ |- _ =>
         specialize (H Any  ltac:(easy) ltac:(easy)) +
         specialize (H Many ltac:(easy) ltac:(easy)) +
@@ -836,7 +979,21 @@ Proof.
   now intros [] [] []; cbn; inversion 1; subst; cbn.
 Qed.
 
-(** * Subtraction *)
+(** * Subtraction
+
+  Subtraction is the inverse of addition, i.e. <<r - s = q>> when <<r = q + s>>.
+  However, for quantities, just like for natural numbers, subtraction is not
+  always possible, and the result is undefined.
+
+  However, we can put some effort into making it "as defined as possible". To do
+  this, we will not require the result to satisfy the above equation exactly, but
+  but only to be its best approximation, i.e. we will want to define <<r - s = q>>
+  when <<q>> is the least quantity satisfying <<r <= q + s>>.
+
+  This time we won't even dream about finding a nice characterization to replace
+  the explicit definition below - a subtraction table is the best we can hope for,
+  even though it's easy to notice some patterns in it.
+*)
 
 Definition sub (r s : Quantity) : option Quantity :=
 match r, s with
@@ -854,6 +1011,8 @@ match r, s with
 | Many, Any  => Some Many
 end.
 
+(** [sub] indeed satisfies the [Subusage] inequality we want it to satisfy. *)
+
 Lemma sub_spec_ex :
   forall r s rs : Quantity,
     sub r s = Some rs ->
@@ -862,6 +1021,8 @@ Proof.
   now intros [] [] rs; inversion 1; subst; cbn.
 Qed.
 
+(** [sub] indeed produces the least solution to its defining inequality. *)
+
 Lemma sub_spec_uniq :
   forall r s rs : Quantity,
     sub r s = Some rs ->
@@ -869,6 +1030,10 @@ Lemma sub_spec_uniq :
 Proof.
   now intros [] [] rs; inversion 1; intros []; inversion 1; subst; cbn.
 Qed.
+
+(**
+  [sub] is the unique function that satisfies its defining inequality.
+*)
 
 Lemma sub_spec :
   forall r s rs : Quantity,
@@ -882,6 +1047,7 @@ Proof.
     + now apply sub_spec_ex.
     + now apply sub_spec_uniq.
   - intros [Hex Huniq].
+    (* The match finds a contradictory instantiation of the hypothesis. *)
     now destruct r, s, rs; cbn in *; try easy;
       match goal with
       | H : forall _, Subusage _ _ -> Subusage _ _ |- _ =>
@@ -893,6 +1059,11 @@ Proof.
       end.
 Qed.
 
+(**
+  For ordinary numbers, <<x - x = 0>>. For quantities, however, this is not the
+  case and the best we can get is <<r - r <= 0>>.
+*)
+
 Lemma Subusage_sub_Zero :
   forall r rr : Quantity,
     sub r r = Some rr ->
@@ -900,8 +1071,6 @@ Lemma Subusage_sub_Zero :
 Proof.
   now intros [] rr; inversion 1.
 Qed.
-
-(** * Miscellaneous orderings *)
 
 (** ** Subtraction order
 
@@ -922,6 +1091,8 @@ Inductive SubtractionOrder : Quantity -> Quantity -> Prop :=
 | SubtractionOrder_One_Few : SubtractionOrder One Few.
 
 #[export] Hint Constructors SubtractionOrder : core.
+
+(** The explicit definition is equivalent to the one based on subtraction. *)
 
 Lemma SubtractionOrder_spec :
   forall r s : Quantity,
@@ -983,6 +1154,8 @@ Inductive DecrementationOrder : Quantity -> Quantity -> Prop :=
 
 #[export] Hint Constructors DecrementationOrder : core.
 
+(** The explicit definition is equivalent to the one based on decrementation. *)
+
 Lemma DecrementationOrder_spec :
   forall r s : Quantity,
     DecrementationOrder r s <-> sub s One = Some r.
@@ -1013,63 +1186,14 @@ Proof.
   now destruct r, s; cbn.
 Defined.
 
-(** ** Arithmetic order
+(** The decrementation order embeds into the subtraction order. *)
 
-  [ArithmeticOrder] is a decidable total order that orders quantities
-  by how big (in some sense) they are. The idea is as follows:
-
-  We define it explicitly as: <<Zero <= One <= Few <= Many <= Any>>.
-
-*)
-
-Inductive ArithmeticOrder : Quantity -> Quantity -> Prop :=
-| ArithmeticOrder_refl     : forall r : Quantity, ArithmeticOrder r r
-| ArithmeticOrder_Zero_l   : forall r : Quantity, ArithmeticOrder Zero r
-| ArithmeticOrder_Any_r    : forall r : Quantity, ArithmeticOrder r Any
-| ArithmeticOrder_One_Few  : ArithmeticOrder One Few
-| ArithmeticOrder_One_Many : ArithmeticOrder One Many
-| ArithmeticOrder_Few_Many : ArithmeticOrder Few Many.
-
-#[export] Hint Constructors ArithmeticOrder : core.
-
-#[export] Instance PreOrder_ArithmeticOrder :
-  PreOrder ArithmeticOrder.
-Proof.
-  split; red.
-  - easy.
-  - now do 2 inversion 1; subst.
-Qed.
-
-#[export] Instance Antisymmetric_ArithmeticOrder :
-  Antisymmetric _ eq ArithmeticOrder.
-Proof.
-  now do 2 inversion 1; subst.
-Qed.
-
-Lemma Total_ArithmeticOrder :
+Lemma SubtractionOrder_DecrementationOrder :
   forall r s : Quantity,
-    ArithmeticOrder r s \/ ArithmeticOrder s r.
+    DecrementationOrder r s -> SubtractionOrder r s.
 Proof.
-  now intros [] []; cbn; firstorder.
+  now inversion 1.
 Qed.
-
-#[refine, export] Instance Decidable_ArithmeticOrder :
-  forall r s : Quantity,
-    Decidable (ArithmeticOrder r s) :=
-{
-  Decidable_witness :=
-    match r, s with
-    | Zero, _    => true
-    | _   , Any  => true
-    | One , Few  => true
-    | One , Many => true
-    | Few , Many => true
-    | _   , _    => decide (r = s)
-    end;
-}.
-Proof.
-  now destruct r, s; cbn.
-Defined.
 
 (** ** Trait order *)
 
@@ -1121,45 +1245,11 @@ Proof.
   now intros r []; inversion 1; cbn; firstorder.
 Qed.
 
-(** ** Relationships between orders *)
-
 Lemma TraitOrder_Subusage :
   forall r s : Quantity,
     Subusage r s -> TraitOrder r s.
 Proof.
   now inversion 1.
-Qed.
-
-Lemma SubtractionOrder_ArithmeticOrder :
-  forall r s : Quantity,
-    ArithmeticOrder r s -> SubtractionOrder r s.
-Proof.
-  now inversion 1.
-Qed.
-
-Lemma SubtractionOrder_DecrementationOrder :
-  forall r s : Quantity,
-    DecrementationOrder r s -> SubtractionOrder r s.
-Proof.
-  now inversion 1.
-Qed.
-
-(** ** Alternative definition of [sup] *)
-
-Definition sup' (r s : Quantity) : option Quantity :=
-match r, s with
-| Zero, One  => None
-| Zero, Many => None
-| One , Zero => None
-| Many, Zero => None
-| _   , _    => Some (complement (mul (complement r) (complement s)))
-end.
-
-Lemma sup'_spec :
-  forall r s : Quantity,
-    sup' r s = sup r s.
-Proof.
-  now intros [] []; cbn.
 Qed.
 
 (** * Trait-checking division *)
@@ -1311,3 +1401,68 @@ Proof.
       rewrite divmod_Zero_r.
       destruct H.
 Abort.
+
+(** * Arithmetic order
+
+  [ArithmeticOrder] is a decidable total order that orders quantities
+  by how big (in some sense) they are. The idea is as follows:
+
+  We define it explicitly as: <<Zero <= One <= Few <= Many <= Any>>.
+
+*)
+
+Inductive ArithmeticOrder : Quantity -> Quantity -> Prop :=
+| ArithmeticOrder_refl     : forall r : Quantity, ArithmeticOrder r r
+| ArithmeticOrder_Zero_l   : forall r : Quantity, ArithmeticOrder Zero r
+| ArithmeticOrder_Any_r    : forall r : Quantity, ArithmeticOrder r Any
+| ArithmeticOrder_One_Few  : ArithmeticOrder One Few
+| ArithmeticOrder_One_Many : ArithmeticOrder One Many
+| ArithmeticOrder_Few_Many : ArithmeticOrder Few Many.
+
+#[export] Hint Constructors ArithmeticOrder : core.
+
+#[export] Instance PreOrder_ArithmeticOrder :
+  PreOrder ArithmeticOrder.
+Proof.
+  split; red.
+  - easy.
+  - now do 2 inversion 1; subst.
+Qed.
+
+#[export] Instance Antisymmetric_ArithmeticOrder :
+  Antisymmetric _ eq ArithmeticOrder.
+Proof.
+  now do 2 inversion 1; subst.
+Qed.
+
+Lemma Total_ArithmeticOrder :
+  forall r s : Quantity,
+    ArithmeticOrder r s \/ ArithmeticOrder s r.
+Proof.
+  now intros [] []; cbn; firstorder.
+Qed.
+
+#[refine, export] Instance Decidable_ArithmeticOrder :
+  forall r s : Quantity,
+    Decidable (ArithmeticOrder r s) :=
+{
+  Decidable_witness :=
+    match r, s with
+    | Zero, _    => true
+    | _   , Any  => true
+    | One , Few  => true
+    | One , Many => true
+    | Few , Many => true
+    | _   , _    => decide (r = s)
+    end;
+}.
+Proof.
+  now destruct r, s; cbn.
+Defined.
+
+Lemma SubtractionOrder_ArithmeticOrder :
+  forall r s : Quantity,
+    ArithmeticOrder r s -> SubtractionOrder r s.
+Proof.
+  now inversion 1.
+Qed.
