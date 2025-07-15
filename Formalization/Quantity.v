@@ -476,15 +476,15 @@ Qed.
 
   In this section we'll study the [Subusage] ordering in a bit more depth.
   Our goal will be to define the infimum and supremum operations, find their
-  nice intuitive characterization and prove their specifications.
+  nice intuitive characterizations and prove their specifications.
 
   The key to finding this intuitive characterization will be to change
   perspective. Until now we have though about quantities as a crude kind
   of arithmetic. But we can view them differently: quantities represent
   traits that a resource type may implement, or combinations of such traits,
-  or the lack of such traits:
+  or the lack of such traits.
   - [One] means that a type has no special traits. Such types are called
-    linear. More intuitively, they can also be called "resource types".
+    linear. More intuitively they can also be called "resource types".
   - [Few] means that a type has the <<Drop>> trait. Elements of droppable
     types may be deleted and not used at all (unlike elements of linear
     types, which must be used exactly once).
@@ -495,11 +495,13 @@ Qed.
     types are called cartesian (in math speak). More intuitively they can
     also be called "data types", as this is how data behaves in ordinary
     languages - it can be freely copied and deleted.
+  - [Zero], however, is not a trait - it simply means that, no matter what trait
+    this type has, the resource has been used up and is no longer available. The
+    fact that [Zero] is not a trait will be the key observation when looking for
+    a nice characterization for infima and suprema.
 
-  [Zero], however, is not a trait - it simpy means that, no matter what trait
-  this type has, the resource has been used up and is no longer available. The
-  fact that [Zero] is not a trait will be the key observation when finding a
-  nice characterization for infima and suprema.
+  To put it differently: when a type implements the trait <<r>>, then the
+  elements of this type by default have quantity <<r>> instead of [One].
 *)
 
 (** ** Infimum
@@ -546,7 +548,7 @@ end.
 
   Armed with this knowledge, we can now give a more intuitive definition of
   the infimum: on traits, infimum is the same as multiplication, but on [Zero]
-  we still need to manually specify the result, just as last time.
+  we still need to compute the result case-by-case.
 *)
 
 Definition inf (r s : Quantity) : Quantity :=
@@ -677,12 +679,12 @@ Qed.
 
 (** ** Complement
 
-  Before we look at the suprema, let's stop for a moment and define a
-  complement operation which will turn out to be useful. Given a trait <<r>>,
-  we can define its complement as the trait that is needed to turn <<r>> into
-  [Any], i.e. into a data type. As for [Zero], which is not a trait, it's
-  complement will be [Zero] - this is the only sensible choice that makes
-  all the later theorems true :)
+  Before we look supremum, let's stop for a moment and define a complement
+  operation which will turn out to be useful. Given a trait <<r>>, we can
+  define its complement as the trait that is needed to turn <<r>> into [Any],
+  i.e. into a data type. As for [Zero], which is not a trait, it's complement
+  will be [Zero] - this is the only sensible choice that makes all the later
+  theorems true :)
 *)
 
 Definition complement (r : Quantity) : Quantity :=
@@ -717,7 +719,7 @@ Qed.
   The first thing to notice regarding suprema is that in the [Subusage] ordering
   they don't always exist. For example, [Zero] and [One] don't have a supremum,
   as they're both maximum elements. Because of this, our supremum operation is
-  partial - it returns an [None] when there's no supremum.
+  partial - it returns [None] when there's no supremum.
 
   The definition below is a direct translation of the [Subusage] ordering diagram.
 *)
@@ -739,8 +741,8 @@ match r, s with
 end.
 
 (**
-  To find a simpler definition of the supremum, we need again to think in terms
-  of traits. The idea is this: since on traits infimum behaves like multiplication,
+  To find a simpler definition of the supremum, we need to think in terms of
+  traits again. The idea is this: since on traits infimum behaves like multiplication,
   i.e. it finds a trait that has the same capabilities as both of its arguments,
   supremum on traits should behave in the dual way, i.e. it should find a trait
   that has neither of the capabilities that the arguments have.
@@ -759,9 +761,8 @@ end.
     that is missing what both <<r>> and <<s>> are missing, i.e. the trait
     that has what neither of them have
 
-  The remaining thing to do is to patch the definition with cases for non-traits,
-  i.e. [Zero]. Luckily we don't need to list all of them, only the ones in which
-  the supremum doesn't exist.
+  The remaining thing to do is to patch the definition with cases for [Zero],
+  and not even all of them, just the ones when the supremum doesn't exist.
 *)
 
 Definition sup (r s : Quantity) : option Quantity :=
@@ -982,13 +983,13 @@ Qed.
 (** * Subtraction
 
   Subtraction is the inverse of addition, i.e. <<r - s = q>> when <<r = q + s>>.
-  However, for quantities, just like for natural numbers, subtraction is not
-  always possible, and the result is undefined.
+  However, for quantities, just like for natural numbers (and unlike the integers),
+  subtraction is not always possible, so sometimes the result is not defined.
 
-  However, we can put some effort into making it "as defined as possible". To do
-  this, we will not require the result to satisfy the above equation exactly, but
-  but only to be its best approximation, i.e. we will want to define <<r - s = q>>
-  when <<q>> is the least quantity satisfying <<r <= q + s>>.
+  However, we can put some effort into making subtraction "as defined as possible".
+  To do this, we will not require the result to satisfy the above equation exactly,
+  but only to be its best approximation, i.e. we will want to define <<r - s>>
+  as the least <<q>> in the [Subusage] ordering that satisfies <<r <= q + s>>.
 
   This time we won't even dream about finding a nice characterization to replace
   the explicit definition below - a subtraction table is the best we can hope for,
@@ -1011,7 +1012,7 @@ match r, s with
 | Many, Any  => Some Many
 end.
 
-(** [sub] indeed satisfies the [Subusage] inequality we want it to satisfy. *)
+(** [sub] indeed satisfies its specification. *)
 
 Lemma sub_spec_ex :
   forall r s rs : Quantity,
@@ -1021,8 +1022,6 @@ Proof.
   now intros [] [] rs; inversion 1; subst; cbn.
 Qed.
 
-(** [sub] indeed produces the least solution to its defining inequality. *)
-
 Lemma sub_spec_uniq :
   forall r s rs : Quantity,
     sub r s = Some rs ->
@@ -1031,16 +1030,14 @@ Proof.
   now intros [] [] rs; inversion 1; intros []; inversion 1; subst; cbn.
 Qed.
 
-(**
-  [sub] is the unique function that satisfies its defining inequality.
-*)
+(** [sub] is the unique function that satisfies its specification. *)
 
 Lemma sub_spec :
   forall r s rs : Quantity,
     sub r s = Some rs
       <->
     Subusage r (add rs s) /\
-    forall t : Quantity, Subusage r (add t s) -> Subusage rs t.
+    forall q : Quantity, Subusage r (add q s) -> Subusage rs q.
 Proof.
   split.
   - split.
@@ -1195,7 +1192,118 @@ Proof.
   now inversion 1.
 Qed.
 
-(** ** Trait order *)
+(** * Division
+
+  In this section we will define some operations that resemble division,
+  but things won't be as neat as with subtraction.
+*)
+
+(** ** Division with remainder
+
+  We want to define division with remainder so that <<r / s = (a, b)>> when
+  <<a>> is the greatest and <<b>> is the least element (both in the subtraction order)
+  that satisfy <<r = a * s + b>>.
+*)
+
+Definition divmod (r s : Quantity) : Quantity * Quantity :=
+match r, s with
+| _   , Zero => (Any , r)
+| _   , One  => (r   , Zero)
+| Zero, _    => (Zero, Zero)
+| One , _    => (Zero, One)
+| Any , _    => (Any , Zero)
+| Few , Few  => (Few , Zero)
+| Few , _    => (Zero, Few)
+| Many, Few  => (Any , One)
+| Many, Many => (Many, Zero)
+| Many, Any  => (Any , One)
+end.
+
+(** <<r / 0>> is [Any] with remainder <<r>>. *)
+
+Lemma divmod_Zero_r :
+  forall r : Quantity,
+    divmod r Zero = (Any, r).
+Proof.
+  now intros []; cbn.
+Qed.
+
+(** <<r / 1>> is <<1>> with remainder <<0>>. *)
+
+Lemma divmod_One_r :
+  forall r : Quantity,
+    divmod r One = (r, Zero).
+Proof.
+  now intros []; cbn.
+Qed.
+
+(** [divmod] satisfies its specification. *)
+
+Lemma divmod_add_mul :
+  forall r s a b : Quantity,
+    divmod r s = (a, b) ->
+      r = add (mul a s) b.
+Proof.
+  now intros [] [] a b [= <- <-]; cbn.
+Qed.
+
+Lemma SubtractionOrder_divmod_1 :
+  forall r s a b : Quantity,
+    divmod r s = (a, b) ->
+    forall a' b' : Quantity,
+      r = add (mul a' s) b' -> SubtractionOrder a' a.
+Proof.
+  now intros [] [] a b [= <- <-] [] []; cbn.
+Qed.
+
+Lemma SubtractionOrder_divmod_2 :
+  forall r s a b : Quantity,
+    divmod r s = (a, b) ->
+    forall a' b' : Quantity,
+      r = add (mul a' s) b' -> SubtractionOrder b b'.
+Proof.
+  now intros [] [] a b [= <- <-] [] []; cbn.
+Qed.
+
+(**
+  While [divmod] satisfies its specification, it is not the unique function
+  that does so - this is because we could have made some different choices
+  in the cases of [Many] divided by [One] and [Many].
+*)
+
+Lemma divmod_spec :
+  forall r s a b : Quantity,
+    divmod r s = (a, b)
+      ->
+    r = add (mul a s) b /\
+    forall a' b' : Quantity,
+      r = add (mul a' s) b' ->
+        SubtractionOrder a' a /\ SubtractionOrder b b'.
+Proof.
+  split; [| split].
+  - now apply divmod_add_mul.
+  - now eapply SubtractionOrder_divmod_1; eauto.
+  - now eapply SubtractionOrder_divmod_2; eauto.
+Qed.
+
+(** ** Trait ordering
+
+  Before we introduce the next kind of division, we need a new ordering to
+  specify it. The trait ordering is almost like the subusage ordering, but
+  <<0>> is above <<1>>.
+*)
+
+(*
+       0
+       |
+       1
+      / \
+     /   \
+    ?     +
+     \   /
+      \ /
+       *
+*)
 
 Inductive TraitOrder : Quantity -> Quantity -> Prop :=
 | TraitOrder_refl     : forall r : Quantity, TraitOrder r r
@@ -1206,6 +1314,8 @@ Inductive TraitOrder : Quantity -> Quantity -> Prop :=
 | TraitOrder_One_Zero : TraitOrder One Zero.
 
 #[export] Hint Constructors TraitOrder : core.
+
+(** [TraitOrder] is a decidable partial order. *)
 
 #[export] Instance PreOrder_TraitOrder :
   PreOrder TraitOrder.
@@ -1238,12 +1348,16 @@ Proof.
   now destruct r, s; cbn.
 Defined.
 
+(** [complement] flips [TraitOrder], but only on traits. *)
+
 Lemma TraitOrder_complement :
   forall r s : Quantity,
     TraitOrder r s -> s = Zero \/ TraitOrder (complement s) (complement r).
 Proof.
   now intros r []; inversion 1; cbn; firstorder.
 Qed.
+
+(** [Subusage] embeds in [TraitOrder]. *)
 
 Lemma TraitOrder_Subusage :
   forall r s : Quantity,
@@ -1252,7 +1366,18 @@ Proof.
   now inversion 1.
 Qed.
 
-(** * Trait-checking division *)
+(** ** Trait division
+
+  We might also define a different kind of division, which we'll call
+  "trait division", because it is a kind of inverse of multiplication,
+  while also being closely related to traits. We might think that <<div r s>>
+  answers the question: when we have the trait <<r>> but need the trait <<s>>,
+  what trait are we missing? It is in some sense a generalization of the
+  [complement] operation, which answers the same question when <<r>> is [Any].
+
+  The formal specification is as follows: <<r / s>> is the greatest <<q>> in
+  the trait ordering that satisfies <<q * s <= r>>.
+*)
 
 Definition div (r s : Quantity) : option Quantity :=
 match r, s with
@@ -1262,6 +1387,37 @@ match r, s with
 | _   , _    => if decide (TraitOrder s r) then Some One else Some r
 end.
 
+(** [div] indeed satisfies its specification. *)
+
+Lemma div_spec :
+  forall r s rs : Quantity,
+    div r s = Some rs
+      <->
+    TraitOrder (mul rs s) r /\
+    forall q : Quantity, TraitOrder (mul q s) r -> TraitOrder q rs.
+Proof.
+  split.
+  - split.
+    + now destruct r, s; inversion H; subst; cbn.
+    + now destruct r, s, q; inversion H; subst; cbn in *.
+  - intros [Hex Huniq].
+    now destruct r, s, rs; cbn in *; try easy;
+      try match goal with
+      | H : forall _, TraitOrder _ _ -> TraitOrder _ _ |- _ =>
+        specialize (H Many ltac:(easy)) +
+        specialize (H Few  ltac:(easy)) +
+        specialize (H Zero ltac:(easy));
+          now inversion H
+      end.
+Qed.
+
+(** *** Alternative definitions *)
+
+(**
+  We could have used [Subusage] in the definition of [div], but the
+  specification will still talk about [TraitOrder].
+*)
+
 Definition div' (r s : Quantity) : option Quantity :=
 match r, s with
 | Zero, _    => Some Zero
@@ -1269,6 +1425,15 @@ match r, s with
 | Any , r    => Some (complement r)
 | _   , _    => if decide (Subusage s r) then Some One else Some r
 end.
+
+Lemma div'_spec :
+  forall r s : Quantity,
+    div' r s = div r s.
+Proof.
+  now intros [] []; cbn.
+Qed.
+
+(** We can also make the definition more explicit. *)
 
 Definition div'' (r s : Quantity) : option Quantity :=
 match r, s with
@@ -1283,132 +1448,24 @@ match r, s with
 | _   , _    => Some r
 end.
 
-Lemma div'_spec :
+Lemma div''_spec :
   forall r s : Quantity,
-    div' r s = div r s.
+    div'' r s = div r s.
 Proof.
   now intros [] []; cbn.
 Qed.
 
-Lemma div_spec :
-  forall r s rs : Quantity,
-    div r s = Some rs
-      <->
-    TraitOrder (mul rs s) r /\
-    forall t : Quantity, TraitOrder (mul t s) r -> TraitOrder t rs.
-Proof.
-  split.
-  - split.
-    + now destruct r, s; inversion H; subst; cbn.
-    + now destruct r, s, t; inversion H; subst; cbn in *.
-  - intros [Hex Huniq].
-    now destruct r, s, rs; cbn in *; try easy;
-      try match goal with
-      | H : forall _, TraitOrder _ _ -> TraitOrder _ _ |- _ =>
-        specialize (H Many ltac:(easy)) +
-        specialize (H Few  ltac:(easy)) +
-        specialize (H Zero ltac:(easy));
-          now inversion H
-      end.
-Qed.
+(** * Miscellanea *)
 
-(** * Division with remainder *)
-
-Definition divmod (r s : Quantity) : Quantity * Quantity :=
-match r, s with
-| _   , Zero => (Any , r)
-| _   , One  => (r   , Zero)
-| Zero, _    => (Zero, Zero)
-| One , _    => (Zero, One)
-| Any , _    => (Any , Zero)
-| Few , Few  => (Few , Zero)
-| Few , _    => (Zero, Few)
-| Many, Few  => (Any , One)
-| Many, Many => (Many, Zero)
-| Many, Any  => (Any , One)
-end.
-
-Lemma divmod_Zero_r :
-  forall r : Quantity,
-    divmod r Zero = (Any, r).
-Proof.
-  now intros []; cbn.
-Qed.
-
-Lemma divmod_One_r :
-  forall r : Quantity,
-    divmod r One = (r, Zero).
-Proof.
-  now intros []; cbn.
-Qed.
-
-Lemma divmod_spec :
-  forall r s a b : Quantity,
-    divmod r s = (a, b) ->
-      r = add (mul a s) b.
-Proof.
-  now intros [] [] a b [= <- <-]; cbn.
-Qed.
-
-Lemma SubtractionOrder_divmod_1 :
-  forall r s a b : Quantity,
-    divmod r s = (a, b) ->
-    forall a' b' : Quantity,
-      r = add (mul a' s) b' -> SubtractionOrder a' a.
-Proof.
-  now intros [] [] a b [= <- <-] [] []; cbn.
-Qed.
-
-Lemma SubtractionOrder_divmod_2 :
-  forall r s a b : Quantity,
-    divmod r s = (a, b) ->
-    forall a' b' : Quantity,
-      r = add (mul a' s) b' -> SubtractionOrder b b'.
-Proof.
-  now intros [] [] a b [= <- <-] [] []; cbn.
-Qed.
-
-Lemma SubtractionOrder_divmod_2' :
-  forall r s a b : Quantity,
-    divmod r s = (a, b) ->
-    forall a' b' : Quantity,
-      r = add (mul a' s) b' ->
-        SubtractionOrder a' a /\ SubtractionOrder b b'.
-Proof.
-   now intros [] [] a b [= <- <-] [] []; cbn; firstorder.
-Qed.
-
-Lemma divmod_spec' :
-  forall r s a b : Quantity,
-    divmod r s = (a, b)
-      <->
-    r = add (mul a s) b /\
-    forall a' b' : Quantity,
-      r = add (mul a' s) b' ->
-        SubtractionOrder a' a /\ SubtractionOrder b b'.
-Proof.
-  split.
-  - split; [| split].
-    + now apply divmod_spec.
-    + now eapply SubtractionOrder_divmod_1; eauto.
-    + now eapply SubtractionOrder_divmod_2; eauto.
-  - intros [-> H].
-    destruct s.
-    + specialize (H Any b).
-      rewrite !mul_Zero_r, add_Zero_l in H.
-      specialize (H eq_refl).
-      rewrite mul_Zero_r, add_Zero_l.
-      rewrite divmod_Zero_r.
-      destruct H.
-Abort.
-
-(** * Arithmetic order
+(** ** Arithmetic order
 
   [ArithmeticOrder] is a decidable total order that orders quantities
-  by how big (in some sense) they are. The idea is as follows:
+  by how big (in some sense) they are.
 
   We define it explicitly as: <<Zero <= One <= Few <= Many <= Any>>.
 
+  As we can see, it is very similar to the subtraction order, but this
+  time [Any] is the greatest element, strictly greater than [Many].
 *)
 
 Inductive ArithmeticOrder : Quantity -> Quantity -> Prop :=
@@ -1459,6 +1516,8 @@ Qed.
 Proof.
   now destruct r, s; cbn.
 Defined.
+
+(** [ArithmeticOrder] embeds in [SubtractionOrder]. *)
 
 Lemma SubtractionOrder_ArithmeticOrder :
   forall r s : Quantity,

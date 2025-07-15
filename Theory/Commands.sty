@@ -17,23 +17,25 @@
 
 % Subusaging - order on quantities.
 \NewDocumentCommand{\subusage}{m m}{#1 \sqsubseteq #2}
-\NewDocumentCommand{\glbqty}{m m}{#1 \sqcap #2}
-\NewDocumentCommand{\lubqty}{m m}{#1 \sqcup #2}
+\NewDocumentCommand{\infqty}{m m}{#1 \sqcap #2}
+\NewDocumentCommand{\supqty}{m m}{#1 \sqcup #2}
+\NewDocumentCommand{\complementqty}{m}{#1^{\texttt{op}}}
 
 % Arithmetic order on quantities.
-\NewDocumentCommand{\learithqty}{O{} O{}}{#1 \leq #2}
 \NewDocumentCommand{\lesubqty}{m m}{#1 \leq_{\texttt{sub}} #2}
-\NewDocumentCommand{\ledecqty}{m m}{#1 \leq_{\texttt{dec}} #2}
+\NewDocumentCommand{\ledecrqty}{m m}{#1 \leq_{\texttt{decr}} #2}
+\NewDocumentCommand{\letraitqty}{m m}{#1 \leq_{\texttt{trait}} #2}
+\NewDocumentCommand{\learithqty}{O{} O{}}{#1 \leq_{\texttt{arith}} #2}
 
 % Operations on quantities.
 \NewDocumentCommand{\addqty}{m m}{#1 + #2}
 \NewDocumentCommand{\mulqty}{m m}{#1 \cdot #2}
 \NewDocumentCommand{\subqty}{m m}{#1 - #2}
-\NewDocumentCommand{\divqty}{m m}{#1 / #2}
+\NewDocumentCommand{\divmodqty}{m m}{#1 / #2}
+\NewDocumentCommand{\divtraitqty}{m m}{#1 / #2}
 \NewDocumentCommand{\typeqty}{m}{\texttt{qty}(#1)}
 \NewDocumentCommand{\modeqty}{O{i} m}{#1(#2)}
 \NewDocumentCommand{\totalqty}{m m O{i}}{#1_{#2}^{#3}}
-
 % Types.
 \NewDocumentCommand{\Fun}{o m m}{\IfValueTF{#1}{#1\, }{} #2 \to #3}
 \RenewDocumentCommand{\Box}{o m}{\texttt{!}_{#1}\, #2}

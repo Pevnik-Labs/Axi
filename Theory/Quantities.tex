@@ -15,11 +15,7 @@
 \begin{frame}{Quantities}
 
 Quantities: \\
-$r ::= \Zero \pipe \One \pipe \Few \pipe \Many \pipe \Any$
-
-\vspace{2em}
-
-$\Any$ is the default quantity, so when there's nothing to indicate quantity, it means it's $\Any$.
+$r, s, q ::= \Zero \pipe \One \pipe \Few \pipe \Many \pipe \Any$
 
 \end{frame}
 
@@ -37,7 +33,7 @@ $\Any$ is the default quantity, so when there's nothing to indicate quantity, it
 
 \begin{frame}{Subusage ordering}
 
-$\subusage{r_1}{r_2}$ means that a resource with quantity $r_1$ may be used when quantity $r_2$ is expected. This ordering is called sub-usaging. The definition below is just the skeleton, the full ordering is the reflexive-transitive closure of it.
+$\subusage{r}{s}$ means that a resource with quantity $r$ may be used when quantity $s$ is expected. This ordering is called sub-usaging. The definition below is just the skeleton, the full ordering is the reflexive-transitive closure of it.
 
 \begin{center}
   $\subusage{\Any}{\Few}$ \\
@@ -49,11 +45,11 @@ $\subusage{r_1}{r_2}$ means that a resource with quantity $r_1$ may be used when
 
 \vspace{2em}
 
-We will denote the greatest lower bound in this order with $\glbqty{r_1}{r_2}$ and the least upper bound (if it exists) with $\lubqty{r_1}{r_2}$.
+We will denote the infimum in this order with $\infqty{r}{s}$ and the supremum (if it exists) with $\supqty{r}{s}$.
 
 \end{frame}
 
-\begin{frame}{Addition of quantities}
+\begin{frame}{Addition}
 
 When we have two quantities of the same resource, we can sum the quantities.
 
@@ -71,9 +67,9 @@ When we have two quantities of the same resource, we can sum the quantities.
 
 \end{frame}
 
-\begin{frame}{Multiplication of quantities}
+\begin{frame}{Multiplication}
 
-When we have a quantity $r_1$ of resource $A$ that contains quantitty $r_2$ of resource $B$, then we in fact have quantity $\mulqty{r_1}{r_2}$ of resource $B$.
+When we have a quantity $r$ of resource $A$ that contains quantitty $s$ of resource $B$, then we in fact have quantity $\mulqty{r}{s}$ of resource $B$.
 
 \vspace{2em}
 
@@ -99,15 +95,59 @@ Quantities $\qty$ form a positive ordered commutative semiring with no zero divi
   \item $\Zero$ annihilates multiplication.
   \item Multiplication distributes over addition.
   \item Addition and multiplication preserve the subusage ordering in both arguments.
-  \item If $\addqty{r_1}{r_2} = \Zero$, then $r_1 = \Zero$ and $r_2 = \Zero$.
-  \item If $\mulqty{r_1}{r_2} = \Zero$, then $r_1 = \Zero$ or $r_2 = \Zero$.
+  \item If $\addqty{r}{s} = \Zero$, then $r = \Zero$ and $s = \Zero$.
+  \item If $\mulqty{r}{s} = \Zero$, then $r = \Zero$ or $s = \Zero$.
 \end{itemize}
 
 \end{frame}
 
-\begin{frame}{Subtraction of quantities}
+\begin{frame}{Infimum}
 
-$\subqty{r_1}{r_2}$ is the least $r'$ such that $\subusage{r_1}{\addqty{r'}{r_2}}$.
+We can explicitly calculate the infimum as follows.
+
+\begin{center}
+  $\infqty{\Zero}{\One} = \Few$ \\
+  $\infqty{\Zero}{\Many} = \Any$ \\
+  $\infqty{\Zero}{s} = s$ \\
+  $\infqty{\One}{\Zero} = \Few$ \\
+  $\infqty{\Many}{\Zero} = \Any$ \\
+  $\infqty{r}{\Zero} = r$ \\
+  $\infqty{r}{s} = \mulqty{r}{s}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Complement}
+
+Complement of $r$ is the quantity on the opposite side of the diamond. The complement of $\Zero$ is $\Zero$.
+
+\begin{center}
+  $\complementqty{\Zero} = \Zero$ \\
+  $\complementqty{\One} = \Any$ \\
+  $\complementqty{\Few} = \Many$ \\
+  $\complementqty{\Many} = \Few$ \\
+  $\complementqty{\Any} = \One$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Supremum}
+
+We can explicitly calculate the supremum as follows.
+
+\begin{center}
+  $\supqty{\Zero}{\One} = \texttt{undefined}$ \\
+  $\supqty{\Zero}{\Many} = \texttt{undefined}$ \\
+  $\supqty{\One}{\Zero} = \texttt{undefined}$ \\
+  $\supqty{\One}{\Many} = \texttt{undefined}$ \\
+  $\supqty{r}{s} = \complementqty{(\mulqty{\complementqty{r}}{\complementqty{s}})}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Subtraction}
+
+$\subqty{r}{s} = \inf \{q \in \qty \pipe \subusage{r}{\addqty{q}{s}} \}$, where the $\inf$ is taken according to the subusage ordering. Explicitly:
 
 \vspace{2em}
 
@@ -115,7 +155,7 @@ $\subqty{r_1}{r_2}$ is the least $r'$ such that $\subusage{r_1}{\addqty{r'}{r_2}
   \centering
   \begin{tabular}{|c|c|c|c|c|c|}
   \hline
-  $\subqty{r_1}{r_2}$ & $\Zero$ & $\One$  & $\Few$  & $\Many$ & $\Any$  \\ \hline
+  $\subqty{r}{s}$ & $\Zero$ & $\One$  & $\Few$  & $\Many$ & $\Any$  \\ \hline
   $\Zero$             & $\Zero$ &         &         &         &         \\ \hline
   $\One$              & $\One$  & $\Zero$ &         &         &         \\ \hline
   $\Few$              & $\Few$  & $\Zero$ & $\Zero$ &         &         \\ \hline
@@ -126,9 +166,9 @@ $\subqty{r_1}{r_2}$ is the least $r'$ such that $\subusage{r_1}{\addqty{r'}{r_2}
 
 \end{frame}
 
-\begin{frame}{Subtraction order on quantities}
+\begin{frame}{Subtraction order}
 
-$\lesubqty{r_1}{r_2}$ holds when $\subqty{r_2}{r_1}$ is defined.
+$\lesubqty{r}{s}$ holds when $\subqty{s}{r}$ is defined.
 
 \vspace{2em}
 
@@ -136,56 +176,22 @@ Explicitly: $\Zero \lesubqty{}{} \One \lesubqty{}{} \Few \lesubqty{}{} \Many \le
 
 \end{frame}
 
-\begin{frame}{Decrementation order on quantities}
+\begin{frame}{Decrementation order}
 
-$\ledecqty{r_1}{r_2}$ holds when $\subqty{r_2}{\One} = r_1$.
+$\ledecrqty{r}{s}$ holds when $r = \subqty{s}{\One}$.
 
 \begin{center}
-  $\infrule{}{\ledecqty{\Any}{\Any}}$
-
-  \vspace{2em}
-
-  $\infrule{}{\ledecqty{\Any}{\Many}}$
-
-  \vspace{2em}
-
-  $\infrule{}{\ledecqty{\Zero}{\One}}$
-
-  \vspace{2em}
-
-  $\infrule{}{\ledecqty{\Zero}{\Few}}$
+  $\ledecrqty{\Any}{\Any}$ \\
+  $\ledecrqty{\Any}{\Many}$ \\
+  $\ledecrqty{\Zero}{\One}$ \\
+  $\ledecrqty{\Zero}{\Few}$
 \end{center}
-
-\end{frame}
-
-\begin{frame}{Arithmetic order on quantities}
-
-The arithmetic order on quantities is $\Zero \learithqty \One \learithqty \Few \learithqty \Many \learithqty \Any$. The idea is to compare the quantities by how ``big'' they are.
-
-\end{frame}
-
-\begin{frame}{Trait-checking Division}
-
-$\divqty{r_1}{r_2} = \sup \{s \in \qty \pipe \subusage{\mulqty{s}{r_2}}{r_1} \}$
-
-\begin{table}[ht]
-  \centering
-  \begin{tabular}{|c|c|c|c|c|c|}
-  \hline
-  $\divqty{r_1}{r_2}$ & $\Zero$ & $\One$  & $\Few$   & $\Many$ & $\Any$  \\ \hline
-  $\Zero$             & $\Zero$ & $\Zero$ & $\Zero$  & $\Zero$ & $\Zero$ \\ \hline
-  $\One$              &         & $\One$  & $\One$   & $\One$  & $\One$  \\ \hline
-  $\Few$              &         & $\Few$  & $\One$   & $\Few$  & $\One$  \\ \hline
-  $\Many$             &         & $\Many$ & $\Many$  & $\One$  & $\One$  \\ \hline
-  $\Any$              &         & $\Any$  & $\Many$  & $\Few$  & $\One$  \\ \hline
-  \end{tabular}
-\end{table}
 
 \end{frame}
 
 \begin{frame}{Division with remainder}
 
-$\divqty{r_1}{r_2} = (a, b)$ when $r_1 = \addqty{\mulqty{a}{r_2}}{b}$, with $a$ as large as possible and $b$ being as small as possible according to the subtraction order. Note that $\divqty{r_1}{r_2} = a$ means that $b = \Zero$.
+$\divmodqty{r}{s} = \sup_{a \in \qty} \inf_{b \in \qty} \{(a, b) \pipe r = \addqty{\mulqty{a}{s}}{b} \}$, where the $\sup$ and $\inf$ are taken according to the subtraction order. Note that $\divmodqty{r}{s} = a$ means that $b = \Zero$. Explicitly:
 
 \vspace{2em}
 
@@ -193,7 +199,7 @@ $\divqty{r_1}{r_2} = (a, b)$ when $r_1 = \addqty{\mulqty{a}{r_2}}{b}$, with $a$ 
   \centering
   \begin{tabular}{|c|c|c|c|c|c|}
   \hline
-  $\divqty{r_1}{r_2}$ & $\Zero$         & $\One$  & $\Few$          & $\Many$         & $\Any$          \\ \hline
+  $\divmodqty{r}{s}$  & $\Zero$         & $\One$  & $\Few$          & $\Many$         & $\Any$          \\ \hline
   $\Zero$             & $\Any$          & $\Zero$ & $\Zero$         & $\Zero$         & $\Zero$         \\ \hline
   $\One$              & $(\Any, \One)$  & $\One$  & $(\Zero, \One)$ & $(\Zero, \One)$ & $(\Zero, \One)$ \\ \hline
   $\Few$              & $(\Any, \Few)$  & $\Few$  & $\Few$          & $(\Zero, \Few)$ & $(\Zero, \Few)$ \\ \hline
@@ -201,6 +207,47 @@ $\divqty{r_1}{r_2} = (a, b)$ when $r_1 = \addqty{\mulqty{a}{r_2}}{b}$, with $a$ 
   $\Any$              & $(\Any, \Any)$  & $\Any$  & $\Any$          & $\Any$          & $\Any$          \\ \hline
   \end{tabular}
 \end{table}
+
+\end{frame}
+
+\begin{frame}{Trait ordering}
+
+The trait ordering is similar to the subusage ordering, but $\Zero$ is above $\One$. Explicitly:
+
+\begin{center}
+  $\letraitqty{\Any}{\Few}$ \\
+  $\letraitqty{\Any}{\Many}$ \\
+  $\letraitqty{\Few}{\One}$ \\
+  $\letraitqty{\Many}{\One}$ \\
+  $\letraitqty{\One}{\Zero}$
+\end{center}
+
+\end{frame}
+
+\begin{frame}{Trait division}
+
+$\divtraitqty{r}{s} = \sup \{q \in \qty \pipe \subusage{\mulqty{q}{s}}{r} \}$, where the $\sup$ is taken according to the trait ordering. Explicitly:
+
+\vspace{2em}
+
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{|c|c|c|c|c|c|}
+  \hline
+  $\divtraitqty{r}{s}$ & $\Zero$ & $\One$  & $\Few$   & $\Many$ & $\Any$  \\ \hline
+  $\Zero$              & $\Zero$ & $\Zero$ & $\Zero$  & $\Zero$ & $\Zero$ \\ \hline
+  $\One$               &         & $\One$  & $\One$   & $\One$  & $\One$  \\ \hline
+  $\Few$               &         & $\Few$  & $\One$   & $\Few$  & $\One$  \\ \hline
+  $\Many$              &         & $\Many$ & $\Many$  & $\One$  & $\One$  \\ \hline
+  $\Any$               &         & $\Any$  & $\Many$  & $\Few$  & $\One$  \\ \hline
+  \end{tabular}
+\end{table}
+
+\end{frame}
+
+\begin{frame}{Arithmetic order}
+
+The arithmetic order on quantities is $\Zero \learithqty \One \learithqty \Few \learithqty \Many \learithqty \Any$. The idea is to compare the quantities by how ``big'' they are.
 
 \end{frame}
 
