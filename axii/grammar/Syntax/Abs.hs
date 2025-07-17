@@ -212,3 +212,6 @@ class HasPosition a where
 instance HasPosition Id where
   hasPosition (Id (p, _)) = C.Just p
 
+instance Data.String.IsString Id where
+  fromString s = Id ((0, 0), Data.Text.pack s)
+

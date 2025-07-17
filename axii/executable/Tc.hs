@@ -12,10 +12,11 @@
 
 module Tc where
 
-import Control.Arrow (second)
+import Control.Arrow (first, second)
 import Control.Monad (foldM, join)
 import Control.Monad.Error.Class (MonadError (..))
-import Data.Function (on)
+import Data.Foldable qualified as F
+import Data.Function ((&))
 import Data.Functor ((<&>))
 import Data.Generics qualified as SYB
 import Data.HashMap.Strict qualified as HM
@@ -25,10 +26,10 @@ import Data.Maybe (fromMaybe)
 import Data.Ord (Down (..))
 import Data.Sequence (Seq (..), (><))
 import Data.Sequence qualified as S
-import Data.String (IsString (..))
 import Data.Text qualified as T
+import Name (Name, OptName, idName, idText)
 import Numeric.Natural (Natural)
-import Qty (Qty, supQty, (<:), pattern (:#))
+import Qty (Qty (..), infQty, supQty, (<:), pattern (:#))
 import Syntax.Abs
 
 type Ctx = Seq Local
@@ -36,46 +37,63 @@ type Ctx = Seq Local
 newtype Warning = UnusedVariable Name
   deriving (Show)
 
-data TcErr where
-  Nested :: T.Text -> TcErr -> TcErr
-  TypeError :: Ctx -> Judgment a -> TcErr
-  Anomaly :: T.Text -> TcErr
-  NotImplemented :: Ctx -> T.Text -> TcErr
+data TcErr = MkTcErr
+  { tcErrNested :: Seq T.Text,
+    tcErrTag :: TcErrTag,
+    tcErrCtx :: Maybe Ctx,
+    tcErrMsg :: Maybe T.Text,
+    tcErrJudgment :: Maybe AnyJudgment
+  }
 
-deriving instance Show TcErr
+data TcErrTag = TypeError | Anomaly | NotImplemented
 
-typeError :: (MonadError TcErr m) => Ctx -> Judgment a -> m a
-typeError ctx j = throwError (TypeError ctx j)
+data AnyJudgment = forall a. MkAnyJudgment (Judgment a)
+
+deriving instance Show AnyJudgment
+
+mkTcErr :: TcErr
+mkTcErr =
+  MkTcErr
+    { tcErrNested = Empty,
+      tcErrTag = Anomaly,
+      tcErrCtx = Nothing,
+      tcErrMsg = Nothing,
+      tcErrJudgment = Nothing
+    }
+
+rethrowError :: (MonadError TcErr m) => T.Text -> TcErr -> m a
+rethrowError msg err = throwError err {tcErrNested = msg :<| tcErrNested err}
+
+typeError :: (MonadError TcErr m) => Ctx -> Judgment a -> m b
+typeError ctx j =
+  throwError
+    mkTcErr
+      { tcErrTag = TypeError,
+        tcErrCtx = Just ctx,
+        tcErrJudgment = Just (MkAnyJudgment j)
+      }
 
 anomaly :: (MonadError TcErr m) => T.Text -> m a
-anomaly = throwError . Anomaly
+anomaly msg = throwError mkTcErr {tcErrMsg = Just msg}
+
+anomalyWith :: (MonadError TcErr m) => Ctx -> T.Text -> m a
+anomalyWith ctx msg =
+  throwError mkTcErr {tcErrCtx = Just ctx, tcErrMsg = Just msg}
 
 todo :: (MonadError TcErr m) => Ctx -> T.Text -> m a
-todo ctx = throwError . NotImplemented ctx
+todo ctx msg =
+  throwError
+    mkTcErr
+      { tcErrTag = NotImplemented,
+        tcErrCtx = Just ctx,
+        tcErrMsg = Just msg
+      }
+
+test :: (MonadError TcErr m) => Bool -> Ctx -> Judgment a -> b -> m b
+test b ctx j result = if b then pure result else typeError ctx j
 
 data Bound = Of | Is Ctx Tm
   deriving (Show, SYB.Data)
-
-type OptName = Maybe Name
-
-data Name = MkName {namePos :: BNFC'Position, nameText :: T.Text}
-  deriving (Show, SYB.Data)
-
-instance Eq Name where
-  (==) = (==) `on` nameText
-
-instance IsString Name where
-  fromString s = MkName {namePos = Nothing, nameText = T.pack s}
-
-idText :: Id -> T.Text
-idText (Id (_, x)) = x
-
-idName :: Id -> Name
-idName (Id ((0, 0), x)) = MkName {namePos = Nothing, nameText = x}
-idName (Id (px, x)) = MkName {namePos = Just px, nameText = x}
-
-nameId :: Name -> Id
-nameId (MkName px x) = Id (fromMaybe (0, 0) px, x)
 
 data Level = Small Tm | Big Natural
   deriving (Show, SYB.Data)
@@ -88,8 +106,8 @@ succL (Small t) = Small (succT t)
 succL (Big n) = Big (succ n)
 
 succT :: Tm -> Tm
-succT (t :+$ n) = t :+$ succ n
-succT t = t :+$ 0
+succT (Succ n t) = Succ (succ n) t
+succT t = Succ 0 t
 
 maxL :: (MonadError TcErr m) => Level -> Level -> m Level
 maxL (Small t) (Small u) = Small <$> maxT t u
@@ -104,16 +122,16 @@ maxT v@(Var f1 ix1 t1) (Var f2 ix2 t2) = pure $ case compare ix1 ix2 of
   LT -> Max (M.fromDistinctAscList [(ix1, (f1, t1)), (ix2, (f2, t2))]) Zero
   EQ -> v
   GT -> Max (M.fromDistinctAscList [(ix2, (f2, t2)), (ix1, (f1, t1))]) Zero
-maxT (Var f ix t) u@(_ :+$ _) = pure $ Max (M.singleton ix (f, t)) u
+maxT (Var f ix t) u@(Succ _ _) = pure $ Max (M.singleton ix (f, t)) u
 maxT (Var f ix t) (Max vs u) = pure $ Max (M.insert ix (f, t) vs) u
-maxT u@(_ :+$ _) (Var f ix t) = pure $ Max (M.singleton ix (f, t)) u
+maxT u@(Succ _ _) (Var f ix t) = pure $ Max (M.singleton ix (f, t)) u
 maxT (Max vs u) (Var f ix t) = pure $ Max (M.insert ix (f, t) vs) u
-maxT (t :+$ m) (u :+$ n) = case compare m n of
-  LT -> maxT t (u :+$ (n - succ m)) <&> (:+$ m)
+maxT (Succ m t) (Succ n u) = case compare m n of
+  LT -> maxT t (Succ (n - succ m) u) <&> Succ m
   EQ -> maxT t u
-  GT -> maxT (t :+$ (m - succ n)) u <&> (:+$ n)
-maxT t@(_ :+$ _) (Max vs u) = Max vs <$> maxT t u
-maxT (Max vs t) u@(_ :+$ _) = Max vs <$> maxT t u
+  GT -> maxT (Succ (m - succ n) t) u <&> Succ n
+maxT t@(Succ _ _) (Max vs u) = Max vs <$> maxT t u
+maxT (Max vs t) u@(Succ _ _) = Max vs <$> maxT t u
 maxT (Max vs t) (Max ws u) = Max (vs <> ws) <$> maxT t u
 maxT _ _ = anomaly "Ill-formed level"
 
@@ -159,8 +177,11 @@ force :: OpenTm -> (Int, Tm)
 force (OpenTm a d u) = (d, act a u)
 
 strengthen :: OpenTm -> Maybe Tm
-strengthen t | let (d, u) = force t, fresh d u = Just u
+strengthen (force -> (d, e)) | fresh d e = Just e
 strengthen _ = Nothing
+
+isDependent :: OpenTm -> Bool
+isDependent (force -> (d, e)) = fresh d e
 
 infixr 5 :.
 
@@ -192,6 +213,11 @@ pattern Here i <- (viewIndex -> Right i)
 (.:) :: Index -> Int -> Index
 Index i (Path is) .: j = Index i (Path (is :|> j))
 
+type Spine = Seq Ar
+
+data Ar = MkAr ArgFlavour Tm
+  deriving (Show, SYB.Data)
+
 data Tm
   = Var VarFlavour Index Tm
   | Bot Tm
@@ -201,22 +227,33 @@ data Tm
   | Max (M.Map Index (VarFlavour, Tm)) Tm
   | Nat
   | Zero
-  | Tm :+$ Natural
+  | Succ Natural Tm
   | Sum Tm Tm
   | Product (Seq Tm)
   | Tuple (Seq Tm)
-  | Con Name Tm (Seq (ArgFlavour, Tm))
+  | Con Name Tm Spine
   | Box Qty Tm
   | Forall ArgFlavour OptName Tm OpenTm
   | Fun ArgFlavour OptName Tm OpenTm
   deriving (Show, SYB.Data)
 
 viewArrow :: Tm -> Maybe (Tm, Tm)
-viewArrow (Forall At _ t u) | Just u' <- strengthen u = Just (t, u')
+viewArrow (Forall At _ t (strengthen -> Just u)) = Just (t, u)
 viewArrow _ = Nothing
 
 pattern (:->) :: Tm -> Tm -> Tm
 pattern t :-> u <- (viewArrow -> Just (t, u))
+
+boxT :: (MonadError TcErr m) => Qty -> Tm -> m Tm
+boxT 1 e = pure e
+boxT r (Type s l) = pure (Type (r * s) l)
+boxT r (Box s e) = boxT (r * s) e
+boxT r e = do
+  t <- typeOf e
+  case t of
+    Type 0 _ -> pure e
+    Type s _ -> pure (Box (r / s) e)
+    _ -> pure (Box r e)
 
 newtype Action = Subst (IM.IntMap Tm)
   deriving (Show, SYB.Data)
@@ -233,13 +270,13 @@ i |-> t = Subst (IM.singleton i t)
 trim :: Int -> Action -> Action
 trim d (Subst im) = Subst (fst (IM.split d im))
 
-type Closure = HM.HashMap T.Text Tm
+type Scope = HM.HashMap T.Text Tm
 
-data Subject a = Sj Closure a
+data Subject a = Sj Scope a
   deriving (Show, SYB.Data)
 
-extend :: Subject a -> T.Text -> Tm -> Subject a
-extend (Sj cl a) x t = Sj (HM.insert x t cl) a
+extendScope :: Id -> Tm -> Scope -> Scope
+extendScope x = HM.insert (idText x)
 
 data Mode a where
   Check :: Tm -> Mode Ctx
@@ -251,9 +288,11 @@ inferType :: Mode Ctx
 inferType = Check (Type maxBound omegaL)
 
 data Judgment a where
-  Sub :: Tm -> Tm -> Judgment Ctx
-  Conv :: (ArgFlavour, Tm) -> (ArgFlavour, Tm) -> Judgment Ctx
-  Elab :: Closure -> Exp -> [Subject Arg] -> Mode a -> Judgment (Tm, a)
+  Sub :: Tm -> Qty -> Tm -> Judgment (Qty, Ctx)
+  Super :: Qty -> Tm -> Tm -> Judgment (Qty, Ctx)
+  Usage :: Qty -> Tm -> Judgment (Qty, Ctx)
+  Conv :: Ar -> Ar -> Judgment Ctx
+  Elab :: Scope -> Exp -> [Subject Arg] -> Mode a -> Judgment (Tm, a)
   Apply :: Tm -> Tm -> [Subject Arg] -> Mode a -> Judgment (Tm, a)
   Generalise :: ArgFlavour -> Int -> Tm -> Tm -> Judgment (Tm, (Tm, Ctx))
 
@@ -287,7 +326,7 @@ typeOf Level = pure (Type maxBound omegaL)
 typeOf (Max _ _) = pure Level
 typeOf Nat = pure leastSort
 typeOf Zero = pure Nat
-typeOf (t :+$ _) = typeOf t
+typeOf (Succ _ t) = typeOf t
 typeOf (Con _ k ts) = codomain k ts
 typeOf (Sum t u) = join $ liftA2 supT (typeOf t) (typeOf u)
 typeOf (Product ts) = foldM supT leastSort =<< traverse typeOf ts
@@ -318,15 +357,15 @@ freshOpenTm :: Int -> OpenTm -> Bool
 freshOpenTm i t = let (d, u) = force t in d <= i || fresh i u
 
 sortOf :: (MonadError TcErr m) => OpenTm -> m Tm
-sortOf (OpenTm _ d e) = do
-  t <- typeOf e
-  if fresh d t
+sortOf (force -> (d, t)) = do
+  k <- typeOf t
+  if fresh d k
     then
-      pure t -- sort is not dependent, go ahead
+      pure k -- sort is non-dependent, go ahead
     else
-      supT leastBigSort t -- mix in big sort to kill dependency
+      supT leastBigSort k -- mix in big sort to kill dependency
 
-codomain :: (MonadError TcErr m) => Tm -> Seq (ArgFlavour, Tm) -> m Tm
+codomain :: (MonadError TcErr m) => Tm -> Spine -> m Tm
 codomain (_ :-> k) (_ :<| ts) = codomain k ts
 codomain k Empty = pure k
 codomain _ _ = anomaly "Ill-formed type constructor application"
@@ -348,140 +387,209 @@ infixr 2 |-
 infixr 3 :->
 
 (|-) :: (MonadError TcErr m) => Ctx -> Judgment a -> m a
-ctx |- Sub (Var _ i _) u | Right (Is _ t) <- ctx ! i = ctx |- Sub t u
-ctx |- Sub t (Var _ i _) | Right (Is _ u) <- ctx ! i = ctx |- Sub t u
-ctx |- Sub (Var _ i1 _) (Var _ i2 _) | i1 == i2 = pure ctx
-ctx |- Sub e@(Var f j t) (Var Meta i u) | isMono f && j < i = do
-  ctx |- Sub t u >>= i .= Is [] e
-ctx |- Sub (Var Meta i u) e@(Var f j t) | isMono f && j < i = do
-  ctx |- Sub t u >>= i .= Is [] e
-ctx |- Sub (Bot t) e = typeOf e >>= \u -> ctx |- Sub t u
-ctx |- Sub e (Top u) = typeOf e >>= \t -> ctx |- Sub t u
-ctx |- Sub (Var Meta i u) e@(Type _ (Small _)) = do
+ctx |- Sub (Var _ i _) r u | Right (Is _ t) <- ctx ! i = ctx |- Sub t r u
+ctx |- Sub t r (Var _ i _) | Right (Is _ u) <- ctx ! i = ctx |- Sub t r u
+ctx |- Sub (Var _ j _) r (Var Meta i t) | j == i = do
+  (s, ctx') <- ctx |- Sub t r t
+  if 1 <: s
+    then pure (s, ctx')
+    else (i .= Is [mkMeta t] (Box s (Var Meta (i .: 0) t))) (signum s, ctx')
+ctx |- Sub (Var _ j _) r (Var _ i t) | j == i = ctx |- Sub t r t
+ctx |- Sub e@(Var f j t) r (Var Meta i u) | isMono f && j < i = do
+  ctx |- Sub t r u >>= i .= Is [] e
+ctx |- Sub (Var Meta i u) r e@(Var f j t) | isMono f && j < i = do
+  (s, ctx') <- ctx |- Sub (Box r t) 1 u
+  (i .= Is [] (Box s e)) (signum s, ctx')
+ctx |- Sub (Bot t) r e = typeOf e >>= \u -> ctx |- Sub t r u
+ctx |- Sub e r (Top u) = typeOf e >>= \t -> ctx |- Sub t r u
+ctx |- Sub t r (Type s l) | not (1 <: s) = do
+  ctx |- Sub t (r * s) (Type (signum s) l)
+ctx |- Sub t r (Box s u) = ctx |- Sub t (r * s) u
+ctx |- Sub (Box s t) r u = ctx |- Sub t (r / s) u
+ctx |- Sub (Var Meta i u) r (Type s (Small l)) = do
+  let e = Type (r * s) (Small l)
   t <- typeOf e
-  ctx |- Sub t u >>= i .= Is [] e
-ctx |- Sub t@(Var Meta _ _) (Type r (Big _)) = do
+  ctx |- Sub t 1 u >>= i .= Is [] e
+ctx |- Sub t@(Var Meta _ _) r (Type s (Big _)) = do
   let i = length ctx
-  let u = Type r (Small (Var Meta (Here i) Level))
-  ctx :|> mkMeta Level |- Sub t u >>= clear i
-ctx |- Sub t@(Var Meta _ _) Level = ctx |- Sub t Nat
-ctx |- Sub (Var Meta i u) e@Nat = do
+  let u = Type s (Small (Var Meta (Here i) Level))
+  ctx :|> mkMeta Level |- Sub t r u >>= clear i
+ctx |- Sub t@(Var Meta _ _) r Level = ctx |- Sub t r Nat
+ctx |- Sub (Var Meta i u) r e@Nat = do
   t <- typeOf e
-  ctx |- Sub t u >>= i .= Is [] e
-ctx |- Sub (Var Meta i u) Zero = do
-  ctx |- Sub Nat u >>= i .= Is [] Zero
-ctx |- Sub (Var Meta i u) (e :+$ n) = do
+  ctx |- Sub t r u >>= i .= Is [] e
+ctx |- Sub (Var Meta i u) _ Zero = do
+  ctx |- Sub Nat 1 u >>= i .= Is [] Zero
+ctx |- Sub (Var Meta i u) r (Succ n e) = do
   t <- typeOf e
   let v = Var Meta (i .: 0) t
-  let e' = v :+$ n
-  ctx |- Sub t u >>= i .= Is [mkMeta t] e' >>= (|- Sub v e)
-ctx |- Sub e@(Type _ (Small _)) (Var Meta i u) = do
+  let e' = Succ n v
+  (s, ctx') <- ctx |- Sub t r u >>= i .= Is [mkMeta t] e'
+  ctx' |- Sub v s e
+ctx |- Sub e@(Type _ (Small _)) r (Var Meta i u) = do
   t <- typeOf e
-  ctx |- Sub t u >>= i .= Is [] e
-ctx |- Sub (Type r (Small t)) (Type s (Small u)) | r <: s = ctx |- Sub t u
-ctx |- Sub (Type r (Small _)) (Type s (Big _)) | r <: s = pure ctx
-ctx |- Sub (Type r (Big m)) (Type s (Big n)) | r <: s, m <= n = pure ctx
-ctx |- Sub Level Level = pure ctx
-ctx |- Sub Nat Level = pure ctx
-ctx |- Sub (Max vs t) u = do
-  ctx1 <- ctx |- Sub t u
-  foldM (\ctx2 (i, (f, s)) -> ctx2 |- Sub (Var f i s) u) ctx1 (M.toList vs)
-ctx |- Sub u@(:+$) {} e@Max {} = do
-  ctx' <- typeOf e >>= \t -> ctx |- Sub t Level
-  t <- maxT e u
-  ctx' |- Sub t u
-ctx |- Sub Nat Nat = pure ctx
-ctx |- Sub Zero t = typeOf t >>= \k -> ctx |- Sub k Level
-ctx |- Sub (t :+$ m) (u :+$ n) = case compare m n of
-  LT -> ctx |- Sub t (u :+$ (n - succ m))
-  EQ -> ctx |- Sub t u
-  GT -> ctx |- Sub (t :+$ (m - succ n)) u
-ctx |- Sub (Sum a b) (Sum c d) = ctx |- Sub a c >>= (|- Sub b d)
-ctx |- Sub (Product ts) (Product us) | length ts == length us = do
-  foldM (|-) ctx (S.zipWith Sub ts us)
-ctx |- Sub (Con c1 _ as1) (Con c2 _ as2) | c1 == c2 = do
-  foldM (|-) ctx (S.zipWith Conv as1 as2)
-ctx |- Sub (Con c1 _ Empty) (Con c2 _ Empty) | c1 == c2 = pure ctx
-ctx |- Sub (Forall At _ a b) (Forall At x c d) = do
-  ctx1 <- ctx |- Sub c a
+  ctx |- Sub t r u >>= i .= Is [] e
+ctx |- Sub e@Nat r (Var Meta i u) = do
+  t <- typeOf e
+  ctx |- Sub t r u >>= i .= Is [] e
+ctx |- Sub (Type r1 (Small t)) r (Type r2 (Small u)) = do
+  ctx |- Super 1 u t <&> first (const (r * r2 / r1))
+ctx |- Sub (Type r1 (Small _)) r (Type r2 (Big _)) = do
+  pure (r * r2 / r1, ctx)
+ctx |- Sub (Type r1 (Big m)) r (Type r2 (Big n)) | m <= n = do
+  pure (r * r2 / r1, ctx)
+ctx |- Sub Level _ Level = pure (0, ctx)
+ctx |- Sub Nat _ Level = pure (0, ctx)
+ctx |- Sub Nat r Nat = pure (signum r, ctx)
+ctx |- Sub Zero r Zero = pure (signum r, ctx)
+ctx |- Sub Zero r (Succ _ t) = ctx |- Sub Zero r t
+ctx |- Sub Zero _ (Max _ t) = ctx |- Sub Zero 0 t
+ctx |- Sub (Succ m t) r (Succ n u) = case compare m n of
+  LT -> ctx |- Sub t r (Succ (n - succ m) u)
+  EQ -> ctx |- Sub t r u
+  GT -> ctx |- Sub (Succ (m - succ n) t) r u
+ctx |- Sub (Succ n t) r (Max _ u) = ctx |- Sub (Succ n t) r u
+ctx |- Sub (Max vs t) r u = do
+  (r1, ctx1) <- ctx |- Sub t r u
+  let combine (r2, ctx2) (i, (f, s)) = ctx2 |- Sub (Var f i s) r2 u
+  foldM combine (r1, ctx1) (M.toList vs)
+ctx |- Sub (Sum a b) r (Sum c d) = do
+  (r1, ctx1) <- ctx |- Sub a r c
+  (r2, ctx2) <- ctx1 |- Sub b r d
+  pure (infQty r1 r2, ctx2)
+ctx |- Sub (Product ts) r (Product us) | length ts == length us = do
+  let combine (r', ctx') (t, u) = ctx' |- Sub t r u <&> first (infQty r')
+  foldM combine (r, ctx) (zip (F.toList ts) (F.toList us))
+ctx |- Sub (Tuple ts) r (Tuple us) | length ts == length us = do
+  let combine (r', ctx') (t, u) = ctx' |- Sub t r u <&> first (infQty r')
+  foldM combine (1, ctx) (zip (F.toList ts) (F.toList us))
+ctx |- Sub (Con c1 _ as1) r (Con c2 _ as2) | c1 == c2 = do
+  foldM (|-) ctx (zipWith Conv (F.toList as1) (F.toList as2)) <&> (r,)
+ctx |- Sub (Forall Bare _ a b) r (Forall Bare x c d) = do
+  (r1, ctx1) <- ctx |- Super 1 a c
+  let r2 = piQty r1 r
+  let i = length ctx1
+  let v = Var Stable (Here i) c
+  let ctx2 = ctx1 :|> mkLocal Stable x Of c
+  ctx2 |- Sub (enter v b) r2 (enter v d) >>= clear i <&> first (piQty r1)
+ctx |- Sub (Forall Bare x a b) r t | isDependent b = do
+  (r1, ctx1) <- ctx |- Usage 1 a
+  let r2 = piQty r1 r
+  let i = length ctx
+  let v = Var Meta (Here i) a
+  let ctx2 = ctx1 :|> mkLocal Meta x Of a
+  ctx2 |- Sub (enter v b) r2 t >>= clear i <&> first (piQty r1)
+ctx |- Sub (Forall At _ a b) r (Forall At x c d) = do
+  (r1, ctx1) <- ctx |- Super 1 a c
+  let r2 = piQty r1 r
   let i = length ctx1
   let v = var i c
-  ctx1 :|> mkPlain x Of c |- Sub (enter v b) (enter v d) >>= clear i
-ctx |- Conv (a, t) (a', t') | a == a' = ctx |- Sub t t' >>= (|- Sub t' t)
-ctx |- Elab cl (VarE x) as u
-  | Just e@(Var _ ix t) <- cl HM.!? idText x = do
-      ctx' <- use ix ctx
-      ctx' |- Apply e t as u
-ctx |- Elab cl (AnnE e a) as u = do
-  (t, ctx1) <- ctx |- Elab cl a [] inferType
-  (e', ctx2) <- ctx1 |- Elab cl e [] (Check t)
+  let ctx2 = ctx1 :|> mkPlain x Of c
+  ctx2 |- Sub (enter v b) r2 (enter v d) >>= clear i <&> first (piQty r1)
+ctx |- Sub t r (Forall Hash x a b) = do
+  (r1, ctx1) <- ctx |- Usage 1 a
+  let r2 = piQty r1 r
+  let i = length ctx1
+  let v = Var Stable (Here i) a
+  let ctx2 = ctx1 :|> mkLocal Stable x Of a
+  ctx2 |- Sub t r2 (enter v b) >>= clear i <&> first (piQty r1)
+ctx |- Sub (Forall Hash x a b) r t = do
+  (r1, ctx1) <- ctx |- Usage 1 a
+  let r2 = piQty r1 r
+  let i = length ctx
+  let v = Var Meta (Here i) a
+  let ctx2 = ctx1 :|> mkLocal Meta x Of a
+  ctx2 |- Sub (enter v b) r2 t >>= clear i <&> first (piQty r1)
+ctx |- Sub (Fun h _ a b) r (Fun h' x c d) | h == h' = do
+  (r1, ctx1) <- ctx |- Super 1 a c
+  let r2 = piQty r1 r
+  let i = length ctx1
+  let v = var i c
+  let ctx2 = ctx1 :|> mkPlain x Of c
+  ctx2 |- Sub (enter v b) r2 (enter v d) >>= clear i <&> first (piQty r1)
+ctx |- j@Sub {} = typeError ctx j
+ctx |- j@(Super r u t) = do
+  (r', ctx') <- ctx |- Sub t r u
+  test (1 <: r') ctx j (r', ctx')
+ctx |- j@(Usage r t) = do
+  (r', ctx') <- ctx |- Sub t r t
+  test (1 <: r') ctx j (r', ctx')
+ctx |- Conv (MkAr h t) (MkAr h' u) | h == h' = do
+  ctx |- Super 1 u t >>= (|- Super 1 t u) . snd <&> snd
+ctx |- j@Conv {} = typeError ctx j
+ctx |- Elab sc (VarE x) as u
+  | Just e@(Var _ ix t) <- sc HM.!? idText x = do
+      pushQty ctx & use ix >>= (|- Apply e t as u)
+  | Just e@(Con _ t Empty) <- sc HM.!? idText x = do
+      pushQty ctx |- Apply e t as u
+ctx |- Elab sc (AnnE e a) as u = do
+  (t, ctx1) <- ctx |- Elab sc a [] inferType
+  (e', ctx2) <- pushQty ctx1 |- Elab sc e [] (Check t)
   ctx2 |- Apply e' t as u
-ctx |- Elab cl (ForallE (MkP ps (HasAnn a)) e) as t = do
+ctx |- Elab sc (ForallE (MkP ps (HasAnn a)) e) as t = do
   let ps' = SYB.gmapT (SYB.mkT (`AnnP` a)) <$> ps
-  ctx |- Elab cl (ForallE (MkP ps' NoAnn) e) as t
-ctx |- Elab cl (ForallE (MkP [] NoAnn) e) as t = ctx |- Elab cl e as t
-ctx |- Elab cl (FunE [] e) as t = ctx |- Elab cl e as t
-ctx |- Elab cl (FunE (p : ps) e) [] (Check (Forall At _ t u))
+  ctx |- Elab sc (ForallE (MkP ps' NoAnn) e) as t
+ctx |- Elab sc (ForallE (MkP [] NoAnn) e) as t = ctx |- Elab sc e as t
+ctx |- Elab sc (ForallE (MkP (p : ps) NoAnn) e) as u
+  | BareP (VarP x) <- p = do
+      let (i, t, ctx1) = newTypeMeta ctx
+      todo ctx1 "Elab" >>= \k -> k sc ps e as u x i t
+ctx |- Elab sc (FunE [] e) as t = ctx |- Elab sc e as t
+ctx |- Elab sc (FunE (p : ps) e) [] (Check (Forall At _ t u))
   | BareP (AnnP (VarP x) e') <- p = do
-      (t', ctx1) <- ctx |- Elab cl e' [] inferType
-      ctx2 <- ctx1 |- Sub t t'
-      checkVarP ctx2 (Sj cl (x, ps, e)) t' u
-  | BareP (VarP x) <- p = checkVarP ctx (Sj cl (x, ps, e)) t u
-ctx |- Elab cl (FunE (p : ps) e) [] (Check (Forall Bare _ t u))
+      (t', ctx1) <- ctx |- Elab sc e' [] inferType
+      ctx2 <- ctx1 |- Super 1 t' t <&> snd
+      checkVarP ctx2 (Sj sc (x, ps, e)) t' u
+  | BareP (VarP x) <- p = checkVarP ctx (Sj sc (x, ps, e)) t u
+ctx |- Elab sc (FunE (p : ps) e) [] (Check (Forall Bare _ t u))
   | AtP (AnnP (VarP x) e') <- p = do
-      (t', ctx1) <- ctx |- Elab cl e' [] inferType
-      ctx2 <- ctx1 |- Sub t t'
-      checkVarP ctx2 (Sj cl (x, ps, e)) t' u
-  | AtP (VarP x) <- p = checkVarP ctx (Sj cl (x, ps, e)) t u
-ctx |- Elab cl (FunE (p : ps) e) [] Infer
+      (t', ctx1) <- ctx |- Elab sc e' [] inferType
+      ctx2 <- ctx1 |- Super 1 t' t <&> snd
+      checkVarP ctx2 (Sj sc (x, ps, e)) t' u
+  | AtP (VarP x) <- p = checkVarP ctx (Sj sc (x, ps, e)) t u
+ctx |- Elab sc (FunE (p : ps) e) [] Infer
   | BareP (AnnP (VarP x) a) <- p = do
       let i = length ctx
-      (t, ctx1) <- ctx |- Elab cl a [] inferType
-      (e', (u, ctx2)) <- inferVarP ctx1 (Sj cl (x, ps, e)) t
+      (t, ctx1) <- ctx |- Elab sc a [] inferType
+      (e', (u, ctx2)) <- inferVarP ctx1 (Sj sc (x, ps, e)) t
       ctx2 |- Generalise At i e' u
   | BareP (VarP x) <- p = do
-      let i = length ctx
-      let hk = Type maxBound (Small (Var Meta (Here i) Level :+$ 0))
-      let k = Var Meta (Here (i + 1)) hk
-      let t = Var Meta (Here (i + 2)) k
-      let ctx1 = ctx :|> mkMeta Level :|> mkMeta hk :|> mkMeta k
-      (e', (u, ctx2)) <- inferVarP ctx1 (Sj cl (x, ps, e)) t
+      let (i, t, ctx1) = newTypeMeta ctx
+      (e', (u, ctx2)) <- inferVarP ctx1 (Sj sc (x, ps, e)) t
       ctx2 |- Generalise At i e' u
   | AtP (AnnP (VarP x) a) <- p = do
       let i = length ctx
-      (t, ctx1) <- ctx |- Elab cl a [] inferType
-      (e', (u, ctx2)) <- inferVarP ctx1 (Sj cl (x, ps, e)) t
+      (t, ctx1) <- ctx |- Elab sc a [] inferType
+      (e', (u, ctx2)) <- inferVarP ctx1 (Sj sc (x, ps, e)) t
       ctx2 |- Generalise Bare i e' u
   | AtP (VarP x) <- p = do
-      let i = length ctx
-      let hk = Type maxBound (Small (Var Meta (Here i) Level :+$ 0))
-      let k = Var Meta (Here (i + 1)) hk
-      let t = Var Meta (Here (i + 2)) k
-      let ctx1 = ctx :|> mkMeta Level :|> mkMeta hk :|> mkMeta k
-      (e', (u, ctx2)) <- inferVarP ctx1 (Sj cl (x, ps, e)) t
+      let (i, t, ctx1) = newTypeMeta ctx
+      (e', (u, ctx2)) <- inferVarP ctx1 (Sj sc (x, ps, e)) t
       ctx2 |- Generalise Bare i e' u
-ctx |- Elab cl (CallE e as') as t = do
-  ctx |- Elab cl e (map (Sj cl) as' ++ as) t
-ctx |- Elab cl e [] (Check (Box r t)) =
-  pushQty ctx |- Elab cl e [] (Check t) <&> popQty r
-ctx |- Elab cl e [] (Check (Forall Bare x t u)) = do
+ctx |- Elab sc (CallE e as') as t = do
+  ctx |- Elab sc e (map (Sj sc) as' ++ as) t
+ctx |- Elab sc e [] (Check (Box r t)) =
+  pushQty ctx |- Elab sc e [] (Check t) <&> second (popQty r)
+ctx |- Elab sc e [] (Check (Forall Bare x t u)) = do
   let i = length ctx
   let ctx' = ctx :|> mkPlain x Of t
-  ctx' |- Elab cl e [] (Check (enter (var i t) u))
-ctx |- Elab cl e [] (Check (Forall Hash x t u)) = do
+  ctx' |- Elab sc e [] (Check (enter (var i t) u))
+ctx |- Elab sc e [] (Check (Forall Hash x t u)) = do
   let i = length ctx
   let ctx' = ctx :|> mkPlain x Of t
-  ctx' |- Elab cl e [] (Check (enter (var i t) u))
-ctx |- Apply e t [] (Check u) = ctx |- Sub t u <&> (e,)
-ctx |- Apply e t [] Infer = pure (e, (t, ctx))
+  ctx' |- Elab sc e [] (Check (enter (var i t) u))
+ctx |- j@Elab {} = typeError ctx j
+ctx |- Apply e t [] (Check u) = ctx |- Sub t 1 u <&> (e,) . uncurry popQty
+ctx |- Apply e t [] Infer = ctx |- Usage 1 t <&> (e,) . (t,) . uncurry popQty
+ctx |- j@Apply {} = typeError ctx j
 ctx |- Generalise _ i e u | i == length ctx = pure (e, (u, ctx))
 ctx :|> Local [r] Plain x Of t |- Generalise h i e u | i <= length ctx = do
-  ctx' <- ctx |- Sub t (Top (Type r omegaL))
+  ctx' <- ctx |- Usage r t <&> snd
   let e' = Fun h x t (OpenTm mempty (length ctx') e)
   let u' = Forall h x t (OpenTm mempty (length ctx') u)
   ctx' |- Generalise h i e' u'
 ctx :|> Local [r] Meta x Of t |- Generalise h i e u | i <= length ctx = do
-  ctx' <- ctx |- Sub t (Top (Type r omegaL))
+  ctx' <- ctx |- Usage r t <&> snd
   let u' = Forall Hash x t (OpenTm mempty (length ctx') u)
   ctx' |- Generalise h i e u'
 pfx :|> Local [r] Meta x (Is sfx t) k |- Generalise h i e u
@@ -491,7 +599,15 @@ pfx :|> Local [r] Meta x (Is sfx t) k |- Generalise h i e u
       let ctx = pfx <> sfx' :|> Local [r] Meta x Of k
       let u' = act (action <> (j |-> t)) u
       ctx |- Generalise h i e u'
-ctx |- j = typeError ctx j
+ctx |- j@Generalise {} = typeError ctx j
+
+newTypeMeta :: Ctx -> (Int, Tm, Ctx)
+newTypeMeta ctx = do
+  let i = length ctx
+  let hk = Type maxBound (Small (Var Meta (Here i) Level))
+  let k = Var Meta (Here (i + 1)) hk
+  let t = Var Meta (Here (i + 2)) k
+  (i, t, ctx :|> mkMeta Level :|> mkMeta hk :|> mkMeta k)
 
 checkVarP ::
   (MonadError TcErr m) =>
@@ -500,20 +616,20 @@ checkVarP ::
   Tm ->
   OpenTm ->
   m (Tm, Ctx)
-checkVarP ctx (Sj cl (x, ps, e)) t u | isWildcard x = do
+checkVarP ctx (Sj sc (x, ps, e)) t u | isWildcard x = do
   let i = length ctx
       v = var i t
       u' = enter v u
       ctx1 = ctx :|> mkPlain (Just (idName x)) Of t
-  (e', ctx2) <- ctx1 |- Elab cl (FunE ps e) [] (Check u')
+  (e', ctx2) <- ctx1 |- Elab sc (FunE ps e) [] (Check u')
   abstract i e' ctx2
-checkVarP ctx (Sj cl (x, ps, e)) t u = do
+checkVarP ctx (Sj sc (x, ps, e)) t u = do
   let i = length ctx
       v = var i t
       u' = enter v u
       ctx1 = ctx :|> mkPlain (Just (idName x)) Of t
-      cl' = HM.insert (idText x) v cl
-  (e', ctx2) <- ctx1 |- Elab cl' (FunE ps e) [] (Check u')
+      sc' = extendScope x v sc
+  (e', ctx2) <- ctx1 |- Elab sc' (FunE ps e) [] (Check u')
   abstract i e' ctx2
 
 inferVarP ::
@@ -522,15 +638,15 @@ inferVarP ::
   Subject (Id, [Param], Exp) ->
   Tm ->
   m (Tm, (Tm, Ctx))
-inferVarP ctx (Sj cl (x, ps, e)) t | isWildcard x = do
+inferVarP ctx (Sj sc (x, ps, e)) t | isWildcard x = do
   let ctx' = ctx :|> mkPlain (Just (idName x)) Of t
-  ctx' |- Elab cl (FunE ps e) [] Infer
-inferVarP ctx (Sj cl (x, ps, e)) t = do
+  ctx' |- Elab sc (FunE ps e) [] Infer
+inferVarP ctx (Sj sc (x, ps, e)) t = do
   let i = length ctx
       v = var i t
       ctx' = ctx :|> mkPlain (Just (idName x)) Of t
-      cl' = HM.insert (idText x) v cl
-  ctx' |- Elab cl' (FunE ps e) [] Infer
+      sc' = extendScope x v sc
+  ctx' |- Elab sc' (FunE ps e) [] Infer
 
 var :: Int -> Tm -> Tm
 var i = Var Plain (Here i)
@@ -550,15 +666,15 @@ ctx ! Here i = case ctx S.!? i of
 
 infixl 4 .=
 
-(.=) :: (MonadError TcErr m) => Index -> Bound -> Ctx -> m Ctx
-(i :. is .= b) ctx = case S.splitAt i ctx of
+(.=) :: (MonadError TcErr m) => Index -> Bound -> (Qty, Ctx) -> m (Qty, Ctx)
+(i :. is .= b) (q, ctx) = case S.splitAt i ctx of
   (pfx, Local qs f x (Is ctx1 e) t :<| sfx) -> do
-    ctx2 <- (is .= b) ctx1
-    pure (pfx >< Local qs f x (Is ctx2 e) t :<| sfx)
+    (q', ctx2) <- (is .= b) (q, ctx1)
+    pure (q', pfx >< Local qs f x (Is ctx2 e) t :<| sfx)
   _ -> anomaly "Variable not found"
-(Here i .= b) ctx = case S.splitAt i ctx of
+(Here i .= b) (q, ctx) = case S.splitAt i ctx of
   (pfx, Local qs Meta x Of t :<| sfx) ->
-    pure (pfx >< Local qs Meta x b t :<| sfx)
+    pure (q, pfx >< Local qs Meta x b t :<| sfx)
   (_, _ :<| _) -> anomaly "Not a meta variable"
   (_, Empty) -> anomaly "Variable not found"
 
@@ -573,8 +689,8 @@ use (Here i) ctx = case S.splitAt i ctx of
     pure (pfx >< Local (q + 1 : qs) f x b t :<| sfx)
   (_, _) -> anomaly "Variable not found"
 
-clear :: (MonadError TcErr m) => Int -> Ctx -> m Ctx
-clear i ctx = ctx |- Generalise Hash i Zero Nat <&> snd . snd
+clear :: (MonadError TcErr m) => Int -> (Qty, Ctx) -> m (Qty, Ctx)
+clear i (q, ctx) = ctx |- Generalise Hash i Zero Nat <&> (q,) . snd . snd
 
 abstract :: (MonadError TcErr m) => Int -> Tm -> Ctx -> m (Tm, Ctx)
 abstract i e ctx = ctx |- Generalise Hash i e undefined <&> second snd
@@ -583,9 +699,14 @@ flatten :: (MonadError TcErr m) => Int -> Ctx -> m (Action, Ctx)
 flatten _ Empty = pure (mempty, Empty)
 flatten _ ctx = todo ctx "flatten"
 
-pushQty :: (SYB.Data a) => a -> a
-pushQty = SYB.gmapT pushQty `SYB.extT` (0 :#)
+pushQty :: Ctx -> Ctx
+pushQty = fmap go
+  where
+    go :: SYB.GenericT
+    go = SYB.gmapT go `SYB.extT` (0 :#)
 
-popQty :: (SYB.Data a) => Qty -> a -> a
-popQty r =
-  SYB.gmapT (popQty r) `SYB.extT` \(q1 :# q2 :# qs) -> r * q1 + q2 :# qs
+popQty :: Qty -> Ctx -> Ctx
+popQty r = fmap go
+  where
+    go :: SYB.GenericT
+    go = SYB.gmapT go `SYB.extT` \(q1 :# q2 :# qs) -> r * q1 + q2 :# qs

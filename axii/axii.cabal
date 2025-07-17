@@ -185,6 +185,7 @@ executable axi-test-parse
 executable axii
   main-is: Main.hs
   other-modules:
+      Name
       Qty
       Tc
       Paths_axii

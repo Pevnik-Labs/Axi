@@ -19,8 +19,9 @@ all : grammar/Syntax/Doc.txt grammar/Syntax/Abs.hs grammar/Syntax/Layout.hs gram
 
 %/Test.hs %/Skel.hs %/Abs.hs %/Layout.hs %/Lex.x %/Par.y %/Print.hs %/Doc.txt : %.cf
 	cd $(dir $<); bnfc --haskell -d --text-token --generic $(notdir $<)
-	-rm -f $(basename $<)/ErrM.hs
+	sed -i '$$ a instance Data.String.IsString Id where\n  fromString s = Id ((0, 0), Data.Text.pack s)\n' $(basename $<)/Abs.hs
 	sed -i '5s/Main/Syntax.Test/' $(basename $<)/Test.hs
+	-rm -f $(basename $<)/ErrM.hs
 
 %.hs %.info : %.y
 	${HAPPY} ${HAPPY_OPTS} $<

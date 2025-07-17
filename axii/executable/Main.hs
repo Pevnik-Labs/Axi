@@ -6,14 +6,12 @@
 module Main where
 
 import Control.Monad (forM, forM_, forever, when)
-import Control.Monad.Error.Class (MonadError (catchError, throwError))
-import Control.Monad.Reader (ReaderT (..))
+import Control.Monad.Error.Class (MonadError (catchError))
 import Control.Monad.Reader.Class (MonadReader (..), asks)
 import Control.Monad.State.Class (MonadState (..), put)
 import Control.Monad.State.Strict (StateT, runStateT)
 import Data.Foldable qualified as F
 import Data.Functor ((<&>))
-import Data.HashMap.Internal.Strict qualified as HM
 import Data.IORef (IORef, newIORef, readIORef, writeIORef)
 import Data.List (intersperse)
 import Data.Map.Strict qualified as M
@@ -22,8 +20,8 @@ import Data.Sequence (Seq (..))
 import Data.Sequence qualified as S
 import Data.String (IsString (fromString))
 import Data.Text qualified as T
-import Data.Text qualified as Text
 import Data.Text.IO qualified as TIO
+import Name
 import Numeric.Natural (Natural)
 import Qty (Qty, suffixQty)
 import Syntax.Abs
@@ -39,53 +37,26 @@ import Text.Read (readMaybe)
 runTc :: Ctx -> StateT Ctx m a -> m (a, Ctx)
 runTc = flip runStateT
 
-runRb :: ReaderT RbCtx m a -> m a
-runRb ma = runReaderT ma RbCtx {next = HM.empty, used = S.empty}
-
-desugarDecs :: (MonadError TcErr m) => [Dec] -> m [(Name, Exp)]
+desugarDecs :: (MonadError TcErr m) => [Dec] -> m [(Id, Exp)]
 desugarDecs = traverse desugarDec
 
-desugarDec :: (MonadError TcErr m) => Dec -> m (Name, Exp)
-desugarDec (ConstantD (ValueR pat e)) = case patToNameParamsAnn pat of
+desugarDec :: (MonadError TcErr m) => Dec -> m (Id, Exp)
+desugarDec (ConstantD (ValueR pat e)) = case patToHeadParamsAnn pat of
   Nothing -> todo Empty "desugarDec"
   Just (x, params, Nothing) -> pure (x, FunE params e)
   Just (x, params, Just t) -> pure (x, FunE params (AnnE e t))
 desugarDec _ = todo Empty "desugarDec"
 
-patToNameParamsAnn :: Pat -> Maybe (Name, [Param], Maybe Exp)
-patToNameParamsAnn (AnnP pat t) =
-  patToNameParams pat [] (Just t)
-patToNameParamsAnn pat = patToNameParams pat [] Nothing
+patToHeadParamsAnn :: Pat -> Maybe (Id, [Param], Maybe Exp)
+patToHeadParamsAnn (AnnP pat t) =
+  patToHeadParams pat [] (Just t)
+patToHeadParamsAnn pat = patToHeadParams pat [] Nothing
 
-patToNameParams :: Pat -> [Param] -> c -> Maybe (Name, [Param], c)
-patToNameParams (CallP p param params) acc t =
-  patToNameParams p (param : params ++ acc) t
-patToNameParams (VarP x) acc t = Just (idName x, acc, t)
-patToNameParams _ _ _ = Nothing
-
-data RbCtx = RbCtx
-  { next :: HM.HashMap T.Text Word,
-    used :: S.Seq OptName
-  }
-
-extendRb :: RbCtx -> Name -> (Int, Name, RbCtx)
-extendRb RbCtx {next = n, used = u} x =
-  let i = fromMaybe 0 (HM.lookup (nameText x) n)
-      n' = HM.insert (nameText x) (i + 1) n
-      x' = x {nameText = nameText x <> T.pack (show i)}
-      d = S.length u
-      u' = u :|> Just x'
-   in (d, x, RbCtx {next = n', used = u'})
-
-withName :: (MonadReader RbCtx m) => OptName -> (Int -> Name -> m a) -> m a
-withName Nothing action = withName (Just "x") action
-withName (Just x) action = do
-  rbCtx <- ask
-  let (d, name, rbCtx') = extendRb rbCtx x
-  local (const rbCtx') (action d name)
-
-nameE :: Name -> Exp
-nameE x = VarE (nameId x)
+patToHeadParams :: Pat -> [Param] -> c -> Maybe (Id, [Param], c)
+patToHeadParams (CallP p param params) acc t =
+  patToHeadParams p (param : params ++ acc) t
+patToHeadParams (VarP x) acc t = Just (x, acc, t)
+patToHeadParams _ _ _ = Nothing
 
 numberE :: Natural -> Exp
 numberE n = NumberE (Number (T.pack (show n)))
@@ -102,9 +73,6 @@ appE (e : es) = Just (callE e (argA Bare <$> es))
 infixlE :: Exp -> Exp -> [Exp] -> Exp
 infixlE e' e es = fromMaybe e' (appE (intersperse e es))
 
-nameP :: Name -> Pat
-nameP x = VarP (nameId x)
-
 tupleE :: [Exp] -> Exp
 tupleE [] = UnitE
 tupleE (e : es) = TupleE e es
@@ -118,27 +86,25 @@ argP Bare p = BareP p
 argP At p = AtP p
 argP Hash p = HashP p
 
-readbackVar :: (MonadReader RbCtx m) => Index -> m Exp
-readbackVar (Here i) =
-  asks (nameE . fromMaybe "??" . flip S.index i . used)
-readbackVar _ = pure (nameE "??")
+readbackVar :: (MonadReader Rb m) => Index -> m Exp
+readbackVar (Here i) = asks (VarE . flip S.index i . rbIds)
+readbackVar _ = pure (VarE "??")
 
-readbackExp :: (MonadReader RbCtx m) => Tm -> m Exp
-readbackExp (Bot k) =
-  AnnE (nameE "Bot") <$> readbackExp k
-readbackExp (Top k) =
-  AnnE (nameE "Top") <$> readbackExp k
-readbackExp Level = pure (nameE "Level")
+readbackExp :: (MonadReader Rb m) => Tm -> m Exp
+readbackExp (Var _ ix k) = AnnE <$> readbackVar ix <*> readbackExp k
+readbackExp (Bot k) = AnnE (VarE "Bot") <$> readbackExp k
+readbackExp (Top k) = AnnE (VarE "Top") <$> readbackExp k
+readbackExp Level = pure (VarE "Level")
 readbackExp (Max vs Zero) = do
   vs' <- traverse (readbackExp . (\(ix, (f, t)) -> Var f ix t)) (M.toList vs)
-  pure (infixlE (numberE 0) (nameE "⊔") vs')
+  pure (infixlE (numberE 0) (VarE "⊔") vs')
 readbackExp (Max vs u) = do
   vs' <- traverse (readbackExp . (\(ix, (f, t)) -> Var f ix t)) (M.toList vs)
   u' <- readbackExp u
-  pure (infixlE undefined (nameE "⊔") (vs' ++ [u']))
-readbackExp Nat = pure (nameE "Nat")
+  pure (infixlE undefined (VarE "⊔") (vs' ++ [u']))
+readbackExp Nat = pure (VarE "Nat")
 readbackExp Zero = pure (numberE 0)
-readbackExp (t :+$ n) = readbackPlus t (succ n)
+readbackExp (Succ n t) = readbackPlus t (succ n)
 readbackExp (Type r (Small l)) = do
   t' <- readbackExp l
   pure $ callE (readbackSort r) [argA At t']
@@ -146,9 +112,7 @@ readbackExp (Type r (Big l)) =
   pure $
     callE
       (readbackSort r)
-      [argA At (infixlE undefined (nameE "+") [nameE "ω", numberE l])]
-readbackExp (Var _ ix k) = do
-  AnnE <$> readbackVar ix <*> readbackExp k
+      [argA At (infixlE undefined (VarE "+") [VarE "ω", numberE l])]
 readbackExp (t :-> u) =
   ArrowE <$> readbackExp t <*> readbackExp u
 readbackExp (Con x k ts) = do
@@ -156,17 +120,17 @@ readbackExp (Con x k ts) = do
   ts' <- traverse readbackArg ts
   pure $
     callE
-      (AnnE (ExplicitE (nameId x)) k')
+      (AnnE (VarE (nameId x)) k')
       (F.toList ts')
 readbackExp (Product ts) =
-  infixlE (nameE "Unit") (nameE "*") <$> traverse readbackExp (F.toList ts)
+  infixlE (VarE "Unit") (VarE "×") <$> traverse readbackExp (F.toList ts)
 readbackExp (Tuple ts) = tupleE . F.toList <$> traverse readbackExp ts
 readbackExp (Sum t u) = do
   t' <- readbackExp t
   u' <- readbackExp u
   pure $
     callE
-      (nameE "Either")
+      (VarE "Either")
       [ argA At t',
         argA At u'
       ]
@@ -175,35 +139,32 @@ readbackExp (Box r t) =
     callE (readbackBox r) [BareA t']
 readbackExp (Forall a x k t) = do
   k' <- readbackExp k
-  withName x $ \i x' -> do
-    ForallE (MkP [argP a (AnnP (nameP x') k')] NoAnn)
+  withId x $ \i x' -> do
+    ForallE (MkP [argP a (AnnP (VarP x') k')] NoAnn)
       <$> readbackExp (enter (var i k) t)
 readbackExp (Fun a x k t) = do
   k' <- readbackExp k
-  withName x $ \i x' -> do
-    FunE
-      [argP a (AnnP (nameP x') k')]
-      <$> readbackExp (enter (var i k) t)
+  withId x $ \i x' -> do
+    FunE [argP a (AnnP (VarP x') k')] <$> readbackExp (enter (var i k) t)
 
-readbackPlus :: (MonadReader RbCtx m) => Tm -> Natural -> m Exp
+readbackPlus :: (MonadReader Rb m) => Tm -> Natural -> m Exp
 readbackPlus Zero n = pure (numberE n)
-readbackPlus (t :+$ m) n = readbackPlus t (succ m + n)
+readbackPlus (Succ m t) n = readbackPlus t (succ m + n)
 readbackPlus t n =
-  readbackExp t <&> \t' -> infixlE undefined (nameE "+") [t', numberE n]
+  readbackExp t <&> \t' -> infixlE undefined (VarE "+") [t', numberE n]
 
 readbackSort :: Qty -> Exp
-readbackSort r = nameE (fromString ("Type" <> suffixQty r))
+readbackSort r = VarE (fromString ("Type" <> suffixQty r))
 
 readbackBox :: Qty -> Exp
-readbackBox r = nameE (fromString ("Box" <> suffixQty r))
+readbackBox r = VarE (fromString ("Box" <> suffixQty r))
 
-readbackArg :: (MonadReader RbCtx m) => (ArgFlavour, Tm) -> m Arg
-readbackArg (Bare, t) = BareA <$> readbackExp t
-readbackArg (_, t) = argA At <$> readbackExp t
+readbackArg :: (MonadReader Rb m) => Ar -> m Arg
+readbackArg (MkAr h t) = argA h <$> readbackExp t
 
 type Parser a = [Token] -> Either String a
 
-run :: (Print a, Show a) => Parser a -> Text.Text -> IO a
+run :: (Print a, Show a) => Parser a -> T.Text -> IO a
 run p s = case p ts of
   Left err -> do
     putStrLn "\nParse failed!\n"
@@ -223,7 +184,7 @@ main = do
   env <- newIORef mempty
   ctx <- newIORef Empty
   loadFile env ctx "Prelude.txt"
-  buffer <- newIORef Text.empty
+  buffer <- newIORef T.empty
   case args of
     ["--help"] -> do
       putStrLn $
@@ -239,21 +200,21 @@ main = do
         nextPart <- getNextPart buffer
         run pRepl nextPart >>= evalAndPrint env ctx
 
-delimiter :: Text.Text
+delimiter :: T.Text
 delimiter = ";;"
 
-getNextPart :: IORef Text.Text -> IO Text.Text
+getNextPart :: IORef T.Text -> IO T.Text
 getNextPart bufferRef = readIORef bufferRef >>= go
   where
     go oldBuffer = do
-      let (chunk, newBuffer) = Text.breakOn delimiter oldBuffer
-      if Text.null newBuffer
+      let (chunk, newBuffer) = T.breakOn delimiter oldBuffer
+      if T.null newBuffer
         then do
           line <- TIO.getLine
-          go $! Text.append oldBuffer (Text.snoc line '\n')
+          go $! T.append oldBuffer (T.snoc line '\n')
         else do
           writeIORef bufferRef $!
-            fromMaybe newBuffer (Text.stripPrefix delimiter newBuffer)
+            fromMaybe newBuffer (T.stripPrefix delimiter newBuffer)
           return chunk
 
 type SemEnv = [()]
@@ -305,24 +266,17 @@ fromStrToString :: Str -> Maybe FilePath
 fromStrToString (Str txt) = readMaybe (T.unpack txt)
 
 printTcErr :: TcErr -> IO ()
-printTcErr (Nested msg err) = do
-  TIO.putStrLn msg
-  printTcErr err
-printTcErr (TypeError ctx t) = do
-  mapM_ print ctx
-  TIO.putStrLn "|-"
-  print t
-printTcErr (Anomaly msg) = TIO.putStrLn msg
-printTcErr (NotImplemented ctx msg) = do
-  mapM_ print ctx
-  TIO.putStrLn "|-"
-  TIO.putStr "Not implemented: "
-  TIO.putStrLn msg
-
-printName :: Name -> T.Text
-printName x = case namePos x of
-  Nothing -> nameText x
-  Just (l, c) -> nameText x <> T.pack (':' : show l ++ ':' : show c)
+printTcErr err = do
+  F.for_ (tcErrNested err) TIO.putStrLn
+  F.for_ (tcErrCtx err) $ \ctx -> do
+    F.for_ ctx print
+    TIO.putStrLn "|-"
+  case tcErrTag err of
+    TypeError -> TIO.putStrLn "Type error:"
+    Anomaly -> TIO.putStrLn "Anomaly:"
+    NotImplemented -> TIO.putStrLn "Not implemented:"
+  F.for_ (tcErrJudgment err) $ \(MkAnyJudgment j) -> print j
+  F.for_ (tcErrMsg err) TIO.putStrLn
 
 checkDecsIO :: IORef Ctx -> [Dec] -> IO Bool
 checkDecsIO ctx decs = do
@@ -332,19 +286,19 @@ checkDecsIO ctx decs = do
     Right (sigs, ctx1) -> do
       writeIORef ctx ctx1
       forM_ sigs $ \(x, t) ->
-        TIO.putStrLn (nameText x <> " : " <> T.pack (printTree t))
+        TIO.putStrLn (idText x <> " : " <> T.pack (printTree t))
       pure True
 
 checkDecs ::
   (MonadState Ctx m, MonadError TcErr m) =>
   [Dec] ->
-  m [(Name, Exp)]
+  m [(Id, Exp)]
 checkDecs decs = do
   case desugarDecs decs of
-    Left err -> throwError (Nested "Desugaring failed..." err)
+    Left err -> rethrowError "Desugaring failed..." err
     Right decs' -> forM decs' $ \(x, e) -> do
       s <- catchError (infer e) $ \err ->
-        throwError (Nested ("Error at " <> printName x <> ":") err)
+        rethrowError ("Error at " <> printId x <> ":") err
       (x,) <$> runRb (readbackExp s)
 
 infer :: (MonadState Ctx m, MonadError TcErr m) => Exp -> m Tm

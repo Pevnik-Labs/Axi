@@ -10,7 +10,7 @@ import Data.Ratio (denominator, numerator)
 
 infix 4 <~, <:
 
--- | Positive commutative semiring of quantities.
+-- | Positive commutative semiring of multiplicatively idempotent quantities.
 --
 -- Quantities have two kinds of division: integral and fractional.
 -- * 'div' and 'mod' satisfy @div x y * y + mod x y == x@,
