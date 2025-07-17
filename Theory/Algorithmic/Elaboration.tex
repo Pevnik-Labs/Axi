@@ -81,7 +81,7 @@ $\inferelab{\Gamma}{e}{e'}{A}{\Gamma'}$ -- in context $\Gamma$ infer that $A$ is
 
   \vspace{2em}
 
-  $\infrule{\begin{array}{l} \inferelab{\Gamma}{e}{e'}{\Sum{A}{B}}{\Gamma_1} \\  \checkelab{\extend{\Gamma}[\Zero]{x}{A}}{e_1}{e_1'}{C}{\extend{\Gamma_2}[r_1]{x}{A}} \\ \checkelab{\extend{\Gamma}[\Zero]{y}{B}}{e_2}{e_2'}{C}{\extend{\Gamma_3}[r_2]{y}{B}} \\ r = \glbqty{(\divqty{r_1}{\totalqty{\One}{A}})}{(\divqty{r_2}{\totalqty{\One}{B}})} \\ \Gamma_4 = \addctx{\scalectx{r}{\Gamma_1}}{(\glbctx{\Gamma_2}{\Gamma_3})} \end{array}}{\checkelab{\Gamma}{\newcase{e}{x}{e_1}{y}{e_2}}{C}{\newcase{e'}{x}{e_1'}{y}{e_2'}[C]}{\Gamma_4}}$
+  $\infrule{\begin{array}{l} \inferelab{\Gamma}{e}{e'}{\Sum{A}{B}}{\Gamma_1} \\  \checkelab{\extend{\Gamma}[\Zero]{x}{A}}{e_1}{e_1'}{C}{\extend{\Gamma_2}[r_1]{x}{A}} \\ \checkelab{\extend{\Gamma}[\Zero]{y}{B}}{e_2}{e_2'}{C}{\extend{\Gamma_3}[r_2]{y}{B}} \\ r = \infqty{(\divtraitqty{r_1}{\totalqty{\One}{A}})}{(\divtraitqty{r_2}{\totalqty{\One}{B}})} \\ \Gamma_4 = \addctx{\scalectx{r}{\Gamma_1}}{(\infctx{\Gamma_2}{\Gamma_3})} \end{array}}{\checkelab{\Gamma}{\newcase{e}{x}{e_1}{y}{e_2}}{C}{\newcase{e'}{x}{e_1'}{y}{e_2'}[C]}{\Gamma_4}}$
 \end{center}
 
 \end{frame}

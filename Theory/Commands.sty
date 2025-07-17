@@ -142,14 +142,14 @@
 
 % Context operations.
 \NewDocumentCommand{\subusagectx}{m m}{#1 \sqsubseteq #2}
-\NewDocumentCommand{\glbctx}{m m}{#1 \sqcap #2}
-\NewDocumentCommand{\lubctx}{m m}{#1 \sqcup #2}
+\NewDocumentCommand{\infctx}{m m}{#1 \sqcap #2}
+\NewDocumentCommand{\supctx}{m m}{#1 \sqcup #2}
 \NewDocumentCommand{\addctx}{m m}{#1 + #2}
 \NewDocumentCommand{\subctx}{m m}{#1 - #2}
 \NewDocumentCommand{\scalectx}{m m}{#1\, #2}
 \NewDocumentCommand{\varctx}{m m}{| #1 |_{#2}}
 \NewDocumentCommand{\usevar}{m m}{#1 - #2}
-\NewDocumentCommand{\divctx}{m m}{#1 / #2}
+\NewDocumentCommand{\divmodctx}{m m}{#1 / #2}
 \NewDocumentCommand{\cartesianize}{m}{| #1 |}
 \NewDocumentCommand{\decomposectx}{m o m o m}{\subusagectx{#1}{\addctx{\scalectx{\optional{#2}}{#3}}{\scalectx{\optional{#4}}{#5}}}}
 

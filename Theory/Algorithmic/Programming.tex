@@ -27,11 +27,11 @@ $\inferkind{\Gamma}{A}[r]{\Gamma'}$
 
   \vspace{2em}
 
-  $\infrule{\inferkind{\Gamma}{A}[s_1]{\Gamma_1} \quad \inferkind{\Gamma_1}{B}[s_2]{\Gamma_2}}{\inferkind{\Gamma}{\Prod{A}{B}}[\lubqty{s_1}{s_2}]{\Gamma_2}}$
+  $\infrule{\inferkind{\Gamma}{A}[s_1]{\Gamma_1} \quad \inferkind{\Gamma_1}{B}[s_2]{\Gamma_2}}{\inferkind{\Gamma}{\Prod{A}{B}}[\supqty{s_1}{s_2}]{\Gamma_2}}$
 
   \vspace{1em}
 
-  $\infrule{\inferkind{\Gamma}{A}[s_1]{\Gamma_1} \quad \inferkind{\Gamma_1}{B}[s_2]{\Gamma_2}}{\inferkind{\Gamma}{\Sum{A}{B}}[\lubqty{s_1}{s_2}]{\Gamma_2}}$
+  $\infrule{\inferkind{\Gamma}{A}[s_1]{\Gamma_1} \quad \inferkind{\Gamma_1}{B}[s_2]{\Gamma_2}}{\inferkind{\Gamma}{\Sum{A}{B}}[\supqty{s_1}{s_2}]{\Gamma_2}}$
 \end{center}
 
 \end{frame}
@@ -138,7 +138,7 @@ $\infertype{\extend{\Gamma}[r]{x}{A}}{e}{A}{\extend{\Gamma'}[\Zero]{x}{A}}$ is a
 
   \vspace{2em}
 
-  $\infrule{\infertype{\Gamma}{f}{\Fun[r]{A}{B}}{\Gamma_1} \quad \divctx{\Gamma_1}{r} = (\Gamma_2, \Gamma_3) \quad \checktype{\Gamma_2}{a}{A}{\Gamma_4}}{\infertype{\Gamma}{\app{f}{a}}{B}{\addctx{\Gamma_3}{\scalectx{r}{\Gamma_4}}}}$
+  $\infrule{\infertype{\Gamma}{f}{\Fun[r]{A}{B}}{\Gamma_1} \quad \divmodctx{\Gamma_1}{r} = (\Gamma_2, \Gamma_3) \quad \checktype{\Gamma_2}{a}{A}{\Gamma_4}}{\infertype{\Gamma}{\app{f}{a}}{B}{\addctx{\Gamma_3}{\scalectx{r}{\Gamma_4}}}}$
 \end{center}
 
 \end{frame}
@@ -146,7 +146,7 @@ $\infertype{\extend{\Gamma}[r]{x}{A}}{e}{A}{\extend{\Gamma'}[\Zero]{x}{A}}$ is a
 \begin{frame}{Box}
 
 \begin{center}
-  $\infrule{\divctx{\Gamma}{r} = (\Gamma_1, \Gamma_2) \quad \checktype{\Gamma_1}{e}{A}{\Gamma_3}}{\checktype{\Gamma}{\boxintro{e}}{\Box[r]{A}}{\addctx{\Gamma_2}{\scalectx{r}{\Gamma_3}}}}$
+  $\infrule{\divmodctx{\Gamma}{r} = (\Gamma_1, \Gamma_2) \quad \checktype{\Gamma_1}{e}{A}{\Gamma_3}}{\checktype{\Gamma}{\boxintro{e}}{\Box[r]{A}}{\addctx{\Gamma_2}{\scalectx{r}{\Gamma_3}}}}$
 
   \vspace{2em}
 
@@ -195,11 +195,11 @@ $\infertype{\extend{\Gamma}[r]{x}{A}}{e}{A}{\extend{\Gamma'}[\Zero]{x}{A}}$ is a
 
   \vspace{2em}
 
-  $\infrule{\infertype{\Gamma}{e}{\Sum{A}{B}}{\Gamma_1} \quad \begin{array}{l} \checktype{\extend{\Gamma_1}[\totalqty{\One}{A}]{x}{A}}{e_1}{C}{\extend{\Gamma_2}[\Zero]{x}{A}} \\ \checktype{\extend{\Gamma_1}[\totalqty{\One}{B}]{y}{B}}{e_2}{C}{\extend{\Gamma_3}[\Zero]{x}{A}} \end{array}}{\checktype{\Gamma}{\newcase{e}{x}{e_1}{y}{e_2}}{C}{\lubctx{\Gamma_2}{\Gamma_3}}}$
+  $\infrule{\infertype{\Gamma}{e}{\Sum{A}{B}}{\Gamma_1} \quad \begin{array}{l} \checktype{\extend{\Gamma_1}[\totalqty{\One}{A}]{x}{A}}{e_1}{C}{\extend{\Gamma_2}[\Zero]{x}{A}} \\ \checktype{\extend{\Gamma_1}[\totalqty{\One}{B}]{y}{B}}{e_2}{C}{\extend{\Gamma_3}[\Zero]{x}{A}} \end{array}}{\checktype{\Gamma}{\newcase{e}{x}{e_1}{y}{e_2}}{C}{\supctx{\Gamma_2}{\Gamma_3}}}$
 
   \vspace{2em}
 
-  $\infrule{\infertype{\Gamma}{e}{\Sum{A}{B}}{\Gamma_1} \quad \begin{array}{l} \infertype{\extend{\Gamma_1}[\totalqty{\One}{A}]{x}{A}}{e_1}{C}{\extend{\Gamma_2}[\Zero]{x}{A}} \\ \infertype{\extend{\Gamma_1}[\totalqty{\One}{B}]{y}{B}}{e_2}{C}{\extend{\Gamma_3}[\Zero]{x}{A}} \end{array}}{\infertype{\Gamma}{\newcase{e}{x}{e_1}{y}{e_2}}{C}{\lubctx{\Gamma_2}{\Gamma_3}}}$
+  $\infrule{\infertype{\Gamma}{e}{\Sum{A}{B}}{\Gamma_1} \quad \begin{array}{l} \infertype{\extend{\Gamma_1}[\totalqty{\One}{A}]{x}{A}}{e_1}{C}{\extend{\Gamma_2}[\Zero]{x}{A}} \\ \infertype{\extend{\Gamma_1}[\totalqty{\One}{B}]{y}{B}}{e_2}{C}{\extend{\Gamma_3}[\Zero]{x}{A}} \end{array}}{\infertype{\Gamma}{\newcase{e}{x}{e_1}{y}{e_2}}{C}{\supctx{\Gamma_2}{\Gamma_3}}}$
 \end{center}
 
 \end{frame}
@@ -207,7 +207,7 @@ $\infertype{\extend{\Gamma}[r]{x}{A}}{e}{A}{\extend{\Gamma'}[\Zero]{x}{A}}$ is a
 \begin{frame}{Let}
 
 \begin{center}
-  $\infrule{\divctx{\Gamma}{r} = (\Gamma_1, \Gamma_2) \quad \begin{array}{l} \infertype{\Gamma_1}{e_1}{A}{\Gamma_3} \\ \infertype{\extend{(\addctx{\Gamma_2}{\scalectx{r}{\Gamma_3}})}[\totalqty{r}{A}]{x}{A}}{e_2}{B}{\extend{\Gamma_4}[\Zero]{x}{A}} \end{array}}{\infertype{\Gamma}{\letin[r]{x}{e_1}{e_2}}{B}{\Gamma_4}}$
+  $\infrule{\divmodctx{\Gamma}{r} = (\Gamma_1, \Gamma_2) \quad \begin{array}{l} \infertype{\Gamma_1}{e_1}{A}{\Gamma_3} \\ \infertype{\extend{(\addctx{\Gamma_2}{\scalectx{r}{\Gamma_3}})}[\totalqty{r}{A}]{x}{A}}{e_2}{B}{\extend{\Gamma_4}[\Zero]{x}{A}} \end{array}}{\infertype{\Gamma}{\letin[r]{x}{e_1}{e_2}}{B}{\Gamma_4}}$
 \end{center}
 
 \end{frame}

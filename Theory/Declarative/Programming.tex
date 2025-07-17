@@ -17,8 +17,8 @@
 
   \vspace{2em}
 
-  $\infrule{\type{A}[s_1] \quad \type{B}[s_2]}{\type{\Prod{A}{B}}[\lubqty{s_1}{s_2}]}$ \quad
-  $\infrule{\type{A}[s_1] \quad \type{B}[s_2]}{\type{\Sum{A}{B}}[\lubqty{s_1}{s_2}]}$
+  $\infrule{\type{A}[s_1] \quad \type{B}[s_2]}{\type{\Prod{A}{B}}[\supqty{s_1}{s_2}]}$ \quad
+  $\infrule{\type{A}[s_1] \quad \type{B}[s_2]}{\type{\Sum{A}{B}}[\supqty{s_1}{s_2}]}$
 \end{center}
 
 \end{frame}
@@ -46,8 +46,8 @@
   $\typeqty{\Empty} = \Any$ \\
   $\typeqty{\Box[\Zero]{A}} = \Any$ \\
   $\typeqty{\Box[r]{A}} = \mulqty{r}{\typeqty{A}}$ \\
-  $\typeqty{\Prod{A}{B}} = \lubqty{\typeqty{A}}{\typeqty{B}}$ \\
-  $\typeqty{\Sum{A}{B}} = \lubqty{\typeqty{A}}{\typeqty{B}}$ \\
+  $\typeqty{\Prod{A}{B}} = \supqty{\typeqty{A}}{\typeqty{B}}$ \\
+  $\typeqty{\Sum{A}{B}} = \supqty{\typeqty{A}}{\typeqty{B}}$ \\
   $\typeqty{\Fun[r]{A}{B}} = \One$ \\
   $\typeqty{\ForallE{a}[r]{B}} = \typeqty{B}$ \\
   $\typeqty{\ForallI{a}[r]{B}} = \typeqty{B}$ \\

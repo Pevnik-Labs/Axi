@@ -100,7 +100,7 @@
 
   \vspace{1em}
 
-  $\infrule{\inferproof{\Gamma}{pq}{\Or{P}{Q}}{\Gamma_1} \quad \checkproof{\Gamma_1}{r_1}{\Impl{P}{R}}{\Gamma_2} \quad \checkproof{\Gamma_1}{r_2}{\Impl{Q}{R}}{\Gamma_3}}{\checkproof{\Gamma}{\orelim{pq}{r_1}{r_2}}{R}{\lubctx{\Gamma_2}{\Gamma_3}}}$
+  $\infrule{\inferproof{\Gamma}{pq}{\Or{P}{Q}}{\Gamma_1} \quad \checkproof{\Gamma_1}{r_1}{\Impl{P}{R}}{\Gamma_2} \quad \checkproof{\Gamma_1}{r_2}{\Impl{Q}{R}}{\Gamma_3}}{\checkproof{\Gamma}{\orelim{pq}{r_1}{r_2}}{R}{\supctx{\Gamma_2}{\Gamma_3}}}$
 
 \end{center}
 
