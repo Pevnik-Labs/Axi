@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TupleSections #-}
 
@@ -77,11 +78,11 @@ tupleE :: [Exp] -> Exp
 tupleE [] = UnitE
 tupleE (e : es) = TupleE e es
 
-argA :: ArgFlavour -> Exp -> Arg
+argA :: Decor -> Exp -> Arg
 argA Bare e = BareA e
 argA _ e = AtA e
 
-argP :: ArgFlavour -> Pat -> Param
+argP :: Decor -> Pat -> Param
 argP Bare p = BareP p
 argP At p = AtP p
 argP Hash p = HashP p
@@ -304,6 +305,6 @@ checkDecs decs = do
 infer :: (MonadState Ctx m, MonadError TcErr m) => Exp -> m Tm
 infer e = do
   ctx <- get
-  (_, (t, ctx')) <- ctx |- Elab mempty e [] Infer
+  (_, (t, ctx')) <- ctx |- Elab mempty e [] Out
   put ctx'
-  pure t
+  pure (getInput t)

@@ -1,4 +1,6 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
@@ -27,7 +29,8 @@ import Data.Ord (Down (..))
 import Data.Sequence (Seq (..), (><))
 import Data.Sequence qualified as S
 import Data.Text qualified as T
-import Name (Name, OptName, idName, idText)
+import Data.Type.Bool (Not)
+import Name (Name, OptName, idName, idText, isWildcard)
 import Numeric.Natural (Natural)
 import Qty (Qty (..), infQty, supQty, (<:), pattern (:#))
 import Syntax.Abs
@@ -48,8 +51,6 @@ data TcErr = MkTcErr
 data TcErrTag = TypeError | Anomaly | NotImplemented
 
 data AnyJudgment = forall a. MkAnyJudgment (Judgment a)
-
-deriving instance Show AnyJudgment
 
 mkTcErr :: TcErr
 mkTcErr =
@@ -164,8 +165,12 @@ mkPlain = mkLocal Plain
 mkMeta :: Tm -> Local
 mkMeta = mkLocal Meta Nothing Of
 
-data ArgFlavour = Bare | At | Hash
+data Decor = Bare | At | Hash
   deriving (Eq, Show, SYB.Data)
+
+flipDecor :: Decor -> Decor
+flipDecor At = Bare
+flipDecor _ = At
 
 data OpenTm = OpenTm Action Int Tm
   deriving (Show, SYB.Data)
@@ -215,7 +220,7 @@ Index i (Path is) .: j = Index i (Path (is :|> j))
 
 type Spine = Seq Ar
 
-data Ar = MkAr ArgFlavour Tm
+data Ar = MkAr Decor Tm
   deriving (Show, SYB.Data)
 
 data Tm
@@ -233,8 +238,8 @@ data Tm
   | Tuple (Seq Tm)
   | Con Name Tm Spine
   | Box Qty Tm
-  | Forall ArgFlavour OptName Tm OpenTm
-  | Fun ArgFlavour OptName Tm OpenTm
+  | Forall Decor OptName Tm OpenTm
+  | Fun Decor OptName Tm OpenTm
   deriving (Show, SYB.Data)
 
 viewArrow :: Tm -> Maybe (Tm, Tm)
@@ -276,25 +281,39 @@ data Subject a = Sj Scope a
   deriving (Show, SYB.Data)
 
 extendScope :: Id -> Tm -> Scope -> Scope
-extendScope x = HM.insert (idText x)
+extendScope x _ sc | isWildcard x = sc
+extendScope x e sc = HM.insert (idText x) e sc
 
-data Mode a where
-  Check :: Tm -> Mode Ctx
-  Infer :: Mode (Tm, Ctx)
+data Mode b a where
+  Out :: Mode 'False a
+  In :: a -> Mode 'True a
 
-deriving instance Show (Mode a)
+getInput :: Mode 'True a -> a
+getInput (In x) = x
 
-inferType :: Mode Ctx
-inferType = Check (Type maxBound omegaL)
+deriving instance Functor (Mode b)
+
+deriving instance Foldable (Mode b)
+
+deriving instance Traversable (Mode b)
+
+deriving instance (Show a) => Show (Mode b a)
+
+type Pass b = (Tm, (Mode b Tm, Ctx))
+
+type Result b = Pass (Not b)
+
+inferType :: Mode 'True Tm
+inferType = In (Type maxBound omegaL)
 
 data Judgment a where
   Sub :: Tm -> Qty -> Tm -> Judgment (Qty, Ctx)
   Super :: Qty -> Tm -> Tm -> Judgment (Qty, Ctx)
   Usage :: Qty -> Tm -> Judgment (Qty, Ctx)
   Conv :: Ar -> Ar -> Judgment Ctx
-  Elab :: Scope -> Exp -> [Subject Arg] -> Mode a -> Judgment (Tm, a)
-  Apply :: Tm -> Tm -> [Subject Arg] -> Mode a -> Judgment (Tm, a)
-  Generalise :: ArgFlavour -> Int -> Tm -> Tm -> Judgment (Tm, (Tm, Ctx))
+  Elab :: Scope -> Exp -> [Subject Arg] -> Mode b Tm -> Judgment (Result b)
+  Apply :: Tm -> Tm -> [Subject Arg] -> Mode b Tm -> Judgment (Result b)
+  Generalise :: Decor -> Int -> Tm -> Mode b Tm -> Judgment (Pass b)
 
 deriving instance Show (Judgment a)
 
@@ -490,8 +509,8 @@ ctx |- Sub t r (Forall Hash x a b) = do
   (r1, ctx1) <- ctx |- Usage 1 a
   let r2 = piQty r1 r
   let i = length ctx1
-  let v = Var Stable (Here i) a
-  let ctx2 = ctx1 :|> mkLocal Stable x Of a
+  let v = Var Plain (Here i) a
+  let ctx2 = ctx1 :|> mkLocal Plain x Of a
   ctx2 |- Sub t r2 (enter v b) >>= clear i <&> first (piQty r1)
 ctx |- Sub (Forall Hash x a b) r t = do
   (r1, ctx1) <- ctx |- Usage 1 a
@@ -523,8 +542,8 @@ ctx |- Elab sc (VarE x) as u
   | Just e@(Con _ t Empty) <- sc HM.!? idText x = do
       pushQty ctx |- Apply e t as u
 ctx |- Elab sc (AnnE e a) as u = do
-  (t, ctx1) <- ctx |- Elab sc a [] inferType
-  (e', ctx2) <- pushQty ctx1 |- Elab sc e [] (Check t)
+  (t, (_, ctx1)) <- ctx |- Elab sc a [] inferType
+  (e', (_, ctx2)) <- pushQty ctx1 |- Elab sc e [] (In t)
   ctx2 |- Apply e' t as u
 ctx |- Elab sc (ForallE (MkP ps (HasAnn a)) e) as t = do
   let ps' = SYB.gmapT (SYB.mkT (`AnnP` a)) <$> ps
@@ -532,127 +551,110 @@ ctx |- Elab sc (ForallE (MkP ps (HasAnn a)) e) as t = do
 ctx |- Elab sc (ForallE (MkP [] NoAnn) e) as t = ctx |- Elab sc e as t
 ctx |- Elab sc (ForallE (MkP (p : ps) NoAnn) e) as u
   | BareP (VarP x) <- p = do
-      let (i, t, ctx1) = newTypeMeta ctx
+      let (i, (t, ctx1)) = newTypeMeta ctx
       todo ctx1 "Elab" >>= \k -> k sc ps e as u x i t
 ctx |- Elab sc (FunE [] e) as t = ctx |- Elab sc e as t
-ctx |- Elab sc (FunE (p : ps) e) [] (Check (Forall At _ t u))
-  | BareP (AnnP (VarP x) e') <- p = do
-      (t', ctx1) <- ctx |- Elab sc e' [] inferType
-      ctx2 <- ctx1 |- Super 1 t' t <&> snd
-      checkVarP ctx2 (Sj sc (x, ps, e)) t' u
-  | BareP (VarP x) <- p = checkVarP ctx (Sj sc (x, ps, e)) t u
-ctx |- Elab sc (FunE (p : ps) e) [] (Check (Forall Bare _ t u))
-  | AtP (AnnP (VarP x) e') <- p = do
-      (t', ctx1) <- ctx |- Elab sc e' [] inferType
-      ctx2 <- ctx1 |- Super 1 t' t <&> snd
-      checkVarP ctx2 (Sj sc (x, ps, e)) t' u
-  | AtP (VarP x) <- p = checkVarP ctx (Sj sc (x, ps, e)) t u
-ctx |- Elab sc (FunE (p : ps) e) [] Infer
-  | BareP (AnnP (VarP x) a) <- p = do
-      let i = length ctx
-      (t, ctx1) <- ctx |- Elab sc a [] inferType
-      (e', (u, ctx2)) <- inferVarP ctx1 (Sj sc (x, ps, e)) t
-      ctx2 |- Generalise At i e' u
-  | BareP (VarP x) <- p = do
-      let (i, t, ctx1) = newTypeMeta ctx
-      (e', (u, ctx2)) <- inferVarP ctx1 (Sj sc (x, ps, e)) t
-      ctx2 |- Generalise At i e' u
-  | AtP (AnnP (VarP x) a) <- p = do
-      let i = length ctx
-      (t, ctx1) <- ctx |- Elab sc a [] inferType
-      (e', (u, ctx2)) <- inferVarP ctx1 (Sj sc (x, ps, e)) t
-      ctx2 |- Generalise Bare i e' u
-  | AtP (VarP x) <- p = do
-      let (i, t, ctx1) = newTypeMeta ctx
-      (e', (u, ctx2)) <- inferVarP ctx1 (Sj sc (x, ps, e)) t
-      ctx2 |- Generalise Bare i e' u
+ctx |- Elab sc (FunE (BareP p : ps) e) [] u
+  | Just cmd <- elabFunE ctx sc Bare p ps e u = cmd
+ctx |- Elab sc (FunE (AtP p : ps) e) [] u
+  | Just cmd <- elabFunE ctx sc At p ps e u = cmd
 ctx |- Elab sc (CallE e as') as t = do
   ctx |- Elab sc e (map (Sj sc) as' ++ as) t
-ctx |- Elab sc e [] (Check (Box r t)) =
-  pushQty ctx |- Elab sc e [] (Check t) <&> second (popQty r)
-ctx |- Elab sc e [] (Check (Forall Bare x t u)) = do
+ctx |- Elab sc e [] (In (Box r t)) =
+  pushQty ctx |- Elab sc e [] (In t) <&> second (second (popQty r))
+ctx |- Elab sc e [] (In (Forall Bare x t u)) = do
   let i = length ctx
   let ctx' = ctx :|> mkPlain x Of t
-  ctx' |- Elab sc e [] (Check (enter (var i t) u))
-ctx |- Elab sc e [] (Check (Forall Hash x t u)) = do
+  ctx' |- Elab sc e [] (In (enter (var i t) u))
+ctx |- Elab sc e [] (In (Forall Hash x t u)) = do
   let i = length ctx
   let ctx' = ctx :|> mkPlain x Of t
-  ctx' |- Elab sc e [] (Check (enter (var i t) u))
+  ctx' |- Elab sc e [] (In (enter (var i t) u))
 ctx |- j@Elab {} = typeError ctx j
-ctx |- Apply e t [] (Check u) = ctx |- Sub t 1 u <&> (e,) . uncurry popQty
-ctx |- Apply e t [] Infer = ctx |- Usage 1 t <&> (e,) . (t,) . uncurry popQty
+ctx |- Apply e t [] (In u) =
+  ctx |- Sub t 1 u <&> (e,) . (Out,) . uncurry popQty
+ctx |- Apply e t [] Out =
+  ctx |- Usage 1 t <&> (e,) . (In t,) . uncurry popQty
 ctx |- j@Apply {} = typeError ctx j
 ctx |- Generalise _ i e u | i == length ctx = pure (e, (u, ctx))
 ctx :|> Local [r] Plain x Of t |- Generalise h i e u | i <= length ctx = do
   ctx' <- ctx |- Usage r t <&> snd
   let e' = Fun h x t (OpenTm mempty (length ctx') e)
-  let u' = Forall h x t (OpenTm mempty (length ctx') u)
+  let u' = Forall h x t . OpenTm mempty (length ctx') <$> u
   ctx' |- Generalise h i e' u'
 ctx :|> Local [r] Meta x Of t |- Generalise h i e u | i <= length ctx = do
   ctx' <- ctx |- Usage r t <&> snd
-  let u' = Forall Hash x t (OpenTm mempty (length ctx') u)
+  let u' = Forall Hash x t . OpenTm mempty (length ctx') <$> u
   ctx' |- Generalise h i e u'
 pfx :|> Local [r] Meta x (Is sfx t) k |- Generalise h i e u
   | i <= length pfx = do
       let j = length pfx
       (action, sfx') <- flatten j sfx
       let ctx = pfx <> sfx' :|> Local [r] Meta x Of k
-      let u' = act (action <> (j |-> t)) u
+      let u' = act (action <> (j |-> t)) <$> u
       ctx |- Generalise h i e u'
 ctx |- j@Generalise {} = typeError ctx j
 
-newTypeMeta :: Ctx -> (Int, Tm, Ctx)
+elabFunE ::
+  (MonadError TcErr m) =>
+  Ctx ->
+  Scope ->
+  Decor ->
+  Pat ->
+  [Param] ->
+  Exp ->
+  Mode a Tm ->
+  Maybe (m (Result a))
+elabFunE ctx sc h (AnnP (VarP x) a) ps e (In (Forall h' _ t u))
+  | h' == flipDecor h = Just $ do
+      let i = length ctx
+      (a', (_, ctx1)) <- ctx |- Elab sc a [] inferType
+      ctx2 <- ctx1 |- Super 1 a' t <&> snd
+      elabVarP ctx2 sc h' x ps i e t (In u)
+elabFunE ctx sc h (AnnP (VarP x) a) ps e Out
+  | h' <- flipDecor h = Just $ do
+      let i = length ctx
+      (t, (_, ctx')) <- ctx |- Elab sc a [] inferType
+      elabVarP ctx' sc h' x ps i e t Out
+elabFunE ctx sc h (VarP x) ps e (In (Forall h' _ t u))
+  | h' == flipDecor h = Just $ do
+      let i = length ctx
+      elabVarP ctx sc h' x ps i e t (In u)
+elabFunE ctx sc h (VarP x) ps e Out
+  | h' <- flipDecor h = Just $ do
+      let (i, (t, ctx')) = newTypeMeta ctx
+      elabVarP ctx' sc h' x ps i e t Out
+elabFunE _ _ _ _ _ _ _ = Nothing
+
+newTypeMeta :: Ctx -> (Int, (Tm, Ctx))
 newTypeMeta ctx = do
   let i = length ctx
   let hk = Type maxBound (Small (Var Meta (Here i) Level))
   let k = Var Meta (Here (i + 1)) hk
   let t = Var Meta (Here (i + 2)) k
-  (i, t, ctx :|> mkMeta Level :|> mkMeta hk :|> mkMeta k)
+  (i, (t, ctx :|> mkMeta Level :|> mkMeta hk :|> mkMeta k))
 
-checkVarP ::
+elabVarP ::
   (MonadError TcErr m) =>
   Ctx ->
-  Subject (Id, [Param], Exp) ->
+  Scope ->
+  Decor ->
+  Id ->
+  [Param] ->
+  Int ->
+  Exp ->
   Tm ->
-  OpenTm ->
-  m (Tm, Ctx)
-checkVarP ctx (Sj sc (x, ps, e)) t u | isWildcard x = do
-  let i = length ctx
-      v = var i t
-      u' = enter v u
-      ctx1 = ctx :|> mkPlain (Just (idName x)) Of t
-  (e', ctx2) <- ctx1 |- Elab sc (FunE ps e) [] (Check u')
-  abstract i e' ctx2
-checkVarP ctx (Sj sc (x, ps, e)) t u = do
-  let i = length ctx
-      v = var i t
-      u' = enter v u
+  Mode b OpenTm ->
+  m (Result b)
+elabVarP ctx sc h x ps i e t u = do
+  let v = var i t
       ctx1 = ctx :|> mkPlain (Just (idName x)) Of t
       sc' = extendScope x v sc
-  (e', ctx2) <- ctx1 |- Elab sc' (FunE ps e) [] (Check u')
-  abstract i e' ctx2
-
-inferVarP ::
-  (MonadError TcErr m) =>
-  Ctx ->
-  Subject (Id, [Param], Exp) ->
-  Tm ->
-  m (Tm, (Tm, Ctx))
-inferVarP ctx (Sj sc (x, ps, e)) t | isWildcard x = do
-  let ctx' = ctx :|> mkPlain (Just (idName x)) Of t
-  ctx' |- Elab sc (FunE ps e) [] Infer
-inferVarP ctx (Sj sc (x, ps, e)) t = do
-  let i = length ctx
-      v = var i t
-      ctx' = ctx :|> mkPlain (Just (idName x)) Of t
-      sc' = extendScope x v sc
-  ctx' |- Elab sc' (FunE ps e) [] Infer
+  (e', (u', ctx2)) <- ctx1 |- Elab sc' (FunE ps e) [] (enter v <$> u)
+  ctx2 |- Generalise h i e' u'
 
 var :: Int -> Tm -> Tm
 var i = Var Plain (Here i)
-
-isWildcard :: Id -> Bool
-isWildcard (idText -> x) = T.length x == 0 || T.head x == '_'
 
 infixr 9 !
 
@@ -690,10 +692,7 @@ use (Here i) ctx = case S.splitAt i ctx of
   (_, _) -> anomaly "Variable not found"
 
 clear :: (MonadError TcErr m) => Int -> (Qty, Ctx) -> m (Qty, Ctx)
-clear i (q, ctx) = ctx |- Generalise Hash i Zero Nat <&> (q,) . snd . snd
-
-abstract :: (MonadError TcErr m) => Int -> Tm -> Ctx -> m (Tm, Ctx)
-abstract i e ctx = ctx |- Generalise Hash i e undefined <&> second snd
+clear i (q, ctx) = ctx |- Generalise Hash i Zero Out <&> (q,) . snd . snd
 
 flatten :: (MonadError TcErr m) => Int -> Ctx -> m (Action, Ctx)
 flatten _ Empty = pure (mempty, Empty)

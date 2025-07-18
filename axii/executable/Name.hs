@@ -91,3 +91,6 @@ withId (Just x) action = do
 
 printId :: Id -> T.Text
 printId (Id ((l, c), x)) = x <> T.pack (':' : show l ++ ':' : show c)
+
+isWildcard :: Id -> Bool
+isWildcard (Id (_, x)) = T.length x == 0 || T.head x == '_'
