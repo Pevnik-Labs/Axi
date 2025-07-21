@@ -104,9 +104,11 @@ MkP. Patterns ::= [Param] AnnOpt ;
 
 terminator Param "" ;
 
-BareP. Param ::= Pat11 ;
-AtP. Param ::= "@" Pat11 ;
-HashP. Param ::= "#" Pat11 ;
+ArgP. Param ::= Decor Pat11 ;
+
+Bare. Decor ::= ;
+At. Decor ::= "@" ;
+Hash. Decor ::= "#" ;
 
 separator nonempty Pat2 "," ;
 
@@ -151,7 +153,7 @@ ApplyE. Exp ::= "apply" Exp ;
 ProofDecInE. Exp ::= ProofDec "in" Exp ;
 WitnessSuchThatE. Exp1 ::= "witness" [Exp] "such-that" Exp1 ;
 AnnE. Exp1 ::= Exp2 ":" Exp1 ;
-FunE. Exp1 ::= "\\" [Param] "->" Exp1 ;
+LamE. Exp1 ::= "\\" [Param] "->" Exp1 ;
 ProvingByE. Exp1 ::= "proving" ExpOpt "by" "{" [ProofStep] "}" ;
 SufficesByE. Exp1 ::= "suffices" Exp "by" "{" [ProofStep] "}" ;
 ExistsE. Exp1 ::= "exists" Patterns "," Exp1 ;
@@ -191,5 +193,10 @@ MkPC. PipeClause ::= "|" [Pat2] "=>" "{" [ProofStep] "}" ;
 
 separator nonempty Arg "" ;
 
-BareA. Arg ::= Exp12 ;
-AtA. Arg ::= "@" Exp11 ;
+bareA. Arg ::= Exp12 ;
+atA. Arg ::= "@" Exp11 ;
+internal
+ArgE. Arg ::= Decor Exp11 ;
+
+define bareA e = ArgE Bare e ;
+define atA e = ArgE At e ;

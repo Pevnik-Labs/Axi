@@ -4,6 +4,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE PatternSynonyms #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 -- | The abstract syntax of language Syntax.
 
@@ -99,7 +100,10 @@ data DirectionOpt = LeftDO | RightDO | NoDO
 data Patterns = MkP [Param] AnnOpt
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Data, C.Typeable, C.Generic)
 
-data Param = BareP Pat | AtP Pat | HashP Pat
+data Param = ArgP Decor Pat
+  deriving (C.Eq, C.Ord, C.Show, C.Read, C.Data, C.Typeable, C.Generic)
+
+data Decor = Bare | At | Hash
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Data, C.Typeable, C.Generic)
 
 data Pat
@@ -140,7 +144,7 @@ data Exp
     | ProofDecInE ProofDec Exp
     | WitnessSuchThatE [Exp] Exp
     | AnnE Exp Exp
-    | FunE [Param] Exp
+    | LamE [Param] Exp
     | ProvingByE ExpOpt [ProofStep]
     | SufficesByE Exp [ProofStep]
     | ExistsE Patterns Exp
@@ -176,8 +180,14 @@ data Clause = MkC [Param] Exp
 data PipeClause = MkPC [Pat] [ProofStep]
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Data, C.Typeable, C.Generic)
 
-data Arg = BareA Exp | AtA Exp
+data Arg = ArgE Decor Exp
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Data, C.Typeable, C.Generic)
+
+bareA :: Exp -> Arg
+bareA = \ e -> ArgE Bare e
+
+atA :: Exp -> Arg
+atA = \ e -> ArgE At e
 
 newtype Number = Number Data.Text.Text
   deriving (C.Eq, C.Ord, C.Show, C.Read, C.Data, C.Typeable, C.Generic, Data.String.IsString)

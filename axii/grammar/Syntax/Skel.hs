@@ -127,9 +127,13 @@ transPatterns x = case x of
 
 transParam :: Syntax.Abs.Param -> Result
 transParam x = case x of
-  Syntax.Abs.BareP pat -> failure x
-  Syntax.Abs.AtP pat -> failure x
-  Syntax.Abs.HashP pat -> failure x
+  Syntax.Abs.ArgP decor pat -> failure x
+
+transDecor :: Syntax.Abs.Decor -> Result
+transDecor x = case x of
+  Syntax.Abs.Bare -> failure x
+  Syntax.Abs.At -> failure x
+  Syntax.Abs.Hash -> failure x
 
 transPat :: Syntax.Abs.Pat -> Result
 transPat x = case x of
@@ -176,7 +180,7 @@ transExp x = case x of
   Syntax.Abs.ProofDecInE proofdec exp -> failure x
   Syntax.Abs.WitnessSuchThatE exps exp -> failure x
   Syntax.Abs.AnnE exp1 exp2 -> failure x
-  Syntax.Abs.FunE params exp -> failure x
+  Syntax.Abs.LamE params exp -> failure x
   Syntax.Abs.ProvingByE expopt proofsteps -> failure x
   Syntax.Abs.SufficesByE exp proofsteps -> failure x
   Syntax.Abs.ExistsE patterns exp -> failure x
@@ -215,5 +219,4 @@ transPipeClause x = case x of
 
 transArg :: Syntax.Abs.Arg -> Result
 transArg x = case x of
-  Syntax.Abs.BareA exp -> failure x
-  Syntax.Abs.AtA exp -> failure x
+  Syntax.Abs.ArgE decor exp -> failure x

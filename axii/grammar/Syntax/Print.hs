@@ -264,9 +264,13 @@ instance Print [Syntax.Abs.Param] where
 
 instance Print Syntax.Abs.Param where
   prt i = \case
-    Syntax.Abs.BareP pat -> prPrec i 0 (concatD [prt 11 pat])
-    Syntax.Abs.AtP pat -> prPrec i 0 (concatD [doc (showString "@"), prt 11 pat])
-    Syntax.Abs.HashP pat -> prPrec i 0 (concatD [doc (showString "#"), prt 11 pat])
+    Syntax.Abs.ArgP decor pat -> prPrec i 0 (concatD [prt 0 decor, prt 11 pat])
+
+instance Print Syntax.Abs.Decor where
+  prt i = \case
+    Syntax.Abs.Bare -> prPrec i 0 (concatD [])
+    Syntax.Abs.At -> prPrec i 0 (concatD [doc (showString "@")])
+    Syntax.Abs.Hash -> prPrec i 0 (concatD [doc (showString "#")])
 
 instance Print [Syntax.Abs.Pat] where
   prt _ [] = concatD []
@@ -330,7 +334,7 @@ instance Print Syntax.Abs.Exp where
     Syntax.Abs.ProofDecInE proofdec exp -> prPrec i 0 (concatD [prt 0 proofdec, doc (showString "in"), prt 0 exp])
     Syntax.Abs.WitnessSuchThatE exps exp -> prPrec i 1 (concatD [doc (showString "witness"), prt 0 exps, doc (showString "such-that"), prt 1 exp])
     Syntax.Abs.AnnE exp1 exp2 -> prPrec i 1 (concatD [prt 2 exp1, doc (showString ":"), prt 1 exp2])
-    Syntax.Abs.FunE params exp -> prPrec i 1 (concatD [doc (showString "\\"), prt 0 params, doc (showString "->"), prt 1 exp])
+    Syntax.Abs.LamE params exp -> prPrec i 1 (concatD [doc (showString "\\"), prt 0 params, doc (showString "->"), prt 1 exp])
     Syntax.Abs.ProvingByE expopt proofsteps -> prPrec i 1 (concatD [doc (showString "proving"), prt 0 expopt, doc (showString "by"), doc (showString "{"), prt 0 proofsteps, doc (showString "}")])
     Syntax.Abs.SufficesByE exp proofsteps -> prPrec i 1 (concatD [doc (showString "suffices"), prt 0 exp, doc (showString "by"), doc (showString "{"), prt 0 proofsteps, doc (showString "}")])
     Syntax.Abs.ExistsE patterns exp -> prPrec i 1 (concatD [doc (showString "exists"), prt 0 patterns, doc (showString ","), prt 1 exp])
@@ -383,5 +387,4 @@ instance Print [Syntax.Abs.Arg] where
 
 instance Print Syntax.Abs.Arg where
   prt i = \case
-    Syntax.Abs.BareA exp -> prPrec i 0 (concatD [prt 12 exp])
-    Syntax.Abs.AtA exp -> prPrec i 0 (concatD [doc (showString "@"), prt 11 exp])
+    Syntax.Abs.ArgE decor exp -> prPrec i 0 (concatD [prt 0 decor, prt 11 exp])

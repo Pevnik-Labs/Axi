@@ -15,7 +15,7 @@ import Data.HashMap.Strict qualified as HM
 import Data.Maybe (fromMaybe)
 import Data.Sequence (Seq (..))
 import Data.Sequence qualified as S
-import Data.String qualified
+import Data.String (IsString (..))
 import Data.Text qualified as T
 import Numeric.Natural (Natural)
 import Syntax.Abs (BNFC'Position, Id (..))
@@ -30,7 +30,7 @@ data Name = MkName
   }
   deriving (Eq, Ord, Show, SYB.Data)
 
-instance Data.String.IsString Name where
+instance IsString Name where
   fromString str = textName (T.pack str)
 
 textName :: T.Text -> Name
@@ -43,10 +43,10 @@ textName txt = MkName {nameBinder = Nothing, nameBase, nameSub}
 -- Lack of a trailing positive integer is interpreted as a number zero.
 textSubscript :: T.Text -> (T.Text, Natural)
 textSubscript t =
-  (prefix <> zeroes, suffix & T.unpack & readMaybe & fromMaybe 0 & succ)
+  (prefix <> zeroes, suffix & T.unpack & readMaybe & fromMaybe 0)
   where
     (prefix, digits) = runIdentity $ T.spanEndM (pure . isDigit) t
-    (zeroes, suffix) = runIdentity $ T.spanM (pure . (== '0')) digits
+    (zeroes, suffix) = T.span (== '0') digits
 
 idText :: Id -> T.Text
 idText (Id (_, x)) = x

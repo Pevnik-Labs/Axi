@@ -137,9 +137,10 @@ All other symbols are terminals.
   | //Patterns// | -> | //[Param]// //AnnOpt//
   | //[Param]// | -> | **eps**
   |  |  **|**  | //Param// //[Param]//
-  | //Param// | -> | //Pat11//
-  |  |  **|**  | ``@`` //Pat11//
-  |  |  **|**  | ``#`` //Pat11//
+  | //Param// | -> | //Decor// //Pat11//
+  | //Decor// | -> | **eps**
+  |  |  **|**  | ``@``
+  |  |  **|**  | ``#``
   | //[Pat2]// | -> | //Pat2//
   |  |  **|**  | //Pat2// ``,`` //[Pat2]//
   | //Pat// | -> | ``noncomputable`` //Pat1//

@@ -44,8 +44,8 @@ desugarDecs = traverse desugarDec
 desugarDec :: (MonadError TcErr m) => Dec -> m (Id, Exp)
 desugarDec (ConstantD (ValueR pat e)) = case patToHeadParamsAnn pat of
   Nothing -> todo Empty "desugarDec"
-  Just (x, params, Nothing) -> pure (x, FunE params e)
-  Just (x, params, Just t) -> pure (x, FunE params (AnnE e t))
+  Just (x, params, Nothing) -> pure (x, LamE params e)
+  Just (x, params, Just t) -> pure (x, LamE params (AnnE e t))
 desugarDec _ = todo Empty "desugarDec"
 
 patToHeadParamsAnn :: Pat -> Maybe (Id, [Param], Maybe Exp)
@@ -69,7 +69,7 @@ callE e args = CallE e args
 
 appE :: [Exp] -> Maybe Exp
 appE [] = Nothing
-appE (e : es) = Just (callE e (argA Bare <$> es))
+appE (e : es) = Just (callE e (ArgE Bare <$> es))
 
 infixlE :: Exp -> Exp -> [Exp] -> Exp
 infixlE e' e es = fromMaybe e' (appE (intersperse e es))
@@ -78,21 +78,12 @@ tupleE :: [Exp] -> Exp
 tupleE [] = UnitE
 tupleE (e : es) = TupleE e es
 
-argA :: Decor -> Exp -> Arg
-argA Bare e = BareA e
-argA _ e = AtA e
-
-argP :: Decor -> Pat -> Param
-argP Bare p = BareP p
-argP At p = AtP p
-argP Hash p = HashP p
-
 readbackVar :: (MonadReader Rb m) => Index -> m Exp
 readbackVar (Here i) = asks (VarE . flip S.index i . rbIds)
 readbackVar _ = pure (VarE "??")
 
 readbackExp :: (MonadReader Rb m) => Tm -> m Exp
-readbackExp (Var _ ix k) = AnnE <$> readbackVar ix <*> readbackExp k
+readbackExp (Var _ ix _) = readbackVar ix
 readbackExp (Bot k) = AnnE (VarE "Bot") <$> readbackExp k
 readbackExp (Top k) = AnnE (VarE "Top") <$> readbackExp k
 readbackExp Level = pure (VarE "Level")
@@ -108,12 +99,12 @@ readbackExp Zero = pure (numberE 0)
 readbackExp (Succ n t) = readbackPlus t (succ n)
 readbackExp (Type r (Small l)) = do
   t' <- readbackExp l
-  pure $ callE (readbackSort r) [argA At t']
+  pure $ callE (readbackSort r) [ArgE At t']
 readbackExp (Type r (Big l)) =
   pure $
     callE
       (readbackSort r)
-      [argA At (infixlE undefined (VarE "+") [VarE "ω", numberE l])]
+      [ArgE At (infixlE undefined (VarE "+") [VarE "ω", numberE l])]
 readbackExp (t :-> u) =
   ArrowE <$> readbackExp t <*> readbackExp u
 readbackExp (Con x k ts) = do
@@ -132,21 +123,26 @@ readbackExp (Sum t u) = do
   pure $
     callE
       (VarE "Either")
-      [ argA At t',
-        argA At u'
+      [ ArgE At t',
+        ArgE At u'
       ]
 readbackExp (Box r t) =
   readbackExp t <&> \t' ->
-    callE (readbackBox r) [BareA t']
-readbackExp (Forall a x k t) = do
+    callE (readbackBox r) [bareA t']
+readbackExp (Fn h x k t) = do
   k' <- readbackExp k
   withId x $ \i x' -> do
-    ForallE (MkP [argP a (AnnP (VarP x') k')] NoAnn)
+    forallE (MkP [ArgP (flipDecor h) (AnnP (VarP x') k')] NoAnn)
       <$> readbackExp (enter (var i k) t)
-readbackExp (Fun a x k t) = do
+readbackExp (Lam a x k t) = do
   k' <- readbackExp k
   withId x $ \i x' -> do
-    FunE [argP a (AnnP (VarP x') k')] <$> readbackExp (enter (var i k) t)
+    LamE [ArgP a (AnnP (VarP x') k')] <$> readbackExp (enter (var i k) t)
+
+forallE :: Patterns -> Exp -> Exp
+forallE (MkP ps NoAnn) (ForallE (MkP ps' NoAnn) e) =
+  ForallE (MkP (ps ++ ps') NoAnn) e
+forallE ps e = ForallE ps e
 
 readbackPlus :: (MonadReader Rb m) => Tm -> Natural -> m Exp
 readbackPlus Zero n = pure (numberE n)
@@ -161,7 +157,7 @@ readbackBox :: Qty -> Exp
 readbackBox r = VarE (fromString ("Box" <> suffixQty r))
 
 readbackArg :: (MonadReader Rb m) => Ar -> m Arg
-readbackArg (MkAr h t) = argA h <$> readbackExp t
+readbackArg (MkAr h t) = ArgE h <$> readbackExp t
 
 type Parser a = [Token] -> Either String a
 
@@ -305,6 +301,6 @@ checkDecs decs = do
 infer :: (MonadState Ctx m, MonadError TcErr m) => Exp -> m Tm
 infer e = do
   ctx <- get
-  (_, (t, ctx')) <- ctx |- Elab mempty e [] Out
+  ((_, t), ctx') <- ctx |- Elab mempty e [] Out
   put ctx'
-  pure (getInput t)
+  pure (unIn t)
