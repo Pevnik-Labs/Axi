@@ -2,33 +2,46 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE PatternSynonyms #-}
+{-# LANGUAGE ViewPatterns #-}
 
-module Name where
+module Name
+  ( Name (IdName),
+    idText,
+    Rb (..),
+    runRb,
+    withId,
+    printId,
+    IsWildcard (..),
+  )
+where
 
 import Control.Monad.Reader.Class (MonadReader (..))
-import Control.Monad.Trans.Reader (ReaderT (..))
 import Data.Char (isDigit)
+import Data.Data (Data)
 import Data.Function ((&))
 import Data.Functor.Identity (Identity (..))
-import Data.Generics qualified as SYB
 import Data.HashMap.Strict qualified as HM
 import Data.Maybe (fromMaybe)
 import Data.Sequence (Seq (..))
-import Data.Sequence qualified as S
 import Data.String (IsString (..))
 import Data.Text qualified as T
 import Numeric.Natural (Natural)
 import Syntax.Abs (BNFC'Position, Id (..))
 import Text.Read (readMaybe)
 
-type OptName = Maybe Name
-
 data Name = MkName
   { nameBinder :: BNFC'Position,
     nameBase :: T.Text,
     nameSub :: Natural
   }
-  deriving (Eq, Ord, Show, SYB.Data)
+  deriving (Eq, Ord, Data)
+
+instance Show Name where
+  showsPrec p n =
+    showParen (p > 10) $
+      showString "IdName "
+        . showsPrec 11 (nameId n)
 
 instance IsString Name where
   fromString str = textName (T.pack str)
@@ -51,9 +64,13 @@ textSubscript t =
 idText :: Id -> T.Text
 idText (Id (_, x)) = x
 
-idName :: Id -> Name
-idName (Id ((0, 0), x)) = textName x
-idName (Id (px, x)) = (textName x) {nameBinder = Just px}
+pattern IdName :: Id -> Name
+pattern IdName x <- (nameId -> x)
+  where
+    IdName (Id ((0, 0), x)) = textName x
+    IdName (Id (px, x)) = (textName x) {nameBinder = Just px}
+
+{-# COMPLETE IdName #-}
 
 nameId :: Name -> Id
 nameId x = Id (fromMaybe (0, 0) (nameBinder x), nameText x)
@@ -70,21 +87,20 @@ data Rb = MkRb
     rbIds :: Seq Id
   }
 
-runRb :: ReaderT Rb m a -> m a
-runRb ma = runReaderT ma MkRb {rbSubs = HM.empty, rbIds = S.empty}
+runRb :: (Rb -> a) -> a
+runRb f = f MkRb {rbSubs = HM.empty, rbIds = Empty}
 
 extendRb :: Rb -> Name -> (Int, Id, Rb)
 extendRb MkRb {rbSubs, rbIds} x =
   (d, x', MkRb {rbSubs = HM.insert t (i + 1) rbSubs, rbIds = rbIds :|> x'})
   where
-    d = S.length rbIds
+    d = length rbIds
     t = nameBase x
     i = HM.findWithDefault 0 t rbSubs
     x' = nameId x {nameSub = i}
 
-withId :: (MonadReader Rb m) => OptName -> (Int -> Id -> m a) -> m a
-withId Nothing action = withId (Just "x") action
-withId (Just x) action = do
+withId :: (MonadReader Rb m) => Name -> (Int -> Id -> m a) -> m a
+withId x action = do
   rbCtx <- ask
   let (d, name, rbCtx') = extendRb rbCtx x
   local (const rbCtx') (action d name)
@@ -92,5 +108,14 @@ withId (Just x) action = do
 printId :: Id -> T.Text
 printId (Id ((l, c), x)) = x <> T.pack (':' : show l ++ ':' : show c)
 
-isWildcard :: Id -> Bool
-isWildcard (Id (_, x)) = T.length x == 0 || T.head x == '_'
+class IsWildcard a where
+  isWildcard :: a -> Bool
+
+instance IsWildcard T.Text where
+  isWildcard x = T.length x == 0 || T.head x == '_'
+
+instance IsWildcard Id where
+  isWildcard (Id (_, x)) = isWildcard x
+
+instance IsWildcard Name where
+  isWildcard (MkName _ x _) = isWildcard x

@@ -1,16 +1,16 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE OverloadedLists #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TupleSections #-}
 
 -- | Author: Mateusz Pyzik
 module Main where
 
 import Control.Monad (forM, forM_, forever, when)
 import Control.Monad.Error.Class (MonadError (catchError))
+import Control.Monad.RWS.CPS (RWST, runRWST)
 import Control.Monad.Reader.Class (MonadReader (..), asks)
-import Control.Monad.State.Class (MonadState (..), put)
-import Control.Monad.State.Strict (StateT, runStateT)
+import Control.Monad.State.Class (MonadState (..))
 import Data.Foldable qualified as F
 import Data.Functor ((<&>))
 import Data.IORef (IORef, newIORef, readIORef, writeIORef)
@@ -35,8 +35,8 @@ import System.Exit (exitFailure)
 import Tc
 import Text.Read (readMaybe)
 
-runTc :: Ctx -> StateT Ctx m a -> m (a, Ctx)
-runTc = flip runStateT
+runTc :: Env -> Ctx -> RWST Env Warnings Ctx m a -> m (a, Ctx, Warnings)
+runTc env ctx m = runRWST m env ctx
 
 desugarDecs :: (MonadError TcErr m) => [Dec] -> m [(Id, Exp)]
 desugarDecs = traverse desugarDec
@@ -107,12 +107,12 @@ readbackExp (Type r (Big l)) =
       [ArgE At (infixlE undefined (VarE "+") [VarE "ω", numberE l])]
 readbackExp (t :-> u) =
   ArrowE <$> readbackExp t <*> readbackExp u
-readbackExp (Con x k ts) = do
+readbackExp (Con (IdName x) k ts) = do
   k' <- readbackExp k
   ts' <- traverse readbackArg ts
   pure $
     callE
-      (AnnE (VarE (nameId x)) k')
+      (AnnE (VarE x) k')
       (F.toList ts')
 readbackExp (Product ts) =
   infixlE (VarE "Unit") (VarE "×") <$> traverse readbackExp (F.toList ts)
@@ -132,12 +132,13 @@ readbackExp (Box r t) =
 readbackExp (Fn h x k t) = do
   k' <- readbackExp k
   withId x $ \i x' -> do
-    forallE (MkP [ArgP (flipDecor h) (AnnP (VarP x') k')] NoAnn)
+    forallE (MkP [ArgP (decorTy h) (AnnP (VarP x') k')] NoAnn)
       <$> readbackExp (enter (var i k) t)
 readbackExp (Lam a x k t) = do
   k' <- readbackExp k
   withId x $ \i x' -> do
-    LamE [ArgP a (AnnP (VarP x') k')] <$> readbackExp (enter (var i k) t)
+    LamE [ArgP (decorTm a) (AnnP (VarP x') k')]
+      <$> readbackExp (enter (var i k) t)
 
 forallE :: Patterns -> Exp -> Exp
 forallE (MkP ps NoAnn) (ForallE (MkP ps' NoAnn) e) =
@@ -166,19 +167,18 @@ run p s = case p ts of
   Left err -> do
     putStrLn "\nParse failed!\n"
     putStrLn "Tokens:"
-    forM_ ts $ \t ->
-      putStrLn (showPosToken (mkPosToken t))
+    mapM_ (putStrLn . showPosToken . mkPosToken) ts
     putStrLn err
     exitFailure
   Right tree -> pure tree
   where
     ts = resolveLayout True (myLexer s)
-    showPosToken ((l, c), t) = concat [show l, ":", show c, " ", show t]
+    showPosToken ((l, c), t) = shows l (':' : shows c (' ' : show t))
 
 main :: IO ()
 main = do
   args <- getArgs
-  env <- newIORef mempty
+  env <- newIORef prelude
   ctx <- newIORef Empty
   loadFile env ctx "Prelude.txt"
   buffer <- newIORef T.empty
@@ -214,41 +214,39 @@ getNextPart bufferRef = readIORef bufferRef >>= go
             fromMaybe newBuffer (T.stripPrefix delimiter newBuffer)
           return chunk
 
-type SemEnv = [()]
-
-evalExp :: Exp -> SemEnv -> (Exp, SemEnv)
+evalExp :: Exp -> Env -> (Exp, Env)
 evalExp = (,)
 
-evalDecs :: [Dec] -> SemEnv -> ([Dec], SemEnv)
+evalDecs :: [Dec] -> Env -> ([Dec], Env)
 evalDecs = (,)
 
-loadFile :: IORef SemEnv -> IORef Ctx -> FilePath -> IO ()
+loadFile :: IORef Env -> IORef Ctx -> FilePath -> IO ()
 loadFile ref ctx m = do
   putStrLn m
   text <- TIO.readFile m
   decs <- run pListDec text
   putStrLn (printTree decs)
-  ok <- checkDecsIO ctx decs
+  ok <- checkDecsIO ref ctx decs
   when ok $ do
     env <- readIORef ref
     let (decs', env') = evalDecs decs env
     putStrLn (printTree decs')
     writeIORef ref env'
 
-evalAndPrint :: IORef SemEnv -> IORef Ctx -> Repl -> IO ()
+evalAndPrint :: IORef Env -> IORef Ctx -> Repl -> IO ()
 evalAndPrint ref ctx entry = do
   env <- readIORef ref
   case entry of
     LetR decs -> do
-      ok <- checkDecsIO ctx decs
+      ok <- checkDecsIO ref ctx decs
       when ok $ do
         let (_, env') = evalDecs decs env
         writeIORef ref env'
     ExpR e -> do
       ctx0 <- readIORef ctx
-      case runTc ctx0 (infer e >>= runRb . readbackExp) of
+      case runTc env ctx0 (infer e) of
         Left err -> printTcErr err
-        Right (sig, ctx1) -> do
+        Right (sig, ctx1, _) -> do
           writeIORef ctx ctx1
           putStrLn (printTree e ++ " : " ++ printTree sig)
           let (e', env') = evalExp e env
@@ -275,32 +273,43 @@ printTcErr err = do
   F.for_ (tcErrJudgment err) $ \(MkAnyJudgment j) -> print j
   F.for_ (tcErrMsg err) TIO.putStrLn
 
-checkDecsIO :: IORef Ctx -> [Dec] -> IO Bool
-checkDecsIO ctx decs = do
+checkDecsIO :: IORef Env -> IORef Ctx -> [Dec] -> IO Bool
+checkDecsIO env ctx decs = do
+  env0 <- readIORef env
   ctx0 <- readIORef ctx
-  case runStateT (checkDecs decs) ctx0 of
+  case runRWST (checkDecs decs) env0 ctx0 of
     Left err -> False <$ printTcErr err
-    Right (sigs, ctx1) -> do
+    Right (sigs, ctx1, ()) -> do
       writeIORef ctx ctx1
       forM_ sigs $ \(x, t) ->
         TIO.putStrLn (idText x <> " : " <> T.pack (printTree t))
       pure True
 
 checkDecs ::
-  (MonadState Ctx m, MonadError TcErr m) =>
+  (MonadError TcErr m, MonadReader Env m, MonadState Ctx m) =>
   [Dec] ->
   m [(Id, Exp)]
-checkDecs decs = do
-  case desugarDecs decs of
-    Left err -> rethrowError "Desugaring failed..." err
-    Right decs' -> forM decs' $ \(x, e) -> do
-      s <- catchError (infer e) $ \err ->
-        rethrowError ("Error at " <> printId x <> ":") err
-      (x,) <$> runRb (readbackExp s)
+checkDecs decs = case desugarDecs decs of
+  Left err -> rethrowError "Desugaring failed..." err
+  Right decs' -> forM decs' $ \(x, e) -> do
+    s <- catchError (infer e) $ \err ->
+      rethrowError ("Error at " <> printId x <> ":") err
+    pure (x, s)
 
-infer :: (MonadState Ctx m, MonadError TcErr m) => Exp -> m Tm
+infer ::
+  (MonadError TcErr m, MonadReader Env m, MonadState Ctx m) =>
+  Exp ->
+  m Exp
 infer e = do
   ctx <- get
-  ((_, t), ctx') <- ctx |- Elab mempty e [] Out
-  put ctx'
-  pure (unIn t)
+  env <- ask
+  ((_, t), ctx') <- ctx |- Elab env e [] Out
+  runRb (readbackExp (unIn t)) <$ put ctx'
+
+oneShot :: (MonadFail m) => T.Text -> m ((Ctx, Id), (Tm, Tm))
+oneShot text = do
+  Right [dec] <- pure (pListDec (resolveLayout True (myLexer text)))
+  Right (x, e) <- pure (desugarDec dec)
+  Right (((e', t), ctx), (), ()) <-
+    pure (runRWST (Empty |- Elab prelude e [] Out) prelude ())
+  pure ((ctx, x), (e', unIn t))
