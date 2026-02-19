@@ -13,9 +13,9 @@ vscode-utils.buildVscodeExtension
     sourceRoot=extension
   '';
 
-  vscodeExtPublisher = "khalani";
+  vscodeExtPublisher = "pevnik-labs";
   vscodeExtName = "axi-syntax-highlighting";
-  vscodeExtUniqueId = "khalani.axi-syntax-highlighting";
+  vscodeExtUniqueId = "pevnik-labs.axi-syntax-highlighting";
 
   meta = with lib;
   {
