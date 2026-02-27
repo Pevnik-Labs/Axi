@@ -30,7 +30,7 @@ import Data.Sequence (Seq (..), (><))
 import Data.Sequence qualified as S
 import Data.Text qualified as T
 import Data.Type.Bool (Not)
-import Name (Name (IdName), idText, isWildcard)
+import Name (Name (IdName), idText, pattern Wildcard)
 import Numeric.Natural (Natural)
 import Qty (Qty (..), infQty, maximal, supQty, (<:), pattern (:#))
 import Syntax.Abs
@@ -228,7 +228,7 @@ Index i (Path is) .: j = Index i (Path (is :|> j))
 
 type Spine = Seq Ar
 
-data Ar = MkAr Decor Tm
+data Ar = MkAr Flavour Tm
   deriving (Show, SYB.Data)
 
 data Tm
@@ -248,6 +248,7 @@ data Tm
   | Box Qty Tm
   | Fn Flavour Name Tm AbsTm
   | Lam Flavour Name Tm AbsTm
+  | App Tm Spine
   deriving (Show, SYB.Data)
 
 viewArrow :: Tm -> Maybe (Tm, Tm)
@@ -256,15 +257,23 @@ viewArrow _ = Nothing
 
 pattern (:->) :: Tm -> Tm -> Tm
 pattern t :-> u <- (viewArrow -> Just (t, u))
+  where t :-> u = Fn Plain Wildcard t (MkAbs' maxBound u)
 
 boxT :: (MonadError TcErr m) => Qty -> Tm -> m Tm
 boxT 1 e = pure e
 boxT r (Box s e) = boxT (r * s) e
-boxT r e =
+boxT r e = do
   typeOf e >>= \case
-    Type 0 _ -> pure e
-    Type s _ -> pure (Box (r / s) e)
-    _ -> pure (Box r e)
+    Type s _ -> case s <: r of
+      Nothing -> pure e
+      Just Li -> pure e
+      Just q -> pure (Box q e)
+    _ -> anomaly "Ill-formed box type"
+
+appT :: Tm -> Ar -> Tm
+appT (Con c k ts) a = Con c k (ts :|> a)
+appT (App e as) a = App e (as :|> a)
+appT e a = App e [a]
 
 newtype Action = Subst (IM.IntMap Tm)
   deriving (Show, SYB.Data)
@@ -292,7 +301,7 @@ lookupScope :: Id -> Scope -> Maybe Tm
 lookupScope x = HM.lookup (idText x)
 
 extendScope :: Id -> Tm -> Scope -> Scope
-extendScope x _ sc | isWildcard x = sc
+extendScope Wildcard _ sc = sc
 extendScope x e sc = HM.insert (idText x) e sc
 
 data Mode b a where
@@ -366,6 +375,7 @@ typeOf (Box r t) =
     _ -> anomaly "Ill-formed box type"
 typeOf (Fn _ _ t (MkAbs' d u)) = piSort t d =<< typeOf u
 typeOf (Lam h x t (MkAbs s d e)) = Fn h x t . MkAbs s d <$> typeOf e
+typeOf (App t ts) = typeOf t >>= (`codomain` ts)
 
 leastSort :: Tm
 leastSort = Type Un zeroL
@@ -388,9 +398,11 @@ killDependency d k
   | otherwise = supT leastBigSort k -- mix in big sort to kill dependency
 
 codomain :: (MonadError TcErr m) => Tm -> Spine -> m Tm
-codomain (_ :-> k) (_ :<| ts) = codomain k ts
-codomain k Empty = pure k
-codomain _ _ = anomaly "Ill-formed type constructor application"
+codomain = foldM codT
+
+codT :: (MonadError TcErr m) => Tm -> Ar -> m Tm
+codT (Fn h _ _ t) (MkAr h' e) | h == h' = pure (enter e t)
+codT _ _ = anomaly "Ill-formed type constructor application"
 
 supT :: (MonadError TcErr m) => Tm -> Tm -> m Tm
 supT (Type r1 l1) (Type r2 l2) = Type (supQty r1 r2) <$> maxL l1 l2
@@ -563,8 +575,7 @@ ctx |- Elab sc (AnnE e a) as u = do
   ((t, _), ctx1) <- elabType ctx sc a []
   ((e', _), ctx2) <- pushQty ctx1 |- Elab sc e [] (In t)
   ctx2 |- Apply e' t as u
-ctx |- Elab sc (ArrowE e1 e2) [] u
-  | Just cmd <- elabArrowE ctx sc e1 e2 u = cmd
+ctx |- Elab sc (ArrowE e1 e2) [] u = elabArrowE ctx sc e1 e2 u
 ctx |- Elab sc (ForallE (MkP ps (HasAnn a)) e) as t = do
   let ps' = SYB.gmapT (SYB.mkT (`AnnP` a)) <$> ps
   ctx |- Elab sc (ForallE (MkP ps' NoAnn) e) as t
@@ -589,6 +600,18 @@ ctx |- Elab sc e [] (In (Fn Meta x t u)) = do
 ctx |- j@Elab {} = typeError ctx j
 ctx |- Apply e t [] (flipMode t -> (t', u)) =
   ctx |- Sub t 1 t' <&> ((e, u),) . uncurry popQty
+ctx |- Apply e (Box _ t) (Sj sc (ArgE d a) : as) u =
+  ctx |- Apply e t (Sj sc (ArgE d a) : as) u
+ctx |- Apply e (Fn h x t1 t2) as@(Sj _ (ArgE Bare _) : _) u
+  | h /= Plain = do
+      let i = length ctx
+      let v = Var Meta (Here i) t1
+      let ctx' = ctx :|> mkMeta x t1
+      ctx' |- Apply (appT e (MkAr h v)) (enter v t2) as u
+ctx |- Apply e (Fn h _ t1 t2) (Sj sc (ArgE d a) : as) u
+  | h == flavourTm d = do
+      ((v, _), ctx1) <- ctx |- Elab sc a [] (In t1)
+      ctx1 |- Apply (appT e (MkAr h v)) (enter v t2) as u
 ctx |- j@Apply {} = typeError ctx j
 ctx |- Gen _ i e t u | i == length ctx = pure ((e, (t, u)), ctx)
 ctx :|> Local [r] Meta x Of tx |- Gen h i e t u
@@ -637,10 +660,10 @@ elabArrowE ::
   Exp ->
   Exp ->
   Mode b Tm ->
-  Maybe (m ((Tm, Mode (Not b) Tm), Ctx))
-elabArrowE ctx sc e e' u = Just $ do
-  ((t, _), ctx') <- elabType ctx sc e []
-  elabForallEAnnP ctx' sc Plain "_" t [] e' u
+  m ((Tm, Mode (Not b) Tm), Ctx)
+elabArrowE ctx sc e e' u = do
+  ((a, _), ctx') <- elabType ctx sc e []
+  elabForallEAnnP ctx' sc Plain Wildcard a [] e' u
 
 elabForallE ::
   (MonadError TcErr m) =>
@@ -677,9 +700,10 @@ elabForallEAnnP ctx sc h x a ps e u = do
   let ctx1 = ctx :|> mkPlain (IdName x) Of a
   let sc' = extendScope x v sc
   let e' = ForallE (MkP ps NoAnn) e
-  ((t, u2), ctx2) <- ctx1 |- Elab sc' e' [] Out
-  ((_, (t', u')), ctx3) <- ctx2 |- Gen h i Out (In t) u2
-  ctx3 |- Apply (unIn t') (unIn u') [] u
+  ((t, k1), ctx2) <- ctx1 |- Elab sc' e' [] Out
+  ((_, (t', unIn -> k2)), ctx3) <- ctx2 |- Gen h i Out (In t) k1
+  let (s, u') = flipMode k2 u
+  ctx3 |- Super 1 s k2 <&> ((unIn t', u'),) . snd
 
 flipDecor :: Decor -> Decor
 flipDecor At = Bare

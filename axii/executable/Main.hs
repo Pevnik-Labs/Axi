@@ -24,7 +24,7 @@ import Data.Text qualified as T
 import Data.Text.IO qualified as TIO
 import Name
 import Numeric.Natural (Natural)
-import Qty (Qty, suffixQty)
+import Qty
 import Syntax.Abs
 import Syntax.Layout (resolveLayout)
 import Syntax.Lex (Token, mkPosToken)
@@ -123,8 +123,8 @@ readbackExp (Sum t u) = do
   pure $
     callE
       (VarE "Either")
-      [ ArgE At t',
-        ArgE At u'
+      [ ArgE Bare t',
+        ArgE Bare u'
       ]
 readbackExp (Box r t) =
   readbackExp t <&> \t' ->
@@ -139,6 +139,8 @@ readbackExp (Lam a x k t) = do
   withId x $ \i x' -> do
     LamE [ArgP (decorTm a) (AnnP (VarP x') k')]
       <$> readbackExp (enter (var i k) t)
+readbackExp (App e as) =
+  callE <$> readbackExp e <*> traverse readbackArg (F.toList as)
 
 forallE :: Patterns -> Exp -> Exp
 forallE (MkP ps NoAnn) (ForallE (MkP ps' NoAnn) e) =
@@ -158,7 +160,7 @@ readbackBox :: Qty -> Exp
 readbackBox r = VarE (fromString ("Box" <> suffixQty r))
 
 readbackArg :: (MonadReader Rb m) => Ar -> m Arg
-readbackArg (MkAr h t) = ArgE h <$> readbackExp t
+readbackArg (MkAr h t) = ArgE (decorTm h) <$> readbackExp t
 
 type Parser a = [Token] -> Either String a
 
@@ -310,6 +312,5 @@ oneShot :: (MonadFail m) => T.Text -> m ((Ctx, Id), (Tm, Tm))
 oneShot text = do
   Right [dec] <- pure (pListDec (resolveLayout True (myLexer text)))
   Right (x, e) <- pure (desugarDec dec)
-  Right (((e', t), ctx), (), ()) <-
-    pure (runRWST (Empty |- Elab prelude e [] Out) prelude ())
+  Right ((e', t), ctx) <- pure (Empty |- Elab prelude e [] Out)
   pure ((ctx, x), (e', unIn t))

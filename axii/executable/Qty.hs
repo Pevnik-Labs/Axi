@@ -93,12 +93,12 @@ Af <~ Li = True
 Af <~ Er = True
 r <~ s = r == s
 
--- | The greatest @q@ such that @r * q <~ s@ - right residual of @s@ by @r@.
+-- | The greatest @q@ such that @l * q <~ r@ - right residual of @r@ by @l@.
 (<:) :: Qty -> Qty -> Maybe Qty
 _ <: Er = Just Er
 Er <: _ = Nothing
-r <: Un = complQty r
-r <: s = Just (if r <~ s then Li else s)
+l <: Un = complQty l
+l <: r = Just (if l <~ r then Li else r)
 
 -- | Is the quantity '(<~)' maximal?
 maximal :: Qty -> Bool
@@ -129,7 +129,7 @@ supQtyMay r s = if r <~ s || s <~ r then Just (max r s) else Nothing
 supQty :: Qty -> Qty -> Qty
 supQty r s = fromMaybe Er (supQtyMay r s)
 
--- | Complement: @(r *) <$> complQty r = Just Un@.
+-- | Complement: @(r *) <$> complQty r = Just Un@ if defined.
 complQty :: Qty -> Maybe Qty
 complQty Er = Nothing
 complQty Li = Just Un

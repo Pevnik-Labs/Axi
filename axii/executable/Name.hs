@@ -12,7 +12,8 @@ module Name
     runRb,
     withId,
     printId,
-    IsWildcard (..),
+    Identifier (..),
+    pattern Wildcard,
   )
 where
 
@@ -108,14 +109,19 @@ withId x action = do
 printId :: Id -> T.Text
 printId (Id ((l, c), x)) = x <> T.pack (':' : show l ++ ':' : show c)
 
-class IsWildcard a where
+class (IsString a) => Identifier a where
   isWildcard :: a -> Bool
 
-instance IsWildcard T.Text where
+instance Identifier T.Text where
   isWildcard x = T.length x == 0 || T.head x == '_'
 
-instance IsWildcard Id where
+instance Identifier Id where
   isWildcard (Id (_, x)) = isWildcard x
 
-instance IsWildcard Name where
+instance Identifier Name where
   isWildcard (MkName _ x _) = isWildcard x
+
+pattern Wildcard :: (Identifier a) => a
+pattern Wildcard <- (isWildcard -> True)
+  where
+    Wildcard = "_"
