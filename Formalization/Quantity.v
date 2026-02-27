@@ -1,9 +1,9 @@
 (** * Quantity *)
 
-Require Export
+From Stdlib Require Export
   Bool
-  Coq.Classes.RelationClasses
-  Coq.Classes.DecidableClass.
+  Classes.RelationClasses
+  Classes.DecidableClass.
 
 Inductive Quantity : Type :=
 | Zero
