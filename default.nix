@@ -66,35 +66,6 @@ let
     '';
   };
 
-  slides = pkgs.stdenv.mkDerivation
-  {
-    name = "Axi";
-
-    src = pkgs.lib.cleanSource ./Slides;
-
-    buildInputs =
-    [
-      (pkgs.texlive.combine
-      {
-        inherit (pkgs.texlive) scheme-basic latexmk beamer;
-      })
-    ];
-
-    buildPhase =
-    ''
-      patchShebangs ./build.sh
-      ./build.sh
-    '';
-
-    installPhase =
-    ''
-      INSTALLPATH=$out/share/slides/
-
-      mkdir -p $INSTALLPATH
-      cp *.pdf $INSTALLPATH/
-    '';
-  };
-
   all = pkgs.symlinkJoin
   {
     name = "Axi";
@@ -104,13 +75,12 @@ let
       prototype
       formalization
       theory
-      slides
     ];
   };
 
 in
 {
-  inherit prototype formalization theory slides all;
+  inherit prototype formalization theory all;
 
   default = all;
 }

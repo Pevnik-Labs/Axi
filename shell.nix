@@ -29,7 +29,7 @@ let
     echo -e "''${GREEN}coqide''${RESET}       — Start CoqIDE"
   '';
 
-  texHook = name: mkShellHook name
+  theoryHook = mkShellHook "Theory"
   ''
     echo -e "''${GREEN}./build.sh''${RESET}   — Build PDF"
     echo -e "''${GREEN}latexmk''${RESET}      — Build PDF manually"
@@ -47,13 +47,11 @@ let
   allHook = mkShellHook "all"
   ''
     echo -e "''${GREEN}nix build .#formalization''${RESET}  — Build Coq formalization"
-    echo -e "''${GREEN}nix build .#slides''${RESET}         — Build slides PDF"
     echo -e "''${GREEN}nix build .#theory''${RESET}         — Build theory PDF"
     echo -e "''${GREEN}nix build .#prototype''${RESET}      — Build Haskell prototype"
     echo -e "''${GREEN}nix build''${RESET}                  — Build everything"
     echo ""
     echo -e "''${GREEN}nix develop .#formalization''${RESET}  — Coq shell"
-    echo -e "''${GREEN}nix develop .#slides''${RESET}         — Slides TeX shell"
     echo -e "''${GREEN}nix develop .#theory''${RESET}         — Theory TeX shell"
     echo -e "''${GREEN}nix develop .#prototype''${RESET}      — Haskell shell"
   '';
@@ -85,13 +83,7 @@ let
   theory = pkgs.mkShell
   {
     inputsFrom = [ derivations.theory ];
-    shellHook = texHook "Theory";
-  };
-
-  slides = pkgs.mkShell
-  {
-    inputsFrom = [ derivations.slides ];
-    shellHook = texHook "Slides";
+    shellHook = theoryHook;
   };
 
   haskellPackages = pkgs.haskell.packages.ghc984;
@@ -115,11 +107,11 @@ let
   # The default shell has everything.
   default = pkgs.mkShell
   {
-    inputsFrom = [ formalization theory slides prototype ];
+    inputsFrom = [ formalization theory prototype ];
     shellHook = allHook;
   };
 
 in
 {
-  inherit formalization theory slides prototype default;
+  inherit formalization theory prototype default;
 }
