@@ -1,5 +1,0 @@
-# Let's define an inductive type with no constructors...
-inductive Empty
-{
-
-}

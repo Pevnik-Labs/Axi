@@ -27,8 +27,8 @@ proof
 qed
 
 lt : Nat -> Nat -> Prop
-| n   , zero     => False
-| zero, succ _   => True
+| n     , zero     => False
+| zero  , succ _   => True
 | succ n, succ m => lt n m
 
 theorem lt-trans :

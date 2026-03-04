@@ -1,3 +1,5 @@
+// TODO: Finish Diaconescu's theorem. Some assumptions are probably missing.
+
 declaration P : Prop
 
 U (b : Bool) : Prop =
@@ -79,7 +81,7 @@ proof                                  // |- P \/ (~ cu === cv)
                                        // |- cv === true --> cu === false --> P \/ (~ cu === cv)
     . assume ===> ===>                 // P \/ (~ false === true)
       or-right                         // ~ false === true
-      false-not-true                   // Goal solved!
+      false-not-true                   // Theorem proved!
 qed
 
 theorem main-lemma-impl : cu === cv --> P
@@ -128,4 +130,5 @@ proof                                  // |- P \/ ~ P
   . or-left                            // Goal solved!
                                        // |- ~ cu === cv --> P \/ ~ P
   . assume h p                         // h : ~ cu === cv, p : P |- False
+    // TODO
 qed

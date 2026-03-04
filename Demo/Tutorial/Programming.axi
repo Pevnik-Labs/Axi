@@ -970,16 +970,3 @@ instance LawfulEq (List A) <= LawfulEq A where
       === eqb l2 l2  by rewrite h
       === yes        by rewrite (instantiate eqb-diag with A l2)
   qed
-
-// With lawful classes, we can indeed do some proving. As an example, let's prove
-// an obvious specification of `neqb`.
-theorem neqb-spec :
-  forall {A} [LawfulEq A] (x y : A),
-    neqb x y === yes <--> ~ (x === y)
-proof                 // |- forall {A} [LawfulEq A] (x y : A), neqb x y === yes <--> ~ (x === y)
-  pick-any A _ x y    // A : Type, LawfulEq A, x y : A |- neqb x y === yes <--> ~ (x === y)
-  unfold neqb         // A : Type, LawfulEq A, x y : A |- notb (eqb x y) === yes <--> ~ (x === y)
-  both
-  . assume (hnot : notb (eqb x y) === yes) (heq : x === y)
-                      // A : Type, LawfulEq A, x y : A, hnot : notb (eqb x y) === yes, heq : x === y |- False
-qed

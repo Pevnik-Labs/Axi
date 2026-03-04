@@ -804,18 +804,18 @@ proof                                  // |- forall {A B} (f : A -> B) (t : Tree
   | node x ts =>                       // A B : Type, f : A -> B, t : Tree A, x : A, ts : List (Tree A) |- exists r : Tree B, tmap f (node x ts) =?= r
     suffices exists rs : List (Tree B), map (tmap f) ts =?= rs
       assume (witness rs such-that h)
-                                        // A B : Type, f : A -> B, t : Tree A, x : A, ts : List (Tree A), rs : List (Tree B), h : map (tmap f) ts =?= rs |- exists r : Tree B, tmap f (node x ts) =?= r
-      witness node (f x) rs              // ... |- tmap f (node x ts) =?= node (f x) rs
+                                       // A B : Type, f : A -> B, t : Tree A, x : A, ts : List (Tree A), rs : List (Tree B), h : map (tmap f) ts =?= rs |- exists r : Tree B, tmap f (node x ts) =?= r
+      witness node (f x) rs            // ... |- tmap f (node x ts) =?= node (f x) rs
       chaining
         =?= tmap f (node x ts)
         =?= node (f x) (map (tmap f) ts)  by step
         =?= node (f x) rs                 by quarantine-rewrite h
-                                         // A B : Type, f : A -> B, t : Tree A, x : A, ts : List (Tree A) |- exists rs : List (Tree B), map (tmap f) ts =?= rs
-    apply tmap-aux                       // ... |- forall-list (\t -> exists r : Tree B, tmap f t =?= r) ts
-    induction ts with                    // Termination by syntactic check.
-    | nil =>                             // ... |- forall-list (\t -> exists r : Tree B, tmap f t =?= r) nil
-      simpl                              // ... |- True
-      trivial                            // Goal solved!
+                                       // A B : Type, f : A -> B, t : Tree A, x : A, ts : List (Tree A) |- exists rs : List (Tree B), map (tmap f) ts =?= rs
+    apply tmap-aux                     // ... |- forall-list (\t -> exists r : Tree B, tmap f t =?= r) ts
+    induction ts with                  // Termination by syntactic check.
+    | nil =>                           // ... |- forall-list (\t -> exists r : Tree B, tmap f t =?= r) nil
+      simpl                            // ... |- True
+      trivial                          // Goal solved!
     | cons // TODO
 abort
 
@@ -826,11 +826,3 @@ data type RoseTree A where
 data type Queue A where
   nil  : Queue A
   cons : Option A -> Queue (Prod A A) -> Queue A
-
-data type Bush A where
-  nil  : Bush A
-  cons : A -> Bush (Bush A) -> Bush A
-
-bushmap A B (f : A -> B) : Bush A -> Bush B
-| nil => nil
-| cons h t => cons (f h) (bushmap (bushmap f) t)

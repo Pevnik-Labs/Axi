@@ -1,3 +1,5 @@
+// TODO: finish the other direction of the equivalence. It is doable, I was just lazy.
+
 // A classically equivalent characterization:
 // a relation is well-founded when every non-empty set has a minimal element.
 classic-well-founded {A} (R : A -> A -> Prop) : Prop =
@@ -53,6 +55,5 @@ proof
   pick-any A R
   both
   . classic-well-founded-induction R
-  . 
-  // This can be proven with some inline rewriting, but I'm too lazy.
+  . // TODO: This can be proven with some inline rewriting, but I'm too lazy.
 qed

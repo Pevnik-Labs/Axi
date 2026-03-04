@@ -29,8 +29,10 @@ T-Axi (short for "type-theoretical Axi") is a purely functional programming lang
 The structure of this repo is as follows:
 - In [Demo/](Demo/), you will find a demo of the language in the form of commented pseudocode with semi-formal syntax and semantics.
   - You can learn the language from the [tutorial](Demo/Tutorial/). See [Demo/README.md](Demo/README.md) for a reading plan.
+  - [Demo/Experimental] contains a description of the totality checker and an attempted (but unfinished) proof of Diaconescu's theorem
   - [Demo/Examples](Demo/Examples) has a few examples.
-  - [Demo/AI](Demo/AI) has a few files that can serve as a benchmark for AI. Hint: AI can prove a lot of the simpler theorems!
-  - [Demo/Workshop/Comparison](Demo/Workshop/Comparison) contains a brief comparison between T-Axi and A-Axi, in the form of A-Axi's tutorial rewritten in T-Axi.
-- In [tree-sitter-axi/](tree-sitter-axi/) you will find a prototype grammar, parser and syntax highlighting tools.
-- In [Slides/](Slides/) you will find a bunch of slide decks which are either more formal presentations of a simpler version of T-Axi, or incomplete research notes.
+  - [Demo/AI](Demo/AI) has a few files that can serve as a benchmark for AI. Hint: AI can prove quite a few of the simpler theorems!
+- In [tree-sitter-axi/](tree-sitter-axi/) you will find a prototype grammar, parser and syntax highlighting tools that can be used with the Demo.
+- In [Theory/](Theory/), you will find a draft of the theory behind Axi's programming layer. Note, however, that the theory behind logic is outdated.
+- In [Formalization/](Formalization/), you will find a formalization of Axi's algebra of quantities in Coq.
+- In [axii](axii/), you will find an unfinished implementation of an Axi prototype in Haskell.
