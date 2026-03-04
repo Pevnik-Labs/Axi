@@ -104,14 +104,37 @@ let
     shellHook = prototypeHook;
   };
 
+  vscode-extension = pkgs.mkShell
+  {
+    inputsFrom = [ derivations.vscode-extension ];
+    shellHook = mkShellHook "VSCode extension"
+    ''
+      EXT_LINK=$HOME/.vscode/extensions/pevnik-labs.axi-syntax-highlighting
+      EXT_TARGET=${derivations.vscode-extension}/share/vscode/extensions/pevnik-labs.axi-syntax-highlighting
+
+      if [ -f /etc/NIXOS ]; then
+        echo "NixOS detected. Add to configuration.nix:"
+        echo ""
+        echo "  programs.vscode.extensions ="
+        echo "  ["
+        echo "    (pkgs.callPackage path-to-Axi/default.nix {}).vscode-extension)"
+        echo "  ];"
+      else
+        mkdir -p $HOME/.vscode/extensions
+        ln -sfn $EXT_TARGET $EXT_LINK
+        echo "VSCode extension installed."
+      fi
+    '';
+  };
+
   # The default shell has everything.
   default = pkgs.mkShell
   {
-    inputsFrom = [ formalization theory prototype ];
+    inputsFrom = [ formalization theory prototype vscode-extension ];
     shellHook = allHook;
   };
 
 in
 {
-  inherit formalization theory prototype default;
+  inherit formalization theory prototype vscode-extension default;
 }

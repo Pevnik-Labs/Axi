@@ -1,13 +1,14 @@
 {
   "name": "axi-syntax-highlighting",
-  "displayName": "T-Axi Syntax Highlighting",
-  "description": "Syntax highlighting for T-Axi",
+  "displayName": "Axi Syntax Highlighting",
+  "description": "Syntax highlighting for Axi",
   "version": "0.1.0",
   "publisher": "pevnik-labs",
   "repository":
   {
     "type": "git",
-    "url": "git+https://github.com/tvl-labs/T-Axi.git"
+    "url": "git+https://github.com/Pevnik-Labs/Axi.git",
+    "directory": "vscode-axi"
   },
   "engines":
   {

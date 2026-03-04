@@ -66,6 +66,32 @@ let
     '';
   };
 
+  vscode-extension = pkgs.vscode-utils.buildVscodeExtension
+  {
+    pname = "axi-syntax-highlighting";
+    version = "0.1.0";
+
+    vscodeExtPublisher = "pevnik-labs";
+    vscodeExtName = "axi-syntax-highlighting";
+    vscodeExtUniqueId = "pevnik-labs.axi-syntax-highlighting";
+
+    meta = with pkgs.lib;
+    {
+      description = "Axi syntax highlighting for VSCode";
+      license = licenses.isc;
+      platforms = platforms.all;
+    };
+
+    src = ./vscode-axi;
+
+    unpackPhase =
+    ''
+      cp -r $src extension
+      chmod -R u+w extension
+      sourceRoot=extension
+    '';
+  };
+
   all = pkgs.symlinkJoin
   {
     name = "Axi";
@@ -75,12 +101,13 @@ let
       prototype
       formalization
       theory
+      vscode-extension
     ];
   };
 
 in
 {
-  inherit prototype formalization theory all;
+  inherit prototype formalization theory vscode-extension all;
 
   default = all;
 }
