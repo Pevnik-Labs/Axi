@@ -1,7 +1,7 @@
 /**
  * @file Axi grammar for tree-sitter
- * @author Mateusz Pyzik <mateusz@tunnelvisionlabs.xyz>
- * @license MIT
+ * @author Mateusz Pyzik
+ * @license Apache-2.0
  */
 
 /// <reference types="tree-sitter-cli/dsl" />

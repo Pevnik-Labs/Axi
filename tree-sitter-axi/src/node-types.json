@@ -5762,6 +5762,61 @@
       "required": true,
       "types": [
         {
+          "type": "class",
+          "named": true
+        },
+        {
+          "type": "data",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "module",
+          "named": true
+        },
+        {
+          "type": "parameters",
+          "named": true
+        },
+        {
+          "type": "proposition",
+          "named": true
+        },
+        {
+          "type": "record",
+          "named": true
+        },
+        {
+          "type": "sub_ann",
+          "named": true
+        },
+        {
+          "type": "type",
+          "named": true
+        },
+        {
+          "type": "type_ann",
+          "named": true
+        },
+        {
+          "type": "where_block",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "sub_ann",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
           "type": "ann_term",
           "named": true
         },
@@ -5790,19 +5845,11 @@
           "named": true
         },
         {
-          "type": "class",
-          "named": true
-        },
-        {
           "type": "clauses",
           "named": true
         },
         {
           "type": "conjunction",
-          "named": true
-        },
-        {
-          "type": "data",
           "named": true
         },
         {
@@ -5854,10 +5901,6 @@
           "named": true
         },
         {
-          "type": "module",
-          "named": true
-        },
-        {
           "type": "negation",
           "named": true
         },
@@ -5866,19 +5909,7 @@
           "named": true
         },
         {
-          "type": "parameters",
-          "named": true
-        },
-        {
-          "type": "proposition",
-          "named": true
-        },
-        {
           "type": "proving_by",
-          "named": true
-        },
-        {
-          "type": "record",
           "named": true
         },
         {
@@ -5895,18 +5926,6 @@
         },
         {
           "type": "tuple",
-          "named": true
-        },
-        {
-          "type": "type",
-          "named": true
-        },
-        {
-          "type": "type_ann",
-          "named": true
-        },
-        {
-          "type": "where_block",
           "named": true
         },
         {
@@ -7155,7 +7174,7 @@
     "named": true
   },
   {
-    "type": "noncomputational",
+    "type": "noncomputable",
     "named": false
   },
   {

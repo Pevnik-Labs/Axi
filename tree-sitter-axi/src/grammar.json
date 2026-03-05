@@ -271,36 +271,7 @@
               "members": [
                 {
                   "type": "SYMBOL",
-                  "name": "type_ann"
-                },
-                {
-                  "type": "SEQ",
-                  "members": [
-                    {
-                      "type": "STRING",
-                      "value": "<:"
-                    },
-                    {
-                      "type": "SYMBOL",
-                      "name": "_term"
-                    },
-                    {
-                      "type": "REPEAT",
-                      "content": {
-                        "type": "SEQ",
-                        "members": [
-                          {
-                            "type": "STRING",
-                            "value": ","
-                          },
-                          {
-                            "type": "SYMBOL",
-                            "name": "_term"
-                          }
-                        ]
-                      }
-                    }
-                  ]
+                  "name": "_struct_ann"
                 }
               ]
             },
@@ -405,22 +376,36 @@
           "members": [
             {
               "type": "SYMBOL",
-              "name": "_ann"
+              "name": "ctor_ann"
             },
             {
-              "type": "BLANK"
-            }
-          ]
-        },
-        {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "SYMBOL",
-              "name": "value"
-            },
-            {
-              "type": "BLANK"
+              "type": "SEQ",
+              "members": [
+                {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "SYMBOL",
+                      "name": "type_ann"
+                    },
+                    {
+                      "type": "BLANK"
+                    }
+                  ]
+                },
+                {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "SYMBOL",
+                      "name": "value"
+                    },
+                    {
+                      "type": "BLANK"
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }
@@ -993,7 +978,7 @@
               "members": [
                 {
                   "type": "STRING",
-                  "value": "noncomputational"
+                  "value": "noncomputable"
                 },
                 {
                   "type": "BLANK"
@@ -1429,16 +1414,45 @@
         }
       ]
     },
-    "_ann": {
+    "_struct_ann": {
       "type": "CHOICE",
       "members": [
         {
           "type": "SYMBOL",
-          "name": "ctor_ann"
+          "name": "sub_ann"
         },
         {
           "type": "SYMBOL",
           "name": "type_ann"
+        }
+      ]
+    },
+    "sub_ann": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "<:"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_term"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "STRING",
+                "value": ","
+              },
+              {
+                "type": "SYMBOL",
+                "name": "_term"
+              }
+            ]
+          }
         }
       ]
     },
@@ -1797,13 +1811,8 @@
           "type": "CHOICE",
           "members": [
             {
-              "type": "SEQ",
-              "members": [
-                {
-                  "type": "SYMBOL",
-                  "name": "_term"
-                }
-              ]
+              "type": "SYMBOL",
+              "name": "_term"
             },
             {
               "type": "BLANK"

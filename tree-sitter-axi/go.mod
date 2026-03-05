@@ -1,5 +1,5 @@
-module github.com/tvl-labs/t-axi
+module github.com/pevnik-labs/axi
 
 go 1.22
 
-require github.com/tree-sitter/go-tree-sitter v0.23.1
+require github.com/tree-sitter/go-tree-sitter v0.24.0

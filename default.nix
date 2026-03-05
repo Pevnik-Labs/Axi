@@ -9,9 +9,15 @@ let
   {
     name = "Axi";
 
-    src = pkgs.lib.cleanSource ./Formalization;
+    meta = with pkgs.lib;
+    {
+      license = licenses.asl20;
+      platforms = platforms.all;
+    };
 
     enableParallelBuilding = true;
+
+    src = pkgs.lib.cleanSource ./Formalization;
 
     buildInputs = with pkgs;
     [
@@ -30,16 +36,19 @@ let
       INSTALLPATH=$out/lib/coq/${pkgs.coq_9_1.coq-version}/user-contrib/Axi
 
       mkdir -p $INSTALLPATH
-      cp -r * $INSTALLPATH/
-
-      # Remove .vos, .vok and .aux files.
-      find $INSTALLPATH -name "*.vos" -o -name "*.vok" -o -name ".*.aux" | xargs rm -f
+      find . -name "*.v" -o -name "*.vo" -o -name "*.glob" | xargs cp --parents -t $INSTALLPATH/
     '';
   };
 
   theory = pkgs.stdenv.mkDerivation
   {
     name = "Axi";
+
+    meta = with pkgs.lib;
+    {
+      license = licenses.asl20;
+      platforms = platforms.all;
+    };
 
     src = pkgs.lib.cleanSource ./Theory;
 
@@ -78,7 +87,7 @@ let
     meta = with pkgs.lib;
     {
       description = "Axi syntax highlighting for VSCode";
-      license = licenses.isc;
+      license = licenses.asl20;
       platforms = platforms.all;
     };
 
@@ -92,6 +101,52 @@ let
     '';
   };
 
+  tree-sitter-grammar = pkgs.stdenv.mkDerivation
+  {
+    pname = "tree-sitter-axi";
+    version = "0.1.0";
+
+    meta = with pkgs.lib;
+    {
+      description = "A tree-sitter grammar for Axi.";
+      license = licenses.asl20;
+      platforms = platforms.all;
+    };
+
+    src = ./tree-sitter-axi;
+
+    buildInputs = with pkgs;
+    [
+      tree-sitter
+      emscripten
+      nodejs
+    ];
+
+    buildPhase =
+    ''
+      export HOME=$(mktemp -d)
+      tree-sitter generate
+      tree-sitter build
+      tree-sitter build --wasm
+    '';
+
+    doCheck = true;
+    checkPhase =
+    ''
+      tree-sitter test
+    '';
+
+    installPhase =
+    ''
+      mkdir -p $out/lib
+      mkdir -p $out/share/tree-sitter-axi
+
+      cp axi.so $out/lib/libtree-sitter-axi.so
+      cp tree-sitter-axi.wasm $out/share/tree-sitter-axi/
+      cp -r src $out/share/tree-sitter-axi/
+    '';
+  };
+
   all = pkgs.symlinkJoin
   {
     name = "Axi";
@@ -102,12 +157,13 @@ let
       formalization
       theory
       vscode-extension
+      tree-sitter-grammar
     ];
   };
 
 in
 {
-  inherit prototype formalization theory vscode-extension all;
+  inherit prototype formalization theory vscode-extension tree-sitter-grammar all;
 
   default = all;
 }

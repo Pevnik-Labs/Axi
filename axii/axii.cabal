@@ -7,11 +7,11 @@ cabal-version: 2.0
 name:           axii
 version:        0.0.0
 category:       Data
-homepage:       https://github.com/mpyzik/axii#readme
-bug-reports:    https://github.com/mpyzik/axii/issues
+homepage:       https://github.com/Pevnik-Labs/Axi
+bug-reports:    https://github.com/Pevnik-Labs/Axi/issues
 author:         Mateusz Pyzik
 maintainer:     mateusz.pyzik@outlook.com
-license:        ISC
+license:        Apache-2.0
 build-type:     Simple
 extra-source-files:
     .envrc

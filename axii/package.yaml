@@ -3,10 +3,10 @@
 name: axii
 version: "0.0.0"
 category: Data
-github: mpyzik/axii
+github: Pevnik-Labs/Axi
 author: Mateusz Pyzik
 maintainer: mateusz.pyzik@outlook.com
-license: ISC
+license: Apache-2.0
 
 extra-source-files:
   - .envrc

@@ -21,41 +21,6 @@ let
     ${extra}
   '';
 
-  formalizationHook = mkShellHook "Formalization"
-  ''
-    echo -e "''${GREEN}./build.sh''${RESET}   — Regenerate the makefile, then build"
-    echo -e "''${GREEN}make''${RESET}         — Build"
-    echo -e "''${GREEN}make clean''${RESET}   — Clean build artifacts"
-    echo -e "''${GREEN}coqide''${RESET}       — Start CoqIDE"
-  '';
-
-  theoryHook = mkShellHook "Theory"
-  ''
-    echo -e "''${GREEN}./build.sh''${RESET}   — Build PDF"
-    echo -e "''${GREEN}latexmk''${RESET}      — Build PDF manually"
-    echo -e "''${GREEN}latexmk -C''${RESET}   — Clean build artifacts"
-  '';
-
-  prototypeHook = mkShellHook "Prototype"
-  ''
-    echo -e "''${GREEN}cabal build''${RESET}  — Build"
-    echo -e "''${GREEN}cabal repl''${RESET}   — Start GHCi"
-    echo -e "''${GREEN}cabal test''${RESET}   — Run tests"
-    echo -e "''${GREEN}cabal clean''${RESET}  — Clean build artifacts"
-  '';
-
-  allHook = mkShellHook "all"
-  ''
-    echo -e "''${GREEN}nix build .#formalization''${RESET}  — Build Coq formalization"
-    echo -e "''${GREEN}nix build .#theory''${RESET}         — Build theory PDF"
-    echo -e "''${GREEN}nix build .#prototype''${RESET}      — Build Haskell prototype"
-    echo -e "''${GREEN}nix build''${RESET}                  — Build everything"
-    echo ""
-    echo -e "''${GREEN}nix develop .#formalization''${RESET}  — Coq shell"
-    echo -e "''${GREEN}nix develop .#theory''${RESET}         — Theory TeX shell"
-    echo -e "''${GREEN}nix develop .#prototype''${RESET}      — Haskell shell"
-  '';
-
   # Individual shells.
 
   formalization = pkgs.mkShell
@@ -77,13 +42,25 @@ let
       rocqPackages_9_1.stdlib
     ];
 
-    shellHook = formalizationHook;
+    shellHook = mkShellHook "Formalization"
+    ''
+      echo -e "''${GREEN}./build.sh''${RESET}   — Regenerate the makefile, then build"
+      echo -e "''${GREEN}make''${RESET}         — Build"
+      echo -e "''${GREEN}make clean''${RESET}   — Clean build artifacts"
+      echo -e "''${GREEN}coqide''${RESET}       — Start CoqIDE"
+    '';
   };
 
   theory = pkgs.mkShell
   {
     inputsFrom = [ derivations.theory ];
-    shellHook = theoryHook;
+
+    shellHook = mkShellHook "Theory"
+    ''
+      echo -e "''${GREEN}./build.sh''${RESET}   — Build PDF"
+      echo -e "''${GREEN}latexmk''${RESET}      — Build PDF manually"
+      echo -e "''${GREEN}latexmk -C''${RESET}   — Clean build artifacts"
+    '';
   };
 
   haskellPackages = pkgs.haskell.packages.ghc984;
@@ -101,7 +78,13 @@ let
 
     packages = _: [ derivations.prototype ];
 
-    shellHook = prototypeHook;
+    shellHook = mkShellHook "Prototype"
+    ''
+      echo -e "''${GREEN}cabal build''${RESET}  — Build"
+      echo -e "''${GREEN}cabal repl''${RESET}   — Start GHCi"
+      echo -e "''${GREEN}cabal test''${RESET}   — Run tests"
+      echo -e "''${GREEN}cabal clean''${RESET}  — Clean build artifacts"
+    '';
   };
 
   vscode-extension = pkgs.mkShell
@@ -112,7 +95,7 @@ let
       EXT_LINK=$HOME/.vscode/extensions/pevnik-labs.axi-syntax-highlighting
       EXT_TARGET=${derivations.vscode-extension}/share/vscode/extensions/pevnik-labs.axi-syntax-highlighting
 
-      if [ -f /etc/NIXOS ]; then
+      if [ -d /etc/nixos ]; then
         echo "NixOS detected. Add to configuration.nix:"
         echo ""
         echo "  programs.vscode.extensions ="
@@ -127,14 +110,45 @@ let
     '';
   };
 
+  tree-sitter-grammar = pkgs.mkShell
+  {
+    inputsFrom = [ derivations.tree-sitter-grammar ];
+
+    shellHook = mkShellHook "tree-sitter parser"
+    ''
+      echo -e "''${GREEN}./tree-sitter-axi/build.sh''${RESET} — Build and test"
+      echo -e "''${GREEN}tree-sitter init --update''${RESET}  — Regenerate bindings"
+      echo -e "''${GREEN}tree-sitter generate''${RESET}       — Regenerate parser from grammar.js"
+      echo -e "''${GREEN}tree-sitter build''${RESET}          — Build .c"
+      echo -e "''${GREEN}tree-sitter build --wasm''${RESET}   — Build .wasm"
+      echo -e "''${GREEN}tree-sitter test''${RESET}           — Run tests"
+      echo -e "''${GREEN}tree-sitter parse''${RESET}          — Parse a file"
+    '';
+  };
+
   # The default shell has everything.
   default = pkgs.mkShell
   {
-    inputsFrom = [ formalization theory prototype vscode-extension ];
-    shellHook = allHook;
+    inputsFrom = [ formalization theory prototype vscode-extension tree-sitter-grammar ];
+
+    shellHook = mkShellHook "all"
+    ''
+      echo -e "''${GREEN}nix build .#formalization''${RESET}      — Build Coq formalization"
+      echo -e "''${GREEN}nix build .#theory''${RESET}             — Build theory PDF"
+      echo -e "''${GREEN}nix build .#prototype''${RESET}          — Build Haskell prototype"
+      echo -e "''${GREEN}nix build .#vscode-extension''${RESET}   — Build VSCode extension"
+      echo -e "''${GREEN}nix build .#tree-sitter-grammar''${RESET} — Build tree-sitter parser"
+      echo -e "''${GREEN}nix build''${RESET}                      — Build everything"
+      echo ""
+      echo -e "''${GREEN}nix develop .#formalization''${RESET}    — Coq shell (has CoqIDE)"
+      echo -e "''${GREEN}nix develop .#theory''${RESET}           — Theory TeX shell"
+      echo -e "''${GREEN}nix develop .#prototype''${RESET}        — Haskell shell"
+      echo -e "''${GREEN}nix develop .#vscode-extension''${RESET} — VSCode extension shell"
+      echo -e "''${GREEN}nix develop .#tree-sitter-grammar''${RESET} — tree-sitter shell"
+    '';
   };
 
 in
 {
-  inherit formalization theory prototype vscode-extension default;
+  inherit formalization theory prototype vscode-extension tree-sitter-grammar default;
 }

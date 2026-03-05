@@ -6,8 +6,7 @@
       "scope": "source.axi",
       "path": ".",
       "file-types": [
-        "axi",
-        "axi.demo"
+        "axi"
       ],
       "content-regex": null,
       "highlights": "queries/highlights.scm",
@@ -16,16 +15,15 @@
   ],
   "metadata": {
     "version": "0.1.0",
-    "license": "MIT",
+    "license": "Apache-2.0",
     "description": "Axi grammar for tree-sitter",
     "authors": [
       {
-        "name": "Mateusz Pyzik",
-        "email": "mateusz@tunnelvisionlabs.xyz"
+        "name": "Mateusz Pyzik"
       }
     ],
     "links": {
-      "repository": "https://github.com/tvl-labs/T-Axi"
+      "repository": "https://github.com/Pevnik-Labs/Axi"
     }
   },
   "bindings": {

@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	tree_sitter "github.com/tree-sitter/go-tree-sitter"
-	tree_sitter_axi "github.com/tvl-labs/t-axi/bindings/go"
+	tree_sitter_axi "github.com/pevnik-labs/axi/bindings/go"
 )
 
 func TestCanLoadGrammar(t *testing.T) {
