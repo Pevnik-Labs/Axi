@@ -1,6 +1,5 @@
 #!/bin/sh
 tree-sitter generate
-tree-sitter build
-tree-sitter build --wasm
+tree-sitter build --output axi.so
+tree-sitter build --wasm --output tree-sitter-axi.wasm
 tree-sitter test
-

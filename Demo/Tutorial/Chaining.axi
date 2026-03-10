@@ -37,7 +37,7 @@ theorem implication-chaining-backwards-term-style :
 theorem implication-chaining-backwards-desugared :
   (P --> Q) --> (Q --> R) --> (R --> S) --> (S --> T) --> P --> T
 proof
-  assume pq qr rs st p in
+  assume pq qr rs st p
   apply st
   apply rs
   apply qr
