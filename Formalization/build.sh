@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Regenerate the makefile.
-coq_makefile -f _CoqProject -o makefile $(find . -name "*.v")
+coq_makefile -f _CoqProject -o makefile
 
 # Determine the numbers of CPU cores on which the build will run in parallel.
 if [ -n "$NIX_BUILD_CORES" ]
@@ -13,4 +13,4 @@ else
   JOBS=$(nproc)
 fi
 
-make -j $JOBS
+make -j "$JOBS"
